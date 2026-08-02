@@ -6,7 +6,8 @@ The Saju app is deployed as a static frontend plus a small Node.js ingestion ser
 - Apache reverse-proxies `/health` and `/v1/*` to Node on `127.0.0.1:4174`.
 - The Node service uses Node.js 22 because the SQLite adapter imports `node:sqlite`.
 - SQLite runtime data lives outside releases at `/var/lib/saju-app/saju.sqlite`.
-- GitHub Actions runs `npm test` and deploys successful pushes to `main`.
+- GitHub Actions runs `npm test` on every pull request and push to `main`.
+- A Lightsail systemd timer pulls `main` every five minutes and atomically deploys new commits.
 
 ## DNS
 
@@ -19,9 +20,9 @@ The domain can stay at Spaceship; Route 53 is not required. Point these records 
 
 After DNS propagates, issue the certificate for `saju.blog` and `www.saju.blog` with certbot, then enable `deploy/apache/saju.blog-le-ssl.conf`.
 
-## GitHub Actions secrets
+## Deployment updates
 
-The workflow expects `LIGHTSAIL_HOST`, `LIGHTSAIL_USER`, `LIGHTSAIL_SSH_KEY`, and `LIGHTSAIL_KNOWN_HOSTS` repository secrets. Use a dedicated deploy key rather than the Lightsail bootstrap key.
+The Lightsail firewall does not accept SSH connections from GitHub-hosted runner addresses, so deployment uses an outbound pull from the public GitHub repository. The timer runs `deploy/bin/update-saju-app.sh`, keeps the last five releases, and rolls back the symlink if the service health check fails.
 
 ## Prototype boundary
 

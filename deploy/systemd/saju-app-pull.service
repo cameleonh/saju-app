@@ -1,0 +1,8 @@
+[Unit]
+Description=Pull and deploy the Saju app from GitHub
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/saju-app-update

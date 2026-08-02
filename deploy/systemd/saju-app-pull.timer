@@ -1,0 +1,12 @@
+[Unit]
+Description=Check for Saju app releases every five minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+Persistent=true
+RandomizedDelaySec=30s
+Unit=saju-app-pull.service
+
+[Install]
+WantedBy=timers.target
