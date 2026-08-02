@@ -9,6 +9,26 @@ RELEASES_DIR="/var/www/saju-app-releases"
 CURRENT_LINK="/var/www/saju-app"
 LOCK_FILE="/run/lock/saju-app-update.lock"
 
+switch_link() {
+    target="$1"
+    temporary_link="${CURRENT_LINK}.next"
+    rm -f "$temporary_link"
+    ln -s "$target" "$temporary_link"
+    mv -Tf "$temporary_link" "$CURRENT_LINK"
+}
+
+wait_for_health() {
+    attempts=0
+    while [ "$attempts" -lt 30 ]; do
+        if curl -fsS http://127.0.0.1:4174/health >/dev/null; then
+            return 0
+        fi
+        attempts=$((attempts + 1))
+        sleep 1
+    done
+    return 1
+}
+
 umask 022
 install -d -o root -g root -m 755 "$STATE_DIR" "$RELEASES_DIR"
 exec 9>"$LOCK_FILE"
@@ -43,14 +63,14 @@ if ! (
     install -m 644 deploy/systemd/saju-app.service /etc/systemd/system/saju-app.service
     systemctl daemon-reload
     install -d -o www-data -g www-data -m 750 "$STATE_DIR"
-    ln -sfn "$release_root" "$CURRENT_LINK"
+    switch_link "$release_root"
     systemctl enable saju-app
     systemctl restart saju-app
     systemctl is-active --quiet saju-app
-    curl -fsS http://127.0.0.1:4174/health >/dev/null
+    wait_for_health
 ); then
     if [ -n "$previous_root" ] && [ -d "$previous_root" ]; then
-        ln -sfn "$previous_root" "$CURRENT_LINK"
+        switch_link "$previous_root"
         systemctl restart saju-app || true
     fi
     exit 1
