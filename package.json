@@ -1,0 +1,13 @@
+{
+  "name": "saju-app",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.mjs",
+    "test": "node tests/smoke.mjs && node tests/lifecycle.mjs && node tests/server/ingestion.mjs"
+  },
+  "dependencies": {
+    "lunar-javascript": "^1.7.7"
+  }
+}

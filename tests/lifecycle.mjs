@@ -1,0 +1,60 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+
+const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const adminAreaSource = fs.readFileSync(new URL('../data/admin-areas.js', import.meta.url), 'utf8');
+
+assert.match(html, /data-action="record-open"/);
+assert.match(html, /data-action="record-delete"/);
+assert.match(html, /data-action="record-withdraw"/);
+assert.match(html, /data-action="record-export"/);
+assert.match(html, /data-action="records-clear"/);
+assert.match(html, /function loadRecords\(\)/);
+assert.match(html, /function openSavedRecord\(/);
+assert.match(html, /function deleteSavedRecord\(/);
+assert.match(html, /function withdrawTrainingUse\(/);
+assert.match(html, /function updateCurrentRecord\(/);
+assert.match(html, /currentRecordId/);
+assert.match(html, /serverSubmissionId/);
+assert.match(html, /state\.currentRecordId = newRecordId\(\)/);
+assert.match(html, /minor: isMinorBirthDate\(state\.chart\.input\.date\)/);
+assert.match(html, /window\.confirm\('이 저장 기록을 지울까요/);
+assert.match(html, /window\.confirm\('이 기기의 모든 저장 기록을 지울까요/);
+assert.doesNotMatch(html, /id: 'latest'/);
+assert.match(html, /function buildReflectionAnswer\(/);
+assert.match(html, /규칙 기반 질문 정리/);
+assert.doesNotMatch(html, /Optional consultation|차트 상담/);
+
+const chatStart = html.indexOf('function onChatSubmit');
+const chatEnd = html.indexOf('async function openDb', chatStart);
+assert.ok(chatStart >= 0 && chatEnd > chatStart, 'chat update boundary is present');
+assert.match(html.slice(chatStart, chatEnd), /updateCurrentRecord\(\)/);
+assert.doesNotMatch(html.slice(chatStart, chatEnd), /persistRecord\(\)/, 'guidance questions do not create duplicate submissions');
+
+const engineStart = html.indexOf('const STEMS');
+const engineEnd = html.indexOf('function getFact');
+assert.ok(engineStart >= 0 && engineEnd > engineStart, 'guidance engine boundary is present');
+const sandbox = {};
+vm.runInNewContext(adminAreaSource, sandbox);
+vm.runInNewContext(`${html.slice(engineStart, engineEnd)};
+  globalThis.workAnswer = buildReflectionAnswer('올해 이직해도 될까요?', calculateChart({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true }));
+  globalThis.relationshipAnswer = buildReflectionAnswer('연인과 대화가 자꾸 엇갈려요', calculateChart({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true }));
+  globalThis.moneyAnswer = buildReflectionAnswer('투자해도 될까요?', calculateChart({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true }));
+  globalThis.healthAnswer = buildReflectionAnswer('요즘 잠과 피로를 어떻게 살펴볼까요?', calculateChart({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true }));
+  globalThis.adult = isMinorBirthDate('2000-01-01', new Date('2026-08-02T12:00:00+09:00'));
+  globalThis.minor = isMinorBirthDate('2010-01-01', new Date('2026-08-02T12:00:00+09:00'));
+  globalThis.invalidMinor = isMinorBirthDate('not-a-date', new Date('2026-08-02T12:00:00+09:00'));
+`, sandbox);
+assert.match(sandbox.workAnswer, /이직 여부를 대신 정하지는 않아요/);
+assert.match(sandbox.workAnswer, /조건/);
+assert.match(sandbox.relationshipAnswer, /상대의 마음을 대신 정하지는 않아요/);
+assert.match(sandbox.moneyAnswer, /투자 결과를 예측하지는 않아요/);
+assert.match(sandbox.healthAnswer, /질병을 진단하거나 치료 방법을 정하지는 않아요/);
+assert.notEqual(sandbox.workAnswer, sandbox.relationshipAnswer);
+assert.equal(sandbox.adult, false);
+assert.equal(sandbox.minor, true);
+assert.equal(sandbox.invalidMinor, 'unknown');
+
+const assertionCount = (fs.readFileSync(new URL(import.meta.url), 'utf8').match(/\bassert\./g) || []).length;
+console.log(`lifecycle smoke: ${assertionCount} assertions passed`);

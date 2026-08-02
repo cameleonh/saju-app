@@ -1,0 +1,11 @@
+{
+  "name": "결 | 나의 만세력 작업대",
+  "short_name": "결",
+  "lang": "ko-KR",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#14162a",
+  "theme_color": "#14162a",
+  "description": "계산 근거를 확인하고 내 차트를 차분하게 읽는 사주 앱",
+  "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

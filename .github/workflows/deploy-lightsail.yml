@@ -1,0 +1,100 @@
+name: Verify and deploy Saju app
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: saju-app-production
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run smoke tests
+        run: npm test
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Prepare SSH credentials
+        env:
+          LIGHTSAIL_KNOWN_HOSTS: ${{ secrets.LIGHTSAIL_KNOWN_HOSTS }}
+          LIGHTSAIL_SSH_KEY: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$LIGHTSAIL_KNOWN_HOSTS"
+          test -n "$LIGHTSAIL_SSH_KEY"
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$LIGHTSAIL_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          printf '%s\n' "$LIGHTSAIL_SSH_KEY" > "$HOME/.ssh/saju-app"
+          chmod 600 "$HOME/.ssh/saju-app"
+      - name: Upload release
+        env:
+          LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
+          LIGHTSAIL_USER: ${{ secrets.LIGHTSAIL_USER }}
+        run: |
+          set -euo pipefail
+          test -n "$LIGHTSAIL_HOST"
+          test -n "$LIGHTSAIL_USER"
+          release="$(date -u +%Y%m%d%H%M%S)-${GITHUB_SHA:0:7}"
+          remote_tmp="/tmp/saju-app-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          ssh -i "$HOME/.ssh/saju-app" "$LIGHTSAIL_USER@$LIGHTSAIL_HOST" "mkdir -p '$remote_tmp'"
+          rsync -az --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.codexclaw/' \
+            --exclude='.omx/' \
+            --exclude='.gstack/' \
+            --exclude='node_modules/' \
+            --exclude='data/*.sqlite*' \
+            -e "ssh -i $HOME/.ssh/saju-app" ./ "$LIGHTSAIL_USER@$LIGHTSAIL_HOST:$remote_tmp/"
+          ssh -i "$HOME/.ssh/saju-app" "$LIGHTSAIL_USER@$LIGHTSAIL_HOST" "bash -s -- '$release' '$remote_tmp'" <<'REMOTE'
+          set -euo pipefail
+          release="$1"
+          remote_tmp="$2"
+          release_root="/var/www/saju-app-releases/$release"
+
+          sudo install -d -o root -g root -m 755 /var/www/saju-app-releases
+          sudo rm -rf "$release_root"
+          sudo install -d -o root -g root -m 755 "$release_root"
+          sudo rsync -a --delete "$remote_tmp/" "$release_root/"
+          sudo chown -R root:root "$release_root"
+
+          cd "$release_root"
+          sudo npm ci --omit=dev --ignore-scripts
+          sudo install -m 644 deploy/systemd/saju-app.service /etc/systemd/system/saju-app.service
+          sudo systemctl daemon-reload
+          sudo install -d -o www-data -g www-data -m 750 /var/lib/saju-app
+          sudo ln -sfn "$release_root" /var/www/saju-app
+          sudo systemctl enable saju-app
+          sudo systemctl restart saju-app
+          sudo systemctl is-active --quiet saju-app
+          curl -fsS http://127.0.0.1:4174/health
+          sudo apachectl configtest
+          sudo systemctl reload apache2
+
+          sudo find /var/www/saju-app-releases -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
+            | sort -nr | tail -n +6 | cut -d' ' -f2- | xargs -r sudo rm -rf
+          sudo rm -rf "$remote_tmp"
+          REMOTE
