@@ -1,5 +1,5 @@
-const CACHE = 'saju-app-shell-v7';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'saju-app-shell-v8';
+const ASSETS = ['./', './index.html', './annual/client.mjs', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())));
 self.addEventListener('activate', (event) => event.waitUntil(
   caches.keys()

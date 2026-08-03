@@ -242,6 +242,17 @@ Engagement and retention are secondary during the first beta. They must not be i
 - Time-dependent and daewoon-dependent sections must be suppressed or qualified when inputs are missing.
 - The report must avoid medical, legal, financial, or mental-health diagnosis and categorical future claims.
 
+### Annual reading and card-news output
+
+- A single-chart user may choose a target year from 1900 through 2099. The annual year begins at the versioned Ipchun instant and ends immediately before the next Ipchun; it never silently begins on January 1.
+- `ziping-annual-basic@1.0.0` uses only the natal day stem, natal month branch as context, annual-stem ten-god relation, and the explicitly supported clash/six-harmony branch pairs.
+- Gyeokguk, yongsin, strength scoring, johu, punishment/destruction/harm, special combinations, and high-consequence predictions remain visibly excluded.
+- Annual facts must use stable IDs and record label, value, detail, source/version, and support status. Missing required facts suppress dependent cards.
+- A valid default deck contains exactly eight renderer-independent `annual-card.v1` objects in the order cover, overall, work, money, relationships, growth, action, and method.
+- Monthly flow is a separate 12-entry solar-term disclosure. It is not appended to the default eight-card deck.
+- Mobile provides previous/next card controls and position status. Desktop shows an overview. Keyboard focus, reduced motion, a full document view, and print/PDF remain available.
+- Annual JSON and print output exclude raw birth input, exact location, record IDs, and consent metadata.
+
 ### Future AI conversation — not implemented in the verified prototype
 
 - Any future AI chat must be opt-in and unavailable until its just-in-time data-use notice is accepted.
@@ -284,7 +295,7 @@ The UI must show the active policy in user-readable language. Marketing must not
 
 - The product will have three strict layers: deterministic chart calculation, deterministic interpretation facts/rules, and optional generative narration.
 - The calculation core will be framework-independent and executable in both the browser and a test runner.
-- The web interface will call the calculation core locally. No remote calculation API is required for the MVP.
+- The natal web interface calls its calculation core locally. The annual slice uses the same-origin deterministic `/v1/annual-readings` adapter so the pinned ephemeris implementation and content hash remain centralized; cached saved results and client rendering remain available offline.
 - A single high-level calculation contract will accept normalized birth input plus a policy identifier and return one versioned chart result.
 - Structured chart facts will have stable identifiers so the report, AI output, feedback, and regression tests can reference the same evidence.
 - Source calendar or ephemeris data must carry provenance, license, version, covered range, and generation method. An undocumented CSV cannot be a production source.
@@ -343,6 +354,7 @@ The product will maintain these conceptual records:
 - **Calculation Policy:** stable identifier, version, named conventions, and source-data versions.
 - **Chart Result:** pillars, derived facts, cycle data, sensitivity findings, engine version, policy version, and creation timestamp.
 - **Chart Fact:** stable fact identifier, category, structured value, dependencies, and provenance.
+- **Annual Reading:** target year, Ipchun range, calculation policy, interpretation profile, rule-set version, annual facts, eight cards, separate monthly flow, unsupported flags, and content hash. It extends rather than overwrites a natal chart result.
 - **Reading Block:** section, text, supporting fact identifiers, content source, and uncertainty markers.
 - **Purpose Authorization:** purpose, disclosure version, lawful basis, consent decision when applicable, scope, state, and timestamp.
 - **Feedback Record:** issue category, result versions, affected fact identifiers, and user comment only when explicitly submitted.

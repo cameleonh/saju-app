@@ -213,6 +213,14 @@ Browser rules:
 
 ## Internal Schema: PostgreSQL
 
+### Annual reading extension
+
+`ops.annual_readings` is a one-to-one extension of `ops.submissions`. It stores the target year, versioned annual calculation policy, interpretation profile, annual facts, exactly eight cards, twelve separate monthly-flow entries, and a SHA-256 content hash. The natal `ops.chart_results` row remains unchanged and independently addressable.
+
+The development SQLite adapter mirrors this boundary in a separate `annual_readings` table. Browser IndexedDB records keep `chart` and `annual` as separate properties, and submission payloads use `readingScope`, `targetYear`, and `annualResult` instead of mutating the natal chart contract.
+
+Annual training projection is permitted only under the existing purpose and subject gates. It may include annual facts/cards and their policy/profile versions, but it excludes raw birth input, exact location, record identifiers, and consent metadata.
+
 The relational model is normalized to at least 3NF. Large immutable chart/read/content documents use versioned JSONB or encrypted binary aggregates because they are read and versioned as units; this is an explicit denormalization.
 
 Use isolated schemas:

@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { buildSubmissionDecision, buildTrainingProjection } from './domain/submission.mjs';
 import { convertLunarToSolar } from './domain/calendar.mjs';
+import { createAnnualReading } from './domain/annual.mjs';
 
 const MAX_BODY_BYTES = 256 * 1024;
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -33,7 +34,7 @@ async function readJson(request) {
   catch { throw Object.assign(new Error('request body must be valid JSON'), { statusCode: 400 }); }
 }
 
-const MIME_TYPES = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
+const MIME_TYPES = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
 
 async function serveStatic(root, request, response) {
   if (!root || request.method !== 'GET') return false;
@@ -68,7 +69,7 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
       const pathname = new URL(request.url || '/', 'http://localhost').pathname;
       const submissionResource = /^\/v1\/submissions\/([A-Za-z0-9_-]{1,120})$/.exec(pathname);
       const withdrawalResource = /^\/v1\/submissions\/([A-Za-z0-9_-]{1,120})\/training-withdrawal$/.exec(pathname);
-      const mutationRoute = (request.method === 'POST' && (pathname === '/v1/submissions' || pathname === '/v1/calendar/convert' || Boolean(withdrawalResource)))
+      const mutationRoute = (request.method === 'POST' && (pathname === '/v1/submissions' || pathname === '/v1/calendar/convert' || pathname === '/v1/annual-readings' || Boolean(withdrawalResource)))
         || (request.method === 'DELETE' && Boolean(submissionResource));
       if (mutationRoute && !allowRequest(request)) {
         response.setHeader('retry-after', '60');
@@ -79,6 +80,11 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
         const input = await readJson(request);
         try { return sendJson(response, 200, convertLunarToSolar(input)); }
         catch (error) { return sendJson(response, 422, { error: 'calendar_conversion_rejected', message: error.message }); }
+      }
+      if (request.method === 'POST' && pathname === '/v1/annual-readings') {
+        const input = await readJson(request);
+        try { return sendJson(response, 200, createAnnualReading(input)); }
+        catch (error) { return sendJson(response, 422, { error: 'annual_reading_rejected', message: error.message }); }
       }
       if (request.method === 'DELETE' && submissionResource) {
         if (!storage?.deleteSubmission) return sendJson(response, 409, { error: 'durable_storage_unavailable', message: '지속 저장소가 연결되지 않아 서버 기록을 지울 수 없습니다.' });
