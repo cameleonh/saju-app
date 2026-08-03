@@ -4,7 +4,7 @@
 |---|---|
 | Status date | 2026-08-04 |
 | Project root | `D:\\codings\\260801_saju-app` |
-| Current phase | PR #2 annual-reading completion, browser verification, and merge-readiness review |
+| Current phase | PR #2 annual-reading implementation complete and merge-ready; launch-policy prerequisites remain |
 | Application code | Implemented in `index.html` with PWA shell |
 
 ## Current Objective
@@ -84,6 +84,7 @@ Complete and verify Issue #1: a bounded Ziping-derived annual profile, determini
 - Fresh post-cleanup `npm test` passed: chart/UI smoke (113 assertions), record lifecycle (33 assertions), and ingestion/storage contract (34 assertions), for 180 assertions total.
 - Annual unit tests verify every enabled target's Ipchun at -1 minute, exact, +1 minute, and closing boundary; the following-year Xiaohan month; `甲子` across a 60-year boundary; structured rule fields; per-rule suppression; clash priority; annual/month fact/rule/claim traces; mandatory chart provenance; hidden-stem exclusion; deterministic hash behavior; focusable markup; and privacy-safe lossless export.
 - Fresh 2026-08-04 `npm test` passed 315 assertions: annual policy/client (82), chart/UI smoke (128), record lifecycle (44), and HTTP/SQLite ingestion (61). The run includes exact annual object round-trips through the injected IndexedDB boundary and SQLite, legacy SQLite additive migration, annual training withdrawal retention, and deletion cascade.
+- Implementation commit `127c99a` was pushed to PR #2; GitHub Actions `verify` passed and GitHub reported the PR as mergeable. Parallel native standards/spec reviewers failed at the encrypted tool-output transport boundary, so the leader completed the documented fallback review against Issue #1 and the three owner review comments without finding a remaining code blocker.
 - Fresh Chromium QA created, saved, reopened, and deleted the 2026 annual reading. The IndexedDB object and reopened UI retained the same content hash; next-card navigation moved focus to the active card with a visible gold focus ring; reduced-motion computed a 0.01ms transition; print hid natal/monthly/private content; and no console errors occurred.
 - Live overflow checks returned zero at 320, 390, 768, 1024, and 1440px. Mobile exposed one active card, while tablet/desktop exposed all eight in document order. Detailed evidence is in `devlog/_plan/260804_pr2_annual_reading_completion/030_browser_qa.md`.
 - A freshly restarted local server returned `{"status":"ok","service":"saju-ingestion-adapter","persistence":"sqlite","durable":true}`.
@@ -99,11 +100,11 @@ Complete and verify Issue #1: a bounded Ziping-derived annual profile, determini
 - The birthplace catalog represents current administrative and legal 동·읍·면·리 names as of 2026-07-20. Historical boundary/name resolution and overseas birthplace support remain outside this prototype policy.
 - Couple storage is structurally separated and local SQLite submissions can be deleted. Production account ownership, partner-subject authorization, subject-wide deletion/withdrawal, durable PostgreSQL, and downstream processor/dataset erasure are not implemented.
 - Legal references are source-backed, but the resulting product rules still require Korean privacy counsel review before collection begins.
-- Calculation conventions and golden fixtures have not been approved.
+- Natal calculation conventions and launch golden fixtures have not been approved. The bounded 2024–2026 annual Ipchun fixture set is reviewed and implemented separately.
 
 ## Open Launch Prerequisites
 
-1. Approve the calculation policy: calendar conversion, solar-term source, civil/solar time, day boundary, hour boundary, daewoon direction, and supported date range.
+1. Approve the natal calculation policy: calendar conversion, civil/solar time, day boundary, hour boundary, daewoon direction, and supported birth-date range.
 2. Approve data-controller/processor roles, hosting region, retention periods, minor handling, third-party data rules, cross-border transfers, and user-facing notices.
 3. Select the first training objective and its eligible feature/label schema; do not collect an undefined blanket training grant.
 4. Select PostgreSQL, object storage, key-management, identity, AI-provider, and observability vendors.
@@ -119,4 +120,4 @@ Complete and verify Issue #1: a bounded Ziping-derived annual profile, determini
 
 ## Exact Next Required Action
 
-Complete the independent C-phase code review and PR #2 CI handoff, then resolve the remaining natal calculation and legal/data-controller choices before wiring `server/` to PostgreSQL/KMS/identity and freezing a specific product-learning objective.
+Review and merge PR #2, then resolve the remaining natal calculation and legal/data-controller choices before wiring `server/` to PostgreSQL/KMS/identity and freezing a specific product-learning objective.
