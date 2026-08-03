@@ -119,6 +119,21 @@ create table if not exists ops.chart_results (
   unique (submission_id, engine_version, calculation_policy_version, source_data_version)
 );
 
+create table if not exists ops.annual_readings (
+  submission_id uuid primary key references ops.submissions(submission_id) on delete cascade,
+  reading_scope text not null default 'annual' check (reading_scope = 'annual'),
+  schema_version text not null check (schema_version = 'annual-reading.v1'),
+  target_year smallint not null check (target_year between 2024 and 2026),
+  annual_policy jsonb not null,
+  interpretation_profile jsonb not null,
+  annual_facts jsonb not null check (jsonb_typeof(annual_facts) = 'array'),
+  annual_cards jsonb not null check (jsonb_typeof(annual_cards) = 'array' and jsonb_array_length(annual_cards) = 8),
+  monthly_flow jsonb not null check (jsonb_typeof(monthly_flow) = 'array' and jsonb_array_length(monthly_flow) = 12),
+  annual_result jsonb not null check (jsonb_typeof(annual_result) = 'object'),
+  content_hash text not null check (content_hash ~ '^[a-f0-9]{64}$'),
+  created_at timestamptz not null default now()
+);
+
 create table if not exists governance.processing_events (
   processing_event_id uuid primary key,
   source_type text not null,

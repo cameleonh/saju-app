@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "start": "node server/index.mjs",
-    "test": "node tests/smoke.mjs && node tests/lifecycle.mjs && node tests/server/ingestion.mjs"
+    "test": "node tests/annual.mjs && node tests/smoke.mjs && node tests/lifecycle.mjs && node tests/server/ingestion.mjs"
   },
   "dependencies": {
-    "lunar-javascript": "^1.7.7"
+    "lunar-javascript": "1.7.7"
   }
 }

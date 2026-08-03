@@ -252,6 +252,33 @@
       .method-details dd { margin: 4px 0 0; color: var(--ink-950); font-family: var(--font-sans); font-size: 15px; line-height: 1.55; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
       .reading-report { overflow: hidden; padding-top: 8px; padding-bottom: 8px; }
       .reading-report > .section-heading { padding: 18px 18px 8px; }
+      .annual-reading { overflow: hidden; }
+      .annual-heading { margin-bottom: 12px; }
+      .annual-heading > p { max-width: 36ch; font-size: 13px; color: var(--ink-600); }
+      .annual-basis { margin: 0 0 16px; padding: 12px 14px; border-left: 3px solid var(--gold-500); background: rgba(177, 135, 52, 0.08); color: var(--ink-800); }
+      .annual-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
+      .annual-controls [role="status"] { min-width: 48px; text-align: center; font-weight: 700; }
+      .annual-card-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+      .annual-card { min-width: 0; aspect-ratio: 4 / 5; display: flex; flex-direction: column; gap: 12px; padding: clamp(18px, 2.2vw, 28px); overflow: auto; border: 1px solid rgba(177, 135, 52, 0.42); border-radius: 22px; background: linear-gradient(155deg, rgba(255,255,255,0.74), rgba(240,229,204,0.7)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.42); }
+      .annual-card:focus, .annual-card:focus-visible { outline: 3px solid var(--gold-500); outline-offset: 3px; box-shadow: 0 0 0 3px var(--gold-500); }
+      .annual-card h3 { font-family: "Noto Serif KR", serif; font-size: clamp(22px, 2.4vw, 29px); line-height: 1.25; }
+      .annual-card-kicker, .annual-hash { font-size: 12px; color: var(--ink-600); overflow-wrap: anywhere; }
+      .annual-card-summary { font-size: 17px; font-weight: 650; color: var(--ink-800); }
+      .annual-card ul { margin: 0; padding-left: 20px; display: grid; gap: 7px; }
+      .annual-keywords { display: flex; flex-wrap: wrap; gap: 6px; }
+      .annual-keywords span { padding: 4px 9px; border: 1px solid rgba(177,135,52,.35); border-radius: 999px; font-size: 12px; }
+      .annual-card-action, .annual-card-watch { padding: 10px 12px; border-radius: 12px; background: rgba(33, 89, 73, 0.08); }
+      .annual-card-watch { background: rgba(164, 101, 45, 0.09); }
+      .annual-card-action p, .annual-card-watch p { margin: 4px 0 0; }
+      .annual-card .evidence-row { margin-top: auto; }
+      .annual-fact { margin-top: 16px; }
+      .annual-document-view, .monthly-flow { margin-top: 16px; border-top: 1px solid var(--paper-300); padding-top: 14px; }
+      .annual-document-view summary, .monthly-flow summary { cursor: pointer; font-weight: 750; }
+      .annual-document-view > ol, .monthly-flow > ol { display: grid; gap: 12px; margin-top: 14px; padding-left: 24px; }
+      .annual-document-view article, .monthly-flow article { padding: 14px; border: 1px solid var(--paper-300); border-radius: 14px; background: rgba(255,255,255,.42); }
+      .monthly-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 14px; }
+      .monthly-head span { font-size: 12px; color: var(--ink-600); }
+      .annual-hash { margin: 16px 0 0; }
       .reading-card { background: transparent; border: 0; border-top: 1px solid var(--paper-200); }
       .reading-card:first-of-type { border-top: 0; }
       .reading-card summary { min-height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 17px 18px; cursor: pointer; list-style: none; }
@@ -346,6 +373,9 @@
         .panel { padding: 20px; border-radius: 18px; }
         .reading-report { padding: 4px 0; }
         .reading-report > .section-heading { padding: 16px 16px 8px; }
+        .annual-card-grid { grid-template-columns: minmax(0, 1fr); }
+        .annual-card[data-active="false"] { display: none; }
+        .annual-card { aspect-ratio: auto; min-height: 520px; }
         .reading-card summary { padding: 15px 16px; }
         .reading-body { padding: 0 16px 20px 56px; }
         .form-grid { grid-template-columns: 1fr; gap: 18px; }
@@ -371,12 +401,26 @@
         *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         .button:hover { transform: none; }
       }
+      @media print {
+        .topbar, .mobile-nav, .site-footer, .result-toolbar, .result-side, .annual-controls, .annual-card-grid, .chat-card, .reading-report, .notice { display: none !important; }
+        .result-main > :not(.annual-reading), .monthly-flow, .annual-fact, .annual-hash { display: none !important; }
+        body { background: white; color: #111; }
+        .container, .section, .result-layout, .result-main { display: block; width: auto; max-width: none; padding: 0; margin: 0; }
+        .annual-reading { border: 0; box-shadow: none; padding: 0; }
+        .annual-document-view { display: block; border: 0; }
+        .annual-document-view > summary { display: none; }
+        .annual-document-view > ol { display: block; padding: 0; list-style: none; }
+        .annual-document-view > ol > li { break-after: page; }
+        .annual-document-view article { min-height: 90vh; border: 1px solid #bbb; }
+      }
     </style>
   </head>
   <body>
     <div id="app"></div>
     <noscript><main class="container"><section class="panel"><h1>자바스크립트를 켜주세요</h1><p>사주 입력과 차트 계산은 이 화면에서 동작합니다.</p></section></main></noscript>
-    <script>
+    <script type="module">
+      import { annualSubmissionFields, privacySafeAnnualExport, renderAnnualReading, requestAnnualReading } from './annual/client.mjs';
+      import { createAnnualStorage } from './annual/storage.mjs';
       (() => {
         const STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
         const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
@@ -470,6 +514,11 @@
           relationshipType: 'getting-to-know',
           partnerForm: { calendar: 'solar', date: '1992-02-14', time: '09:00', lunarYear: '1992', lunarMonth: '1', lunarDay: '22', leapMonth: false, unknownTime: false, place: '', placeCode: '', sex: 'unset', authorityVerified: false },
           chart: null,
+          targetYear: Math.min(2026, Math.max(2024, new Date().getFullYear())),
+          annual: null,
+          annualCardIndex: 0,
+          annualFact: '',
+          annualError: '',
           currentRecordId: '',
           serverSubmissionId: '',
           records: [],
@@ -769,7 +818,7 @@
               evidence: ['input.policy'],
             },
           ];
-          return { input, pillars, facts, elementCounts, sortedElements, warnings, reading, policy: { id: 'KR-CIVIL-0.1', name: '한국 표준시 + 입춘 기준', source: 'KASI 참고 데모 정책', engine: 'saju-demo-engine 0.1.0' }, createdAt: new Date().toISOString() };
+          return { input, pillars, facts, elementCounts, sortedElements, warnings, reading, policy: { id: 'KR-CIVIL-0.1', version: '0.1.0', name: '한국 표준시 + 입춘 기준', source: 'KASI 참고 데모 정책', engine: 'saju-demo-engine', engineVersion: '0.1.0' }, createdAt: new Date().toISOString() };
         }
 
         function relationshipLabel(value) { return ({ 'getting-to-know': '알아가는 사이', dating: '현재 연인', partner: '배우자·동반자' })[value] || '관계'; }
@@ -886,6 +935,7 @@
         }
         function getFacts() { return state.chart?.mode === 'couple' ? state.chart.facts : state.chart?.facts || []; }
         function getFact(id) { return getFacts().find((fact) => fact.id === id); }
+        const annualStorage = createAnnualStorage({ outboxBinding: OUTBOX_PURPOSE });
         function pillarMarkup(items) { return items.map((item) => `<div class="pillar"><small>${item.label}</small><strong>${escapeHtml(item.text)}</strong><span>${item.element ? `${item.element} · ${item.branchElement}` : '계산 제한'}</span>${item.tenGod ? `<em>${escapeHtml(item.tenGod)}</em>` : ''}</div>`).join(''); }
         function readingExtras(item) {
           return `${item.detail ? `<div class="reading-detail-block"><strong>쉽게 풀어보면</strong><p class="reading-detail">${escapeHtml(item.detail)}</p></div>` : ''}${item.practice ? `<div class="reading-practice"><strong>오늘 해볼 일</strong><p>${escapeHtml(item.practice)}</p></div>` : ''}${item.questions?.length ? `<div class="reading-prompts"><strong>생각해볼 질문</strong><ul>${item.questions.map((question) => `<li>${escapeHtml(question)}</li>`).join('')}</ul></div>` : ''}`;
@@ -911,7 +961,7 @@
         }
 
         function methodView() {
-          return shell(`<section class="section info-screen" aria-labelledby="method-title"><div class="eyebrow">계산 원칙</div><h1 id="method-title" class="display" tabindex="-1">어떤 기준으로 명식을 계산하나요?</h1><p class="lead-copy">결은 같은 입력에 같은 결과가 나오도록 계산식과 제한을 분리해 보여드립니다. 해석보다 먼저 날짜·시각·절기 경계를 확인합니다.</p><div class="info-grid"><article class="info-card"><h2>날짜와 절기</h2><p>양력 입력은 그대로 쓰고, 음력 입력은 지원 범위 안에서 양력으로 바꾼 뒤 원래 입력과 변환 결과를 함께 기록합니다. 입춘이나 절기 경계와 가까우면 결과에 경고를 표시합니다.</p></article><article class="info-card"><h2>시각과 출생지</h2><p>계산 시각은 한국 표준시를 사용합니다. 출생 시각을 모르면 시주는 비워 두고, 아는 부분만으로 읽습니다. 출생지는 전국 동·읍·면·리 목록에서 고릅니다.</p></article><article class="info-card"><h2>현재 계산판</h2><p>현재 정책 식별자는 <span class="mono">KR-CIVIL-0.1</span>입니다. 년주·월주·일주·시주, 오행 분포, 십신과 지장간을 계산하며 대운·세운은 원칙이 확정되기 전까지 제공하지 않습니다.</p></article><article class="info-card"><h2>해석의 한계</h2><p>사주는 관계, 건강, 재산이나 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산 사실과 실제 생활을 돌아볼 질문을 연결하는 참고 자료로 사용해 주세요.</p></article></div><div class="intro-actions"><button class="button primary" data-action="nav-home">시작 화면으로 ${icon('arrow')}</button></div></section>`);
+          return shell(`<section class="section info-screen" aria-labelledby="method-title"><div class="eyebrow">계산 원칙</div><h1 id="method-title" class="display" tabindex="-1">어떤 기준으로 명식과 연운을 계산하나요?</h1><p class="lead-copy">결은 같은 입력에 같은 결과가 나오도록 계산식과 제한을 분리해 보여드립니다. 해석보다 먼저 날짜·시각·절기 경계를 확인합니다.</p><div class="info-grid"><article class="info-card"><h2>날짜와 절기</h2><p>양력 입력은 그대로 쓰고, 음력 입력은 지원 범위 안에서 양력으로 바꾼 뒤 원래 입력과 변환 결과를 함께 기록합니다. 연운은 검토된 2024~2026년만 제공하며 입춘부터 다음 입춘 직전까지를 한 해로 봅니다.</p></article><article class="info-card"><h2>연운 계산판</h2><p><span class="mono">KR-ANNUAL-IPCHUN-1.1</span>은 KASI·KASA 월력요항과 연결된 2024~2027 KST 분 단위 절기 고정값을 사용합니다. 연간 십신과 원국 지지의 충·육합만 지원하며 형·파·해와 특수합은 만들지 않습니다.</p></article><article class="info-card"><h2>자평명리 적용 범위</h2><p><span class="mono">ziping-annual-basic@1.1.0</span>은 일간, 출생 월지 맥락, 십신 관계를 사용합니다. 격국·용신·신강신약·조후와 연운 지장간 활성화·가중치는 분류하지 않으며, 월별 흐름은 8장 기본 카드와 분리합니다.</p></article><article class="info-card"><h2>해석의 한계</h2><p>사주는 관계, 건강, 재산이나 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산 사실과 실제 생활을 돌아볼 질문을 연결하는 참고 자료로 사용해 주세요.</p></article></div><div class="intro-actions"><button class="button primary" data-action="nav-home">시작 화면으로 ${icon('arrow')}</button></div></section>`);
         }
 
         function recordListMarkup() {
@@ -943,7 +993,8 @@
           const f = state.form;
           const selfSection = `<section class="form-section"><div class="form-section-heading"><div><span class="pair-label">내 명식</span><h2>내 출생 정보</h2><p>비교의 기준이 되는 첫 번째 명식입니다.</p></div></div>${birthFields('self', f)}</section>`;
           const coupleSection = `<section class="form-section"><div class="form-section-heading"><div><span class="pair-label partner">상대 명식</span><h2>상대방 출생 정보</h2><p>커플이 될 사람 또는 지금의 상대 정보를 별도로 입력합니다.</p></div></div><fieldset class="field" style="margin-bottom:18px"><legend>현재 관계</legend><div class="segmented three"><button type="button" data-relationship="getting-to-know" aria-pressed="${state.relationshipType === 'getting-to-know'}">알아가는 사이</button><button type="button" data-relationship="dating" aria-pressed="${state.relationshipType === 'dating'}">현재 연인</button><button type="button" data-relationship="partner" aria-pressed="${state.relationshipType === 'partner'}">배우자·동반자</button></div></fieldset>${birthFields('partner', state.partnerForm, true)}</section>`;
-          return shell(`<section class="section" aria-labelledby="input-title"><div class="section-heading"><div><div class="eyebrow">${state.mode === 'couple' ? '두 사람 입력' : '출생 정보'}</div><h1 id="input-title">${state.mode === 'couple' ? '두 사람의 출생 정보를 입력해 주세요' : '출생 정보를 입력해 주세요'}</h1></div><p>입력한 정보는 계산 정책과 함께 기록됩니다.</p></div><div class="panel"><div class="flow-header"><span class="flow-step">${state.mode === 'couple' ? '두 사람의 출생 정보는 서로 구분해 기록합니다' : '원본 입력은 그대로 보관하고, 계산용 값은 따로 정리합니다'}</span><div class="step-track" aria-label="진행 단계"><span class="step-dot active"></span><span class="step-dot"></span><span class="step-dot"></span></div></div><form id="birth-form" novalidate>${selfSection}${state.mode === 'couple' ? coupleSection : ''}<div class="form-footer">${state.error ? `<div class="error" role="alert">${escapeHtml(state.error)}</div>` : '<span class="tiny">계산 후에도 원래 입력과 계산 정책을 함께 확인할 수 있어요.</span>'}<button class="button primary" type="submit">${state.mode === 'couple' ? '두 사람의 사주풀이 시작하기' : '차트 계산하기'} ${icon('arrow')}</button></div></form></div></section>`);
+          const annualField = state.mode === 'single' ? `<section class="form-section annual-year-input"><div class="form-section-heading"><div><span class="pair-label">연운 카드</span><h2>살펴볼 연도</h2><p>해당 연도의 입춘부터 다음 입춘 직전까지 계산합니다.</p></div></div><div class="field"><label for="target-year">연운 연도</label><input id="target-year" name="targetYear" type="number" min="2024" max="2026" value="${escapeHtml(state.targetYear)}" required><small>검토된 2024~2026 고정값과 자평명리 파생 v1 프로필로 8장 카드와 별도 월별 흐름을 만듭니다.</small></div></section>` : '';
+          return shell(`<section class="section" aria-labelledby="input-title"><div class="section-heading"><div><div class="eyebrow">${state.mode === 'couple' ? '두 사람 입력' : '출생 정보와 연운'}</div><h1 id="input-title">${state.mode === 'couple' ? '두 사람의 출생 정보를 입력해 주세요' : '출생 정보와 살펴볼 연도를 입력해 주세요'}</h1></div><p>입력한 정보는 계산 정책과 함께 기록됩니다.</p></div><div class="panel"><div class="flow-header"><span class="flow-step">${state.mode === 'couple' ? '두 사람의 출생 정보는 서로 구분해 기록합니다' : '원본 입력·명식·연운 사실·카드를 서로 구분해 기록합니다'}</span><div class="step-track" aria-label="진행 단계"><span class="step-dot active"></span><span class="step-dot"></span><span class="step-dot"></span></div></div><form id="birth-form" novalidate>${selfSection}${annualField}${state.mode === 'couple' ? coupleSection : ''}<div class="form-footer">${state.error ? `<div class="error" role="alert">${escapeHtml(state.error)}</div>` : '<span class="tiny">계산 후에도 원래 입력과 계산 정책을 함께 확인할 수 있어요.</span>'}<button class="button primary" type="submit">${state.mode === 'couple' ? '두 사람의 사주풀이 시작하기' : '명식과 연운 카드 만들기'} ${icon('arrow')}</button></div></form></div></section>`);
         }
 
         function coupleResultView() {
@@ -963,7 +1014,8 @@
           const bars = Object.entries(chart.elementCounts).map(([key, value]) => `<div><div class="bar-head"><span>${ELEMENT_LABELS[key]}</span><strong class="mono">${value}</strong></div><div class="bar-track"><div class="bar-fill ${({목:'wood',화:'fire',토:'earth',금:'metal',수:'water'})[key]}" style="width:${Math.max(8, (value / max) * 100)}%"></div></div></div>`).join('');
           const reading = readingMarkup(chart.reading);
           const messages = state.messages.map((message) => `<div class="bubble ${message.role === 'user' ? 'user' : ''}">${escapeHtml(message.text)}</div>`).join('');
-          return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">명식 확인</div><h1 id="result-title">명식과 계산 기준을 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button secondary small" data-action="export">${icon('download')} 내보내기</button></div></div><div class="result-layout"><div class="result-main"><section class="aperture chart-aperture" aria-labelledby="chart-summary"><div class="aperture-top"><div><div class="eyebrow">계산한 명식</div><h2 id="chart-summary" class="aperture-title">${formatKoreanDate(chart.input.date)}의 네 기둥</h2></div><span class="aperture-meta mono">${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(chart.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(chart.input.place)} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${chart.input.unknownTime ? '시각 미상' : escapeHtml(chart.input.time)}</dd></div></dl></section>${chart.warnings.length ? chart.warnings.map((warning) => `<div class="notice amber"><h3>${warning.title}</h3><p>${warning.body}</p><div class="evidence-row"><button class="evidence-chip" data-action="evidence" data-fact="${warning.fact}">경계 근거 보기</button></div></div>`).join('') : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 데모 정책의 표시 경계에서 멀리 있습니다. 계산 정책은 언제든 다시 열어볼 수 있어요.</p></div>'}<section class="panel reading-report"><div class="section-heading"><div><div class="eyebrow">근거를 따라 읽기</div><h2>명식의 결을 따라 읽기</h2></div><p>각 장을 펼치고 근거를 확인하세요.</p></div>${reading}</section><section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>궁금한 장면을 질문으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 궁금한 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="생각을 정리할 질문 입력" placeholder="예: 이직 전에 확인할 조건은 무엇인가요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section></div><aside class="result-side"><section class="panel"><div class="side-title"><h3>오행 분포</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 원본 입력과 계산용 값은 분리해 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 이 구현은 학습용 프로토타입이며, 공개 전에는 KASI 기반 황금 테스트와 승인된 역법 정책이 필요합니다.</div>` : ''}</section></aside></div></section>`);
+          const annualMarkup = renderAnnualReading(state.annual, { activeIndex: state.annualCardIndex, activeFact: state.annualFact, error: state.annualError });
+          return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">명식과 연운 확인</div><h1 id="result-title">계산 사실과 연운 카드의 근거를 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button secondary small" data-action="export">${icon('download')} 내보내기</button></div></div><div class="result-layout"><div class="result-main"><section class="aperture chart-aperture" aria-labelledby="chart-summary"><div class="aperture-top"><div><div class="eyebrow">계산한 명식</div><h2 id="chart-summary" class="aperture-title">${formatKoreanDate(chart.input.date)}의 네 기둥</h2></div><span class="aperture-meta mono">${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(chart.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(chart.input.place)} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${chart.input.unknownTime ? '시각 미상' : escapeHtml(chart.input.time)}</dd></div></dl></section>${chart.warnings.length ? chart.warnings.map((warning) => `<div class="notice amber"><h3>${warning.title}</h3><p>${warning.body}</p><div class="evidence-row"><button class="evidence-chip" data-action="evidence" data-fact="${warning.fact}">경계 근거 보기</button></div></div>`).join('') : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 데모 정책의 표시 경계에서 멀리 있습니다. 계산 정책은 언제든 다시 열어볼 수 있어요.</p></div>'}${annualMarkup}<section class="panel reading-report"><div class="section-heading"><div><div class="eyebrow">근거를 따라 읽기</div><h2>명식의 결을 따라 읽기</h2></div><p>각 장을 펼치고 근거를 확인하세요.</p></div>${reading}</section><section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>궁금한 장면을 질문으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 궁금한 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="생각을 정리할 질문 입력" placeholder="예: 이직 전에 확인할 조건은 무엇인가요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section></div><aside class="result-side"><section class="panel"><div class="side-title"><h3>오행 분포</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 원본 입력과 계산용 값은 분리해 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 연운은 별도 정책과 프로필 버전으로 계산하며 격국·용신·조후를 포함하지 않습니다.</div>` : ''}</section></aside></div></section>`);
         }
 
         function render() {
@@ -993,7 +1045,6 @@
         function enhanceResultView() {
           if (state.screen !== 'result') return;
           document.querySelector('main > .section')?.classList.toggle('reading-size-large', state.largeText);
-
           const toolbar = document.querySelector('.result-toolbar .toolbar-actions');
           toolbar?.insertAdjacentHTML('afterbegin', `<button class="button secondary small" data-action="text-size" aria-pressed="${state.largeText}">${state.largeText ? '기본 글자' : '글자 크게'}</button>`);
 
@@ -1118,9 +1169,9 @@
         function onAction(event) {
           event.preventDefault();
           const action = event.currentTarget.dataset.action;
-          if (action === 'mode') { state.mode = event.currentTarget.dataset.mode || 'single'; state.error = ''; render(); }
+          if (action === 'mode') { state.mode = event.currentTarget.dataset.mode || 'single'; if (state.mode === 'couple') state.annual = null; state.error = ''; render(); }
           if (action === 'start') { if (!state.serviceConsent) { state.error = '서비스 저장 안내를 확인해야 출생 정보 입력을 시작할 수 있어요.'; state.detailNotice = true; render(); moveToStage('notice-title'); return; } enterInputStage(); }
-          if (action === 'home' || action === 'nav-home') { state.screen = 'intro'; state.chart = null; state.currentRecordId = ''; state.serverSubmissionId = ''; state.serviceConsent = false; state.training = false; state.partnerForm.authorityVerified = false; state.error = ''; state.detailNotice = false; render(); moveToStage('page-title'); }
+          if (action === 'home' || action === 'nav-home') { state.screen = 'intro'; state.chart = null; state.annual = null; state.annualFact = ''; state.annualError = ''; state.currentRecordId = ''; state.serverSubmissionId = ''; state.serviceConsent = false; state.training = false; state.partnerForm.authorityVerified = false; state.error = ''; state.detailNotice = false; render(); moveToStage('page-title'); }
           if (action === 'nav-method' || action === 'method') { state.screen = 'method'; state.error = ''; render(); moveToStage('method-title'); }
           if (action === 'nav-data' || action === 'details') openDataStage();
           if (action === 'notice-details') { state.detailNotice = !state.detailNotice; render(); moveToStage('notice-title'); }
@@ -1128,6 +1179,11 @@
           if (action === 'birthplace-retry') { state.birthPlaceError = ''; birthPlaceLoadPromise = null; const retry = loadBirthPlaceData(); render(); retry.then(() => { if (state.screen === 'input') render(); }, () => { if (state.screen === 'input') render(); }); }
           if (action === 'text-size') { state.largeText = !state.largeText; render(); }
           if (action === 'evidence') { state.activeFact = state.activeFact === event.currentTarget.dataset.fact ? '' : event.currentTarget.dataset.fact; render(); }
+          if (action === 'annual-evidence') { state.annualFact = state.annualFact === event.currentTarget.dataset.fact ? '' : event.currentTarget.dataset.fact; render(); }
+          if (action === 'annual-prev') { state.annualCardIndex = Math.max(0, state.annualCardIndex - 1); render(); document.querySelector(`[data-annual-card="${state.annualCardIndex}"]`)?.focus({ preventScroll: true }); }
+          if (action === 'annual-next') { state.annualCardIndex = Math.min((state.annual?.cards.length || 1) - 1, state.annualCardIndex + 1); render(); document.querySelector(`[data-annual-card="${state.annualCardIndex}"]`)?.focus({ preventScroll: true }); }
+          if (action === 'annual-export' && state.annual) downloadRecord(privacySafeAnnualExport(state.annual), `saju-annual-${state.annual.targetYear}.json`);
+          if (action === 'annual-print') window.print();
           if (action === 'copy') copyChart();
           if (action === 'export') exportChart();
           if (action === 'records-refresh') openDataStage();
@@ -1161,6 +1217,7 @@
           event.preventDefault();
           const form = new FormData(event.currentTarget);
           try {
+            state.annual = null;
             const self = await resolveBirthInput(form, 'self', state.form);
             state.form = { ...state.form, ...self.source };
             state.form.samePerson = form.get('samePerson') === 'on';
@@ -1172,6 +1229,8 @@
               state.chart = calculateCoupleChart(self.calculation, partner.calculation, state.relationshipType);
             } else {
               state.chart = calculateChart(self.calculation);
+              state.targetYear = Number(form.get('targetYear'));
+              state.annual = await requestAnnualReading(state.chart, state.targetYear);
             }
           } catch (error) {
             state.error = error.message;
@@ -1182,6 +1241,9 @@
           state.serverSubmissionId = '';
           state.messages = [];
           state.activeFact = '';
+          state.annualCardIndex = 0;
+          state.annualFact = '';
+          state.annualError = '';
           state.openReadings = [`${state.mode}-0`];
           state.screen = 'result';
           state.saveState = 'saving';
@@ -1205,78 +1267,27 @@
           render();
         }
 
-        async function openDb() {
-          if (!('indexedDB' in window)) throw new Error('IndexedDB unavailable');
-          return new Promise((resolve, reject) => {
-            const request = indexedDB.open('saju_app', 1);
-            request.onupgradeneeded = () => { const db = request.result; if (!db.objectStoreNames.contains('records')) db.createObjectStore('records', { keyPath: 'id' }); if (!db.objectStoreNames.contains('submissionOutbox')) db.createObjectStore('submissionOutbox', { keyPath: 'id' }); };
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-          });
-        }
-        const requestValue = (request) => new Promise((resolve, reject) => {
-          request.onsuccess = () => resolve(request.result);
-          request.onerror = () => reject(request.error);
-        });
-        const transactionDone = (transaction) => new Promise((resolve, reject) => {
-          transaction.oncomplete = () => resolve();
-          transaction.onerror = () => reject(transaction.error);
-          transaction.onabort = () => reject(transaction.error || new Error('IndexedDB transaction aborted'));
-        });
         async function getStoredRecord(id) {
-          if (!id) return null;
-          const db = await openDb();
-          const record = await requestValue(db.transaction('records', 'readonly').objectStore('records').get(id));
-          db.close();
-          return record || null;
+          return annualStorage.getRecord(id);
         }
         async function storeRecord(record) {
-          const db = await openDb();
-          const tx = db.transaction('records', 'readwrite');
-          tx.objectStore('records').put(record);
-          await transactionDone(tx);
-          db.close();
-          return record;
+          return annualStorage.putRecord(record);
         }
         async function storePendingRecord(record, payload) {
-          const db = await openDb();
-          const tx = db.transaction(['records', 'submissionOutbox'], 'readwrite');
-          tx.objectStore('records').put(record);
-          tx.objectStore('submissionOutbox').put({ id: record.id, record, payload, purpose: record.training ? 'service_storage+model_training' : 'service_storage', binding: OUTBOX_PURPOSE, status: 'pending-sync', updatedAt: record.updatedAt });
-          await transactionDone(tx);
-          db.close();
+          return annualStorage.putPendingRecord(record, payload);
         }
         async function updateOutboxRecord(record, purposeReceipts = record.purposeReceipts) {
-          const db = await openDb();
-          const existing = await requestValue(db.transaction('submissionOutbox', 'readonly').objectStore('submissionOutbox').get(record.id));
-          if (existing) {
-            const tx = db.transaction('submissionOutbox', 'readwrite');
-            tx.objectStore('submissionOutbox').put({ ...existing, record, payload: { ...existing.payload, purposeReceipts }, purpose: record.training ? 'service_storage+model_training' : 'service_storage', updatedAt: record.updatedAt });
-            await transactionDone(tx);
-          }
-          db.close();
+          return annualStorage.updateOutboxRecord(record, purposeReceipts);
         }
         async function clearOutbox(id) {
-          const db = await openDb();
-          const tx = db.transaction('submissionOutbox', 'readwrite');
-          tx.objectStore('submissionOutbox').delete(id);
-          await transactionDone(tx);
-          db.close();
+          return annualStorage.clearOutbox(id);
         }
         async function deleteLocalRecord(id) {
-          const db = await openDb();
-          const tx = db.transaction(['records', 'submissionOutbox'], 'readwrite');
-          tx.objectStore('records').delete(id);
-          tx.objectStore('submissionOutbox').delete(id);
-          await transactionDone(tx);
-          db.close();
+          return annualStorage.deleteRecord(id);
         }
         async function loadRecords() {
           try {
-            const db = await openDb();
-            const records = await requestValue(db.transaction('records', 'readonly').objectStore('records').getAll());
-            db.close();
-            state.records = records.sort((a, b) => String(b.createdAt || b.updatedAt || '').localeCompare(String(a.createdAt || a.updatedAt || '')));
+            state.records = await annualStorage.listRecords();
             state.recordsError = '';
           } catch (error) {
             state.records = [];
@@ -1294,11 +1305,11 @@
           if (state.training) purposeReceipts.push({ receiptId: `receipt-training-${clientRequestId}`, purpose: 'model_training', decision: 'accepted', disclosureVersion: 'model-training.v1', recordedAt: now });
           const partnerPurposeReceipts = state.mode === 'couple' ? [{ receiptId: `receipt-partner-service-${clientRequestId}`, purpose: 'service_storage', decision: 'accepted', disclosureVersion: 'service-storage.v1', recordedAt: now, subjectRole: 'partner' }] : undefined;
           const birthInput = { calendar: state.chart.input.calendar, date: state.chart.input.date, time: state.chart.input.time, unknownTime: state.chart.input.unknownTime, place: state.chart.input.place, placeCode: state.chart.input.placeCode };
-          const payload = { schemaVersion: 'submission.v1', clientRequestId, relationshipMode: state.mode, dataSubject: { relationship: 'self', authorityVerified: state.form.samePerson, minor: isMinorBirthDate(state.chart.input.date) }, birthInput, sourceBirthInput: state.chart.input.sourceInput || birthInput, chartResult: state.chart, purposeReceipts };
+          const payload = { schemaVersion: 'submission.v1', clientRequestId, relationshipMode: state.mode, dataSubject: { relationship: 'self', authorityVerified: state.form.samePerson, minor: isMinorBirthDate(state.chart.input.date) }, birthInput, sourceBirthInput: state.chart.input.sourceInput || birthInput, chartResult: state.chart, purposeReceipts, ...annualSubmissionFields(state.annual) };
           if (state.mode === 'couple') payload.partnerSubject = { relationship: 'partner', authorityVerified: state.partnerForm.authorityVerified, minor: 'unknown' };
           if (state.mode === 'couple') { payload.partnerBirthInput = { calendar: state.chart.partnerInput.calendar, date: state.chart.partnerInput.date, time: state.chart.partnerInput.time, unknownTime: state.chart.partnerInput.unknownTime, place: state.chart.partnerInput.place, placeCode: state.chart.partnerInput.placeCode }; payload.partnerSourceBirthInput = state.chart.partnerInput.sourceInput || payload.partnerBirthInput; }
           if (state.mode === 'couple') payload.partnerPurposeReceipts = partnerPurposeReceipts;
-          let record = { id: clientRequestId, clientRequestId, mode: state.mode, chart: state.chart, messages: state.messages, training: state.training, trainingEligible: false, serviceStorage: true, purposeReceipts, partnerPurposeReceipts, serverSubmissionId: '', durable: false, status: 'pending-sync', createdAt: state.chart.createdAt || now, updatedAt: now };
+          let record = { id: clientRequestId, clientRequestId, mode: state.mode, chart: state.chart, annual: state.annual, messages: state.messages, training: state.training, trainingEligible: false, serviceStorage: true, purposeReceipts, partnerPurposeReceipts, serverSubmissionId: '', durable: false, status: 'pending-sync', createdAt: state.chart.createdAt || now, updatedAt: now };
           await storePendingRecord(record, payload);
           const response = await fetch(INGESTION_PATH, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
           if (!response.ok) throw new Error(`ingestion rejected: ${response.status}`);
@@ -1314,7 +1325,7 @@
           if (!state.currentRecordId) return null;
           const current = await getStoredRecord(state.currentRecordId);
           if (!current) return null;
-          const updated = { ...current, chart: state.chart, messages: state.messages, training: state.training, updatedAt: new Date().toISOString() };
+          const updated = { ...current, chart: state.chart, annual: state.annual, messages: state.messages, training: state.training, updatedAt: new Date().toISOString() };
           await storeRecord(updated);
           await updateOutboxRecord(updated);
           return updated;
@@ -1325,6 +1336,11 @@
           state.currentRecordId = record.id || id || newRecordId();
           state.serverSubmissionId = record.serverSubmissionId || '';
           state.chart = record.chart;
+          state.annual = record.annual || null;
+          state.targetYear = record.annual?.targetYear || state.targetYear;
+          state.annualCardIndex = 0;
+          state.annualFact = '';
+          state.annualError = '';
           state.mode = record.mode || record.chart.mode || 'single';
           state.training = Boolean(record.training);
           state.serviceConsent = true;
@@ -1416,7 +1432,7 @@
           showToast('기록 파일을 준비했어요');
         }
         function exportChart() {
-          downloadRecord({ id: state.currentRecordId || null, chart: state.chart, messages: state.messages, training: state.training }, 'saju-chart.json');
+          downloadRecord({ id: state.currentRecordId || null, chart: state.chart, annual: state.annual, messages: state.messages, training: state.training }, 'saju-chart.json');
         }
 
         if (new URLSearchParams(window.location.search).has('demo')) { const demoInput = { ...state.form, place: '서울특별시 종로구 청운효자동', placeCode: '1111051500' }; state.chart = calculateChart(demoInput); state.screen = 'result'; state.saveState = 'outbox'; state.openReadings = ['single-0']; }

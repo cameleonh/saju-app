@@ -242,6 +242,17 @@ Engagement and retention are secondary during the first beta. They must not be i
 - Time-dependent and daewoon-dependent sections must be suppressed or qualified when inputs are missing.
 - The report must avoid medical, legal, financial, or mental-health diagnosis and categorical future claims.
 
+### Annual reading and card-news output
+
+- A single-chart user may choose an enabled target year from 2024 through 2026. A target is enabled only when reviewed KST minute fixtures cover its Ipchun, twelve month starts, next-year Xiaohan, and closing Ipchun. The annual year never silently begins on January 1.
+- `ziping-annual-basic@1.1.0` uses only the natal day stem, natal month branch as context, visible annual/monthly stem ten-god relations, and the explicitly supported clash/six-harmony branch pairs.
+- Gyeokguk, yongsin, strength scoring, johu, punishment/destruction/harm, special combinations, annual hidden-stem activation/weighting, and high-consequence predictions remain visibly excluded.
+- Annual and monthly facts must use stable IDs and record label, value, detail, actual source kind/ID/version, and support status. Every interpretation rule records its required facts, prohibited/conflicting states, priority, claim categories, copy variants, and safety/suppression behavior. Missing facts suppress only dependent rules.
+- A valid default deck contains exactly eight renderer-independent `annual-card.v1` objects in the order cover, overall, work, money, relationships, growth, action, and method.
+- Monthly flow is a separate 12-entry solar-term disclosure. Every entry carries pillar/boundary/interpretation evidence IDs, rule provenance, boundary sensitivity, and an explicit unsupported state; it is not appended to the default eight-card deck.
+- Mobile provides previous/next card controls and position status. Desktop shows an overview. Keyboard focus, reduced motion, a full document view, and print/PDF remain available.
+- Annual JSON and print output exclude raw birth input, exact location, record IDs, and consent metadata.
+
 ### Future AI conversation — not implemented in the verified prototype
 
 - Any future AI chat must be opt-in and unavailable until its just-in-time data-use notice is accepted.
@@ -284,7 +295,7 @@ The UI must show the active policy in user-readable language. Marketing must not
 
 - The product will have three strict layers: deterministic chart calculation, deterministic interpretation facts/rules, and optional generative narration.
 - The calculation core will be framework-independent and executable in both the browser and a test runner.
-- The web interface will call the calculation core locally. No remote calculation API is required for the MVP.
+- The natal web interface calls its calculation core locally. The annual slice uses the same-origin deterministic `/v1/annual-readings` adapter so the pinned ephemeris implementation and content hash remain centralized; cached saved results and client rendering remain available offline.
 - A single high-level calculation contract will accept normalized birth input plus a policy identifier and return one versioned chart result.
 - Structured chart facts will have stable identifiers so the report, AI output, feedback, and regression tests can reference the same evidence.
 - Source calendar or ephemeris data must carry provenance, license, version, covered range, and generation method. An undocumented CSV cannot be a production source.
@@ -343,6 +354,7 @@ The product will maintain these conceptual records:
 - **Calculation Policy:** stable identifier, version, named conventions, and source-data versions.
 - **Chart Result:** pillars, derived facts, cycle data, sensitivity findings, engine version, policy version, and creation timestamp.
 - **Chart Fact:** stable fact identifier, category, structured value, dependencies, and provenance.
+- **Annual Reading:** target year, Ipchun range and boundary flags, natal chart engine/policy provenance, annual policy/ephemeris source, interpretation profile/rule-set versions, annual and monthly facts, eight cards, separate monthly flow, claim trace, suppressed/unsupported states, and content hash. It extends rather than overwrites a natal chart result and round-trips as one complete versioned object.
 - **Reading Block:** section, text, supporting fact identifiers, content source, and uncertainty markers.
 - **Purpose Authorization:** purpose, disclosure version, lawful basis, consent decision when applicable, scope, state, and timestamp.
 - **Feedback Record:** issue category, result versions, affected fact identifiers, and user comment only when explicitly submitted.
@@ -409,6 +421,7 @@ The highest and primary seam is the external calculation behavior: normalized bi
 
 - Authoritative golden fixtures for ordinary dates.
 - All 24 solar-term boundaries at minus one minute, exact boundary, and plus one minute.
+- Every enabled annual target's Ipchun at minus one minute, exact boundary, and plus one minute, plus the next-year Xiaohan-to-Ipchun closing month.
 - Lichun cases where year and month pillars can change.
 - Lunar new year, regular/leap month entry and exit, and lunar month-end conversion.
 - 23:00, 23:30, midnight, 00:30, and 01:30 cases under the approved day/hour policy.
@@ -418,6 +431,9 @@ The highest and primary seam is the external calculation behavior: normalized bi
 - Boundary-sensitivity warnings and alternative-result comparisons through the rendered user flow.
 - Local cache/outbox creation, migration, clearing, and offline restoration against the canonical server profile.
 - IndexedDB schema upgrade and rollback behavior, including interruption during migration.
+- Lossless annual-result round-trip through IndexedDB, SQLite compatibility migration, and privacy-safe JSON export.
+- Per-rule missing-fact suppression, clash-over-harmony priority, rule-version fingerprint changes, and complete card/month claim traces.
+- Annual training withdrawal preserving the service result and submission deletion cascading to the annual row.
 - PostgreSQL foreign-key, check-constraint, idempotency, and optimistic-concurrency behavior.
 - RLS tests proving authenticated user A, authenticated user B, and an anonymous client cannot cross ownership boundaries.
 - Central ingestion tests proving birth input, result, purpose authorization/consent, processing lineage, and integration event commit atomically and retries are idempotent.

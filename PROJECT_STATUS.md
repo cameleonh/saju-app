@@ -2,14 +2,14 @@
 
 | Field | Value |
 |---|---|
-| Status date | 2026-08-02 |
+| Status date | 2026-08-04 |
 | Project root | `D:\\codings\\260801_saju-app` |
-| Current phase | Verified local UX and data-lifecycle prototype |
+| Current phase | PR #2 annual-reading implementation complete and merge-ready; launch-policy prerequisites remain |
 | Application code | Implemented in `index.html` with PWA shell |
 
 ## Current Objective
 
-Complete and verify the mobile-first personal/couple Saju prototype: honest consent, responsive input, readable deterministic interpretation, record lifecycle controls, rule-based question guidance, and explicit development-versus-production data boundaries.
+Complete and verify Issue #1: a bounded Ziping-derived annual profile, deterministic Ipchun facts, evidence-linked eight-card output, separate monthly flow, privacy-safe export, and compatible browser/server storage contracts.
 
 ## Decisions in Force
 
@@ -52,10 +52,13 @@ Complete and verify the mobile-first personal/couple Saju prototype: honest cons
 - Reading chapters now use a fixed reader-first order: `한눈에 보기`, `쉽게 풀어보면`, `오늘 해볼 일`, and `생각해볼 질문`. The Korean copy uses shorter direct sentences and calculated particles for dynamic stems/elements. Reading text is 17px by default and 19px in the user-controlled large-text mode.
 - Routine storage, training, external-AI, and engine-version metadata no longer appears as a result-side status card. Record deletion remains available under `계산 원칙`, and storage behavior is unchanged.
 - The question area is a deterministic rule-based organizer, not an AI chat. It produces conditional, reader-first prompts for work, relationship, money, health, or general questions and does not send the question to an external provider.
-- Navigation now has distinct method and data screens, active current-page states, and a stage contract that restores heading focus at scroll position zero. The service worker uses cache `saju-app-shell-v7`, network-first navigation, a canonical offline shell fallback, and no eager birthplace-catalog precache.
+- Navigation now has distinct method and data screens, active current-page states, and a stage contract that restores heading focus at scroll position zero. The service worker uses cache `saju-app-shell-v9`, precaches both annual client modules, retains network-first navigation and a canonical offline shell fallback, and does not eagerly precache the birthplace catalog.
 - Start-screen consent controls now appear as two full-width cards stacked vertically. Each entire card is clickable, the checkbox target is 22px, and keyboard focus receives a visible ring.
 - The official shadcn/ui, Aceternity UI, Magic UI, 21st.dev, and React Bits catalogs were reviewed. Their interaction and motion patterns are recorded in `DESIGN.md`; no React/Tailwind migration or decorative dependency was added to the vanilla prototype.
 - `db/migrations/001_initial_contract.sql` defines the PostgreSQL bounded-context storage contract, encrypted vault boundary, governance receipts, processing lineage, transactional outbox, and training lineage tables.
+- `server/domain/annual-ephemeris.mjs` implements the source-versioned 2024–2027 KST minute fixtures that enable target years 2024–2026. `server/domain/annual.mjs` and `annual-rules.mjs` implement `KR-ANNUAL-IPCHUN-1.1`, `ziping-annual-basic@1.1.0`, structured annual/monthly facts and rules, selective suppression, clash priority, claim traces, explicit hidden-stem exclusion, and a version-sensitive SHA-256 content hash.
+- `annual/client.mjs` keeps annual request construction, lossless privacy-safe export, programmatically focusable card/document/monthly rendering, and evidence controls outside the inline natal engine. `annual/storage.mjs` owns injectable IndexedDB transactions. Single-chart input selects only 2024–2026; couple mode remains natal-only.
+- `server/http.mjs`, `server/domain/submission.mjs`, SQLite, and the PostgreSQL contract require complete chart/annual provenance and persist the full annual object without replacing the natal chart result. SQLite compatibility migration is additive, foreign-key cascade is active, and withdrawal removes only the training projection.
 - `tests/server/ingestion.mjs` verifies the adapter contract without requiring a live database.
 
 ### Verified
@@ -79,6 +82,11 @@ Complete and verify the mobile-first personal/couple Saju prototype: honest cons
 - Durable visual evidence is stored under `/home/honey/.gstack/projects/260801-saju-app/designs/design-audit-20260802/screenshots/`.
 - Browser QA verified 17px reading copy, 19px large-text mode, no storage-status panel, one retained delete control, and zero horizontal overflow at 320px, 390px, 768px, 1024px, and 1440px. Single and couple flows rendered eight and seven chapters with no console errors.
 - Fresh post-cleanup `npm test` passed: chart/UI smoke (113 assertions), record lifecycle (33 assertions), and ingestion/storage contract (34 assertions), for 180 assertions total.
+- Annual unit tests verify every enabled target's Ipchun at -1 minute, exact, +1 minute, and closing boundary; the following-year Xiaohan month; `甲子` across a 60-year boundary; structured rule fields; per-rule suppression; clash priority; annual/month fact/rule/claim traces; mandatory chart provenance; hidden-stem exclusion; deterministic hash behavior; focusable markup; and privacy-safe lossless export.
+- Fresh 2026-08-04 `npm test` passed 315 assertions: annual policy/client (82), chart/UI smoke (128), record lifecycle (44), and HTTP/SQLite ingestion (61). The run includes exact annual object round-trips through the injected IndexedDB boundary and SQLite, legacy SQLite additive migration, annual training withdrawal retention, and deletion cascade.
+- Implementation commit `127c99a` was pushed to PR #2; GitHub Actions `verify` passed and GitHub reported the PR as mergeable. Parallel native standards/spec reviewers failed at the encrypted tool-output transport boundary, so the leader completed the documented fallback review against Issue #1 and the three owner review comments without finding a remaining code blocker.
+- Fresh Chromium QA created, saved, reopened, and deleted the 2026 annual reading. The IndexedDB object and reopened UI retained the same content hash; next-card navigation moved focus to the active card with a visible gold focus ring; reduced-motion computed a 0.01ms transition; print hid natal/monthly/private content; and no console errors occurred.
+- Live overflow checks returned zero at 320, 390, 768, 1024, and 1440px. Mobile exposed one active card, while tablet/desktop exposed all eight in document order. Detailed evidence is in `devlog/_plan/260804_pr2_annual_reading_completion/030_browser_qa.md`.
 - A freshly restarted local server returned `{"status":"ok","service":"saju-ingestion-adapter","persistence":"sqlite","durable":true}`.
 - Post-cleanup browser QA verified one initial application request before optional font subsets, one lazy birthplace-catalog request only after entering birth input, one submission POST per calculation, no network request for rule-based questions, and no console errors.
 - Mobile QA verified the missing-service guard, service-only calculation, `문현동` resolution, 17px/19px reading modes, one reopened conversation record, method/data/home focus at scroll zero, confirmed clear-all, training withdrawal, and deletion. Desktop QA verified self-left/partner-right input and result sheets, `삼성동` ambiguity selection, seven couple chapters, no compatibility score, and no result-side storage/engine panel.
@@ -88,14 +96,15 @@ Complete and verify the mobile-first personal/couple Saju prototype: honest cons
 
 - No managed PostgreSQL/KMS/identity provider, production AI provider, or training pipeline has been implemented. Local SQLite is durable for development but is not production infrastructure.
 - The current chart engine is an explicitly labeled demo policy and must not be treated as the production calendrical oracle.
+- Annual targets outside 2024–2026 are deliberately unavailable. A later year requires a complete reviewed target/closing fixture set before the enabled range changes. `lunar-javascript@1.7.7` remains only for the separate lunar-date conversion path.
 - The birthplace catalog represents current administrative and legal 동·읍·면·리 names as of 2026-07-20. Historical boundary/name resolution and overseas birthplace support remain outside this prototype policy.
 - Couple storage is structurally separated and local SQLite submissions can be deleted. Production account ownership, partner-subject authorization, subject-wide deletion/withdrawal, durable PostgreSQL, and downstream processor/dataset erasure are not implemented.
 - Legal references are source-backed, but the resulting product rules still require Korean privacy counsel review before collection begins.
-- Calculation conventions and golden fixtures have not been approved.
+- Natal calculation conventions and launch golden fixtures have not been approved. The bounded 2024–2026 annual Ipchun fixture set is reviewed and implemented separately.
 
 ## Open Launch Prerequisites
 
-1. Approve the calculation policy: calendar conversion, solar-term source, civil/solar time, day boundary, hour boundary, daewoon direction, and supported date range.
+1. Approve the natal calculation policy: calendar conversion, civil/solar time, day boundary, hour boundary, daewoon direction, and supported birth-date range.
 2. Approve data-controller/processor roles, hosting region, retention periods, minor handling, third-party data rules, cross-border transfers, and user-facing notices.
 3. Select the first training objective and its eligible feature/label schema; do not collect an undefined blanket training grant.
 4. Select PostgreSQL, object storage, key-management, identity, AI-provider, and observability vendors.
@@ -106,9 +115,9 @@ Complete and verify the mobile-first personal/couple Saju prototype: honest cons
 - Document structure and cross-document terminology checked on 2026-08-01.
 - Active-document stale-claim scanning excludes the archived v0.1 design and checks for superseded storage and AI-retention requirements.
 - Required architecture and training-governance sections are present.
-- Verification includes fresh automated tests, local-server rendering, single/couple/lunar browser flows, 390px overflow checks, and mobile/desktop screenshots; it is not evidence of production infrastructure.
+- Verification includes fresh automated tests, local-server annual rendering, evidence/card/monthly interactions, privacy checks, responsive overflow measurements, and mobile/desktop screenshots; it is not evidence of production infrastructure.
 - Central-ingestion verification includes `npm test`, which runs the chart smoke test and HTTP purpose/authority validation against an ephemeral local adapter.
 
 ## Exact Next Required Action
 
-The local audit-remediation goal is implemented and verified. Before public collection, resolve the launch calculation policy and legal/data-controller choices, then wire `server/` to PostgreSQL/KMS/identity and freeze a specific product-learning objective.
+Review and merge PR #2, then resolve the remaining natal calculation and legal/data-controller choices before wiring `server/` to PostgreSQL/KMS/identity and freezing a specific product-learning objective.

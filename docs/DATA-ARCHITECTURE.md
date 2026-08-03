@@ -196,11 +196,10 @@ IndexedDB database: `saju_app`, migrated transactionally.
 
 | Object store | Key/indexes | Purpose |
 |---|---|---|
-| `profiles` | UUID; `updatedAt` | Local working copy of profile input and label |
-| `chartResults` | UUID; `profileId`; unique `fingerprint` | Local immutable result cache |
-| `purposeReceipts` | receipt ID; purpose/version | Signed or server-issued disclosure, lawful-basis, and consent evidence used by an outbound submission |
-| `submissionOutbox` | request UUID; `syncState`; `createdAt` | Encrypted offline submissions awaiting central persistence |
-| `appSettings` | setting key | Locale, theme, accessibility, and display preferences |
+| `records` | client request UUID | Current local aggregate containing separate `chart` and lossless `annual` properties, messages, purpose receipts, and sync state |
+| `submissionOutbox` | client request UUID | Purpose-receipt-bound submissions awaiting durable central persistence |
+
+The prototype intentionally keeps this two-store schema small. The normalized `profiles`, `chartResults`, `purposeReceipts`, and `appSettings` stores remain a production evolution, not a claim about the current IndexedDB implementation. `annual/storage.mjs` owns the transaction boundary and accepts an injected IndexedDB factory for deterministic lifecycle tests.
 
 Browser rules:
 
@@ -212,6 +211,14 @@ Browser rules:
 - `localStorage` remains prohibited for birth profiles, content, authorization evidence, and tokens.
 
 ## Internal Schema: PostgreSQL
+
+### Annual reading extension
+
+`ops.annual_readings` is a one-to-one extension of `ops.submissions`. It stores explicit `reading_scope` and `schema_version`, the target year, versioned annual calculation policy, interpretation profile, annual facts, exactly eight cards, twelve separate monthly-flow entries, a complete `annual_result jsonb`, and a SHA-256 content hash. The target-year check is `2024..2026`. The natal `ops.chart_results` row remains unchanged and independently addressable.
+
+The development SQLite adapter mirrors this boundary in a separate `annual_readings` table. It retains the queryable policy/fact/card/month/hash columns and additively stores `reading_scope`, `schema_version`, and the complete `annual_result_json`; opening an older development file adds those columns without dropping data. SQLite foreign keys are enabled so submission deletion cascades to the annual row. Browser IndexedDB records keep `chart` and `annual` as separate properties, and submission payloads use `readingScope`, `targetYear`, and `annualResult` instead of mutating the natal chart contract.
+
+Annual training projection is permitted only under the existing purpose and subject gates. It may include the safe annual facts/cards/monthly flow, effective range, policy/profile/rule versions, boundary/unsupported states, claim trace, and content hash, but it excludes raw birth input, exact location, record identifiers, and consent metadata. Withdrawal sets the stored training projection to `NULL` while preserving the service annual result; submission deletion removes the annual row through the foreign key.
 
 The relational model is normalized to at least 3NF. Large immutable chart/read/content documents use versioned JSONB or encrypted binary aggregates because they are read and versioned as units; this is an explicit denormalization.
 
