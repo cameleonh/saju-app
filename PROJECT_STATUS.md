@@ -4,12 +4,12 @@
 |---|---|
 | Status date | 2026-08-04 |
 | Project root | `D:\\codings\\260801_saju-app` |
-| Current phase | PR #2 annual-reading implementation complete and merge-ready; launch-policy prerequisites remain |
+| Current phase | PR #2 annual-reading implementation merged and deployed to AWS Lightsail; launch-policy prerequisites remain |
 | Application code | Implemented in `index.html` with PWA shell |
 
 ## Current Objective
 
-Complete and verify Issue #1: a bounded Ziping-derived annual profile, deterministic Ipchun facts, evidence-linked eight-card output, separate monthly flow, privacy-safe export, and compatible browser/server storage contracts.
+Resolve the remaining natal calculation, legal/data-controller, governed storage, and product-learning prerequisites after delivering Issue #1's bounded annual-reading profile.
 
 ## Decisions in Force
 
@@ -85,6 +85,7 @@ Complete and verify Issue #1: a bounded Ziping-derived annual profile, determini
 - Annual unit tests verify every enabled target's Ipchun at -1 minute, exact, +1 minute, and closing boundary; the following-year Xiaohan month; `甲子` across a 60-year boundary; structured rule fields; per-rule suppression; clash priority; annual/month fact/rule/claim traces; mandatory chart provenance; hidden-stem exclusion; deterministic hash behavior; focusable markup; and privacy-safe lossless export.
 - Fresh 2026-08-04 `npm test` passed 315 assertions: annual policy/client (82), chart/UI smoke (128), record lifecycle (44), and HTTP/SQLite ingestion (61). The run includes exact annual object round-trips through the injected IndexedDB boundary and SQLite, legacy SQLite additive migration, annual training withdrawal retention, and deletion cascade.
 - Implementation commit `127c99a` was pushed to PR #2; GitHub Actions `verify` passed and GitHub reported the PR as mergeable. Parallel native standards/spec reviewers failed at the encrypted tool-output transport boundary, so the leader completed the documented fallback review against Issue #1 and the three owner review comments without finding a remaining code blocker.
+- PR #2 was squash-merged to `main` as `ed819a2`; the resulting GitHub Actions `verify` run passed. The Lightsail pull updater built and atomically switched to that release, the Node service and deployment timer stayed active, Apache configuration passed, the internal durable SQLite health response was healthy, and `https://saju.blog/` returned 200 with real application content and no browser console errors.
 - Fresh Chromium QA created, saved, reopened, and deleted the 2026 annual reading. The IndexedDB object and reopened UI retained the same content hash; next-card navigation moved focus to the active card with a visible gold focus ring; reduced-motion computed a 0.01ms transition; print hid natal/monthly/private content; and no console errors occurred.
 - Live overflow checks returned zero at 320, 390, 768, 1024, and 1440px. Mobile exposed one active card, while tablet/desktop exposed all eight in document order. Detailed evidence is in `devlog/_plan/260804_pr2_annual_reading_completion/030_browser_qa.md`.
 - A freshly restarted local server returned `{"status":"ok","service":"saju-ingestion-adapter","persistence":"sqlite","durable":true}`.
@@ -120,4 +121,4 @@ Complete and verify Issue #1: a bounded Ziping-derived annual profile, determini
 
 ## Exact Next Required Action
 
-Review and merge PR #2, then resolve the remaining natal calculation and legal/data-controller choices before wiring `server/` to PostgreSQL/KMS/identity and freezing a specific product-learning objective.
+Resolve the remaining natal calculation and legal/data-controller choices before wiring `server/` to PostgreSQL/KMS/identity and freezing a specific product-learning objective.
