@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
 import { createIngestionServer } from '../../server/http.mjs';
 import { createSqliteStorage } from '../../server/storage/sqlite.mjs';
 
@@ -14,7 +17,7 @@ const valid = (overrides = {}) => ({
   clientRequestId: 'client-1',
   dataSubject: { relationship: 'self', authorityVerified: true, minor: false },
   birthInput: { calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울특별시 강남구 역삼1동', placeCode: '1168064000', unknownTime: false },
-  chartResult: { pillars: ['庚午', '丙戌', '戊申', '己未'], facts: [{ id: 'day.element', value: '토' }], reading: [], policy: { id: 'KR-CIVIL-0.1' } },
+  chartResult: { pillars: ['庚午', '丙戌', '戊申', '己未'], facts: [{ id: 'day.element', value: '토' }], reading: [], policy: { id: 'KR-CIVIL-0.1', version: '0.1.0', engine: 'saju-demo-engine', engineVersion: '0.1.0' } },
   purposeReceipts: [receipt('service_storage')],
   ...overrides,
 });
@@ -27,15 +30,17 @@ assert.equal(health.headers.get('x-content-type-options'), 'nosniff');
 const lunarResponse = await fetch(`${url}/v1/calendar/convert`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ calendar: 'lunar', year: 2024, month: 1, day: 1, leapMonth: false, hour: 14, minute: 30 }) });
 assert.equal(lunarResponse.status, 200);
 assert.equal((await lunarResponse.json()).date, '2024-02-10');
-const annualRequest = { targetYear: 2026, natal: { dayStem: '戊', monthBranch: '戌', branches: ['午', '戌', '申', '未'], unknownTime: false }, chartPolicy: { id: 'KR-CIVIL-0.1' } };
+const annualRequest = { targetYear: 2026, natal: { dayStem: '戊', monthBranch: '戌', branches: ['午', '戌', '申', '未'], unknownTime: false }, chartPolicy: { id: 'KR-CIVIL-0.1', version: '0.1.0', engine: 'saju-demo-engine', engineVersion: '0.1.0' } };
 const annualResponse = await fetch(`${url}/v1/annual-readings`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(annualRequest) });
 assert.equal(annualResponse.status, 200);
 const annualResult = await annualResponse.json();
-const annualChartResult = { pillars: [{ stem: '庚', branch: '午' }, { stem: '丙', branch: '戌' }, { stem: '戊', branch: '申' }, { stem: '己', branch: '未' }], facts: [{ id: 'day.element', value: '토' }], reading: [], policy: { id: 'KR-CIVIL-0.1' } };
+const annualChartResult = { pillars: [{ stem: '庚', branch: '午' }, { stem: '丙', branch: '戌' }, { stem: '戊', branch: '申' }, { stem: '己', branch: '未' }], facts: [{ id: 'day.element', value: '토' }], reading: [], policy: annualRequest.chartPolicy };
 assert.equal(annualResult.cards.length, 8);
 assert.equal(annualResult.monthlyFlow.length, 12);
 const rejectedAnnual = await fetch(`${url}/v1/annual-readings`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...annualRequest, targetYear: 2100 }) });
 assert.equal(rejectedAnnual.status, 422);
+const missingAnnualProvenance = await fetch(`${url}/v1/annual-readings`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...annualRequest, chartPolicy: { id: 'KR-CIVIL-0.1' } }) });
+assert.equal(missingAnnualProvenance.status, 422);
 const accepted = await post(valid());
 assert.equal(accepted.status, 202);
 assert.equal((await accepted.json()).durable, false);
@@ -75,6 +80,10 @@ const tamperedAnnual = structuredClone(annualResult);
 tamperedAnnual.cards[0].summary = 'tampered claim';
 const tamperedAnnualResponse = await post(valid({ clientRequestId: 'tampered-annual', chartResult: annualChartResult, readingScope: 'annual', targetYear: 2026, annualResult: tamperedAnnual }));
 assert.equal(tamperedAnnualResponse.status, 422);
+const incompleteAnnual = structuredClone(annualResult);
+delete incompleteAnnual.boundaryFlags;
+const incompleteAnnualResponse = await post(valid({ clientRequestId: 'incomplete-annual', chartResult: annualChartResult, readingScope: 'annual', targetYear: 2026, annualResult: incompleteAnnual }));
+assert.equal(incompleteAnnualResponse.status, 422);
 
 const adapterDeletion = await fetch(`${url}/v1/submissions/adapter-only`, { method: 'DELETE' });
 assert.equal(adapterDeletion.status, 409);
@@ -103,14 +112,25 @@ assert.equal(durableAnnualResponse.status, 202);
 const durableAnnualBody = await durableAnnualResponse.json();
 const annualRow = durableStorage.getAnnualReading(durableAnnualBody.submissionId);
 assert.equal(annualRow.target_year, 2026);
+assert.equal(annualRow.reading_scope, 'annual');
+assert.equal(annualRow.schema_version, 'annual-reading.v1');
 assert.equal(JSON.parse(annualRow.annual_cards_json).length, 8);
 assert.equal(JSON.parse(annualRow.monthly_flow_json).length, 12);
 assert.equal(annualRow.content_hash, annualResult.contentHash);
+assert.deepEqual(durableStorage.getAnnualReadingResult(durableAnnualBody.submissionId), annualResult, 'complete annual result round-trips losslessly');
 
 const projectedAnnual = projection.buildTrainingProjection(valid({ chartResult: annualChartResult, purposeReceipts: [receipt('service_storage'), receipt('model_training')], readingScope: 'annual', targetYear: 2026, annualResult }));
 assert.equal(projectedAnnual.readingScope, 'annual');
 assert.equal(projectedAnnual.annualCards.length, 8);
 assert.doesNotMatch(JSON.stringify(projectedAnnual.annualCards), /1990-10-10|역삼1동|1168064000/);
+
+const durableAnnualTrainingResponse = await fetch(`http://127.0.0.1:${durablePort}/v1/submissions`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(valid({ clientRequestId: 'durable-annual-training-client', chartResult: annualChartResult, purposeReceipts: [receipt('service_storage'), receipt('model_training')], readingScope: 'annual', targetYear: 2026, annualResult })) });
+assert.equal(durableAnnualTrainingResponse.status, 202);
+const durableAnnualTrainingBody = await durableAnnualTrainingResponse.json();
+const annualWithdrawalResponse = await fetch(`http://127.0.0.1:${durablePort}/v1/submissions/${durableAnnualTrainingBody.submissionId}/training-withdrawal`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ recordedAt: '2026-08-02T00:00:00Z' }) });
+assert.equal(annualWithdrawalResponse.status, 200);
+assert.equal(durableStorage.getSubmission(durableAnnualTrainingBody.submissionId).training_projection_json, null);
+assert.deepEqual(durableStorage.getAnnualReadingResult(durableAnnualTrainingBody.submissionId), annualResult, 'withdrawal retains the service annual result');
 
 const durableTrainingResponse = await fetch(`http://127.0.0.1:${durablePort}/v1/submissions`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(valid({ clientRequestId: 'durable-training-client', purposeReceipts: [receipt('service_storage'), receipt('model_training')] })) });
 const durableTrainingBody = await durableTrainingResponse.json();
@@ -134,8 +154,25 @@ assert.equal((await deletionResponse.json()).deleted, true);
 assert.equal(durableStorage.getSubmission(durableBody.submissionId), null);
 const missingDeletion = await fetch(`http://127.0.0.1:${durablePort}/v1/submissions/${durableBody.submissionId}`, { method: 'DELETE' });
 assert.equal(missingDeletion.status, 404);
+const annualDeletionResponse = await fetch(`http://127.0.0.1:${durablePort}/v1/submissions/${durableAnnualBody.submissionId}`, { method: 'DELETE' });
+assert.equal(annualDeletionResponse.status, 200);
+assert.equal(durableStorage.getAnnualReading(durableAnnualBody.submissionId), null, 'foreign-key cascade removes annual row');
 durableServer.close();
 durableStorage.close();
+
+const legacyDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'saju-annual-legacy-'));
+const legacyPath = path.join(legacyDirectory, 'legacy.sqlite');
+const legacyDb = new DatabaseSync(legacyPath);
+legacyDb.exec(`
+  CREATE TABLE submissions (submission_id TEXT PRIMARY KEY, client_request_id TEXT NOT NULL UNIQUE, relationship_mode TEXT NOT NULL DEFAULT 'single', data_subject_json TEXT NOT NULL, partner_subject_json TEXT, birth_input_json TEXT NOT NULL, chart_result_json TEXT NOT NULL, purpose_receipts_json TEXT NOT NULL, status_code TEXT NOT NULL, created_at TEXT NOT NULL);
+  CREATE TABLE annual_readings (submission_id TEXT PRIMARY KEY REFERENCES submissions(submission_id) ON DELETE CASCADE, target_year INTEGER NOT NULL, calculation_policy_json TEXT NOT NULL, interpretation_profile_json TEXT NOT NULL, annual_facts_json TEXT NOT NULL, annual_cards_json TEXT NOT NULL, monthly_flow_json TEXT NOT NULL, content_hash TEXT NOT NULL, created_at TEXT NOT NULL);
+`);
+legacyDb.close();
+const migratedLegacyStorage = createSqliteStorage(legacyPath);
+assert.doesNotThrow(() => migratedLegacyStorage.saveSubmission({ submissionId: 'legacy-annual-id', input: valid({ clientRequestId: 'legacy-annual-client', chartResult: annualChartResult, readingScope: 'annual', targetYear: 2026, annualResult }), projection: null, status: 'accepted' }));
+assert.deepEqual(migratedLegacyStorage.getAnnualReadingResult('legacy-annual-id'), annualResult, 'additive migration makes old SQLite files lossless');
+migratedLegacyStorage.close();
+fs.rmSync(legacyDirectory, { recursive: true, force: true });
 
 server.close();
 const assertionCount = (fs.readFileSync(new URL(import.meta.url), 'utf8').match(/\bassert\./g) || []).length;
