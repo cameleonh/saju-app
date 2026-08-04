@@ -61,6 +61,9 @@ if ! (
     cd "$release_root"
     npm ci --omit=dev --ignore-scripts
     install -m 644 deploy/systemd/saju-app.service /etc/systemd/system/saju-app.service
+    install -m 644 deploy/apache/saju.blog.conf /etc/apache2/sites-available/saju.blog.conf
+    install -m 644 deploy/apache/saju.blog-le-ssl.conf /etc/apache2/sites-available/saju.blog-le-ssl.conf
+    apache2ctl configtest
     systemctl daemon-reload
     install -d -o www-data -g www-data -m 750 "$STATE_DIR"
     switch_link "$release_root"
@@ -68,6 +71,8 @@ if ! (
     systemctl restart saju-app
     systemctl is-active --quiet saju-app
     wait_for_health
+    systemctl reload apache2
+    install -m 755 deploy/bin/update-saju-app.sh /usr/local/sbin/saju-app-update
 ); then
     if [ -n "$previous_root" ] && [ -d "$previous_root" ]; then
         switch_link "$previous_root"
