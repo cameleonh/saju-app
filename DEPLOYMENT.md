@@ -5,7 +5,7 @@ The Saju app is deployed as a static frontend plus a small Node.js ingestion ser
 - Apache redirects HTTP to HTTPS and reverse-proxies every HTTPS request to Node on `127.0.0.1:4174`.
 - Node serves an explicit public-asset allowlist, so repository metadata, server source, tests, documents, and SQLite files cannot bypass the application boundary through Apache.
 - The Node service uses Node.js 22 because the SQLite adapter imports `node:sqlite`.
-- SQLite runtime data lives outside releases at `/var/lib/saju-app/saju.sqlite`.
+- SQLite runtime data lives outside releases in the service-owned `/var/lib/saju-app/runtime/` directory. The root-owned source checkout remains a separate sibling and is not writable by the Node service.
 - GitHub Actions runs `npm test` on every pull request and push to `main`.
 - A Lightsail systemd timer pulls `main` every five minutes and atomically deploys new commits.
 

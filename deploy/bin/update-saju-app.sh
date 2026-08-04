@@ -5,6 +5,7 @@ REPOSITORY_URL="https://github.com/cameleonh/saju-app.git"
 BRANCH="main"
 STATE_DIR="/var/lib/saju-app"
 SOURCE_DIR="$STATE_DIR/source"
+RUNTIME_DIR="$STATE_DIR/runtime"
 RELEASES_DIR="/var/www/saju-app-releases"
 CURRENT_LINK="/var/www/saju-app"
 LOCK_FILE="/run/lock/saju-app-update.lock"
@@ -65,7 +66,16 @@ if ! (
     install -m 644 deploy/apache/saju.blog-le-ssl.conf /etc/apache2/sites-available/saju.blog-le-ssl.conf
     apache2ctl configtest
     systemctl daemon-reload
-    install -d -o www-data -g www-data -m 750 "$STATE_DIR"
+    systemctl stop saju-app || true
+    install -d -o www-data -g www-data -m 750 "$RUNTIME_DIR"
+    if [ -f "$STATE_DIR/saju.sqlite" ] && [ ! -e "$RUNTIME_DIR/saju.sqlite" ]; then
+        mv "$STATE_DIR/saju.sqlite" "$RUNTIME_DIR/saju.sqlite"
+    fi
+    for database_file in "$RUNTIME_DIR"/saju.sqlite*; do
+        [ -e "$database_file" ] || continue
+        chown www-data:www-data "$database_file"
+        chmod 640 "$database_file"
+    done
     switch_link "$release_root"
     systemctl enable saju-app
     systemctl restart saju-app
