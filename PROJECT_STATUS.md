@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Status date | 2026-08-04 |
+| Status date | 2026-08-05 |
 | Project root | `D:\\codings\\260801_saju-app` |
-| Current phase | Production natal-engine implementation and local verification complete; branch deployment pending |
+| Current phase | Production natal engine deployed and verified; legal and governed-storage prerequisites remain |
 | Application code | Implemented in `index.html` with PWA shell |
 
 ## Current Objective
@@ -91,6 +91,10 @@ Ship the versioned natal calculation baseline, then resolve the remaining legal/
 - Fresh 2026-08-04 `npm test` passed 315 assertions: annual policy/client (82), chart/UI smoke (128), record lifecycle (44), and HTTP/SQLite ingestion (61). The run includes exact annual object round-trips through the injected IndexedDB boundary and SQLite, legacy SQLite additive migration, annual training withdrawal retention, and deletion cascade.
 - Fresh natal-engine `npm test` passed 392 static assertions plus 48 reviewed solar-term boundaries at `-1 / exact / +1` minute: natal policy (53 plus 48 fixture loops), annual policy/client (82), chart/UI smoke (142), record lifecycle (44), and HTTP/SQLite ingestion/security (71). `npm audit --omit=dev` reported zero vulnerabilities.
 - Mobile browser QA at the exact 2024 Ipchun boundary rendered `甲辰 · 丙寅 · 戊戌 · 辛酉`, exposed the before/after year-month comparison through the boundary evidence control, reported zero horizontal overflow, and produced no console error.
+- PR #3 delivered the natal engine as `d525db7`, PR #4 closed the Apache static-file bypass as `e47a4cf`, and PR #5 separated writable SQLite runtime state as `386c773`; every PR and post-merge `main` GitHub Actions `verify` run passed.
+- Lightsail atomically switched to release `386c773`. Apache, the Node service, and the five-minute pull timer are active. Apache configuration passed, `/health` reports durable SQLite persistence, approved public assets return 200, and package metadata, server source, tests, status documents, SQLite files, and Git metadata return 404 from the public domain.
+- The existing SQLite database was preserved under `/var/lib/saju-app/runtime/saju.sqlite` with a root-owned state/source boundary and a service-owned `750` runtime directory. A production browser submission returned 202, its test record was deleted through the public lifecycle API, and a same-release updater run preserved runtime ownership and service health.
+- Production mobile browser QA at the exact 2024 Ipchun boundary rendered `KR-CIVIL-1.0` and `甲辰 · 丙寅 · 戊戌 · 辛酉`, expanded the before/after boundary evidence, reported zero horizontal overflow, and completed every first-party request successfully. A separate production demo load completed with no console errors.
 - A fresh 10,000-run Node microbenchmark of the ordinary natal calculation measured 0.0083ms median, 0.0152ms p95, and 0.8387ms maximum on the verification host; responsive browser QA remained the user-flow evidence rather than treating the microbenchmark as a mobile-device claim.
 - Implementation commit `127c99a` was pushed to PR #2; GitHub Actions `verify` passed and GitHub reported the PR as mergeable. Parallel native standards/spec reviewers failed at the encrypted tool-output transport boundary, so the leader completed the documented fallback review against Issue #1 and the three owner review comments without finding a remaining code blocker.
 - PR #2 was squash-merged to `main` as `ed819a2`; the resulting GitHub Actions `verify` run passed. The Lightsail pull updater built and atomically switched to that release, the Node service and deployment timer stayed active, Apache configuration passed, the internal durable SQLite health response was healthy, and `https://saju.blog/` returned 200 with real application content and no browser console errors.
@@ -128,4 +132,4 @@ Ship the versioned natal calculation baseline, then resolve the remaining legal/
 
 ## Exact Next Required Action
 
-Deploy `KR-CIVIL-1.0`, then resolve the legal/data-controller choices before wiring `server/` to PostgreSQL/KMS/identity and freezing a specific product-learning objective.
+Resolve the legal/data-controller choices before wiring `server/` to PostgreSQL/KMS/identity and freezing a specific product-learning objective.
