@@ -2,8 +2,8 @@
 
 The Saju app is deployed as a static frontend plus a small Node.js ingestion service:
 
-- Apache serves the files in `/var/www/saju-app`.
-- Apache reverse-proxies `/health` and `/v1/*` to Node on `127.0.0.1:4174`.
+- Apache redirects HTTP to HTTPS and reverse-proxies every HTTPS request to Node on `127.0.0.1:4174`.
+- Node serves an explicit public-asset allowlist, so repository metadata, server source, tests, documents, and SQLite files cannot bypass the application boundary through Apache.
 - The Node service uses Node.js 22 because the SQLite adapter imports `node:sqlite`.
 - SQLite runtime data lives outside releases at `/var/lib/saju-app/saju.sqlite`.
 - GitHub Actions runs `npm test` on every pull request and push to `main`.

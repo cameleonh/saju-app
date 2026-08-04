@@ -5,6 +5,8 @@ import { calculateNatalChart } from '../chart/natal-engine.mjs';
 
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const adminAreaSource = fs.readFileSync(new URL('../data/admin-areas.js', import.meta.url), 'utf8');
+const apacheSslConfig = fs.readFileSync(new URL('../deploy/apache/saju.blog-le-ssl.conf', import.meta.url), 'utf8');
+const deployUpdater = fs.readFileSync(new URL('../deploy/bin/update-saju-app.sh', import.meta.url), 'utf8');
 const engineStart = html.indexOf('const STEMS');
 const engineEnd = html.indexOf('function getFact');
 assert.ok(engineStart >= 0, 'engine constants are present');
@@ -79,6 +81,11 @@ assert.ok(boundary.warnings.some((warning) => warning.fact === 'boundary.solar-t
 assert.ok(boundary.facts.some((fact) => fact.id === 'boundary.solar-term' && /癸卯·乙丑 → 甲辰·丙寅/.test(fact.value)));
 assert.match(html, /function warningMarkup\(warnings\)/, 'boundary warnings use a shared evidence renderer');
 assert.match(html, /aria-expanded="\$\{isActive\}"[\s\S]*?isActive \? `<div class="fact-detail">/, 'boundary evidence expands into a visible detail');
+assert.match(apacheSslConfig, /^\s*ProxyPass \/ http:\/\/127\.0\.0\.1:4174\/$/m, 'Apache sends all HTTPS assets through the Node public allowlist');
+assert.match(apacheSslConfig, /^\s*ProxyPassReverse \/ http:\/\/127\.0\.0\.1:4174\/$/m, 'Apache preserves reverse-proxy responses for all HTTPS assets');
+assert.match(deployUpdater, /install -m 644 deploy\/apache\/saju\.blog-le-ssl\.conf \/etc\/apache2\/sites-available\/saju\.blog-le-ssl\.conf/, 'the release updater installs the reviewed HTTPS proxy boundary');
+assert.match(deployUpdater, /apache2ctl configtest[\s\S]*systemctl reload apache2/, 'the release updater validates Apache before reloading it');
+assert.match(deployUpdater, /install -m 755 deploy\/bin\/update-saju-app\.sh \/usr\/local\/sbin\/saju-app-update/, 'the deployed updater refreshes itself after a healthy release');
 
 const couple = (() => {
   const sandbox = { calculateNatalChart };
