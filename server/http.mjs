@@ -5,6 +5,7 @@ import path from 'node:path';
 import { buildSubmissionDecision, buildTrainingProjection } from './domain/submission.mjs';
 import { convertLunarToSolar } from './domain/calendar.mjs';
 import { createAnnualReading } from './domain/annual.mjs';
+import { NATAL_POLICY, calculateNatalChart } from '../chart/natal-engine.mjs';
 
 const MAX_BODY_BYTES = 256 * 1024;
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -16,6 +17,7 @@ const SECURITY_HEADERS = {
   'referrer-policy': 'strict-origin-when-cross-origin',
   'permissions-policy': 'camera=(), microphone=(), geolocation=()',
 };
+const NATAL_POLICY_REF = Object.freeze({ id: NATAL_POLICY.id, version: NATAL_POLICY.version, engine: NATAL_POLICY.engine, engineVersion: NATAL_POLICY.engineVersion });
 
 function sendJson(response, status, payload) {
   response.writeHead(status, { ...SECURITY_HEADERS, 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
@@ -35,11 +37,13 @@ async function readJson(request) {
 }
 
 const MIME_TYPES = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
+const PUBLIC_STATIC_FILES = new Set(['index.html', 'service-worker.js', 'manifest.webmanifest', 'icon.svg', 'robots.txt', 'ai.txt', 'copyright.html', 'annual/client.mjs', 'annual/storage.mjs', 'chart/natal-engine.mjs', 'chart/natal-ephemeris-data.mjs', 'data/admin-areas.js']);
 
 async function serveStatic(root, request, response) {
   if (!root || request.method !== 'GET') return false;
   const requested = decodeURIComponent((request.url || '/').split('?')[0]);
   const relative = requested === '/' ? 'index.html' : requested.replace(/^\/+/, '');
+  if (!PUBLIC_STATIC_FILES.has(relative)) return false;
   const candidate = path.resolve(root, relative);
   if (candidate !== root && !candidate.startsWith(`${root}${path.sep}`)) return false;
   try {
@@ -69,7 +73,7 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
       const pathname = new URL(request.url || '/', 'http://localhost').pathname;
       const submissionResource = /^\/v1\/submissions\/([A-Za-z0-9_-]{1,120})$/.exec(pathname);
       const withdrawalResource = /^\/v1\/submissions\/([A-Za-z0-9_-]{1,120})\/training-withdrawal$/.exec(pathname);
-      const mutationRoute = (request.method === 'POST' && (pathname === '/v1/submissions' || pathname === '/v1/calendar/convert' || pathname === '/v1/annual-readings' || Boolean(withdrawalResource)))
+      const mutationRoute = (request.method === 'POST' && (pathname === '/v1/submissions' || pathname === '/v1/calendar/convert' || pathname === '/v1/natal-charts' || pathname === '/v1/annual-readings' || Boolean(withdrawalResource)))
         || (request.method === 'DELETE' && Boolean(submissionResource));
       if (mutationRoute && !allowRequest(request)) {
         response.setHeader('retry-after', '60');
@@ -80,6 +84,11 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
         const input = await readJson(request);
         try { return sendJson(response, 200, convertLunarToSolar(input)); }
         catch (error) { return sendJson(response, 422, { error: 'calendar_conversion_rejected', message: error.message }); }
+      }
+      if (request.method === 'POST' && pathname === '/v1/natal-charts') {
+        const input = await readJson(request);
+        try { return sendJson(response, 200, calculateNatalChart(input)); }
+        catch (error) { return sendJson(response, 422, { error: 'natal_chart_rejected', message: error.message, calculationPolicy: NATAL_POLICY_REF }); }
       }
       if (request.method === 'POST' && pathname === '/v1/annual-readings') {
         const input = await readJson(request);
@@ -104,7 +113,7 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
       }
       const input = await readJson(request);
       const decision = buildSubmissionDecision(input);
-      if (!decision.accepted) return sendJson(response, 422, { error: 'submission_rejected', errors: decision.errors });
+      if (!decision.accepted) return sendJson(response, 422, { error: 'submission_rejected', errors: decision.errors, calculationPolicy: NATAL_POLICY_REF });
       const submissionId = crypto.randomUUID();
       const projection = buildTrainingProjection(input);
       if (storage) storage.saveSubmission({ submissionId, input, projection, status: 'accepted' });

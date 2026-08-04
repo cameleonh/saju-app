@@ -17,12 +17,13 @@ The first release focuses on Korean Saju only, with two explicit modes: **내 �
 
 The product's main differentiator is **traceable trust**: every interpretation must point back to chart facts, and births near a solar-term, day, or hour boundary must be visibly marked as sensitive instead of silently returning one absolute answer.
 
-## Verified Prototype Snapshot — 2026-08-02
+## Verified Product Snapshot — 2026-08-04
 
 - Mobile-first responsive PWA with separate personal and couple flows; wide couple input places self left and partner right, while narrow screens stack them in that order.
 - Required service-storage acknowledgement and an initially unselected, optional product-learning choice. Declining learning use does not reduce chart or reading quality.
 - Solar and lunar input, explicit leap-month handling, unknown-time behavior, and lazy-loaded search across 21,836 current Korean administrative and legal localities.
-- Deterministic demo chart, eight personal or seven couple reading chapters, stable evidence identifiers, large-text mode, and a rule-based question helper that does not call an external AI service.
+- Deterministic `KR-CIVIL-1.0` natal chart shared by browser and server, eight personal or seven couple reading chapters, stable evidence identifiers, large-text mode, and a rule-based question helper that does not call an external AI service.
+- Minute-precision year/month boundaries, IANA `Asia/Seoul` 2026c historical legal-time rules, civil-midnight day rollover, explicit Zi-hour behavior, unknown-time suppression, offline ephemeris data, and server-side recalculation against tampered submissions.
 - One stable browser record per calculation with reopen, JSON export, deletion, clear-all, optional-training withdrawal, IndexedDB outbox, and durable local SQLite submission storage.
 - Submission-level local development delete and training-withdrawal endpoints. Account ownership, production subject-level authorization, managed PostgreSQL/KMS, retention jobs, and model-lineage execution are not implemented.
 
@@ -275,7 +276,7 @@ Engagement and retention are secondary during the first beta. They must not be i
 
 ## Calculation Policy Requirements
 
-The MVP will use a named Korean civil-time policy with no hidden longitude correction. Exact day and hour boundary conventions are launch-blocking domain decisions and must be recorded in an architecture decision before engine implementation is accepted.
+The MVP uses `KR-CIVIL-1.0`, a named Korean legal civil-time policy with no hidden longitude correction. The locked conventions and source evidence are recorded in `docs/NATAL-CALCULATION-POLICY.md`.
 
 The policy registry must make these choices explicit:
 
@@ -420,7 +421,7 @@ The highest and primary seam is the external calculation behavior: normalized bi
 ### Required test groups
 
 - Authoritative golden fixtures for ordinary dates.
-- All 24 solar-term boundaries at minus one minute, exact boundary, and plus one minute.
+- All 12 policy-changing `jie` term boundaries at minus one minute, exact boundary, and plus one minute; the complete 24-term authoritative fixture set remains source-versioned and integrity-checked for the annual engine.
 - Every enabled annual target's Ipchun at minus one minute, exact boundary, and plus one minute, plus the next-year Xiaohan-to-Ipchun closing month.
 - Lichun cases where year and month pillars can change.
 - Lunar new year, regular/leap month entry and exit, and lunar month-end conversion.
@@ -499,9 +500,8 @@ The MVP is accepted only when all of the following are true:
 
 ## Dependencies and Launch-Blocking Decisions
 
-- Approve the exact Korean day-boundary and hour-branch convention with a qualified domain reviewer.
-- Select or implement an ephemeris/calendar data source with documented provenance, license, precision, and supported range.
-- Build and independently review the initial golden-fixture set before interpreting chart results.
+- Seek an additional qualified-domain review before introducing daewoon, apparent-solar-time, or school-specific calculation variants; `KR-CIVIL-1.0` deliberately excludes them.
+- Add another official fixture range before claiming authoritative solar-term validation outside 2024–2027.
 - Decide whether the product will remain closed source; this determines which external code can be reused.
 - Select an AI provider and confirm payload retention, regional processing, and deletion terms before enabling chat.
 - Accept Supabase or another managed PostgreSQL provider and approve its region, backup tier, RLS/grant model, and restore-test procedure before persistent server features launch.
@@ -511,7 +511,7 @@ The MVP is accepted only when all of the following are true:
 - Define the first model objective and the exact labels required; raw collection alone is not a training strategy.
 - Approve the final product name and brand tone before public launch.
 
-Until these decisions are made, `Saju App`, Korean civil-time policy, and no hidden longitude correction are working assumptions.
+`Saju App` remains a working product name. The Korean legal civil-time and no-longitude-correction conventions are versioned `KR-CIVIL-1.0` product decisions rather than hidden assumptions.
 
 ## Delivery Milestones
 

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { createAnnualReading } from '../server/domain/annual.mjs';
 import { createAnnualStorage } from '../annual/storage.mjs';
+import { calculateNatalChart } from '../chart/natal-engine.mjs';
 
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const adminAreaSource = fs.readFileSync(new URL('../data/admin-areas.js', import.meta.url), 'utf8');
@@ -39,7 +40,7 @@ assert.doesNotMatch(html.slice(chatStart, chatEnd), /persistRecord\(\)/, 'guidan
 const engineStart = html.indexOf('const STEMS');
 const engineEnd = html.indexOf('function getFact');
 assert.ok(engineStart >= 0 && engineEnd > engineStart, 'guidance engine boundary is present');
-const sandbox = {};
+const sandbox = { calculateNatalChart };
 vm.runInNewContext(adminAreaSource, sandbox);
 vm.runInNewContext(`${html.slice(engineStart, engineEnd)};
   globalThis.workAnswer = buildReflectionAnswer('올해 이직해도 될까요?', calculateChart({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true }));
@@ -117,7 +118,7 @@ const annualStorage = createAnnualStorage({ indexedDB: createFakeIndexedDB(), ou
 const annual = createAnnualReading({
   targetYear: 2026,
   natal: { dayStem: '戊', monthBranch: '戌', branches: ['午', '戌', '申', '未'], unknownTime: false },
-  chartPolicy: { id: 'KR-CIVIL-0.1', version: '0.1.0', engine: 'saju-demo-engine', engineVersion: '0.1.0' },
+  chartPolicy: { id: 'KR-CIVIL-1.0', version: '1.0.0', engine: 'gyeol-natal-core', engineVersion: '1.0.0' },
 });
 const storedRecord = { id: 'annual-record', annual, chart: { policy: annual.chartPolicy }, training: true, purposeReceipts: [{ purpose: 'model_training', decision: 'accepted' }], createdAt: '2026-08-04T00:00:00Z', updatedAt: '2026-08-04T00:00:00Z' };
 await annualStorage.putPendingRecord(storedRecord, { annualResult: annual, purposeReceipts: storedRecord.purposeReceipts });

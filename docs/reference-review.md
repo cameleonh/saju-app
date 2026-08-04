@@ -12,6 +12,18 @@ None of the reviewed projects should be treated as an unquestioned calculation o
 - **Do not use `sajupy` as the production engine in its current form.** It has reproducible leap-month and solar-term-boundary defects, weak correctness tests, and undocumented calendar-data provenance.
 - **Build a separately validated deterministic core.** Keep calculation, interpretation rules, and optional LLM narration as three explicit layers.
 
+## 2026-08-04 implementation outcome
+
+The independent-core recommendation is now implemented as `KR-CIVIL-1.0` / `gyeol-natal-core@1.0.0`; the reviewed projects were not copied as the runtime core.
+
+- Browser and server import the same deterministic module, and submissions are recalculated before acceptance.
+- A generated 1899–2100 minute snapshot uses the pinned MIT-licensed ShouXing implementation for coverage while replacing 2024–2027 policy boundaries with reviewed KASI/KASA KST-minute fixtures.
+- The Korean legal-time path embeds IANA tzdb 2026c `Asia/Seoul` transitions instead of relying on host/browser time-zone data.
+- The product locks civil midnight and `23:00–00:59` Zi hour, records that no longitude/apparent-solar correction is applied, and keeps daewoon unsupported.
+- The golden suite covers the ordinary shared fixture, every natal-relevant official fixture term in 2024–2027, historical Korean clock changes, day/hour boundaries, host-zone determinism, and server tamper rejection.
+
+The policy and remaining validation limits are recorded in [`NATAL-CALCULATION-POLICY.md`](NATAL-CALCULATION-POLICY.md).
+
 ## Comparison
 
 | Reference | What it is | Best reusable idea | Fresh verification | Main blocker | Recommended role |

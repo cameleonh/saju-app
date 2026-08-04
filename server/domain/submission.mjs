@@ -1,5 +1,6 @@
 import { findReceipt, isTrainingEligible, PURPOSES, validatePurposeReceipts } from './purpose.mjs';
 import { ANNUAL_POLICY, calculateAnnualContentHash, createAnnualReading, normalizeChartPolicy } from './annual.mjs';
+import { verifyNatalChart } from '../../chart/natal-engine.mjs';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ISO_TIME = /^\d{2}:\d{2}$/;
@@ -19,6 +20,10 @@ export function validateSubmission(input) {
     if (birth.placeCode != null && !/^\d{10}$/.test(String(birth.placeCode))) errors.push('birthInput.placeCode must be a 10-digit administrative-area code');
   }
   if (!input.chartResult || typeof input.chartResult !== 'object') errors.push('chartResult is required');
+  else if (birth && typeof birth === 'object' && birth.calendar === 'solar') {
+    const verification = verifyNatalChart(birth, input.chartResult);
+    errors.push(...verification.errors.map((error) => `chartResult ${error}`));
+  }
   if (input.readingScope != null && !['natal', 'annual'].includes(input.readingScope)) errors.push('readingScope must be natal or annual');
   if (input.readingScope === 'annual') {
     const annual = input.annualResult;
@@ -85,6 +90,11 @@ export function validateSubmission(input) {
     if (input.partnerSubject?.authorityVerified !== true) errors.push('couple submissions require verified partner authority');
     if (!Array.isArray(input.partnerPurposeReceipts)) errors.push('partnerPurposeReceipts are required for couple submissions');
     else errors.push(...validatePurposeReceipts(input.partnerPurposeReceipts).map((error) => `partner ${error}`));
+    if (!input.chartResult?.partner) errors.push('chartResult.partner is required for couple submissions');
+    else if (partnerBirth && typeof partnerBirth === 'object') {
+      const verification = verifyNatalChart(partnerBirth, input.chartResult.partner);
+      errors.push(...verification.errors.map((error) => `partner chartResult ${error}`));
+    }
   }
   errors.push(...validatePurposeReceipts(input.purposeReceipts));
   return errors;
