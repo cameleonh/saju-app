@@ -26,4 +26,4 @@ The Lightsail firewall does not accept SSH connections from GitHub-hosted runner
 
 ## Prototype boundary
 
-This release still uses the local SQLite ingestion adapter and demo chart policy documented in `PROJECT_STATUS.md`. Do not treat it as a production personal-data service until the documented PostgreSQL, key management, identity, backup, and privacy-policy work is complete.
+This release uses the versioned `KR-CIVIL-1.0` natal calculation policy but still relies on the local SQLite ingestion adapter. Do not treat it as a production personal-data service until the documented PostgreSQL, key management, identity, backup, and privacy-policy work is complete.

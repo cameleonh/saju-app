@@ -18,14 +18,15 @@ import {
   getSolarMonthRanges,
 } from '../server/domain/annual-ephemeris.mjs';
 import { annualSubmissionFields, buildAnnualRequest, privacySafeAnnualExport, renderAnnualReading } from '../annual/client.mjs';
+import { NATAL_POLICY } from '../chart/natal-engine.mjs';
 
-const chartPolicy = {
-  id: 'KR-CIVIL-0.1',
-  version: '0.1.0',
-  engine: 'saju-demo-engine',
-  engineVersion: '0.1.0',
-  source: 'KASI reference demo policy',
-};
+const chartPolicy = Object.freeze({
+  id: NATAL_POLICY.id,
+  version: NATAL_POLICY.version,
+  engine: NATAL_POLICY.engine,
+  engineVersion: NATAL_POLICY.engineVersion,
+  source: NATAL_POLICY.source,
+});
 const natal = {
   dayStem: '戊',
   monthBranch: '戌',
@@ -80,7 +81,7 @@ for (const rule of ANNUAL_RULE_SET.rules) {
 }
 
 assert.throws(() => createAnnualReading({ targetYear: 2026, natal }), /chartPolicy/);
-assert.throws(() => createAnnualReading({ targetYear: 2026, natal, chartPolicy: { id: 'KR-CIVIL-0.1' } }), /version/);
+assert.throws(() => createAnnualReading({ targetYear: 2026, natal, chartPolicy: { id: 'KR-CIVIL-1.0' } }), /version/);
 const reading = createAnnualReading({ targetYear: 2026, natal, chartPolicy });
 assert.equal(reading.schemaVersion, 'annual-reading.v1');
 assert.equal(reading.readingScope, 'annual');

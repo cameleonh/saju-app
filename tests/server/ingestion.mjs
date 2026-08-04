@@ -2,9 +2,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 import { createIngestionServer } from '../../server/http.mjs';
 import { createSqliteStorage } from '../../server/storage/sqlite.mjs';
+import { calculateNatalChart } from '../../chart/natal-engine.mjs';
 
 const server = createIngestionServer();
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -12,16 +14,29 @@ const { port } = server.address();
 const url = `http://127.0.0.1:${port}`;
 
 const receipt = (purpose, decision = 'accepted') => ({ receiptId: `${purpose}-receipt`, purpose, decision, disclosureVersion: 'v1', recordedAt: '2026-08-01T00:00:00Z' });
+const defaultBirthInput = { calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울특별시 강남구 역삼1동', placeCode: '1168064000', unknownTime: false };
+const chartFor = (birthInput) => ({ ...calculateNatalChart(birthInput), facts: [{ id: 'day.element', value: '토' }], reading: [] });
 const valid = (overrides = {}) => ({
   schemaVersion: 'submission.v1',
   clientRequestId: 'client-1',
   dataSubject: { relationship: 'self', authorityVerified: true, minor: false },
-  birthInput: { calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울특별시 강남구 역삼1동', placeCode: '1168064000', unknownTime: false },
-  chartResult: { pillars: ['庚午', '丙戌', '戊申', '己未'], facts: [{ id: 'day.element', value: '토' }], reading: [], policy: { id: 'KR-CIVIL-0.1', version: '0.1.0', engine: 'saju-demo-engine', engineVersion: '0.1.0' } },
+  birthInput: defaultBirthInput,
+  chartResult: chartFor(defaultBirthInput),
   purposeReceipts: [receipt('service_storage')],
   ...overrides,
 });
 const post = async (body) => fetch(`${url}/v1/submissions`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+
+const staticRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const staticServer = createIngestionServer({ staticRoot });
+await new Promise((resolve) => staticServer.listen(0, '127.0.0.1', resolve));
+const staticUrl = `http://127.0.0.1:${staticServer.address().port}`;
+assert.equal((await fetch(`${staticUrl}/`)).status, 200);
+assert.equal((await fetch(`${staticUrl}/chart/natal-engine.mjs`)).status, 200);
+assert.equal((await fetch(`${staticUrl}/package.json`)).status, 404, 'package metadata is not a public static asset');
+assert.equal((await fetch(`${staticUrl}/data/saju.sqlite`)).status, 404, 'the local durable store is never a public static asset');
+assert.equal((await fetch(`${staticUrl}/server/index.mjs`)).status, 404, 'server source is not a public static asset');
+staticServer.close();
 
 const health = await fetch(`${url}/health`);
 assert.equal(health.status, 200);
@@ -30,16 +45,24 @@ assert.equal(health.headers.get('x-content-type-options'), 'nosniff');
 const lunarResponse = await fetch(`${url}/v1/calendar/convert`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ calendar: 'lunar', year: 2024, month: 1, day: 1, leapMonth: false, hour: 14, minute: 30 }) });
 assert.equal(lunarResponse.status, 200);
 assert.equal((await lunarResponse.json()).date, '2024-02-10');
-const annualRequest = { targetYear: 2026, natal: { dayStem: '戊', monthBranch: '戌', branches: ['午', '戌', '申', '未'], unknownTime: false }, chartPolicy: { id: 'KR-CIVIL-0.1', version: '0.1.0', engine: 'saju-demo-engine', engineVersion: '0.1.0' } };
+const natalResponse = await fetch(`${url}/v1/natal-charts`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(defaultBirthInput) });
+assert.equal(natalResponse.status, 200);
+assert.deepEqual((await natalResponse.json()).pillars.map(({ text }) => text), ['庚午', '丙戌', '戊申', '己未']);
+const rejectedNatalResponse = await fetch(`${url}/v1/natal-charts`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...defaultBirthInput, date: '2024-02-30' }) });
+assert.equal(rejectedNatalResponse.status, 422);
+const rejectedNatalBody = await rejectedNatalResponse.json();
+assert.deepEqual(rejectedNatalBody.calculationPolicy, { id: 'KR-CIVIL-1.0', version: '1.0.0', engine: 'gyeol-natal-core', engineVersion: '1.0.0' });
+assert.doesNotMatch(JSON.stringify(rejectedNatalBody), /1990-10-10|2024-02-30|역삼1동|1168064000/);
+const annualRequest = { targetYear: 2026, natal: { dayStem: '戊', monthBranch: '戌', branches: ['午', '戌', '申', '未'], unknownTime: false }, chartPolicy: calculateNatalChart(defaultBirthInput).policy };
 const annualResponse = await fetch(`${url}/v1/annual-readings`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(annualRequest) });
 assert.equal(annualResponse.status, 200);
 const annualResult = await annualResponse.json();
-const annualChartResult = { pillars: [{ stem: '庚', branch: '午' }, { stem: '丙', branch: '戌' }, { stem: '戊', branch: '申' }, { stem: '己', branch: '未' }], facts: [{ id: 'day.element', value: '토' }], reading: [], policy: annualRequest.chartPolicy };
+const annualChartResult = chartFor(defaultBirthInput);
 assert.equal(annualResult.cards.length, 8);
 assert.equal(annualResult.monthlyFlow.length, 12);
 const rejectedAnnual = await fetch(`${url}/v1/annual-readings`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...annualRequest, targetYear: 2100 }) });
 assert.equal(rejectedAnnual.status, 422);
-const missingAnnualProvenance = await fetch(`${url}/v1/annual-readings`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...annualRequest, chartPolicy: { id: 'KR-CIVIL-0.1' } }) });
+const missingAnnualProvenance = await fetch(`${url}/v1/annual-readings`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...annualRequest, chartPolicy: { id: 'KR-CIVIL-1.0' } }) });
 assert.equal(missingAnnualProvenance.status, 422);
 const accepted = await post(valid());
 assert.equal(accepted.status, 202);
@@ -52,6 +75,7 @@ const couple = await post(valid({
   relationshipMode: 'couple',
   partnerSubject: { relationship: 'partner', authorityVerified: true, minor: 'unknown' },
   partnerBirthInput: { calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false },
+  chartResult: { ...chartFor(defaultBirthInput), partner: chartFor({ calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false }) },
   partnerPurposeReceipts: [receipt('service_storage')],
 }));
 assert.equal(couple.status, 202);
@@ -60,7 +84,8 @@ assert.equal((await couple.json()).trainingEligible, false);
 const unknownMinor = await post(valid({ dataSubject: { relationship: 'self', authorityVerified: true, minor: 'unknown' }, purposeReceipts: [receipt('service_storage'), receipt('model_training')] }));
 assert.equal((await unknownMinor.json()).trainingEligible, false);
 
-const underNineteen = await post(valid({ dataSubject: { relationship: 'self', authorityVerified: true, minor: true }, birthInput: { ...valid().birthInput, date: '2010-01-01' }, purposeReceipts: [receipt('service_storage'), receipt('model_training')] }));
+const minorBirthInput = { ...defaultBirthInput, date: '2010-01-01' };
+const underNineteen = await post(valid({ dataSubject: { relationship: 'self', authorityVerified: true, minor: true }, birthInput: minorBirthInput, chartResult: chartFor(minorBirthInput), purposeReceipts: [receipt('service_storage'), receipt('model_training')] }));
 assert.equal((await underNineteen.json()).trainingEligible, false);
 
 const missingService = await post(valid({ purposeReceipts: [receipt('model_training')] }));

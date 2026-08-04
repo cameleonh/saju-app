@@ -4,12 +4,12 @@
 |---|---|
 | Status date | 2026-08-04 |
 | Project root | `D:\\codings\\260801_saju-app` |
-| Current phase | PR #2 annual-reading implementation merged and deployed to AWS Lightsail; launch-policy prerequisites remain |
+| Current phase | Production natal-engine implementation and local verification complete; branch deployment pending |
 | Application code | Implemented in `index.html` with PWA shell |
 
 ## Current Objective
 
-Resolve the remaining natal calculation, legal/data-controller, governed storage, and product-learning prerequisites after delivering Issue #1's bounded annual-reading profile.
+Ship the versioned natal calculation baseline, then resolve the remaining legal/data-controller, governed storage, and product-learning prerequisites.
 
 ## Decisions in Force
 
@@ -21,6 +21,7 @@ Resolve the remaining natal calculation, legal/data-controller, governed storage
 - Require specific, versioned, optional, revocable permission before a record becomes eligible for first-party product-learning use. The prototype starts that choice unchecked and provides the same chart and reading when it is declined.
 - Build training datasets only from approved pseudonymized projections. Raw production tables and ad hoc exports are not training interfaces.
 - Keep the chart engine deterministic and versioned. An LLM may explain fixed chart facts but must not calculate or mutate the four pillars.
+- Use `KR-CIVIL-1.0`: Korean legal civil time, IANA `Asia/Seoul` 2026c historical transitions, exact minute `jie` boundaries, civil-midnight day rollover, `23:00–00:59` Zi hour, no hidden longitude/solar correction, and no daewoon until its separate policy is approved.
 - Trace every material interpretation to immutable chart-fact identifiers.
 - Preserve source-to-dataset-to-model lineage and make withdrawal/deletion trigger dataset and model-impact review.
 
@@ -46,13 +47,14 @@ Resolve the remaining natal calculation, legal/data-controller, governed storage
 - `server/` now exposes `/v1/calendar/convert` using pinned `lunar-javascript@1.7.7`, accepts lunar/윤달 input through the UI, and persists accepted submissions to local `data/saju.sqlite` with original and normalized birth payloads.
 - `server/` validates `partnerSubject`, `partnerBirthInput`, and a separate partner service-storage receipt for couple submissions, and keeps couple records out of the self-only training projection until a separate partner-purpose policy exists.
 - Copyguard hardening is implemented: compliant AI crawler opt-out files, `noai` metadata, canary fingerprint, copyright notice, frame-embedding headers, restrictive response headers, and a bounded in-memory rate limit on ingestion endpoints.
+- Static delivery uses an explicit public-asset allowlist; package metadata, server source, scripts, tests, documents, Git data, and the local SQLite store cannot be fetched through the application server.
 - Birthplace input now combines the Ministry of the Interior and Safety `KIKcd_H` and `KIKcd_B` snapshots effective 2026-07-20 into 21,836 unique current administrative and legal locality names. Each field reveals a filtered native selection control below the search input. Search keys are precomputed and results are collected in ranked bounded buckets, so typing no longer sorts the whole catalog on every keystroke. Unique short names such as `문현동` resolve automatically, ambiguous names such as `삼성동` expose every matching city/district, and broad queries such as `해운대` explain that the first 20 results are shown. The stored value includes the full name and official 10-digit code. The current chart policy still records `Asia/Seoul`.
 - Deterministic readings now provide eight single-chart chapters and seven couple-chart chapters. Visible-stem ten-god relationships and branch hidden stems are calculated relative to each day stem and linked through stable fact identifiers. Daewoon remains explicitly unavailable until its direction and start-age policy are approved.
 - The result reading is one continuous hanji report with native collapsible chapters and seal-style evidence controls. The first chapter opens by default, disclosure state survives evidence inspection, and mobile long-value wrapping no longer expands the page horizontally.
 - Reading chapters now use a fixed reader-first order: `한눈에 보기`, `쉽게 풀어보면`, `오늘 해볼 일`, and `생각해볼 질문`. The Korean copy uses shorter direct sentences and calculated particles for dynamic stems/elements. Reading text is 17px by default and 19px in the user-controlled large-text mode.
 - Routine storage, training, external-AI, and engine-version metadata no longer appears as a result-side status card. Record deletion remains available under `계산 원칙`, and storage behavior is unchanged.
 - The question area is a deterministic rule-based organizer, not an AI chat. It produces conditional, reader-first prompts for work, relationship, money, health, or general questions and does not send the question to an external provider.
-- Navigation now has distinct method and data screens, active current-page states, and a stage contract that restores heading focus at scroll position zero. The service worker uses cache `saju-app-shell-v9`, precaches both annual client modules, retains network-first navigation and a canonical offline shell fallback, and does not eagerly precache the birthplace catalog.
+- Navigation now has distinct method and data screens, active current-page states, and a stage contract that restores heading focus at scroll position zero. The service worker uses cache `saju-app-shell-v10`, precaches the annual modules and shared natal engine/ephemeris snapshot, retains network-first navigation and a canonical offline shell fallback, and does not eagerly precache the birthplace catalog.
 - Start-screen consent controls now appear as two full-width cards stacked vertically. Each entire card is clickable, the checkbox target is 22px, and keyboard focus receives a visible ring.
 - The official shadcn/ui, Aceternity UI, Magic UI, 21st.dev, and React Bits catalogs were reviewed. Their interaction and motion patterns are recorded in `DESIGN.md`; no React/Tailwind migration or decorative dependency was added to the vanilla prototype.
 - `db/migrations/001_initial_contract.sql` defines the PostgreSQL bounded-context storage contract, encrypted vault boundary, governance receipts, processing lineage, transactional outbox, and training lineage tables.
@@ -60,6 +62,8 @@ Resolve the remaining natal calculation, legal/data-controller, governed storage
 - `annual/client.mjs` keeps annual request construction, lossless privacy-safe export, programmatically focusable card/document/monthly rendering, and evidence controls outside the inline natal engine. `annual/storage.mjs` owns injectable IndexedDB transactions. Single-chart input selects only 2024–2026; couple mode remains natal-only.
 - `server/http.mjs`, `server/domain/submission.mjs`, SQLite, and the PostgreSQL contract require complete chart/annual provenance and persist the full annual object without replacing the natal chart result. SQLite compatibility migration is additive, foreign-key cascade is active, and withdrawal removes only the training projection.
 - `tests/server/ingestion.mjs` verifies the adapter contract without requiring a live database.
+- `chart/natal-engine.mjs` is the framework-independent browser/server calculation core. It returns policy, source, boundary, unsupported-state, and warning metadata; uses a checked-in 1899–2100 minute ephemeris snapshot; and rejects nonexistent Korean civil times while warning and choosing the earlier instant for repeated times.
+- `scripts/generate-natal-ephemeris.mjs` regenerates that snapshot from pinned `lunar-javascript@1.7.7` and replaces the 2024–2027 policy terms with reviewed KASI/KASA fixtures. `server/domain/submission.mjs` recomputes both self and partner pillars, and `/v1/natal-charts` exposes the same deterministic server contract.
 
 ### Verified
 
@@ -68,6 +72,7 @@ Resolve the remaining natal calculation, legal/data-controller, governed storage
 - The data architecture contains external, conceptual, browser, and PostgreSQL schemas plus domain ownership, integrity, indexing, RLS, retention, capacity, backup, security, and delivery gates.
 - The PRD and data architecture agree on the six pragmatic DDD bounded contexts and transactional-outbox rule.
 - The prototype renders the reference golden fixture `1990-10-10 14:30` as `庚午 · 丙戌 · 戊申 · 己未`.
+- Natal boundary verification covers all 12 policy-changing terms for every reviewed fixture year 2024–2027, exact Ipchun/Jingzhe rollover, `23:00`, `23:30`, midnight, `00:30`, `01:30`, unknown time, historical Korean half-hour/DST clock changes, skipped/repeated civil times, malformed input, range checks, host-time-zone independence, and submitted-chart tampering.
 - Mobile, tablet, and desktop screenshots were inspected after loading the local web server.
 - The training policy defines eligibility, prohibited uses, dataset lineage, withdrawal, and model-impact handling.
 - The active documents consistently require a canonical central store and governed, stateful AI records.
@@ -84,6 +89,9 @@ Resolve the remaining natal calculation, legal/data-controller, governed storage
 - Fresh post-cleanup `npm test` passed: chart/UI smoke (113 assertions), record lifecycle (33 assertions), and ingestion/storage contract (34 assertions), for 180 assertions total.
 - Annual unit tests verify every enabled target's Ipchun at -1 minute, exact, +1 minute, and closing boundary; the following-year Xiaohan month; `甲子` across a 60-year boundary; structured rule fields; per-rule suppression; clash priority; annual/month fact/rule/claim traces; mandatory chart provenance; hidden-stem exclusion; deterministic hash behavior; focusable markup; and privacy-safe lossless export.
 - Fresh 2026-08-04 `npm test` passed 315 assertions: annual policy/client (82), chart/UI smoke (128), record lifecycle (44), and HTTP/SQLite ingestion (61). The run includes exact annual object round-trips through the injected IndexedDB boundary and SQLite, legacy SQLite additive migration, annual training withdrawal retention, and deletion cascade.
+- Fresh natal-engine `npm test` passed 383 static assertions plus 48 reviewed solar-term boundaries at `-1 / exact / +1` minute: natal policy (53 plus 48 fixture loops), annual policy/client (82), chart/UI smoke (133), record lifecycle (44), and HTTP/SQLite ingestion/security (71). `npm audit --omit=dev` reported zero vulnerabilities.
+- Mobile browser QA at the exact 2024 Ipchun boundary rendered `甲辰 · 丙寅 · 戊戌 · 辛酉`, exposed the before/after year-month comparison through the boundary evidence control, reported zero horizontal overflow, and produced no console error.
+- A fresh 10,000-run Node microbenchmark of the ordinary natal calculation measured 0.0083ms median, 0.0152ms p95, and 0.8387ms maximum on the verification host; responsive browser QA remained the user-flow evidence rather than treating the microbenchmark as a mobile-device claim.
 - Implementation commit `127c99a` was pushed to PR #2; GitHub Actions `verify` passed and GitHub reported the PR as mergeable. Parallel native standards/spec reviewers failed at the encrypted tool-output transport boundary, so the leader completed the documented fallback review against Issue #1 and the three owner review comments without finding a remaining code blocker.
 - PR #2 was squash-merged to `main` as `ed819a2`; the resulting GitHub Actions `verify` run passed. The Lightsail pull updater built and atomically switched to that release, the Node service and deployment timer stayed active, Apache configuration passed, the internal durable SQLite health response was healthy, and `https://saju.blog/` returned 200 with real application content and no browser console errors.
 - Fresh Chromium QA created, saved, reopened, and deleted the 2026 annual reading. The IndexedDB object and reopened UI retained the same content hash; next-card navigation moved focus to the active card with a visible gold focus ring; reduced-motion computed a 0.01ms transition; print hid natal/monthly/private content; and no console errors occurred.
@@ -96,20 +104,19 @@ Resolve the remaining natal calculation, legal/data-controller, governed storage
 ### Not Yet Verified
 
 - No managed PostgreSQL/KMS/identity provider, production AI provider, or training pipeline has been implemented. Local SQLite is durable for development but is not production infrastructure.
-- The current chart engine is an explicitly labeled demo policy and must not be treated as the production calendrical oracle.
+- Solar-term values outside the reviewed 2024–2027 KASI/KASA range use the declared ShouXing-generated snapshot. They are deterministic and source-versioned but do not claim the same authoritative fixture coverage as 2024–2027.
 - Annual targets outside 2024–2026 are deliberately unavailable. A later year requires a complete reviewed target/closing fixture set before the enabled range changes. `lunar-javascript@1.7.7` remains only for the separate lunar-date conversion path.
 - The birthplace catalog represents current administrative and legal 동·읍·면·리 names as of 2026-07-20. Historical boundary/name resolution and overseas birthplace support remain outside this prototype policy.
 - Couple storage is structurally separated and local SQLite submissions can be deleted. Production account ownership, partner-subject authorization, subject-wide deletion/withdrawal, durable PostgreSQL, and downstream processor/dataset erasure are not implemented.
 - Legal references are source-backed, but the resulting product rules still require Korean privacy counsel review before collection begins.
-- Natal calculation conventions and launch golden fixtures have not been approved. The bounded 2024–2026 annual Ipchun fixture set is reviewed and implemented separately.
+- Daewoon direction/start age, longitude or apparent-solar correction, overseas birthplaces, and school-specific strength/yongsin/gyeokguk rules remain deliberately unsupported rather than inferred.
 
 ## Open Launch Prerequisites
 
-1. Approve the natal calculation policy: calendar conversion, civil/solar time, day boundary, hour boundary, daewoon direction, and supported birth-date range.
-2. Approve data-controller/processor roles, hosting region, retention periods, minor handling, third-party data rules, cross-border transfers, and user-facing notices.
-3. Select the first training objective and its eligible feature/label schema; do not collect an undefined blanket training grant.
-4. Select PostgreSQL, object storage, key-management, identity, AI-provider, and observability vendors.
-5. Wire the adapter to managed PostgreSQL/KMS/identity, then add idempotent durable persistence and deletion workflows.
+1. Approve data-controller/processor roles, hosting region, retention periods, minor handling, third-party data rules, cross-border transfers, and user-facing notices.
+2. Select the first training objective and its eligible feature/label schema; do not collect an undefined blanket training grant.
+3. Select PostgreSQL, object storage, key-management, identity, AI-provider, and observability vendors.
+4. Wire the adapter to managed PostgreSQL/KMS/identity, then add idempotent durable persistence and deletion workflows.
 
 ## Verification Evidence
 
@@ -121,4 +128,4 @@ Resolve the remaining natal calculation, legal/data-controller, governed storage
 
 ## Exact Next Required Action
 
-Resolve the remaining natal calculation and legal/data-controller choices before wiring `server/` to PostgreSQL/KMS/identity and freezing a specific product-learning objective.
+Deploy `KR-CIVIL-1.0`, then resolve the legal/data-controller choices before wiring `server/` to PostgreSQL/KMS/identity and freezing a specific product-learning objective.

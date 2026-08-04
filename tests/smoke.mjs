@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
+import { calculateNatalChart } from '../chart/natal-engine.mjs';
 
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const adminAreaSource = fs.readFileSync(new URL('../data/admin-areas.js', import.meta.url), 'utf8');
@@ -46,17 +47,17 @@ assert.match(adminAreaSource, /Effective date: 2026-07-20/);
 assert.match(adminAreaSource, /KIKcd_H and KIKcd_B/);
 assert.deepEqual(JSON.parse(JSON.stringify(catalogSandbox.tenGodMap)), [['甲', '편관'], ['乙', '정관'], ['丙', '편인'], ['丁', '정인'], ['戊', '비견'], ['己', '겁재'], ['庚', '식신'], ['辛', '상관'], ['壬', '편재'], ['癸', '정재']], 'ten-god relation covers all five element relations and both polarities');
 const evaluate = (input) => {
-  const sandbox = {};
+  const sandbox = { calculateNatalChart };
   vm.runInNewContext(`${engineSource}; globalThis.result = calculateChart(${JSON.stringify(input)});`, sandbox);
   return sandbox.result;
 };
 
 const golden = evaluate({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true });
 assert.deepEqual(Array.from(golden.pillars, (pillar) => pillar.text), ['庚午', '丙戌', '戊申', '己未']);
-assert.equal(golden.policy.id, 'KR-CIVIL-0.1');
-assert.equal(golden.policy.version, '0.1.0');
-assert.equal(golden.policy.engine, 'saju-demo-engine');
-assert.equal(golden.policy.engineVersion, '0.1.0');
+assert.equal(golden.policy.id, 'KR-CIVIL-1.0');
+assert.equal(golden.policy.version, '1.0.0');
+assert.equal(golden.policy.engine, 'gyeol-natal-core');
+assert.equal(golden.policy.engineVersion, '1.0.0');
 assert.ok(golden.facts.every((fact) => fact.id && fact.value), 'facts have stable identifiers and values');
 assert.equal(golden.reading.length, 8, 'single reading includes eight evidence-grounded chapters');
 assert.ok(golden.reading.every((item) => item.detail && item.practice && item.questions?.length >= 2), 'single reading includes detail, practice, and prompts');
@@ -74,10 +75,13 @@ assert.equal(unknownTime.pillars[3].text, '미상');
 assert.ok(unknownTime.warnings.some((warning) => warning.fact === 'input.unknown-time'));
 
 const boundary = evaluate({ date: '2024-02-04', time: '17:00', unknownTime: false, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true });
-assert.ok(boundary.warnings.some((warning) => warning.fact === 'boundary.lichun'));
+assert.ok(boundary.warnings.some((warning) => warning.fact === 'boundary.solar-term'));
+assert.ok(boundary.facts.some((fact) => fact.id === 'boundary.solar-term' && /癸卯·乙丑 → 甲辰·丙寅/.test(fact.value)));
+assert.match(html, /function warningMarkup\(warnings\)/, 'boundary warnings use a shared evidence renderer');
+assert.match(html, /aria-expanded="\$\{isActive\}"[\s\S]*?isActive \? `<div class="fact-detail">/, 'boundary evidence expands into a visible detail');
 
 const couple = (() => {
-  const sandbox = {};
+  const sandbox = { calculateNatalChart };
   vm.runInNewContext(`${engineSource}; globalThis.result = calculateCoupleChart(${JSON.stringify({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar' })}, ${JSON.stringify({ date: '1992-02-14', time: '09:00', unknownTime: false, place: '서울', calendar: 'solar' })}, 'dating');`, sandbox);
   return sandbox.result;
 })();
@@ -154,9 +158,11 @@ assert.match(html, /cg-canary/);
 assert.match(html, /copyright\.html/);
 assert.match(fs.readFileSync(new URL('../robots.txt', import.meta.url), 'utf8'), /GPTBot[\s\S]*Disallow: \//);
 assert.match(fs.readFileSync(new URL('../ai.txt', import.meta.url), 'utf8'), /ClaudeBot[\s\S]*Disallow: \//);
-assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /saju-app-shell-v9/);
+assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /saju-app-shell-v10/);
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /annual\/client\.mjs/);
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /annual\/storage\.mjs/);
+assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /chart\/natal-engine\.mjs/);
+assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /chart\/natal-ephemeris-data\.mjs/);
 assert.match(html, /requestAnnualReading/);
 assert.match(html, /annualSubmissionFields/);
 assert.match(html, /name="targetYear"/);
