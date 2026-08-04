@@ -9,7 +9,7 @@ Group=www-data
 WorkingDirectory=/var/www/saju-app
 Environment=NODE_ENV=production
 Environment=PORT=4174
-Environment=SAJU_DB_PATH=/var/lib/saju-app/saju.sqlite
+Environment=SAJU_DB_PATH=/var/lib/saju-app/runtime/saju.sqlite
 ExecStart=/usr/bin/node /var/www/saju-app/server/index.mjs
 Restart=on-failure
 RestartSec=5
@@ -17,7 +17,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/var/lib/saju-app
+ReadWritePaths=/var/lib/saju-app/runtime
 
 [Install]
 WantedBy=multi-user.target

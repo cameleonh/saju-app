@@ -7,6 +7,7 @@ const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const adminAreaSource = fs.readFileSync(new URL('../data/admin-areas.js', import.meta.url), 'utf8');
 const apacheSslConfig = fs.readFileSync(new URL('../deploy/apache/saju.blog-le-ssl.conf', import.meta.url), 'utf8');
 const deployUpdater = fs.readFileSync(new URL('../deploy/bin/update-saju-app.sh', import.meta.url), 'utf8');
+const serviceUnit = fs.readFileSync(new URL('../deploy/systemd/saju-app.service', import.meta.url), 'utf8');
 const engineStart = html.indexOf('const STEMS');
 const engineEnd = html.indexOf('function getFact');
 assert.ok(engineStart >= 0, 'engine constants are present');
@@ -86,6 +87,10 @@ assert.match(apacheSslConfig, /^\s*ProxyPassReverse \/ http:\/\/127\.0\.0\.1:417
 assert.match(deployUpdater, /install -m 644 deploy\/apache\/saju\.blog-le-ssl\.conf \/etc\/apache2\/sites-available\/saju\.blog-le-ssl\.conf/, 'the release updater installs the reviewed HTTPS proxy boundary');
 assert.match(deployUpdater, /apache2ctl configtest[\s\S]*systemctl reload apache2/, 'the release updater validates Apache before reloading it');
 assert.match(deployUpdater, /install -m 755 deploy\/bin\/update-saju-app\.sh \/usr\/local\/sbin\/saju-app-update/, 'the deployed updater refreshes itself after a healthy release');
+assert.match(deployUpdater, /RUNTIME_DIR="\$STATE_DIR\/runtime"/, 'SQLite runtime state has a dedicated service-writable directory');
+assert.match(deployUpdater, /mv "\$STATE_DIR\/saju\.sqlite" "\$RUNTIME_DIR\/saju\.sqlite"/, 'the updater preserves an existing production SQLite database during migration');
+assert.match(serviceUnit, /Environment=SAJU_DB_PATH=\/var\/lib\/saju-app\/runtime\/saju\.sqlite/, 'the service reads the database from the runtime boundary');
+assert.match(serviceUnit, /ReadWritePaths=\/var\/lib\/saju-app\/runtime/, 'systemd grants writes only to the runtime boundary');
 
 const couple = (() => {
   const sandbox = { calculateNatalChart };
