@@ -259,7 +259,7 @@
       .annual-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
       .annual-controls [role="status"] { min-width: 48px; text-align: center; font-weight: 700; }
       .annual-card-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
-      .annual-card { min-width: 0; aspect-ratio: 4 / 5; display: flex; flex-direction: column; gap: 12px; padding: clamp(18px, 2.2vw, 28px); overflow: auto; border: 1px solid rgba(177, 135, 52, 0.42); border-radius: 22px; background: linear-gradient(155deg, rgba(255,255,255,0.74), rgba(240,229,204,0.7)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.42); }
+      .annual-card { min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: clamp(14px, 1.8vw, 22px); overflow: auto; border: 1px solid rgba(177, 135, 52, 0.42); border-radius: 22px; background: linear-gradient(155deg, rgba(255,255,255,0.74), rgba(240,229,204,0.7)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.42); }
       .annual-card:focus, .annual-card:focus-visible { outline: 3px solid var(--gold-500); outline-offset: 3px; box-shadow: 0 0 0 3px var(--gold-500); }
       .annual-card h3 { font-family: "Noto Serif KR", "Noto Sans KR", serif; font-size: clamp(22px, 2.4vw, 29px); line-height: 1.25; }
       .annual-card-kicker, .annual-hash { font-size: 12px; color: var(--ink-600); overflow-wrap: anywhere; }
@@ -382,7 +382,7 @@
         .reading-report > .section-heading { padding: 16px 16px 8px; }
         .annual-card-grid { grid-template-columns: minmax(0, 1fr); }
         .annual-card[data-active="false"] { display: none; }
-        .annual-card { aspect-ratio: auto; min-height: 520px; }
+        .annual-card { min-height: auto; }
         .reading-card summary { padding: 15px 16px; }
         .reading-body { padding: 0 16px 20px 56px; }
         .form-grid { grid-template-columns: 1fr; gap: 18px; }
@@ -1220,6 +1220,7 @@
           if (action === 'annual-next') { state.annualCardIndex = Math.min((state.annual?.cards.length || 1) - 1, state.annualCardIndex + 1); render(); document.querySelector(`[data-annual-card="${state.annualCardIndex}"]`)?.focus({ preventScroll: true }); }
           if (action === 'annual-export' && state.annual) downloadRecord(privacySafeAnnualExport(state.annual), `saju-annual-${state.annual.targetYear}.json`);
           if (action === 'annual-print') window.print();
+          if (action === 'annual-card-png' && state.annual) downloadAnnualCardPng(state.annual, state.annualCardIndex);
           if (action === 'copy') copyChart();
           if (action === 'export') exportChart();
           if (action === 'records-refresh') openDataStage();
@@ -1541,6 +1542,55 @@
         function exportChart() {
           downloadRecord({ id: state.currentRecordId || null, chart: state.chart, annual: state.annual, messages: state.messages, training: state.training }, 'saju-chart.json');
         }
+        function downloadAnnualCardPng(annual, cardIndex) {
+          const card = annual.cards[cardIndex];
+          if (!card) return showToast('카드를 찾을 수 없어요');
+          const W = 720, H = 1080;
+          const canvas = document.createElement('canvas');
+          canvas.width = W; canvas.height = H;
+          const ctx = canvas.getContext('2d');
+          const grad = ctx.createLinearGradient(0, 0, W, H);
+          grad.addColorStop(0, '#fffaef'); grad.addColorStop(1, '#f0e5cc');
+          ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+          ctx.strokeStyle = 'rgba(177,135,52,0.42)'; ctx.lineWidth = 2;
+          ctx.strokeRect(24, 24, W - 48, H - 48);
+          ctx.fillStyle = 'rgba(177,135,52,0.08)'; ctx.fillRect(24, 24, W - 48, 4);
+          let y = 80;
+          ctx.fillStyle = '#8a7548'; ctx.font = '600 20px "Noto Sans KR", sans-serif';
+          ctx.fillText(`${cardIndex + 1} / ${annual.cards.length} · ${card.theme || ''}`, 56, y);
+          y += 44;
+          ctx.fillStyle = '#1a1a1a'; ctx.font = '700 42px "Noto Serif KR", serif';
+          ctx.fillText(card.title || '', 56, y, W - 112);
+          y += 56;
+          ctx.fillStyle = '#4a4a4a'; ctx.font = '600 24px "Noto Sans KR", sans-serif';
+          const summary = card.summary || '';
+          ctx.fillText(summary, 56, y, W - 112);
+          y += 50;
+          if (Array.isArray(card.keywords)) {
+            ctx.font = '500 18px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#6b5d3f';
+            card.keywords.forEach((kw) => {
+              ctx.fillStyle = 'rgba(177,135,52,0.15)'; roundRect(ctx, 56, y - 20, ctx.measureText(kw).width + 24, 32, 8); ctx.fill();
+              ctx.fillStyle = '#6b5d3f'; ctx.fillText(kw, 68, y);
+              y += 2 + ctx.measureText(kw).width + 40;
+            });
+            y = Math.max(y, cardIndex * 0 + 320);
+          }
+          y += 20;
+          ctx.fillStyle = '#3a3a3a'; ctx.font = '400 20px "Noto Sans KR", sans-serif';
+          if (Array.isArray(card.points)) for (const pt of card.points) {
+            const lines = wrapText(ctx, '· ' + pt, W - 132);
+            for (const line of lines) { y += 30; ctx.fillText(line, 56, y, W - 112); }
+            y += 8;
+          }
+          y += 16;
+          if (card.action) { ctx.fillStyle = 'rgba(33,89,73,0.08)'; roundRect(ctx, 48, y, W - 96, 70, 12); ctx.fill(); ctx.fillStyle = '#21594a'; ctx.font = '700 18px "Noto Sans KR", sans-serif'; ctx.fillText('해볼 일', 64, y + 28); ctx.font = '400 17px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#3a3a3a'; ctx.fillText(card.action, 64, y + 52, W - 128); y += 90; }
+          if (card.watch) { ctx.fillStyle = 'rgba(164,101,45,0.09)'; roundRect(ctx, 48, y, W - 96, 70, 12); ctx.fill(); ctx.fillStyle = '#a4652d'; ctx.font = '700 18px "Noto Sans KR", sans-serif'; ctx.fillText('주의', 64, y + 28); ctx.font = '400 17px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#3a3a3a'; ctx.fillText(card.watch, 64, y + 52, W - 128); y += 90; }
+          ctx.fillStyle = '#aaa'; ctx.font = '400 13px "Noto Sans KR", sans-serif';
+          ctx.fillText(`saju.blog · ${annual.targetYear}년 ${annual.yearPillar} · ${annual.calculationPolicy.id}`, 56, H - 48);
+          canvas.toBlob((blob) => { if (!blob) return showToast('이미지 생성에 실패했어요'); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `saju-annual-${annual.targetYear}-card-${cardIndex + 1}.png`; link.click(); URL.revokeObjectURL(link.href); showToast('카드 이미지를 다운로드했어요'); }, 'image/png');
+        }
+        function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+        function wrapText(ctx, text, maxW) { const chars = [...text]; const lines = []; let line = ''; for (const ch of chars) { const test = line + ch; if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = ch; } else line = test; } if (line) lines.push(line); return lines; }
 
         if (new URLSearchParams(window.location.search).has('demo')) { const demoInput = { ...state.form, place: '서울특별시 종로구 청운효자동', placeCode: '1111051500' }; state.chart = calculateChart(demoInput); state.screen = 'result'; state.saveState = 'outbox'; state.openReadings = ['single-0']; }
         if ('serviceWorker' in navigator && window.location.protocol !== 'file:') navigator.serviceWorker.register('service-worker.js').catch(() => {});
