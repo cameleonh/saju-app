@@ -20,6 +20,14 @@ The domain can stay at Spaceship; Route 53 is not required. Point these records 
 
 After DNS propagates, issue the certificate for `saju.blog` and `www.saju.blog` with certbot, then enable `deploy/apache/saju.blog-le-ssl.conf`.
 
+Set the global Apache `ServerName` to suppress the `AH00558` startup warning:
+
+```sh
+echo "ServerName saju.blog" | sudo tee /etc/apache2/conf-available/servername.conf
+sudo a2enconf servername
+sudo apache2ctl configtest && sudo systemctl reload apache2
+```
+
 ## Deployment updates
 
 The Lightsail firewall does not accept SSH connections from GitHub-hosted runner addresses, so deployment uses an outbound pull from the public GitHub repository. The timer runs `deploy/bin/update-saju-app.sh`, keeps the last five releases, and rolls back the symlink if the service health check fails.
