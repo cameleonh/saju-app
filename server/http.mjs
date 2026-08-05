@@ -24,6 +24,10 @@ function sendJson(response, status, payload) {
   response.end(JSON.stringify(payload));
 }
 
+function sendStorageFailure(response) {
+  return sendJson(response, 503, { error: 'durable_storage_failed', message: '저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.' });
+}
+
 async function readJson(request) {
   let size = 0;
   const chunks = [];
@@ -97,14 +101,18 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
       }
       if (request.method === 'DELETE' && submissionResource) {
         if (!storage?.deleteSubmission) return sendJson(response, 409, { error: 'durable_storage_unavailable', message: '지속 저장소가 연결되지 않아 서버 기록을 지울 수 없습니다.' });
-        const deleted = storage.deleteSubmission(submissionResource[1]);
+        let deleted;
+        try { deleted = await storage.deleteSubmission(submissionResource[1]); }
+        catch { return sendStorageFailure(response); }
         return deleted ? sendJson(response, 200, { submissionId: submissionResource[1], deleted: true }) : sendJson(response, 404, { error: 'submission_not_found' });
       }
       if (request.method === 'POST' && withdrawalResource) {
         if (!storage?.withdrawTraining) return sendJson(response, 409, { error: 'durable_storage_unavailable', message: '지속 저장소가 연결되지 않아 학습 사용을 철회할 수 없습니다.' });
         const input = await readJson(request);
         if (typeof input.recordedAt !== 'string' || !Number.isFinite(Date.parse(input.recordedAt))) return sendJson(response, 400, { error: 'recorded_at_invalid', message: 'recordedAt은 유효한 날짜와 시각이어야 합니다.' });
-        const updated = storage.withdrawTraining(withdrawalResource[1], input.recordedAt);
+        let updated;
+        try { updated = await storage.withdrawTraining(withdrawalResource[1], input.recordedAt); }
+        catch { return sendStorageFailure(response); }
         return updated ? sendJson(response, 200, { submissionId: withdrawalResource[1], withdrawn: true, trainingEligible: false }) : sendJson(response, 404, { error: 'submission_not_found' });
       }
       if (request.method !== 'POST' || pathname !== '/v1/submissions') {
@@ -116,7 +124,10 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
       if (!decision.accepted) return sendJson(response, 422, { error: 'submission_rejected', errors: decision.errors, calculationPolicy: NATAL_POLICY_REF });
       const submissionId = crypto.randomUUID();
       const projection = buildTrainingProjection(input);
-      if (storage) storage.saveSubmission({ submissionId, input, projection, status: 'accepted' });
+      if (storage) {
+        try { await storage.saveSubmission({ submissionId, input, projection, status: 'accepted' }); }
+        catch { return sendStorageFailure(response); }
+      }
       return sendJson(response, 202, {
         submissionId,
         ...decision,

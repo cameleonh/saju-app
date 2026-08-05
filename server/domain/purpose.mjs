@@ -8,7 +8,7 @@ export const PURPOSES = Object.freeze({
 const ACCEPTED = new Set(['accepted', 'granted']);
 
 export function findReceipt(receipts, purpose) {
-  return receipts.find((receipt) => receipt.purpose === purpose && ACCEPTED.has(receipt.decision));
+  return receipts.find((receipt) => receipt?.purpose === purpose && ACCEPTED.has(receipt?.decision));
 }
 
 export function validatePurposeReceipts(receipts) {

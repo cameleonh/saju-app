@@ -4,7 +4,7 @@
 |---|---|
 | Status date | 2026-08-05 |
 | Project root | `D:\\codings\\260801_saju-app` |
-| Current phase | Production natal engine deployed and verified; legal and governed-storage prerequisites remain |
+| Current phase | Production natal engine deployed and verified; legal and governed-storage prerequisites remain; test coverage and the asynchronous HTTP storage boundary are hardened |
 | Application code | Implemented in `index.html` with PWA shell |
 
 ## Current Objective
@@ -42,7 +42,8 @@ Ship the versioned natal calculation baseline, then resolve the remaining legal/
 - The first CTA remains actionable before consent. If the required service-storage acknowledgement is missing, it stays on the introduction, exposes the detailed notice, announces a specific error, and focuses the notice heading. Product-learning use is a separate optional choice.
 - Calculation creates one stable IndexedDB record and one `/v1/submissions` request. Rule-based follow-up questions update that same record without another submission request. The data screen lists saved readings and supports reopen, JSON export, confirmed single delete, confirmed clear-all, and optional-training withdrawal.
 - `index.html` now exposes explicit `내 사주` and `커플 사주` modes. Couple mode captures relationship state, separate self/partner birth inputs, a start-stage partner-authority disclosure, paired chart sheets, and descriptive comparison evidence without a compatibility score. The repeated partner checkbox was removed from the birth form, the submit action now reads `두 사람의 사주풀이 시작하기`, and input sections sit side by side from 1000px while stacking on smaller screens.
-- `server/` implements a dependency-free HTTP ingestion adapter with purpose, authority, and training-projection gates.
+- `server/` implements a dependency-free HTTP ingestion adapter with purpose, authority, and training-projection gates. All storage operations in `http.mjs` are `await`ed so that both synchronous (SQLite) and future asynchronous (PostgreSQL) adapters are handled correctly; storage failures return 503 instead of a silent success.
+- `server/domain/submission.mjs` was refactored: the monolithic `validateSubmission` is decomposed into focused validators (`validateBirthInput`, `validateDataSubject`, `validateCouple`, `validateAnnualResult`, `validateAnnualStructure`, `validateAnnualContent`). External behavior and error messages are unchanged.
 - `server/` exposes submission-scoped `DELETE /v1/submissions/:id` and `POST /v1/submissions/:id/training-withdrawal` operations for the local SQLite development store. Missing records return 404 and non-durable adapters reject lifecycle mutation.
 - `server/` now exposes `/v1/calendar/convert` using pinned `lunar-javascript@1.7.7`, accepts lunar/윤달 input through the UI, and persists accepted submissions to local `data/saju.sqlite` with original and normalized birth payloads.
 - `server/` validates `partnerSubject`, `partnerBirthInput`, and a separate partner service-storage receipt for couple submissions, and keeps couple records out of the self-only training projection until a separate partner-purpose policy exists.
@@ -90,6 +91,8 @@ Ship the versioned natal calculation baseline, then resolve the remaining legal/
 - Annual unit tests verify every enabled target's Ipchun at -1 minute, exact, +1 minute, and closing boundary; the following-year Xiaohan month; `甲子` across a 60-year boundary; structured rule fields; per-rule suppression; clash priority; annual/month fact/rule/claim traces; mandatory chart provenance; hidden-stem exclusion; deterministic hash behavior; focusable markup; and privacy-safe lossless export.
 - Fresh 2026-08-04 `npm test` passed 315 assertions: annual policy/client (82), chart/UI smoke (128), record lifecycle (44), and HTTP/SQLite ingestion (61). The run includes exact annual object round-trips through the injected IndexedDB boundary and SQLite, legacy SQLite additive migration, annual training withdrawal retention, and deletion cascade.
 - Fresh natal-engine `npm test` passed 392 static assertions plus 48 reviewed solar-term boundaries at `-1 / exact / +1` minute: natal policy (53 plus 48 fixture loops), annual policy/client (82), chart/UI smoke (142), record lifecycle (44), and HTTP/SQLite ingestion/security (71). `npm audit --omit=dev` reported zero vulnerabilities.
+- Fresh 2026-08-05 `npm test` passed 550 assertions across 9 files after adding direct unit tests for `purpose.mjs` (24), `calendar.mjs` (38), `submission.mjs` (46), and HTTP edge cases (50): natal policy (53 plus 48 fixture loops), annual policy/client (82), chart/UI smoke (142), record lifecycle (44), HTTP/SQLite ingestion (71), plus the four new files. `npm audit --omit=dev` reported zero vulnerabilities.
+- The HTTP edge test suite verified 404/method/path-traversal/rate-limit/body-size/withdrawal guards, confirmed that storage `saveSubmission`, `deleteSubmission`, and `withdrawTraining` are all `await`ed by `http.mjs`, and confirmed that failures from each asynchronous storage operation return 503 rather than a silent success or an unhandled rejection.
 - Mobile browser QA at the exact 2024 Ipchun boundary rendered `甲辰 · 丙寅 · 戊戌 · 辛酉`, exposed the before/after year-month comparison through the boundary evidence control, reported zero horizontal overflow, and produced no console error.
 - PR #3 delivered the natal engine as `d525db7`, PR #4 closed the Apache static-file bypass as `e47a4cf`, and PR #5 separated writable SQLite runtime state as `386c773`; every PR and post-merge `main` GitHub Actions `verify` run passed.
 - Lightsail atomically switched to release `386c773`. Apache, the Node service, and the five-minute pull timer are active. Apache configuration passed, `/health` reports durable SQLite persistence, approved public assets return 200, and package metadata, server source, tests, status documents, SQLite files, and Git metadata return 404 from the public domain.
@@ -107,7 +110,7 @@ Ship the versioned natal calculation baseline, then resolve the remaining legal/
 
 ### Not Yet Verified
 
-- No managed PostgreSQL/KMS/identity provider, production AI provider, or training pipeline has been implemented. Local SQLite is durable for development but is not production infrastructure.
+- No managed PostgreSQL/KMS/identity provider, production AI provider, or training pipeline has been implemented. Local SQLite is durable for development but is not production infrastructure. No PostgreSQL storage adapter exists; a production adapter must be written against `db/migrations/001_initial_contract.sql` (bounded-context schemas with `ops`, `vault`, `governance`, `training`; encrypted `bytea` PII vault columns; `jsonb` chart/reading columns; `uuid` primary keys; FK constraints; RLS prerequisites; transactional outbox) after vendor selection, identity provider, KMS, and legal review. `docs/PRE-LAUNCH-DECISIONS.md` tracks the open prerequisites.
 - Solar-term values outside the reviewed 2024–2027 KASI/KASA range use the declared ShouXing-generated snapshot. They are deterministic and source-versioned but do not claim the same authoritative fixture coverage as 2024–2027.
 - Annual targets outside 2024–2026 are deliberately unavailable. A later year requires a complete reviewed target/closing fixture set before the enabled range changes. `lunar-javascript@1.7.7` remains only for the separate lunar-date conversion path.
 - The birthplace catalog represents current administrative and legal 동·읍·면·리 names as of 2026-07-20. Historical boundary/name resolution and overseas birthplace support remain outside this prototype policy.
@@ -116,6 +119,8 @@ Ship the versioned natal calculation baseline, then resolve the remaining legal/
 - Daewoon direction/start age, longitude or apparent-solar correction, overseas birthplaces, and school-specific strength/yongsin/gyeokguk rules remain deliberately unsupported rather than inferred.
 
 ## Open Launch Prerequisites
+
+Engineering defaults and placeholder policies are tracked in `docs/PRE-LAUNCH-DECISIONS.md`. Every item remains **[BLOCKED]** until the named decision-maker or counsel signs off.
 
 1. Approve data-controller/processor roles, hosting region, retention periods, minor handling, third-party data rules, cross-border transfers, and user-facing notices.
 2. Select the first training objective and its eligible feature/label schema; do not collect an undefined blanket training grant.
