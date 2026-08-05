@@ -13,7 +13,7 @@ assert.equal(DAEWOON_POLICY.engine, 'gyeol-daewoon-core');
 assert.equal(DAEWOON_POLICY.maxCycleCount, 8);
 assert.equal(DAEWOON_POLICY.cycleSpanYears, 10);
 assert.equal(DAEWOON_POLICY.dayToYearDivisor, 3);
-assert.equal(DAEWOON_POLICY.boundaryConvention, 'ipchun');
+assert.equal(DAEWOON_POLICY.boundaryConvention, 'direction-dependent-jie');
 assert.equal(DAEWOON_POLICY.directionRule, 'year-stem-yang-forward-yin-backward');
 assert.deepEqual(DAEWOON_POLICY.natalPolicy, 'KR-CIVIL-1.0');
 assert.equal(Object.isFrozen(DAEWOON_POLICY), true);
@@ -67,6 +67,12 @@ const unknownTimeResult = calculateDaewoon({ date: '1990-10-10', yearStem: '庚'
 assert.equal(unknownTimeResult.input.time, '12:00', 'unknown time uses noon proxy');
 assert.equal(unknownTimeResult.input.unknownTime, true);
 
+const historicalForward = calculateDaewoon({ date: '1901-02-07', time: '15:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
+assert.equal(historicalForward.startAge, 8, 'historical forward calculation uses Korean legal civil time instead of a fixed UTC+9 offset');
+const historicalBackward = calculateDaewoon({ date: '1901-03-06', time: '15:00', yearStem: '乙', monthStem: '丙', monthBranch: '寅' });
+assert.equal(historicalBackward.startAge, 0, 'historical backward calculation selects the correct legal-time boundary');
+assert.equal(historicalBackward.boundaryTerm, 'JING_ZHE');
+
 const natal = calculateNatalChart({ calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울', placeCode: '1111000000', unknownTime: false });
 const natalDaewoon = calculateDaewoon({
   date: '1990-10-10',
@@ -107,6 +113,15 @@ const tamperedStartYearVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30
 assert.equal(tamperedStartYearVerify.valid, false);
 assert.ok(tamperedStartYearVerify.errors.some((e) => /cycle 1 startYear does not match/.test(e)));
 
+const tamperedEngine = { ...yangResult, policy: { ...yangResult.policy, engine: 'fake-engine' } };
+assert.ok(verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedEngine).errors.some((e) => /policy\.engine does not match/.test(e)));
+
+const tamperedInput = { ...yangResult, input: { ...yangResult.input, date: '2000-01-01' } };
+assert.ok(verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedInput).errors.some((e) => /input\.date does not match/.test(e)));
+
+const tamperedUnsupportedReason = { ...yangResult, unsupportedStates: yangResult.unsupportedStates.map((state, index) => (index === 0 ? { ...state, reason: 'tampered' } : state)) };
+assert.ok(verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedUnsupportedReason).errors.some((e) => /unsupportedStates\[0\]\.reason does not match/.test(e)));
+
 assert.equal(yangResult.policy.id, 'KR-DAEWOON-1.0');
 assert.equal(yangResult.natalPolicy.id, 'KR-CIVIL-1.0');
 assert.ok(Array.isArray(yangResult.unsupportedStates));
@@ -127,6 +142,15 @@ const maxFullCyclesYear = 2100 - 9 - 7 * 10;
 const edgeResult = calculateDaewoon({ date: `${maxFullCyclesYear}-06-15`, time: '08:00', yearStem: '庚', monthStem: '壬', monthBranch: '午' });
 assert.equal(edgeResult.cycles.length, DAEWOON_POLICY.maxCycleCount, 'boundary birth year still gets full 8 cycles');
 assert.ok(edgeResult.cycles[7].startYear <= 2100);
+
+for (const date of ['2100-01-01', '2100-06-15', '2100-12-31']) {
+  const result = calculateDaewoon({ date, time: '12:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
+  assert.equal(result.cycleCount, 1, `${date} retains the first cycle after later cycles are truncated`);
+  assert.equal(result.cycles.length, 1);
+}
+const finalSupportedDate = calculateDaewoon({ date: '2100-12-31', time: '12:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
+assert.equal(finalSupportedDate.boundaryTerm, 'XIAO_HAN');
+assert.equal(finalSupportedDate.boundaryDate, '2101-01-05', 'the 2101 sentinel boundary completes the declared 2100 birth-date range');
 
 const assertionCount = (fs.readFileSync(new URL(import.meta.url), 'utf8').match(/\bassert\./g) || []).length;
 console.log(`daewoon unit: ${assertionCount} assertions passed`);

@@ -178,7 +178,7 @@ function formatOffset(offsetSeconds) {
   return `${sign}${pad(Math.floor(absolute / 3600))}:${pad(Math.floor((absolute % 3600) / 60))}`;
 }
 
-function formatSeoulInstant(epochMinute) {
+export function formatSeoulInstant(epochMinute) {
   const utcMs = epochMinute * 60_000;
   const offsetSeconds = seoulOffsetAt(utcMs);
   const local = new Date(utcMs + offsetSeconds * 1000);

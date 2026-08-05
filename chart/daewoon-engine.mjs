@@ -2,10 +2,13 @@ import {
   STEMS,
   BRANCHES,
   NATAL_POLICY,
+  formatSeoulInstant,
+  resolveSeoulCivilTime,
 } from './natal-engine.mjs';
 import {
   NATAL_EPHEMERIS_START_YEAR,
   NATAL_EPHEMERIS_END_YEAR,
+  NATAL_EPHEMERIS_NEXT_XIAO_HAN_EPOCH_MINUTE,
   NATAL_TERM_EPOCH_MINUTES,
   NATAL_TERM_KEYS,
 } from './natal-ephemeris-data.mjs';
@@ -18,11 +21,11 @@ const POLICY = Object.freeze({
   version: '1.0.0',
   engine: 'gyeol-daewoon-core',
   engineVersion: '1.0.0',
-  range: `${NATAL_EPHEMERIS_START_YEAR}..${NATAL_EPHEMERIS_END_YEAR}`,
+  range: NATAL_POLICY.supportedSolarDates.join('..'),
   maxCycleCount: 8,
   cycleSpanYears: 10,
   dayToYearDivisor: 3,
-  boundaryConvention: 'ipchun',
+  boundaryConvention: 'direction-dependent-jie',
   directionRule: 'year-stem-yang-forward-yin-backward',
   startAgeRule: 'three-day-per-year',
   unknownTimeProxy: '12:00',
@@ -37,10 +40,18 @@ function termsForYear(year) {
 }
 
 function surroundingTerms(year) {
-  return [year - 1, year, year + 1]
+  const terms = [year - 1, year, year + 1]
     .filter((value) => value >= NATAL_EPHEMERIS_START_YEAR && value <= NATAL_EPHEMERIS_END_YEAR)
     .flatMap(termsForYear)
-    .sort((left, right) => left.epochMinute - right.epochMinute);
+  if (year === NATAL_EPHEMERIS_END_YEAR) {
+    terms.push({
+      year: NATAL_EPHEMERIS_END_YEAR + 1,
+      key: 'XIAO_HAN',
+      epochMinute: NATAL_EPHEMERIS_NEXT_XIAO_HAN_EPOCH_MINUTE,
+      monthIndex: 0,
+    });
+  }
+  return terms.sort((left, right) => left.epochMinute - right.epochMinute);
 }
 
 function findNearestJieBoundary(birthEpochMinute, birthYear, direction) {
@@ -51,17 +62,6 @@ function findNearestJieBoundary(birthEpochMinute, birthYear, direction) {
     for (let i = terms.length - 1; i >= 0; i -= 1) { if (terms[i].epochMinute < birthEpochMinute) return terms[i]; }
   }
   throw new Error('no solar-term boundary found within the ephemeris range');
-}
-
-function dateToEpochMinute(dateStr, timeStr) {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const [hh, mm] = timeStr.split(':').map(Number);
-  return Math.floor((Date.UTC(y, m - 1, d, hh, mm) - 9 * 60 * 60 * 1000) / 60_000);
-}
-
-function formatSeoulDate(epochMinute) {
-  const d = new Date(epochMinute * 60_000 + 9 * 60 * 60 * 1000);
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
 }
 
 function monthPillarIndices(monthStem, monthBranch) {
@@ -101,7 +101,7 @@ export function calculateDaewoon(input) {
 
   const direction = YANG_STEMS.has(input.yearStem) ? 'forward' : 'backward';
 
-  const birthEpochMinute = dateToEpochMinute(input.date, birthTime);
+  const birthEpochMinute = resolveSeoulCivilTime(input.date, birthTime).utcMinute;
   const boundary = findNearestJieBoundary(birthEpochMinute, birthYear, direction);
   const diffMinutes = direction === 'forward'
     ? boundary.epochMinute - birthEpochMinute
@@ -154,7 +154,7 @@ export function calculateDaewoon(input) {
     startAge,
     startAgeRule: POLICY.startAgeRule,
     boundaryTerm: boundary.key,
-    boundaryDate: formatSeoulDate(boundary.epochMinute),
+    boundaryDate: formatSeoulInstant(boundary.epochMinute).slice(0, 10),
     boundaryDirection: direction,
     cycleCount,
     maxCycleCount: POLICY.maxCycleCount,
@@ -218,6 +218,7 @@ export function verifyDaewoon(input, result) {
     for (let i = 0; i < recomputed.unsupportedStates.length; i += 1) {
       if (result.unsupportedStates[i]?.id !== recomputed.unsupportedStates[i].id) errors.push(`daewoon unsupportedStates[${i}].id does not match`);
       if (result.unsupportedStates[i]?.status !== recomputed.unsupportedStates[i].status) errors.push(`daewoon unsupportedStates[${i}].status does not match`);
+      if (result.unsupportedStates[i]?.reason !== recomputed.unsupportedStates[i].reason) errors.push(`daewoon unsupportedStates[${i}].reason does not match`);
     }
   }
 

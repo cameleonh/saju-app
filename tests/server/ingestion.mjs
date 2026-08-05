@@ -7,6 +7,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { createIngestionServer } from '../../server/http.mjs';
 import { createSqliteStorage } from '../../server/storage/sqlite.mjs';
 import { calculateNatalChart } from '../../chart/natal-engine.mjs';
+import { calculateDaewoon } from '../../chart/daewoon-engine.mjs';
 
 const server = createIngestionServer();
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -16,6 +17,20 @@ const url = `http://127.0.0.1:${port}`;
 const receipt = (purpose, decision = 'accepted') => ({ receiptId: `${purpose}-receipt`, purpose, decision, disclosureVersion: 'v1', recordedAt: '2026-08-01T00:00:00Z' });
 const defaultBirthInput = { calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울특별시 강남구 역삼1동', placeCode: '1168064000', unknownTime: false };
 const chartFor = (birthInput) => ({ ...calculateNatalChart(birthInput), facts: [{ id: 'day.element', value: '토' }], reading: [] });
+const chartWithDaewoonFor = (birthInput) => {
+  const chart = chartFor(birthInput);
+  return {
+    ...chart,
+    daewoon: calculateDaewoon({
+      date: birthInput.date,
+      time: birthInput.unknownTime ? '12:00' : birthInput.time,
+      unknownTime: birthInput.unknownTime,
+      yearStem: chart.pillars[0].stem,
+      monthStem: chart.pillars[1].stem,
+      monthBranch: chart.pillars[1].branch,
+    }),
+  };
+};
 const valid = (overrides = {}) => ({
   schemaVersion: 'submission.v1',
   clientRequestId: 'client-1',
@@ -33,6 +48,7 @@ await new Promise((resolve) => staticServer.listen(0, '127.0.0.1', resolve));
 const staticUrl = `http://127.0.0.1:${staticServer.address().port}`;
 assert.equal((await fetch(`${staticUrl}/`)).status, 200);
 assert.equal((await fetch(`${staticUrl}/chart/natal-engine.mjs`)).status, 200);
+assert.equal((await fetch(`${staticUrl}/chart/daewoon-engine.mjs`)).status, 200);
 assert.equal((await fetch(`${staticUrl}/package.json`)).status, 404, 'package metadata is not a public static asset');
 assert.equal((await fetch(`${staticUrl}/data/saju.sqlite`)).status, 404, 'the local durable store is never a public static asset');
 assert.equal((await fetch(`${staticUrl}/server/index.mjs`)).status, 404, 'server source is not a public static asset');
@@ -68,6 +84,15 @@ const accepted = await post(valid());
 assert.equal(accepted.status, 202);
 assert.equal((await accepted.json()).durable, false);
 
+const chartWithDaewoon = chartWithDaewoonFor(defaultBirthInput);
+const acceptedDaewoon = await post(valid({ clientRequestId: 'valid-daewoon', chartResult: chartWithDaewoon }));
+assert.equal(acceptedDaewoon.status, 202);
+const tamperedDaewoon = { ...chartWithDaewoon, daewoon: { ...chartWithDaewoon.daewoon, direction: 'backward' } };
+const tamperedDaewoonResponse = await post(valid({ clientRequestId: 'tampered-daewoon', chartResult: tamperedDaewoon }));
+assert.equal(tamperedDaewoonResponse.status, 422);
+const malformedNatalDaewoonResponse = await post(valid({ clientRequestId: 'malformed-natal-daewoon', chartResult: { ...chartWithDaewoon, pillars: [] } }));
+assert.equal(malformedNatalDaewoonResponse.status, 422, 'malformed natal pillars with daewoon are rejected without a server error');
+
 const training = await post(valid({ purposeReceipts: [receipt('service_storage'), receipt('model_training')] }));
 assert.equal((await training.json()).trainingEligible, true);
 
@@ -80,6 +105,19 @@ const couple = await post(valid({
 }));
 assert.equal(couple.status, 202);
 assert.equal((await couple.json()).trainingEligible, false);
+
+const partnerBirthInput = { calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false };
+const partnerDaewoonChart = chartWithDaewoonFor(partnerBirthInput);
+const tamperedPartnerDaewoon = { ...partnerDaewoonChart, daewoon: { ...partnerDaewoonChart.daewoon, startAge: partnerDaewoonChart.daewoon.startAge + 1 } };
+const tamperedCouple = await post(valid({
+  clientRequestId: 'tampered-partner-daewoon',
+  relationshipMode: 'couple',
+  partnerSubject: { relationship: 'partner', authorityVerified: true, minor: 'unknown' },
+  partnerBirthInput,
+  chartResult: { mode: 'couple', self: chartWithDaewoon, partner: tamperedPartnerDaewoon },
+  partnerPurposeReceipts: [receipt('service_storage')],
+}));
+assert.equal(tamperedCouple.status, 422, 'tampered partner daewoon is rejected');
 
 const unknownMinor = await post(valid({ dataSubject: { relationship: 'self', authorityVerified: true, minor: 'unknown' }, purposeReceipts: [receipt('service_storage'), receipt('model_training')] }));
 assert.equal((await unknownMinor.json()).trainingEligible, false);

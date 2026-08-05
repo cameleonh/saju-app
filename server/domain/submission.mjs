@@ -7,6 +7,25 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ISO_TIME = /^\d{2}:\d{2}$/;
 const PLACE_CODE = /^\d{10}$/;
 
+function validateChartResult(birth, chart, label) {
+  const errors = [];
+  const natalVerification = verifyNatalChart(birth, chart);
+  errors.push(...natalVerification.errors.map((error) => `${label} ${error}`));
+  if (!chart?.daewoon || !natalVerification.expected) return errors;
+
+  const expectedPillars = natalVerification.expected.pillars;
+  const daewoonVerification = verifyDaewoon({
+    date: birth.date,
+    time: birth.unknownTime ? '12:00' : birth.time,
+    unknownTime: birth.unknownTime,
+    yearStem: expectedPillars[0].stem,
+    monthStem: expectedPillars[1].stem,
+    monthBranch: expectedPillars[1].branch,
+  }, chart.daewoon);
+  errors.push(...daewoonVerification.errors.map((error) => `${label} ${error}`));
+  return errors;
+}
+
 function validateBirthInput(birth, label) {
   const errors = [];
   if (!birth || typeof birth !== 'object') {
@@ -47,8 +66,7 @@ function validateCouple(input) {
   else errors.push(...validatePurposeReceipts(input.partnerPurposeReceipts).map((error) => `partner ${error}`));
   if (!input.chartResult?.partner) errors.push('chartResult.partner is required for couple submissions');
   else if (partnerBirth && typeof partnerBirth === 'object') {
-    const verification = verifyNatalChart(partnerBirth, input.chartResult.partner);
-    errors.push(...verification.errors.map((error) => `partner chartResult ${error}`));
+    errors.push(...validateChartResult(partnerBirth, input.chartResult.partner, 'partner chartResult'));
   }
   return errors;
 }
@@ -134,21 +152,7 @@ export function validateSubmission(input) {
   else if (birth && typeof birth === 'object' && birth.calendar === 'solar') {
     const selfChart = input.relationshipMode === 'couple' ? input.chartResult.self : input.chartResult;
     if (!selfChart) errors.push('chartResult.self is required for couple submissions');
-    else {
-      const verification = verifyNatalChart(birth, selfChart);
-      errors.push(...verification.errors.map((error) => `chartResult ${error}`));
-    }
-    if (selfChart?.daewoon) {
-      const daewoonVerification = verifyDaewoon({
-        date: birth.date,
-        time: birth.unknownTime ? '12:00' : birth.time,
-        unknownTime: birth.unknownTime,
-        yearStem: selfChart.pillars?.[0]?.stem,
-        monthStem: selfChart.pillars?.[1]?.stem,
-        monthBranch: selfChart.pillars?.[1]?.branch,
-      }, selfChart.daewoon);
-      errors.push(...daewoonVerification.errors.map((error) => `chartResult daewoon ${error}`));
-    }
+    else errors.push(...validateChartResult(birth, selfChart, 'chartResult'));
   }
 
   errors.push(...validateAnnualResult(input, birth));

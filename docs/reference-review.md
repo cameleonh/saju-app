@@ -19,7 +19,7 @@ The independent-core recommendation is now implemented as `KR-CIVIL-1.0` / `gyeo
 - Browser and server import the same deterministic module, and submissions are recalculated before acceptance.
 - A generated 1899–2100 minute snapshot uses the pinned MIT-licensed ShouXing implementation for coverage while replacing 2024–2027 policy boundaries with reviewed KASI/KASA KST-minute fixtures.
 - The Korean legal-time path embeds IANA tzdb 2026c `Asia/Seoul` transitions instead of relying on host/browser time-zone data.
-- The product locks civil midnight and `23:00–00:59` Zi hour, records that no longitude/apparent-solar correction is applied, and keeps daewoon unsupported.
+- The product locks civil midnight and `23:00–00:59` Zi hour, records that no longitude/apparent-solar correction is applied, and calculates daewoon under the separate `KR-DAEWOON-1.0` policy without semantic interpretation.
 - The golden suite covers the ordinary shared fixture, every natal-relevant official fixture term in 2024–2027, historical Korean clock changes, day/hour boundaries, host-zone determinism, and server tamper rejection.
 
 The policy and remaining validation limits are recorded in [`NATAL-CALCULATION-POLICY.md`](NATAL-CALCULATION-POLICY.md).

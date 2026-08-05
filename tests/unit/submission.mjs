@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { validateSubmission, buildSubmissionDecision, buildTrainingProjection } from '../../server/domain/submission.mjs';
 import { calculateNatalChart } from '../../chart/natal-engine.mjs';
+import { calculateDaewoon } from '../../chart/daewoon-engine.mjs';
 
 const receipt = (purpose, decision = 'accepted') => ({
   receiptId: `${purpose}-id`,
@@ -12,6 +13,20 @@ const receipt = (purpose, decision = 'accepted') => ({
 });
 const birthInput = { calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울특별시 강남구 역삼1동', placeCode: '1168064000', unknownTime: false };
 const chartFor = (input) => ({ ...calculateNatalChart(input), facts: [{ id: 'day.element', value: '토' }], reading: [] });
+const chartWithDaewoonFor = (input) => {
+  const chart = chartFor(input);
+  return {
+    ...chart,
+    daewoon: calculateDaewoon({
+      date: input.date,
+      time: input.unknownTime ? '12:00' : input.time,
+      unknownTime: input.unknownTime,
+      yearStem: chart.pillars[0].stem,
+      monthStem: chart.pillars[1].stem,
+      monthBranch: chart.pillars[1].branch,
+    }),
+  };
+};
 
 function baseSubmission(overrides = {}) {
   return {
@@ -50,6 +65,14 @@ assert.ok(
   'a chart with a tampered schemaVersion is rejected',
 );
 
+const daewoonChart = chartWithDaewoonFor(birthInput);
+assert.deepEqual(validateSubmission(baseSubmission({ chartResult: daewoonChart })), [], 'a deterministic daewoon result is accepted');
+const tamperedDaewoonChart = { ...daewoonChart, daewoon: { ...daewoonChart.daewoon, direction: 'backward' } };
+assert.ok(validateSubmission(baseSubmission({ chartResult: tamperedDaewoonChart })).some((error) => /daewoon direction does not match/.test(error)), 'a tampered daewoon result is rejected');
+const malformedNatalWithDaewoon = { ...daewoonChart, pillars: [] };
+assert.doesNotThrow(() => validateSubmission(baseSubmission({ chartResult: malformedNatalWithDaewoon })), 'malformed natal pillars with daewoon produce validation errors instead of throwing');
+assert.ok(validateSubmission(baseSubmission({ chartResult: malformedNatalWithDaewoon })).some((error) => /chart pillars do not match/.test(error)));
+
 assert.ok(validateSubmission(baseSubmission({ readingScope: 'daily' })).some((error) => /readingScope must be natal or annual/.test(error)));
 assert.ok(validateSubmission(baseSubmission({ readingScope: 'annual' })).some((error) => /targetYear must be an integer/.test(error)));
 assert.ok(validateSubmission(baseSubmission({ readingScope: 'annual', targetYear: 2026 })).some((error) => /annualResult is required/.test(error)));
@@ -79,6 +102,18 @@ const coupleMissingPartnerAuthority = validateSubmission(baseSubmission({
   partnerSubject: { relationship: 'partner', authorityVerified: false },
 }));
 assert.ok(coupleMissingPartnerAuthority.some((error) => /couple submissions require verified partner authority/.test(error)));
+
+const partnerBirthInput = { calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false };
+const partnerChart = chartWithDaewoonFor(partnerBirthInput);
+const tamperedPartnerChart = { ...partnerChart, daewoon: { ...partnerChart.daewoon, startAge: partnerChart.daewoon.startAge + 1 } };
+const tamperedPartnerErrors = validateSubmission(baseSubmission({
+  relationshipMode: 'couple',
+  partnerBirthInput,
+  partnerSubject: { relationship: 'partner', authorityVerified: true },
+  partnerPurposeReceipts: [receipt('service_storage')],
+  chartResult: { mode: 'couple', self: daewoonChart, partner: tamperedPartnerChart },
+}));
+assert.ok(tamperedPartnerErrors.some((error) => /partner chartResult daewoon startAge does not match/.test(error)), 'partner daewoon tampering is rejected');
 
 const valid = validateSubmission(baseSubmission());
 assert.equal(valid.length, 0, JSON.stringify(valid, null, 2));
