@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import pg from 'pg';
 import { migratePostgres } from '../../scripts/migrate-postgres.mjs';
+import { configurePostgresRole } from '../../scripts/configure-postgres-role.mjs';
 import { finalizeExpiredDeletions } from '../../scripts/finalize-deletions.mjs';
 import { createPostgresStorage } from '../../server/storage/postgres.mjs';
 import { createKmsVault } from '../../server/crypto/kms-vault.mjs';
@@ -16,14 +17,11 @@ assert.deepEqual(await migratePostgres({ connectionString: adminUrl }), ['001_in
 assert.deepEqual(await migratePostgres({ connectionString: adminUrl }), [], 'migrations are checksum-locked and idempotent');
 
 const admin = new Pool({ connectionString: adminUrl });
-await admin.query(`do $$ begin
-  if not exists (select 1 from pg_roles where rolname = 'saju_runtime') then
-    create role saju_runtime login password 'runtime-test-password' in role saju_app;
-  end if;
-end $$`);
+const runtimePassword = 'runtime-test-password-at-least-24';
+await configurePostgresRole({ connectionString: adminUrl, password: runtimePassword });
 const runtimeUrl = new URL(adminUrl);
 runtimeUrl.username = 'saju_runtime';
-runtimeUrl.password = 'runtime-test-password';
+runtimeUrl.password = runtimePassword;
 const runtimePool = new Pool({ connectionString: runtimeUrl.toString() });
 
 const dataKey = Buffer.alloc(32, 9);

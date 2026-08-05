@@ -25,6 +25,8 @@ assert.match(provision, /set-user-pool-mfa-config[\s\S]*--software-token-mfa-con
 assert.doesNotMatch(createUserPoolBlock, /--software-token-mfa-configuration/, 'unsupported create-user-pool TOTP arguments are not used');
 assert.match(provision, /describe-user-pool-domain[\s\S]*DomainDescription\.UserPoolId/, 'Cognito domain existence is determined from the returned pool id instead of the command exit code');
 assert.match(provision, /domain_pool_id.*!=.*user_pool_id/, 'a globally reused Cognito domain cannot be silently attached to the wrong pool');
+assert.match(provision, /describe-managed-login-branding-by-client[\s\S]*ManagedLoginBranding\.ManagedLoginBrandingId/, 'managed login branding is looked up by the selected app client');
+assert.match(provision, /create-managed-login-branding[\s\S]*--use-cognito-provided-values/, 'API-created app clients receive a working default managed login style');
 assert.match(provision, /MinimumLength=14/, 'cloud accounts require a strong minimum password length');
 assert.match(configure, /SAJU_RUNTIME_DB_PASSWORD must be base64url-safe/, 'database password cannot alter environment-file parsing');
 assert.match(configurePostgresRole, /\$1::text/, 'PostgreSQL can infer the password parameter type when formatting the role statement');

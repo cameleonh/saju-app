@@ -6,6 +6,8 @@ The selected first-release stack keeps the existing Lightsail application instan
 - One same-region customer-managed KMS key for application envelope encryption (about USD 1/month plus requests).
 - Cognito Essentials email accounts with required TOTP MFA and a 14-character minimum password, expected to remain in the initial MAU free tier.
 
+The Cognito domain uses managed login v2. `provision.sh` explicitly assigns the Cognito-provided default branding to the app client because an API-created client has no working login page until a branding style is associated with it.
+
 This is deliberately not a high-availability database. Lightsail provides managed maintenance, encryption in transit/at rest, and seven-day point-in-time restore, but a standard plan can still have downtime. The release gate requires a restore drill and a documented upgrade trigger.
 
 The USD 25 budget is an account-wide notification threshold, not a spending cap. It can include unrelated AWS usage and does not automatically stop resources; the operator must review each alert and the AWS Cost Explorer breakdown.

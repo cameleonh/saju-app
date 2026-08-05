@@ -4,7 +4,7 @@
 |---|---|
 | Status date | 2026-08-05 |
 | Project root | `D:\\codings\\260801_saju-app` |
-| Current phase | Governed cloud-save implementation verified; local-only production release deployed; AWS provisioning and legal sign-off remain |
+| Current phase | Managed AWS resources, recovery, and credential-rotation drills verified; production remains local-only pending operator-controlled legal and security sign-off |
 | Production default | `SAJU_STORAGE=local-only` |
 
 ## Current objective
@@ -26,22 +26,26 @@ Keep the deterministic natal, annual, and daewoon product available without cent
 
 ## Fresh verification
 
-- `npm test`: 745 assertions passed plus 48 official solar-term boundary loops across the full unit/HTTP/lifecycle suite.
+- `npm test`: 752 assertions passed plus 48 official solar-term boundary loops across the full unit/HTTP/lifecycle suite.
 - Disposable PostgreSQL 16 integration: 42 assertions passed after applying all migrations twice, including keyed identity evidence, nested-birth plaintext exclusion, KMS envelopes, RLS ownership, individual/account deletion, and backup-expiry finalization.
 - `npm audit --omit=dev`: 0 vulnerabilities. Node syntax checks, POSIX shell syntax checks, `git diff --check`, dependency-tree validation, and repository secret-pattern scan passed.
-- GitHub `main` and the Lightsail release are aligned at `1426942`. The Node service, Apache configuration, and daily deletion-finalizer timer are active; `/health` reports `durable: false`, confirming that cloud save remains fail-closed.
+- GitHub `main` and the Lightsail release are kept on the same verified release. The Node service, Apache configuration, and daily deletion-finalizer timer are active; `/health` reports `durable: false`, confirming that cloud save remains fail-closed.
 - Production browser QA passed on desktop and mobile: Korean and Hanja render from the self-hosted Noto Sans KR files, the daewoon result is present, `/v1/me` quietly reports the unavailable account capability, there are no console errors, and all observed requests are same-origin.
-- AWS resource provisioning is prepared but not yet executed. Root sign-in accepted the stored account credentials and is blocked at the emailed one-time verification-code step; no managed database, KMS key, Cognito pool, IAM runtime key, or budget was created during that attempt.
+- AWS provisioning created the private PostgreSQL 16 Micro database, customer-managed KMS key with automatic rotation, Cognito Essentials pool and PKCE client with required TOTP MFA, no-console least-privilege runtime IAM user, and USD 25 account budget with three notifications. From the Lightsail application host, database TLS hostname verification, all three migrations and their idempotent replay, the limited runtime role, RLS isolation, KMS context enforcement, and Cognito deletion-only IAM boundary passed live checks.
+- A point-in-time restore database was created in isolation, assigned an independent temporary master password, and verified from the Lightsail host with TLS, all three migrations, the non-owner runtime role, 12 RLS-protected tables, zero visible rows, and denied identity enumeration. The restored database was then deleted and deletion was confirmed.
+- Cognito managed login v2 has the default branding associated with the selected app client. The production login page exposes email/password sign-in, password recovery, and account creation without browser console errors.
+- A second runtime access key was created and tested from the Lightsail host for KMS round-trip encryption, strict encryption-context enforcement, denied KMS/Cognito enumeration, and the one-pool Cognito deletion boundary. The local `0600` operator file and CMS-encrypted offline backup were updated, the old key was deleted, exactly one active runtime key remains, and temporary CloudShell credentials were removed.
 
 ## Production launch gates
 
-- Provision and verify the named AWS resources; complete TLS connection, key rotation, budget notification, restore, and synthetic account lifecycle drills.
+- Register root MFA on the operator's own authenticator and stop using the root session for routine work.
 - Publish the exact legal/registered operator name and a tested dedicated privacy-rights contact.
 - Record the AWS contracting entity, processor/subprocessor and overseas-processing notice approved for the actual account.
 - Obtain Korean privacy counsel sign-off and name the incident owner.
+- After those approvals, install the root-managed production environments, enable managed storage deliberately, and complete one synthetic login/save/reopen/export/delete/account-delete/backup-expiry lifecycle before admitting real account data.
 
 Until every gate in `docs/legal/LAUNCH-SIGNOFF.md` is complete, production stays local-only and must not set `SAJU_STORAGE=postgres`.
 
 ## Exact next action
 
-Complete the AWS root email verification, run the idempotent provisioning script from an operator session, and perform the TLS/restore/key-rotation/account-lifecycle drills. Do not enable cloud save until the legal sign-off fields contain real operator-approved facts.
+The operator must register root MFA and complete the named-owner legal/security rows in `docs/legal/LAUNCH-SIGNOFF.md`. Only then may the root-managed production environments be installed and the final synthetic account lifecycle run; do not enable cloud save before those real approvals exist.

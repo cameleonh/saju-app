@@ -88,6 +88,18 @@ elif [ "$domain_pool_id" != "$user_pool_id" ]; then
   exit 1
 fi
 
+branding_id=$(aws cognito-idp describe-managed-login-branding-by-client \
+  --user-pool-id "$user_pool_id" \
+  --client-id "$client_id" \
+  --query 'ManagedLoginBranding.ManagedLoginBrandingId' \
+  --output text 2>/dev/null || true)
+if [ -z "$branding_id" ] || [ "$branding_id" = "None" ]; then
+  aws cognito-idp create-managed-login-branding \
+    --user-pool-id "$user_pool_id" \
+    --client-id "$client_id" \
+    --use-cognito-provided-values >/dev/null
+fi
+
 if ! aws iam get-user --user-name "$SAJU_RUNTIME_IAM_USER" >/dev/null 2>&1; then
   aws iam create-user --user-name "$SAJU_RUNTIME_IAM_USER" >/dev/null
   aws iam tag-user --user-name "$SAJU_RUNTIME_IAM_USER" --tags Key=application,Value=saju Key=environment,Value=production
