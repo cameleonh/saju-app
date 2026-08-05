@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server/index.mjs",
     "generate:natal-ephemeris": "node scripts/generate-natal-ephemeris.mjs",
-    "test": "node tests/natal.mjs && node tests/annual.mjs && node tests/smoke.mjs && node tests/lifecycle.mjs && node tests/unit/purpose.mjs && node tests/unit/calendar.mjs && node tests/unit/submission.mjs && node tests/server/ingestion.mjs && node tests/server/http-edge.mjs"
+    "test": "node tests/natal.mjs && node tests/annual.mjs && node tests/smoke.mjs && node tests/lifecycle.mjs && node tests/unit/purpose.mjs && node tests/unit/calendar.mjs && node tests/unit/submission.mjs && node tests/unit/daewoon.mjs && node tests/server/ingestion.mjs && node tests/server/http-edge.mjs"
   },
   "dependencies": {
     "lunar-javascript": "1.7.7"

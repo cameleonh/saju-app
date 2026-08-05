@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { calculateNatalChart } from '../chart/natal-engine.mjs';
+import { calculateDaewoon } from '../chart/daewoon-engine.mjs';
 
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const adminAreaSource = fs.readFileSync(new URL('../data/admin-areas.js', import.meta.url), 'utf8');
@@ -50,7 +51,7 @@ assert.match(adminAreaSource, /Effective date: 2026-07-20/);
 assert.match(adminAreaSource, /KIKcd_H and KIKcd_B/);
 assert.deepEqual(JSON.parse(JSON.stringify(catalogSandbox.tenGodMap)), [['甲', '편관'], ['乙', '정관'], ['丙', '편인'], ['丁', '정인'], ['戊', '비견'], ['己', '겁재'], ['庚', '식신'], ['辛', '상관'], ['壬', '편재'], ['癸', '정재']], 'ten-god relation covers all five element relations and both polarities');
 const evaluate = (input) => {
-  const sandbox = { calculateNatalChart };
+  const sandbox = { calculateNatalChart, calculateDaewoon };
   vm.runInNewContext(`${engineSource}; globalThis.result = calculateChart(${JSON.stringify(input)});`, sandbox);
   return sandbox.result;
 };
@@ -71,7 +72,13 @@ assert.equal(golden.pillars[0].tenGod, '식신');
 assert.deepEqual(Array.from(golden.pillars[2].hiddenStems), ['庚', '壬', '戊']);
 assert.ok(golden.facts.some((fact) => fact.id === 'ten-god.visible'));
 assert.ok(golden.facts.some((fact) => fact.id === 'hidden-stems'));
-assert.equal(golden.facts.find((fact) => fact.id === 'cycles.daewoon')?.value, '정책 확정 전 제공하지 않음');
+const daewoonFact = golden.facts.find((fact) => fact.id === 'cycles.daewoon');
+assert.ok(daewoonFact, 'daewoon fact exists');
+assert.match(daewoonFact.value, /^.{2} \(\d+세~\)$/, 'daewoon fact reports a pillar and start age');
+assert.match(daewoonFact.detail, /KR-DAEWOON-1\.0/);
+assert.ok(golden.daewoon, 'daewoon object is attached to chart result');
+assert.equal(golden.daewoon.cycles.length, 8);
+assert.equal(golden.daewoon.cycles[0].pillar, `${golden.pillars[1].text}`);
 
 const unknownTime = evaluate({ date: '1990-10-10', time: '12:00', unknownTime: true, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true });
 assert.equal(unknownTime.pillars[3].text, '미상');
@@ -93,7 +100,7 @@ assert.match(serviceUnit, /Environment=SAJU_DB_PATH=\/var\/lib\/saju-app\/runtim
 assert.match(serviceUnit, /ReadWritePaths=\/var\/lib\/saju-app\/runtime/, 'systemd grants writes only to the runtime boundary');
 
 const couple = (() => {
-  const sandbox = { calculateNatalChart };
+  const sandbox = { calculateNatalChart, calculateDaewoon };
   vm.runInNewContext(`${engineSource}; globalThis.result = calculateCoupleChart(${JSON.stringify({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar' })}, ${JSON.stringify({ date: '1992-02-14', time: '09:00', unknownTime: false, place: '서울', calendar: 'solar' })}, 'dating');`, sandbox);
   return sandbox.result;
 })();
@@ -170,11 +177,12 @@ assert.match(html, /cg-canary/);
 assert.match(html, /copyright\.html/);
 assert.match(fs.readFileSync(new URL('../robots.txt', import.meta.url), 'utf8'), /GPTBot[\s\S]*Disallow: \//);
 assert.match(fs.readFileSync(new URL('../ai.txt', import.meta.url), 'utf8'), /ClaudeBot[\s\S]*Disallow: \//);
-assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /saju-app-shell-v10/);
+assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /saju-app-shell-v11/);
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /annual\/client\.mjs/);
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /annual\/storage\.mjs/);
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /chart\/natal-engine\.mjs/);
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /chart\/natal-ephemeris-data\.mjs/);
+assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /chart\/daewoon-engine\.mjs/);
 assert.match(html, /requestAnnualReading/);
 assert.match(html, /annualSubmissionFields/);
 assert.match(html, /name="targetYear"/);

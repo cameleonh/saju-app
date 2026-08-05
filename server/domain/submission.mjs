@@ -131,8 +131,12 @@ export function validateSubmission(input) {
 
   if (!input.chartResult || typeof input.chartResult !== 'object') errors.push('chartResult is required');
   else if (birth && typeof birth === 'object' && birth.calendar === 'solar') {
-    const verification = verifyNatalChart(birth, input.chartResult);
-    errors.push(...verification.errors.map((error) => `chartResult ${error}`));
+    const selfChart = input.relationshipMode === 'couple' ? input.chartResult.self : input.chartResult;
+    if (!selfChart) errors.push('chartResult.self is required for couple submissions');
+    else {
+      const verification = verifyNatalChart(birth, selfChart);
+      errors.push(...verification.errors.map((error) => `chartResult ${error}`));
+    }
   }
 
   errors.push(...validateAnnualResult(input, birth));

@@ -39,8 +39,8 @@
         --radius-control: 8px;
         --container: 1180px;
         --safe-bottom: max(18px, env(safe-area-inset-bottom));
-        --font-sans: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", Pretendard, SUIT, system-ui, sans-serif;
-        --font-serif: "Noto Serif KR", "AppleMyungjo", "Nanum Myeongjo", Batang, "Noto Serif CJK KR", serif;
+        --font-sans: "Noto Sans KR", "Noto Sans CJK KR", "Apple SD Gothic Neo", "Malgun Gothic", Pretendard, SUIT, "Pretendard Variable", "Nanum Gothic", "NanumSquare", "Droid Sans Fallback", "UnDotum", "UnDinaru", system-ui, sans-serif;
+        --font-serif: "Noto Serif KR", "Noto Serif CJK KR", "AppleMyungjo", "Nanum Myeongjo", Batang, "Nanum Myeongjo", "UnBatang", "Droid Sans Fallback", serif;
       }
 
       *, *::before, *::after { box-sizing: border-box; }
@@ -271,6 +271,13 @@
       .annual-card-watch { background: rgba(164, 101, 45, 0.09); }
       .annual-card-action p, .annual-card-watch p { margin: 4px 0 0; }
       .annual-card .evidence-row { margin-top: auto; }
+      .daewoon-timeline { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
+      .daewoon-cycle { flex: 0 0 auto; min-width: 72px; padding: 12px 10px; border: 1px solid var(--paper-300); border-radius: 10px; background: var(--paper-50); text-align: center; position: relative; }
+      .daewoon-cycle.current { border-color: var(--jade-600); background: rgba(33, 89, 73, 0.08); }
+      .daewoon-pillar { font-family: var(--font-serif); font-size: 22px; font-weight: 600; color: var(--ink-950); }
+      .daewoon-age { font-size: 13px; font-weight: 600; color: var(--ink-800); margin-top: 4px; }
+      .daewoon-year { font-size: 11px; color: var(--ink-600); }
+      .daewoon-now { display: inline-block; margin-top: 4px; font-size: 10px; font-weight: 700; color: var(--jade-700); text-transform: uppercase; letter-spacing: 0.05em; }
       .annual-fact { margin-top: 16px; }
       .annual-document-view, .monthly-flow { margin-top: 16px; border-top: 1px solid var(--paper-300); padding-top: 14px; }
       .annual-document-view summary, .monthly-flow summary { cursor: pointer; font-weight: 750; }
@@ -422,6 +429,7 @@
       import { annualSubmissionFields, privacySafeAnnualExport, renderAnnualReading, requestAnnualReading } from './annual/client.mjs';
       import { createAnnualStorage } from './annual/storage.mjs';
       import { calculateNatalChart } from './chart/natal-engine.mjs';
+      import { calculateDaewoon } from './chart/daewoon-engine.mjs';
       (() => {
         const STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
         const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
@@ -695,6 +703,14 @@
           pillars.forEach((item) => { if (item.element) elementCounts[item.element] += 1; if (item.branchElement) elementCounts[item.branchElement] += 1; });
           const sortedElements = Object.entries(elementCounts).sort((a, b) => b[1] - a[1]);
           const warnings = [...core.warnings];
+          const daewoon = calculateDaewoon({
+            date: input.date,
+            time: input.time || (input.unknownTime ? '12:00' : '12:00'),
+            unknownTime: input.unknownTime,
+            yearStem: core.pillars[0].stem,
+            monthStem: core.pillars[1].stem,
+            monthBranch: core.pillars[1].branch,
+          });
           const facts = [
             { id: 'year.pillar', label: '년주', value: yearPillar.text, detail: `태어난 해의 계절 경계를 반영한 ${yearPillar.text}입니다.` },
             { id: 'month.pillar', label: '월주', value: monthPillar.text, detail: `절기 월령을 기준으로 계산한 ${monthPillar.text}입니다.` },
@@ -703,7 +719,7 @@
             { id: 'balance.dominant', label: '가장 많은 기운', value: sortedElements[0][0], detail: `현재 구조에서 ${sortedElements[0][0]} 기운이 ${sortedElements[0][1]}개로 가장 많습니다.` },
             { id: 'ten-god.visible', label: '천간 십신', value: visibleTenGodSummary(pillars) || '시각 정보 제한', detail: `일간 ${dayPillar.stem}${objectParticle(dayPillar.stem)} 기준으로 겉에 드러난 천간의 관계를 계산했습니다. 십신은 성격 판정표가 아니라 관계와 역할을 읽는 전통 분류입니다.` },
             { id: 'hidden-stems', label: '지장간', value: hiddenStemSummary(pillars) || '계산 제한', detail: '각 지지 안에 배속된 천간과 일간의 십신 관계입니다. 표면 행동과 늘 같다고 단정하지 않고, 반복되는 내적 동기와 비교합니다.' },
-            { id: 'cycles.daewoon', label: '대운 계산', value: '정책 확정 전 제공하지 않음', detail: '대운 방향과 시작 나이 계산 방식이 아직 승인되지 않아 수치를 만들지 않습니다.' },
+            { id: 'cycles.daewoon', label: '대운', value: `${daewoon.cycles[0].pillar} (${daewoon.cycles[0].startAge}세~)`, detail: `${daewoon.direction === 'forward' ? '순행' : '역행'}, 시작 나이 ${daewoon.startAge}세. ${daewoon.policy.id} 정책으로 계산했습니다. 대운의 의미론적 해석은 지원하지 않습니다.` },
             { id: 'input.policy', label: '계산 정책', value: core.policy.id, detail: '한국 법정 민간시, 분 단위 절기 경계, 자정 일주, 2시간 시주를 사용하는 결정론적 정책입니다.' },
           ];
           if (core.boundaryFlags.sensitivity) {
@@ -785,7 +801,7 @@
               evidence: ['input.policy'],
             },
           ];
-          return { ...core, input, pillars, facts, elementCounts, sortedElements, warnings, reading, createdAt: new Date().toISOString() };
+          return { ...core, input, pillars, facts, elementCounts, sortedElements, warnings, reading, daewoon, createdAt: new Date().toISOString() };
         }
 
         function relationshipLabel(value) { return ({ 'getting-to-know': '알아가는 사이', dating: '현재 연인', partner: '배우자·동반자' })[value] || '관계'; }
@@ -991,7 +1007,9 @@
           const reading = readingMarkup(chart.reading);
           const messages = state.messages.map((message) => `<div class="bubble ${message.role === 'user' ? 'user' : ''}">${escapeHtml(message.text)}</div>`).join('');
           const annualMarkup = renderAnnualReading(state.annual, { activeIndex: state.annualCardIndex, activeFact: state.annualFact, error: state.annualError });
-          return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">명식과 연운 확인</div><h1 id="result-title">계산 사실과 연운 카드의 근거를 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button secondary small" data-action="export">${icon('download')} 내보내기</button></div></div><div class="result-layout"><div class="result-main"><section class="aperture chart-aperture" aria-labelledby="chart-summary"><div class="aperture-top"><div><div class="eyebrow">계산한 명식</div><h2 id="chart-summary" class="aperture-title">${formatKoreanDate(chart.input.date)}의 네 기둥</h2></div><span class="aperture-meta mono">${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(chart.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(chart.input.place)} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${chart.input.unknownTime ? '시각 미상' : escapeHtml(chart.input.time)}</dd></div></dl></section>${chart.warnings.length ? warningMarkup(chart.warnings) : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 검토된 계산 경계에서 충분히 떨어져 있습니다. 계산 정책은 언제든 다시 열어볼 수 있어요.</p></div>'}${annualMarkup}<section class="panel reading-report"><div class="section-heading"><div><div class="eyebrow">근거를 따라 읽기</div><h2>명식의 결을 따라 읽기</h2></div><p>각 장을 펼치고 근거를 확인하세요.</p></div>${reading}</section><section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>궁금한 장면을 질문으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 궁금한 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="생각을 정리할 질문 입력" placeholder="예: 이직 전에 확인할 조건은 무엇인가요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section></div><aside class="result-side"><section class="panel"><div class="side-title"><h3>오행 분포</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 원본 입력과 계산용 값은 분리해 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 연운은 별도 정책과 프로필 버전으로 계산하며 격국·용신·조후를 포함하지 않습니다.</div>` : ''}</section></aside></div></section>`);
+          const currentAge = chart.input.date ? new Date().getFullYear() - Number(chart.input.date.split('-')[0]) : 0;
+          const daewoonMarkup = chart.daewoon ? `<section class="panel" aria-labelledby="daewoon-heading"><div class="section-heading"><div><div class="eyebrow">대운 (大運)</div><h2 id="daewoon-heading">10년 주기 운의 흐름</h2></div><span class="tiny mono">${chart.daewoon.policy.id}</span></div><p class="muted" style="margin-bottom:16px;font-size:13px">${chart.daewoon.direction === 'forward' ? '순행' : '역행'} · 시작 나이 ${chart.daewoon.startAge}세 · ${chart.daewoon.boundaryTerm} 기준</p><div class="daewoon-timeline">${chart.daewoon.cycles.map((c) => { const isCurrent = c === chart.daewoon.cycles.find((cc, i) => { const next = chart.daewoon.cycles[i + 1]; return currentAge >= cc.startAge && (!next || currentAge < next.startAge); }); return `<div class="daewoon-cycle${isCurrent ? ' current' : ''}"><div class="daewoon-pillar">${c.pillar}</div><div class="daewoon-age">${c.startAge}세</div><div class="daewoon-year">${c.startYear}년~</div>${isCurrent ? '<span class="daewoon-now">현재</span>' : ''}</div>`; }).join('')}</div><p class="muted" style="margin-top:12px;font-size:12px">대운의 방향과 시작 나이는 ${chart.daewoon.policy.id} 정책으로 계산합니다. 의미론적 해석(용신·격국·신강신약)은 지원하지 않습니다.</p></section>` : '';
+          return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">명식과 연운 확인</div><h1 id="result-title">계산 사실과 연운 카드의 근거를 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button secondary small" data-action="export">${icon('download')} 내보내기</button></div></div><div class="result-layout"><div class="result-main"><section class="aperture chart-aperture" aria-labelledby="chart-summary"><div class="aperture-top"><div><div class="eyebrow">계산한 명식</div><h2 id="chart-summary" class="aperture-title">${formatKoreanDate(chart.input.date)}의 네 기둥</h2></div><span class="aperture-meta mono">${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(chart.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(chart.input.place)} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${chart.input.unknownTime ? '시각 미상' : escapeHtml(chart.input.time)}</dd></div></dl></section>${chart.warnings.length ? warningMarkup(chart.warnings) : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 검토된 계산 경계에서 충분히 떨어져 있습니다. 계산 정책은 언제든 다시 열어볼 수 있어요.</p></div>'}${daewoonMarkup}${annualMarkup}<section class="panel reading-report"><div class="section-heading"><div><div class="eyebrow">근거를 따라 읽기</div><h2>명식의 결을 따라 읽기</h2></div><p>각 장을 펼치고 근거를 확인하세요.</p></div>${reading}</section><section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>궁금한 장면을 질문으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 궁금한 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="생각을 정리할 질문 입력" placeholder="예: 이직 전에 확인할 조건은 무엇인가요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section></div><aside class="result-side"><section class="panel"><div class="side-title"><h3>오행 분포</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 원본 입력과 계산용 값은 분리해 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 연운은 별도 정책과 프로필 버전으로 계산하며 격국·용신·조후를 포함하지 않습니다.</div>` : ''}</section></aside></div></section>`);
         }
 
         function render() {

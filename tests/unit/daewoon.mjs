@@ -1,0 +1,132 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {
+  calculateDaewoon,
+  verifyDaewoon,
+  DAEWOON_POLICY,
+} from '../../chart/daewoon-engine.mjs';
+import { calculateNatalChart } from '../../chart/natal-engine.mjs';
+
+assert.equal(DAEWOON_POLICY.id, 'KR-DAEWOON-1.0');
+assert.equal(DAEWOON_POLICY.version, '1.0.0');
+assert.equal(DAEWOON_POLICY.engine, 'gyeol-daewoon-core');
+assert.equal(DAEWOON_POLICY.cycleCount, 8);
+assert.equal(DAEWOON_POLICY.cycleSpanYears, 10);
+assert.equal(DAEWOON_POLICY.dayToYearDivisor, 3);
+assert.equal(DAEWOON_POLICY.boundaryConvention, 'ipchun');
+assert.equal(DAEWOON_POLICY.directionRule, 'year-stem-yang-forward-yin-backward');
+assert.deepEqual(DAEWOON_POLICY.natalPolicy, 'KR-CIVIL-1.0');
+assert.equal(Object.isFrozen(DAEWOON_POLICY), true);
+
+assert.throws(() => calculateDaewoon(null), /daewoon input must be an object/);
+assert.throws(() => calculateDaewoon({}), /date must use YYYY-MM-DD/);
+assert.throws(() => calculateDaewoon({ date: '1990-02-30', time: '12:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' }), /valid calendar date/);
+assert.throws(() => calculateDaewoon({ date: '1990-10-10', time: '99:99', yearStem: '甲', monthStem: '丙', monthBranch: '寅' }), /valid HH:MM/);
+assert.throws(() => calculateDaewoon({ date: '1898-01-01', time: '12:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' }), /birth year/);
+assert.throws(() => calculateDaewoon({ date: '1990-10-10', time: '12:00', yearStem: 'X', monthStem: '丙', monthBranch: '寅' }), /yearStem/);
+assert.throws(() => calculateDaewoon({ date: '1990-10-10', time: '12:00', yearStem: '甲', monthStem: 'X', monthBranch: '寅' }), /monthStem/);
+assert.throws(() => calculateDaewoon({ date: '1990-10-10', time: '12:00', yearStem: '甲', monthStem: '丙', monthBranch: 'X' }), /monthBranch/);
+assert.throws(() => calculateDaewoon({ date: '1990-10-10', time: 'bad', yearStem: '甲', monthStem: '丙', monthBranch: '寅' }), /time must use HH:MM/);
+
+const yangResult = calculateDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌', unknownTime: false });
+assert.equal(yangResult.schemaVersion, 'daewoon.v1');
+assert.equal(yangResult.direction, 'forward', '庚 is yang → forward');
+assert.equal(yangResult.cycles.length, 8);
+assert.equal(yangResult.cycles[0].pillar, '丙戌', 'first cycle starts from month pillar');
+assert.equal(yangResult.cycles[1].pillar, '丁亥', 'second cycle advances one step forward');
+assert.equal(yangResult.cycles[7].pillar, '癸巳', 'eighth cycle');
+assert.equal(yangResult.cycles[0].startAge < yangResult.cycles[1].startAge, true);
+for (let i = 1; i < 8; i += 1) {
+  assert.equal(yangResult.cycles[i].startAge - yangResult.cycles[i - 1].startAge, 10, `cycle ${i} is 10 years after cycle ${i - 1}`);
+}
+assert.equal(yangResult.cycles[0].startYear, 1990 + yangResult.cycles[0].startAge);
+assert.ok(yangResult.startAge >= 0 && yangResult.startAge < 10, 'start age from 3-day rule is between 0 and 9');
+assert.ok(yangResult.boundaryTerm, 'boundary term is identified');
+
+const yinResult = calculateDaewoon({ date: '1985-06-15', time: '10:00', yearStem: '乙', monthStem: '壬', monthBranch: '午', unknownTime: false });
+assert.equal(yinResult.direction, 'backward', '乙 is yin → backward');
+assert.equal(yinResult.cycles[0].pillar, '壬午', 'backward first cycle starts from month pillar');
+assert.equal(yinResult.cycles[1].pillar, '辛巳', 'backward second cycle retreats one step');
+assert.equal(yinResult.cycles[7].pillar, '乙亥', 'backward eighth cycle');
+
+for (const yangStem of ['甲', '丙', '戊', '庚', '壬']) {
+  const r = calculateDaewoon({ date: '2000-03-15', time: '12:00', yearStem: yangStem, monthStem: '己', monthBranch: '卯' });
+  assert.equal(r.direction, 'forward', `${yangStem} is yang → forward`);
+}
+for (const yinStem of ['乙', '丁', '己', '辛', '癸']) {
+  const r = calculateDaewoon({ date: '2000-03-15', time: '12:00', yearStem: yinStem, monthStem: '己', monthBranch: '卯' });
+  assert.equal(r.direction, 'backward', `${yinStem} is yin → backward`);
+}
+
+const yangStems = ['甲', '丙', '戊', '庚', '壬'];
+const yinStems = ['乙', '丁', '己', '辛', '癸'];
+assert.equal(yangStems.length, 5);
+assert.equal(yinStems.length, 5);
+
+const unknownTimeResult = calculateDaewoon({ date: '1990-10-10', yearStem: '庚', monthStem: '丙', monthBranch: '戌', unknownTime: true });
+assert.equal(unknownTimeResult.input.time, '12:00', 'unknown time uses noon proxy');
+assert.equal(unknownTimeResult.input.unknownTime, true);
+
+const natal = calculateNatalChart({ calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울', placeCode: '1111000000', unknownTime: false });
+const natalDaewoon = calculateDaewoon({
+  date: '1990-10-10',
+  time: '14:30',
+  yearStem: natal.pillars[0].stem,
+  monthStem: natal.pillars[1].stem,
+  monthBranch: natal.pillars[1].branch,
+  unknownTime: false,
+});
+assert.equal(natalDaewoon.cycles[0].pillar, `${natal.pillars[1].stem}${natal.pillars[1].branch}`, 'daewoon first cycle matches natal month pillar');
+
+const verification = verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, yangResult);
+assert.equal(verification.valid, true);
+assert.deepEqual(verification.errors, []);
+
+const tampered = { ...yangResult, direction: 'backward' };
+const tamperedVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tampered);
+assert.equal(tamperedVerify.valid, false);
+assert.ok(tamperedVerify.errors.some((e) => /direction does not match/.test(e)));
+
+const tamperedCycle = { ...yangResult, cycles: yangResult.cycles.map((c, i) => (i === 2 ? { ...c, pillar: 'XXX', stem: 'X', branch: 'X' } : c)) };
+const tamperedCycleVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedCycle);
+assert.equal(tamperedCycleVerify.valid, false);
+assert.ok(tamperedCycleVerify.errors.some((e) => /cycle 2 pillar does not match/.test(e)));
+
+const tamperedPolicy = { ...yangResult, policy: { ...yangResult.policy, id: 'FAKE' } };
+const tamperedPolicyVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedPolicy);
+assert.equal(tamperedPolicyVerify.valid, false);
+assert.ok(tamperedPolicyVerify.errors.some((e) => /policy\.id does not match/.test(e)));
+
+const tamperedBoundary = { ...yangResult, boundaryDate: '1999-99-99' };
+const tamperedBoundaryVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedBoundary);
+assert.equal(tamperedBoundaryVerify.valid, false);
+assert.ok(tamperedBoundaryVerify.errors.some((e) => /boundaryDate does not match/.test(e)));
+
+const tamperedStartYear = { ...yangResult, cycles: yangResult.cycles.map((c, i) => (i === 1 ? { ...c, startYear: c.startYear + 100 } : c)) };
+const tamperedStartYearVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedStartYear);
+assert.equal(tamperedStartYearVerify.valid, false);
+assert.ok(tamperedStartYearVerify.errors.some((e) => /cycle 1 startYear does not match/.test(e)));
+
+assert.equal(yangResult.policy.id, 'KR-DAEWOON-1.0');
+assert.equal(yangResult.natalPolicy.id, 'KR-CIVIL-1.0');
+assert.ok(Array.isArray(yangResult.unsupportedStates));
+assert.ok(yangResult.unsupportedStates.some((s) => s.id === 'daewoon.strength'));
+assert.ok(yangResult.unsupportedStates.some((s) => s.id === 'daewoon.interpretation'));
+
+assert.throws(
+  () => calculateDaewoon({ date: '2101-01-01', time: '12:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' }),
+  /birth year/,
+  'out of ephemeris range is rejected',
+);
+
+const lateBirth = calculateDaewoon({ date: '2030-01-01', time: '12:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
+assert.ok(lateBirth.cycles.length < DAEWOON_POLICY.cycleCount, 'late birth year produces fewer cycles within ephemeris range');
+assert.ok(lateBirth.cycles.every((c) => c.startYear <= 2100), 'all cycle start years are within ephemeris range');
+
+const maxFullCyclesYear = 2100 - 9 - 7 * 10;
+const edgeResult = calculateDaewoon({ date: `${maxFullCyclesYear}-06-15`, time: '08:00', yearStem: '庚', monthStem: '壬', monthBranch: '午' });
+assert.equal(edgeResult.cycles.length, DAEWOON_POLICY.cycleCount, 'boundary birth year still gets full 8 cycles');
+assert.ok(edgeResult.cycles[7].startYear <= 2100);
+
+const assertionCount = (fs.readFileSync(new URL(import.meta.url), 'utf8').match(/\bassert\./g) || []).length;
+console.log(`daewoon unit: ${assertionCount} assertions passed`);

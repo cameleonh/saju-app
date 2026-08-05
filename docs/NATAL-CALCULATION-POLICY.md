@@ -27,7 +27,7 @@ Lunar input is converted to a normalized solar input by the separately versioned
 | Day boundary | Civil midnight (`00:00`) |
 | Zi hour | `23:00–00:59`; the hour branch spans midnight, while the day pillar changes only at midnight |
 | Unknown time | Suppress the hour pillar and time-dependent interpretation |
-| Daewoon | Unsupported until a direction and start-age policy receives separate domain approval |
+| Daewoon | Supported under separate policy `KR-DAEWOON-1.0@1.0.0`; see `docs/DAEWOON-CALCULATION-POLICY.md` |
 
 This is a product calculation policy, not a claim that all Saju schools use the same conventions. Saved results retain their policy and engine versions; a future policy creates a new result instead of silently rewriting an old one.
 

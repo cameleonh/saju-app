@@ -75,7 +75,7 @@ const couple = await post(valid({
   relationshipMode: 'couple',
   partnerSubject: { relationship: 'partner', authorityVerified: true, minor: 'unknown' },
   partnerBirthInput: { calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false },
-  chartResult: { ...chartFor(defaultBirthInput), partner: chartFor({ calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false }) },
+  chartResult: { mode: 'couple', self: chartFor(defaultBirthInput), partner: chartFor({ calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false }) },
   partnerPurposeReceipts: [receipt('service_storage')],
 }));
 assert.equal(couple.status, 202);

@@ -41,7 +41,7 @@ async function readJson(request) {
 }
 
 const MIME_TYPES = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
-const PUBLIC_STATIC_FILES = new Set(['index.html', 'service-worker.js', 'manifest.webmanifest', 'icon.svg', 'robots.txt', 'ai.txt', 'copyright.html', 'annual/client.mjs', 'annual/storage.mjs', 'chart/natal-engine.mjs', 'chart/natal-ephemeris-data.mjs', 'data/admin-areas.js']);
+const PUBLIC_STATIC_FILES = new Set(['index.html', 'service-worker.js', 'manifest.webmanifest', 'icon.svg', 'robots.txt', 'ai.txt', 'copyright.html', 'annual/client.mjs', 'annual/storage.mjs', 'chart/natal-engine.mjs', 'chart/natal-ephemeris-data.mjs', 'chart/daewoon-engine.mjs', 'data/admin-areas.js']);
 
 async function serveStatic(root, request, response) {
   if (!root || request.method !== 'GET') return false;
@@ -65,9 +65,11 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
     const now = Date.now();
     const forwarded = request.headers['x-forwarded-for'];
     const socketAddress = request.socket.remoteAddress || 'unknown';
-    const key = (forwarded && socketAddress === '127.0.0.1')
-      ? (String(forwarded).split(',')[0].trim() || socketAddress)
-      : socketAddress;
+    let key = socketAddress;
+    if (forwarded && (socketAddress === '127.0.0.1' || socketAddress === '::1')) {
+      const hops = String(forwarded).split(',').map((s) => s.trim()).filter(Boolean);
+      key = hops[hops.length - 1] || socketAddress;
+    }
     const current = requestWindows.get(key);
     if (!current || now - current.startedAt >= RATE_LIMIT_WINDOW_MS) {
       requestWindows.set(key, { startedAt: now, count: 1 });
