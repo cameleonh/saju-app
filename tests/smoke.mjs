@@ -186,6 +186,7 @@ assert.match(html, /lunarYear/);
 assert.match(html, /result\.durable === false \? 'outbox' : 'saved'/);
 assert.match(html, /cg-canary/);
 assert.match(html, /copyright\.html/);
+assert.match(html, /<link rel="icon" href="icon\.svg" type="image\/svg\+xml" sizes="any" \/>/, 'the browser tab uses the existing brand icon as its favicon');
 assert.match(fs.readFileSync(new URL('../robots.txt', import.meta.url), 'utf8'), /GPTBot[\s\S]*Disallow: \//);
 assert.match(fs.readFileSync(new URL('../ai.txt', import.meta.url), 'utf8'), /ClaudeBot[\s\S]*Disallow: \//);
 const serviceWorker = fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
