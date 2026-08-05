@@ -5,11 +5,13 @@ import path from 'node:path';
 import { buildSubmissionDecision, buildTrainingProjection } from './domain/submission.mjs';
 import { convertLunarToSolar } from './domain/calendar.mjs';
 import { createAnnualReading } from './domain/annual.mjs';
+import { evaluateCloudPersistence } from './domain/cloud-policy.mjs';
 import { NATAL_POLICY, calculateNatalChart } from '../chart/natal-engine.mjs';
 
 const MAX_BODY_BYTES = 256 * 1024;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 120;
+const RATE_LIMIT_BUCKET_MAX = 50_000;
 const SECURITY_HEADERS = {
   'content-security-policy': "frame-ancestors 'self'",
   'x-frame-options': 'SAMEORIGIN',
@@ -41,7 +43,7 @@ async function readJson(request) {
 }
 
 const MIME_TYPES = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
-const PUBLIC_STATIC_FILES = new Set(['index.html', 'service-worker.js', 'manifest.webmanifest', 'icon.svg', 'robots.txt', 'ai.txt', 'copyright.html', 'annual/client.mjs', 'annual/storage.mjs', 'chart/natal-engine.mjs', 'chart/natal-ephemeris-data.mjs', 'chart/daewoon-engine.mjs', 'data/admin-areas.js']);
+const PUBLIC_STATIC_FILES = new Set(['index.html', 'privacy.html', 'terms.html', 'service-worker.js', 'manifest.webmanifest', 'icon.svg', 'robots.txt', 'ai.txt', 'copyright.html', 'annual/client.mjs', 'annual/storage.mjs', 'chart/natal-engine.mjs', 'chart/natal-ephemeris-data.mjs', 'chart/daewoon-engine.mjs', 'data/admin-areas.js']);
 
 async function serveStatic(root, request, response) {
   if (!root || request.method !== 'GET') return false;
@@ -59,19 +61,29 @@ async function serveStatic(root, request, response) {
   } catch { return false; }
 }
 
-export function createIngestionServer({ staticRoot = null, storage = null } = {}) {
+export function createIngestionServer({ staticRoot = null, storage = null, auth = null } = {}) {
   const requestWindows = new Map();
+  const rateLimitSalt = crypto.randomBytes(32);
+  let lastRateLimitSweep = 0;
   const allowRequest = (request) => {
     const now = Date.now();
+    if (now - lastRateLimitSweep >= RATE_LIMIT_WINDOW_MS) {
+      for (const [bucket, value] of requestWindows) {
+        if (now - value.startedAt >= RATE_LIMIT_WINDOW_MS) requestWindows.delete(bucket);
+      }
+      lastRateLimitSweep = now;
+    }
     const forwarded = request.headers['x-forwarded-for'];
     const socketAddress = request.socket.remoteAddress || 'unknown';
-    let key = socketAddress;
+    let sourceAddress = socketAddress;
     if (forwarded && (socketAddress === '127.0.0.1' || socketAddress === '::1')) {
       const hops = String(forwarded).split(',').map((s) => s.trim()).filter(Boolean);
-      key = hops[hops.length - 1] || socketAddress;
+      sourceAddress = hops[hops.length - 1] || socketAddress;
     }
+    const key = crypto.createHmac('sha256', rateLimitSalt).update(sourceAddress).digest('hex');
     const current = requestWindows.get(key);
     if (!current || now - current.startedAt >= RATE_LIMIT_WINDOW_MS) {
+      if (!current && requestWindows.size >= RATE_LIMIT_BUCKET_MAX) return false;
       requestWindows.set(key, { startedAt: now, count: 1 });
       return true;
     }
@@ -81,6 +93,12 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
   return createServer(async (request, response) => {
     try {
       const pathname = new URL(request.url || '/', 'http://localhost').pathname;
+      const authRoute = pathname.startsWith('/auth/') || pathname === '/v1/me' || pathname === '/v1/account';
+      if (authRoute && !allowRequest(request)) {
+        response.setHeader('retry-after', '60');
+        return sendJson(response, 429, { error: 'rate_limited', message: '잠시 후 다시 시도해 주세요.' });
+      }
+      if (auth?.handle && await auth.handle(request, response)) return;
       const submissionResource = /^\/v1\/submissions\/([A-Za-z0-9_-]{1,120})$/.exec(pathname);
       const withdrawalResource = /^\/v1\/submissions\/([A-Za-z0-9_-]{1,120})\/training-withdrawal$/.exec(pathname);
       const mutationRoute = (request.method === 'POST' && (pathname === '/v1/submissions' || pathname === '/v1/calendar/convert' || pathname === '/v1/natal-charts' || pathname === '/v1/annual-readings' || Boolean(withdrawalResource)))
@@ -88,6 +106,18 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
       if (mutationRoute && !allowRequest(request)) {
         response.setHeader('retry-after', '60');
         return sendJson(response, 429, { error: 'rate_limited', message: '잠시 후 다시 시도해 주세요.' });
+      }
+      const accountMutation = (request.method === 'POST' && (pathname === '/v1/submissions' || Boolean(withdrawalResource)))
+        || (request.method === 'DELETE' && Boolean(submissionResource));
+      const accountRead = request.method === 'GET' && (pathname === '/v1/submissions' || Boolean(submissionResource));
+      let principal = null;
+      if (auth?.required === true && (accountMutation || accountRead)) {
+        try { principal = await auth.authenticate(request); }
+        catch { principal = null; }
+        if (!principal) return sendJson(response, 401, { error: 'authentication_required', message: '클라우드 저장은 로그인한 계정에서만 사용할 수 있습니다.' });
+      }
+      if (accountMutation && auth?.required === true && !auth.verifyMutation?.(request)) {
+        return sendJson(response, 403, { error: 'origin_rejected', message: '요청 출처를 확인할 수 없습니다.' });
       }
       if (request.method === 'GET' && pathname === '/health') return sendJson(response, 200, { status: 'ok', service: 'saju-ingestion-adapter', persistence: storage ? storage.kind : 'adapter-only', durable: Boolean(storage) });
       if (request.method === 'POST' && pathname === '/v1/calendar/convert') {
@@ -105,10 +135,22 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
         try { return sendJson(response, 200, createAnnualReading(input)); }
         catch (error) { return sendJson(response, 422, { error: 'annual_reading_rejected', message: error.message }); }
       }
+      if (auth?.required === true && request.method === 'GET' && pathname === '/v1/submissions') {
+        if (!storage?.listSubmissions) return sendJson(response, 409, { error: 'durable_storage_unavailable' });
+        try { return sendJson(response, 200, { records: await storage.listSubmissions(principal.userId) }); }
+        catch { return sendStorageFailure(response); }
+      }
+      if (auth?.required === true && request.method === 'GET' && submissionResource) {
+        if (!storage?.getSubmission) return sendJson(response, 409, { error: 'durable_storage_unavailable' });
+        let record;
+        try { record = await storage.getSubmission(submissionResource[1], principal.userId); }
+        catch { return sendStorageFailure(response); }
+        return record ? sendJson(response, 200, record) : sendJson(response, 404, { error: 'submission_not_found' });
+      }
       if (request.method === 'DELETE' && submissionResource) {
         if (!storage?.deleteSubmission) return sendJson(response, 409, { error: 'durable_storage_unavailable', message: '지속 저장소가 연결되지 않아 서버 기록을 지울 수 없습니다.' });
         let deleted;
-        try { deleted = await storage.deleteSubmission(submissionResource[1]); }
+        try { deleted = await storage.deleteSubmission(submissionResource[1], principal?.userId); }
         catch { return sendStorageFailure(response); }
         return deleted ? sendJson(response, 200, { submissionId: submissionResource[1], deleted: true }) : sendJson(response, 404, { error: 'submission_not_found' });
       }
@@ -117,7 +159,7 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
         const input = await readJson(request);
         if (typeof input.recordedAt !== 'string' || !Number.isFinite(Date.parse(input.recordedAt))) return sendJson(response, 400, { error: 'recorded_at_invalid', message: 'recordedAt은 유효한 날짜와 시각이어야 합니다.' });
         let updated;
-        try { updated = await storage.withdrawTraining(withdrawalResource[1], input.recordedAt); }
+        try { updated = await storage.withdrawTraining(withdrawalResource[1], input.recordedAt, principal?.userId); }
         catch { return sendStorageFailure(response); }
         return updated ? sendJson(response, 200, { submissionId: withdrawalResource[1], withdrawn: true, trainingEligible: false }) : sendJson(response, 404, { error: 'submission_not_found' });
       }
@@ -128,14 +170,23 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
       const input = await readJson(request);
       const decision = buildSubmissionDecision(input);
       if (!decision.accepted) return sendJson(response, 422, { error: 'submission_rejected', errors: decision.errors, calculationPolicy: NATAL_POLICY_REF });
+      if (auth?.required === true) {
+        const cloudPolicy = evaluateCloudPersistence({ auth: principal, input });
+        if (!cloudPolicy.allowed) return sendJson(response, 409, {
+          error: 'cloud_persistence_restricted',
+          reason: cloudPolicy.reason,
+          message: '이 명식은 기기 안에서만 저장할 수 있습니다.',
+        });
+      }
       const submissionId = crypto.randomUUID();
       const projection = buildTrainingProjection(input);
+      let persisted = null;
       if (storage) {
-        try { await storage.saveSubmission({ submissionId, input, projection, status: 'accepted' }); }
+        try { persisted = await storage.saveSubmission({ submissionId, input, projection, status: 'accepted', actorUserId: principal?.userId }); }
         catch { return sendStorageFailure(response); }
       }
       return sendJson(response, 202, {
-        submissionId,
+        submissionId: persisted?.submissionId || submissionId,
         ...decision,
         durable: Boolean(storage),
         persistence: storage ? storage.kind : decision.persistence,

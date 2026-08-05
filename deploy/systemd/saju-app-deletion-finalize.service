@@ -1,0 +1,19 @@
+[Unit]
+Description=Finalize Saju deletion evidence after managed backup expiry
+ConditionPathExists=/etc/saju-app-migrate.env
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/var/www/saju-app
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/saju-app-migrate.env
+ExecStart=/usr/bin/node /var/www/saju-app/scripts/finalize-deletions.mjs
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+

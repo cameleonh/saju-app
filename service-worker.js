@@ -1,5 +1,5 @@
-const CACHE = 'saju-app-shell-v11';
-const ASSETS = ['./', './index.html', './annual/client.mjs', './annual/storage.mjs', './chart/natal-engine.mjs', './chart/natal-ephemeris-data.mjs', './chart/daewoon-engine.mjs', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'saju-app-shell-v12';
+const ASSETS = ['./', './index.html', './privacy.html', './terms.html', './annual/client.mjs', './annual/storage.mjs', './chart/natal-engine.mjs', './chart/natal-ephemeris-data.mjs', './chart/daewoon-engine.mjs', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())));
 self.addEventListener('activate', (event) => event.waitUntil(
   caches.keys()
@@ -7,6 +7,11 @@ self.addEventListener('activate', (event) => event.waitUntil(
     .then(() => self.clients.claim()),
 ));
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  if (url.origin === self.location.origin && (url.pathname.startsWith('/auth/') || url.pathname.startsWith('/v1/'))) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
   if (event.request.mode === 'navigate' || event.request.url.endsWith('/index.html')) {
     event.respondWith(fetch(event.request)
       .then((response) => { const copy = response.clone(); caches.open(CACHE).then((cache) => cache.put(event.request, copy)); return response; })

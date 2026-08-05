@@ -1,26 +1,24 @@
 # Deployment
 
-The Saju app is deployed as a static frontend plus a small Node.js ingestion service:
+Apache terminates HTTPS and reverse-proxies all application traffic to Node on `127.0.0.1:4174`. Node serves an explicit public-asset allowlist. The Lightsail timer pulls `main`, builds an immutable release, runs checksum-locked PostgreSQL migrations when the root-only migration environment exists, atomically switches the symlink, and rolls back the application release if health fails.
 
-- Apache redirects HTTP to HTTPS and reverse-proxies every HTTPS request to Node on `127.0.0.1:4174`.
-- Node serves an explicit public-asset allowlist, so repository metadata, server source, tests, documents, and SQLite files cannot bypass the application boundary through Apache.
-- The Node service uses Node.js 22 because the SQLite adapter imports `node:sqlite`.
-- SQLite runtime data lives outside releases in the service-owned `/var/lib/saju-app/runtime/` directory. The root-owned source checkout remains a separate sibling and is not writable by the Node service.
-- GitHub Actions runs `npm test` on every pull request and push to `main`.
-- A Lightsail systemd timer pulls `main` every five minutes and atomically deploys new commits.
+## Safe default
 
-## DNS
+`deploy/systemd/saju-app.service` starts with `SAJU_STORAGE=local-only`. A code deployment therefore cannot start central personal-data collection by itself. Managed account storage is enabled only when these root-managed files exist:
 
-The domain can stay at Spaceship; Route 53 is not required. Point these records to the Lightsail static IP:
+- `/etc/saju-app.env` (`0640`, `root:www-data`): limited runtime DB URL, KMS/Cognito identifiers, public URL, session secret.
+- `/etc/saju-app-aws.env` (`0640`, `root:www-data`): dedicated no-console runtime access key with context-bound KMS and one-pool Cognito deletion permissions.
+- `/etc/saju-app-migrate.env` (`0600`, `root:root`): database administrator URL used only by release migrations.
 
-| Name | Type | Value |
-| --- | --- | --- |
-| `@` | `A` | `43.201.117.119` |
-| `www` | `CNAME` | `saju.blog` |
+Use `infra/lightsail/provision.sh` to create the private PostgreSQL 16 Micro database, KMS key, Cognito resources, runtime IAM user, and budget. After every row in `docs/legal/LAUNCH-SIGNOFF.md` is approved, run `deploy/bin/configure-managed-data.sh` on the server with `SAJU_CLOUD_SAVE_APPROVED=yes`. The script refuses to enable managed persistence while any launch gate remains blocked.
 
-After DNS propagates, issue the certificate for `saju.blog` and `www.saju.blog` with certbot, then enable `deploy/apache/saju.blog-le-ssl.conf`.
+## Updates
 
-Set the global Apache `ServerName` to suppress the `AH00558` startup warning:
+The update timer runs `deploy/bin/update-saju-app.sh`, retains five releases, validates Apache, performs additive migrations before switching code, verifies `/health`, and restores the previous symlink on application failure. Database migrations are not rolled back automatically; every release migration must remain compatible with the previous application release. A separate root-only daily timer marks deletion evidence complete after the managed seven-day restore deadline and only after active data and external identity deletion have succeeded.
+
+## Apache ServerName
+
+Use a non-public global name to avoid `AH00558` without colliding with the TLS virtual host:
 
 ```sh
 printf '%s\n' "ServerName 127.0.0.1" | sudo tee /etc/apache2/conf-available/servername.conf
@@ -28,12 +26,13 @@ sudo a2enconf servername
 sudo apache2ctl configtest && sudo systemctl reload apache2
 ```
 
-Keep this global value distinct from every public virtual-host name. An enabled unnamed TLS site such as Debian's `default-ssl.conf` inherits the global name; setting it to `saju.blog` would make that site collide with the real Saju TLS virtual host and serve its self-signed certificate for `saju.blog`.
+Do not set the global value to `saju.blog`; an unnamed Debian TLS site can inherit it and serve the wrong certificate.
 
-## Deployment updates
+## Required production drills
 
-The Lightsail firewall does not accept SSH connections from GitHub-hosted runner addresses, so deployment uses an outbound pull from the public GitHub repository. The timer runs `deploy/bin/update-saju-app.sh`, keeps the last five releases, and rolls back the symlink if the service health check fails.
-
-## Prototype boundary
-
-This release uses the versioned `KR-CIVIL-1.0` natal calculation policy but still relies on the local SQLite ingestion adapter. Do not treat it as a production personal-data service until the documented PostgreSQL, key management, identity, backup, and privacy-policy work is complete.
+- Confirm the database is private and only reachable by Lightsail resources in the same region.
+- Verify TLS with the AWS CA bundle and `verify-full`.
+- Prove user A cannot list/read/delete user B's data at HTTP and RLS layers.
+- Rotate the runtime access key without downtime, then deactivate the old key.
+- Restore the previous seven-day point-in-time backup into an isolated database and re-run migration/RLS/KMS checks.
+- Complete a synthetic login, save, second-browser reopen/export, record delete, account delete, and backup-expiry evidence check.

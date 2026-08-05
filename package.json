@@ -6,9 +6,15 @@
   "scripts": {
     "start": "node server/index.mjs",
     "generate:natal-ephemeris": "node scripts/generate-natal-ephemeris.mjs",
-    "test": "node tests/natal.mjs && node tests/annual.mjs && node tests/smoke.mjs && node tests/lifecycle.mjs && node tests/unit/purpose.mjs && node tests/unit/calendar.mjs && node tests/unit/submission.mjs && node tests/unit/daewoon.mjs && node tests/server/ingestion.mjs && node tests/server/http-edge.mjs"
+    "test:postgres": "node tests/integration/postgres.mjs",
+    "deletions:finalize": "node scripts/finalize-deletions.mjs",
+    "test": "node tests/natal.mjs && node tests/annual.mjs && node tests/smoke.mjs && node tests/lifecycle.mjs && node tests/unit/purpose.mjs && node tests/unit/calendar.mjs && node tests/unit/submission.mjs && node tests/unit/daewoon.mjs && node tests/unit/cloud-policy.mjs && node tests/unit/kms-vault.mjs && node tests/unit/runtime-config.mjs && node tests/unit/deployment.mjs && node tests/server/ingestion.mjs && node tests/server/http-edge.mjs && node tests/server/auth-boundary.mjs && node tests/server/cognito-auth.mjs"
   },
   "dependencies": {
-    "lunar-javascript": "1.7.7"
+    "@aws-sdk/client-cognito-identity-provider": "3.1103.0",
+    "@aws-sdk/client-kms": "3.1103.0",
+    "aws-jwt-verify": "5.2.1",
+    "lunar-javascript": "1.7.7",
+    "pg": "8.22.0"
   }
 }

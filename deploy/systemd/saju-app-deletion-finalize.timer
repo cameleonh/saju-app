@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Saju deletion evidence finalization
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=30m
+Persistent=true
+Unit=saju-app-deletion-finalize.service
+
+[Install]
+WantedBy=timers.target

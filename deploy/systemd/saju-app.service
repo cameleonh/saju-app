@@ -9,7 +9,9 @@ Group=www-data
 WorkingDirectory=/var/www/saju-app
 Environment=NODE_ENV=production
 Environment=PORT=4174
-Environment=SAJU_DB_PATH=/var/lib/saju-app/runtime/saju.sqlite
+Environment=SAJU_STORAGE=local-only
+EnvironmentFile=-/etc/saju-app.env
+EnvironmentFile=-/etc/saju-app-aws.env
 ExecStart=/usr/bin/node /var/www/saju-app/server/index.mjs
 Restart=on-failure
 RestartSec=5

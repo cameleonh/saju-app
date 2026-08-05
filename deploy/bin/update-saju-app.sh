@@ -61,7 +61,15 @@ chown -R root:root "$release_root"
 if ! (
     cd "$release_root"
     npm ci --omit=dev --ignore-scripts
+    if [ -f /etc/saju-app-migrate.env ]; then
+        set -a
+        . /etc/saju-app-migrate.env
+        set +a
+        node scripts/migrate-postgres.mjs
+    fi
     install -m 644 deploy/systemd/saju-app.service /etc/systemd/system/saju-app.service
+    install -m 644 deploy/systemd/saju-app-deletion-finalize.service /etc/systemd/system/saju-app-deletion-finalize.service
+    install -m 644 deploy/systemd/saju-app-deletion-finalize.timer /etc/systemd/system/saju-app-deletion-finalize.timer
     install -m 644 deploy/apache/saju.blog.conf /etc/apache2/sites-available/saju.blog.conf
     install -m 644 deploy/apache/saju.blog-le-ssl.conf /etc/apache2/sites-available/saju.blog-le-ssl.conf
     apache2ctl configtest
@@ -78,11 +86,13 @@ if ! (
     done
     switch_link "$release_root"
     systemctl enable saju-app
+    systemctl enable --now saju-app-deletion-finalize.timer
     systemctl restart saju-app
     systemctl is-active --quiet saju-app
     wait_for_health
     systemctl reload apache2
     install -m 755 deploy/bin/update-saju-app.sh /usr/local/sbin/saju-app-update
+    install -m 755 deploy/bin/configure-managed-data.sh /usr/local/sbin/saju-app-configure-managed-data
 ); then
     if [ -n "$previous_root" ] && [ -d "$previous_root" ]; then
         switch_link "$previous_root"
