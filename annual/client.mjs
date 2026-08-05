@@ -55,6 +55,7 @@ export function privacySafeAnnualExport(annual) {
 }
 
 function formatRange(range) {
+  if (!range || !range.start || !range.end) return '범위 정보 없음';
   const formatter = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   return `${formatter.format(new Date(range.start))}부터 ${formatter.format(new Date(range.end))} 직전`;
 }

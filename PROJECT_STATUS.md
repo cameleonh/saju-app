@@ -34,7 +34,7 @@ Keep the deterministic natal, annual, and daewoon product available without cent
 
 ## Fresh verification
 
-- `npm test`: 761 assertions passed plus 48 official solar-term boundary loops across the full unit/HTTP/lifecycle suite.
+- `npm test`: 776 assertions passed plus 48 official solar-term boundary loops across the full unit/HTTP/lifecycle suite (reading pattern DB tests included).
 - Disposable PostgreSQL 16 integration: 42 assertions passed after applying all migrations twice, including keyed identity evidence, nested-birth plaintext exclusion, KMS envelopes, RLS ownership, individual/account deletion, and backup-expiry finalization.
 - `npm audit --omit=dev`: 0 vulnerabilities. Node syntax checks, POSIX shell syntax checks, `git diff --check`, dependency-tree validation, and repository secret-pattern scan passed.
 - GitHub `main` and the Lightsail release are kept on the same verified release. The Node service, Apache configuration, and daily deletion-finalizer timer are active; `/health` reports `durable: false`, confirming that cloud save remains fail-closed.
