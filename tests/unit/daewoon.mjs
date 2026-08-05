@@ -10,7 +10,7 @@ import { calculateNatalChart } from '../../chart/natal-engine.mjs';
 assert.equal(DAEWOON_POLICY.id, 'KR-DAEWOON-1.0');
 assert.equal(DAEWOON_POLICY.version, '1.0.0');
 assert.equal(DAEWOON_POLICY.engine, 'gyeol-daewoon-core');
-assert.equal(DAEWOON_POLICY.cycleCount, 8);
+assert.equal(DAEWOON_POLICY.maxCycleCount, 8);
 assert.equal(DAEWOON_POLICY.cycleSpanYears, 10);
 assert.equal(DAEWOON_POLICY.dayToYearDivisor, 3);
 assert.equal(DAEWOON_POLICY.boundaryConvention, 'ipchun');
@@ -120,12 +120,12 @@ assert.throws(
 );
 
 const lateBirth = calculateDaewoon({ date: '2030-01-01', time: '12:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
-assert.ok(lateBirth.cycles.length < DAEWOON_POLICY.cycleCount, 'late birth year produces fewer cycles within ephemeris range');
+assert.ok(lateBirth.cycles.length < DAEWOON_POLICY.maxCycleCount, 'late birth year produces fewer cycles within ephemeris range');
 assert.ok(lateBirth.cycles.every((c) => c.startYear <= 2100), 'all cycle start years are within ephemeris range');
 
 const maxFullCyclesYear = 2100 - 9 - 7 * 10;
 const edgeResult = calculateDaewoon({ date: `${maxFullCyclesYear}-06-15`, time: '08:00', yearStem: '庚', monthStem: '壬', monthBranch: '午' });
-assert.equal(edgeResult.cycles.length, DAEWOON_POLICY.cycleCount, 'boundary birth year still gets full 8 cycles');
+assert.equal(edgeResult.cycles.length, DAEWOON_POLICY.maxCycleCount, 'boundary birth year still gets full 8 cycles');
 assert.ok(edgeResult.cycles[7].startYear <= 2100);
 
 const assertionCount = (fs.readFileSync(new URL(import.meta.url), 'utf8').match(/\bassert\./g) || []).length;

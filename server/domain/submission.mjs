@@ -1,6 +1,7 @@
 import { findReceipt, isTrainingEligible, PURPOSES, validatePurposeReceipts } from './purpose.mjs';
 import { ANNUAL_POLICY, calculateAnnualContentHash, createAnnualReading, normalizeChartPolicy } from './annual.mjs';
 import { verifyNatalChart } from '../../chart/natal-engine.mjs';
+import { verifyDaewoon } from '../../chart/daewoon-engine.mjs';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ISO_TIME = /^\d{2}:\d{2}$/;
@@ -136,6 +137,17 @@ export function validateSubmission(input) {
     else {
       const verification = verifyNatalChart(birth, selfChart);
       errors.push(...verification.errors.map((error) => `chartResult ${error}`));
+    }
+    if (selfChart?.daewoon) {
+      const daewoonVerification = verifyDaewoon({
+        date: birth.date,
+        time: birth.unknownTime ? '12:00' : birth.time,
+        unknownTime: birth.unknownTime,
+        yearStem: selfChart.pillars?.[0]?.stem,
+        monthStem: selfChart.pillars?.[1]?.stem,
+        monthBranch: selfChart.pillars?.[1]?.branch,
+      }, selfChart.daewoon);
+      errors.push(...daewoonVerification.errors.map((error) => `chartResult daewoon ${error}`));
     }
   }
 

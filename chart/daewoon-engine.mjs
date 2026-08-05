@@ -11,11 +11,7 @@ import {
 } from './natal-ephemeris-data.mjs';
 
 const YANG_STEMS = new Set(['甲', '丙', '戊', '庚', '壬']);
-
 const JIE_TERMS = NATAL_TERM_KEYS;
-
-const MONTH_INDEX_BY_TERM = {};
-NATAL_TERM_KEYS.forEach((key, index) => { MONTH_INDEX_BY_TERM[key] = index; });
 
 const POLICY = Object.freeze({
   id: 'KR-DAEWOON-1.0',
@@ -23,7 +19,7 @@ const POLICY = Object.freeze({
   engine: 'gyeol-daewoon-core',
   engineVersion: '1.0.0',
   range: `${NATAL_EPHEMERIS_START_YEAR}..${NATAL_EPHEMERIS_END_YEAR}`,
-  cycleCount: 8,
+  maxCycleCount: 8,
   cycleSpanYears: 10,
   dayToYearDivisor: 3,
   boundaryConvention: 'ipchun',
@@ -35,20 +31,9 @@ const POLICY = Object.freeze({
   solarTermsUsed: Object.freeze([...JIE_TERMS]),
 });
 
-function assertInteger(value, label, min, max) {
-  const n = Number(value);
-  if (!Number.isInteger(n) || n < min || n > max) throw new Error(`${label} must be an integer from ${min} to ${max}`);
-  return n;
-}
-
 function termsForYear(year) {
   const row = NATAL_TERM_EPOCH_MINUTES[year - NATAL_EPHEMERIS_START_YEAR];
-  return NATAL_TERM_KEYS.map((key, index) => ({
-    year,
-    key,
-    epochMinute: row[index],
-    monthIndex: index,
-  }));
+  return NATAL_TERM_KEYS.map((key, index) => ({ year, key, epochMinute: row[index], monthIndex: index }));
 }
 
 function surroundingTerms(year) {
@@ -58,28 +43,12 @@ function surroundingTerms(year) {
     .sort((left, right) => left.epochMinute - right.epochMinute);
 }
 
-function birthToEpochMinute(date, time) {
-  const [y, m, d] = date.split('-').map(Number);
-  const [hh, mm] = time.split(':').map(Number);
-  const birthDate = new Date(Date.UTC(y, m - 1, d, hh, mm));
-  const seoulOffset = 9 * 60;
-  const birthLocal = Date.UTC(y, m - 1, d, 0, 0) / 60_000;
-  const birthEpochMinute = Math.floor(birthDate.getTime() / 60_000) - seoulOffset;
-  return birthEpochMinute;
-}
-
 function findNearestJieBoundary(birthEpochMinute, birthYear, direction) {
-  const terms = surroundingTerms(birthYear);
-  const jieTerms = terms.filter((t) => JIE_TERMS.includes(t.key));
-
+  const terms = surroundingTerms(birthYear).filter((t) => JIE_TERMS.includes(t.key));
   if (direction === 'forward') {
-    for (const term of jieTerms) {
-      if (term.epochMinute > birthEpochMinute) return term;
-    }
+    for (const term of terms) { if (term.epochMinute > birthEpochMinute) return term; }
   } else {
-    for (let i = jieTerms.length - 1; i >= 0; i -= 1) {
-      if (jieTerms[i].epochMinute < birthEpochMinute) return jieTerms[i];
-    }
+    for (let i = terms.length - 1; i >= 0; i -= 1) { if (terms[i].epochMinute < birthEpochMinute) return terms[i]; }
   }
   throw new Error('no solar-term boundary found within the ephemeris range');
 }
@@ -87,20 +56,12 @@ function findNearestJieBoundary(birthEpochMinute, birthYear, direction) {
 function dateToEpochMinute(dateStr, timeStr) {
   const [y, m, d] = dateStr.split('-').map(Number);
   const [hh, mm] = timeStr.split(':').map(Number);
-  const seoulOffsetMs = 9 * 60 * 60 * 1000;
-  return Math.floor((Date.UTC(y, m - 1, d, hh, mm) - seoulOffsetMs) / 60_000);
+  return Math.floor((Date.UTC(y, m - 1, d, hh, mm) - 9 * 60 * 60 * 1000) / 60_000);
 }
 
 function formatSeoulDate(epochMinute) {
   const d = new Date(epochMinute * 60_000 + 9 * 60 * 60 * 1000);
-  const y = d.getUTCFullYear();
-  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(d.getUTCDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-
-function formatStemBranch(stemIndex, branchIndex) {
-  return { stem: STEMS[stemIndex], branch: BRANCHES[branchIndex], text: `${STEMS[stemIndex]}${BRANCHES[branchIndex]}` };
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
 }
 
 function monthPillarIndices(monthStem, monthBranch) {
@@ -136,15 +97,9 @@ export function calculateDaewoon(input) {
 
   if (!input.monthStem || !STEMS.includes(input.monthStem)) throw new Error('monthStem must be one of the ten heavenly stems');
   if (!input.monthBranch || !BRANCHES.includes(input.monthBranch)) throw new Error('monthBranch must be one of the twelve earthly branches');
+  if (!input.yearStem || !STEMS.includes(input.yearStem)) throw new Error('yearStem must be one of the ten heavenly stems');
 
-  const yearStem = input.yearStem;
-  if (!yearStem || !STEMS.includes(yearStem)) throw new Error('yearStem must be one of the ten heavenly stems');
-  const direction = YANG_STEMS.has(yearStem) ? 'forward' : 'backward';
-
-  const lastCycleYear = birthYear + 9 + (POLICY.cycleCount - 1) * POLICY.cycleSpanYears;
-  const cycleCount = lastCycleYear > NATAL_EPHEMERIS_END_YEAR
-    ? Math.max(1, Math.floor((NATAL_EPHEMERIS_END_YEAR - birthYear - 9) / POLICY.cycleSpanYears) + 1)
-    : POLICY.cycleCount;
+  const direction = YANG_STEMS.has(input.yearStem) ? 'forward' : 'backward';
 
   const birthEpochMinute = dateToEpochMinute(input.date, birthTime);
   const boundary = findNearestJieBoundary(birthEpochMinute, birthYear, direction);
@@ -154,6 +109,12 @@ export function calculateDaewoon(input) {
   const diffDays = Math.floor(diffMinutes / (24 * 60));
   const startAge = Math.max(0, Math.floor(diffDays / POLICY.dayToYearDivisor));
 
+  // Determine cycle count AFTER startAge is known, so truncation is accurate
+  const lastCycleEndYear = birthYear + startAge + (POLICY.maxCycleCount - 1) * POLICY.cycleSpanYears;
+  const cycleCount = lastCycleEndYear > NATAL_EPHEMERIS_END_YEAR
+    ? Math.max(1, Math.floor((NATAL_EPHEMERIS_END_YEAR - birthYear - startAge) / POLICY.cycleSpanYears) + 1)
+    : POLICY.maxCycleCount;
+
   const { stemIndex, branchIndex } = monthPillarIndices(input.monthStem, input.monthBranch);
   const cycles = [];
   for (let i = 0; i < cycleCount; i += 1) {
@@ -161,19 +122,16 @@ export function calculateDaewoon(input) {
     const pillar = advancePillar(stemIndex, branchIndex, step);
     const cycleStartAge = startAge + i * POLICY.cycleSpanYears;
     const cycleStartYear = birthYear + cycleStartAge;
-    const pillarInfo = formatStemBranch(pillar.stemIndex, pillar.branchIndex);
     cycles.push({
       index: i,
-      pillar: pillarInfo.text,
-      stem: pillarInfo.stem,
-      branch: pillarInfo.branch,
+      pillar: `${STEMS[pillar.stemIndex]}${BRANCHES[pillar.branchIndex]}`,
+      stem: STEMS[pillar.stemIndex],
+      branch: BRANCHES[pillar.branchIndex],
       startAge: cycleStartAge,
       startYear: cycleStartYear,
       direction,
     });
   }
-
-  const boundaryDate = formatSeoulDate(boundary.epochMinute);
 
   return {
     schemaVersion: 'daewoon.v1',
@@ -188,7 +146,7 @@ export function calculateDaewoon(input) {
       date: input.date,
       time: birthTime,
       unknownTime: Boolean(input.unknownTime),
-      yearStem,
+      yearStem: input.yearStem,
       monthStem: input.monthStem,
       monthBranch: input.monthBranch,
     },
@@ -196,8 +154,10 @@ export function calculateDaewoon(input) {
     startAge,
     startAgeRule: POLICY.startAgeRule,
     boundaryTerm: boundary.key,
-    boundaryDate,
+    boundaryDate: formatSeoulDate(boundary.epochMinute),
     boundaryDirection: direction,
+    cycleCount,
+    maxCycleCount: POLICY.maxCycleCount,
     cycles: Object.freeze(cycles),
     natalPolicy: { id: NATAL_POLICY.id, version: NATAL_POLICY.version },
     unsupportedStates: Object.freeze([
@@ -211,16 +171,34 @@ export function calculateDaewoon(input) {
 export function verifyDaewoon(input, result) {
   const errors = [];
   if (!result || typeof result !== 'object') { errors.push('daewoon result is required'); return { valid: false, errors }; }
+
   if (result.schemaVersion !== 'daewoon.v1') errors.push('daewoon schemaVersion does not match');
   if (result.policy?.id !== POLICY.id) errors.push('daewoon policy.id does not match');
   if (result.policy?.version !== POLICY.version) errors.push('daewoon policy.version does not match');
+  if (result.policy?.engine !== POLICY.engine) errors.push('daewoon policy.engine does not match');
+  if (result.policy?.engineVersion !== POLICY.engineVersion) errors.push('daewoon policy.engineVersion does not match');
+  if (result.policy?.range !== POLICY.range) errors.push('daewoon policy.range does not match');
+  if (result.natalPolicy?.id !== NATAL_POLICY.id) errors.push('daewoon natalPolicy.id does not match');
+  if (result.natalPolicy?.version !== NATAL_POLICY.version) errors.push('daewoon natalPolicy.version does not match');
+
   const recomputed = calculateDaewoon(input);
+
   if (recomputed.direction !== result.direction) errors.push('daewoon direction does not match');
   if (recomputed.startAge !== result.startAge) errors.push('daewoon startAge does not match');
   if (recomputed.startAgeRule !== result.startAgeRule) errors.push('daewoon startAgeRule does not match');
   if (recomputed.boundaryTerm !== result.boundaryTerm) errors.push('daewoon boundaryTerm does not match');
   if (recomputed.boundaryDate !== result.boundaryDate) errors.push('daewoon boundaryDate does not match');
   if (recomputed.boundaryDirection !== result.boundaryDirection) errors.push('daewoon boundaryDirection does not match');
+  if (recomputed.cycleCount !== result.cycleCount) errors.push('daewoon cycleCount does not match');
+  if (recomputed.maxCycleCount !== result.maxCycleCount) errors.push('daewoon maxCycleCount does not match');
+
+  if (recomputed.input?.date !== result.input?.date) errors.push('daewoon input.date does not match');
+  if (recomputed.input?.time !== result.input?.time) errors.push('daewoon input.time does not match');
+  if (recomputed.input?.unknownTime !== result.input?.unknownTime) errors.push('daewoon input.unknownTime does not match');
+  if (recomputed.input?.yearStem !== result.input?.yearStem) errors.push('daewoon input.yearStem does not match');
+  if (recomputed.input?.monthStem !== result.input?.monthStem) errors.push('daewoon input.monthStem does not match');
+  if (recomputed.input?.monthBranch !== result.input?.monthBranch) errors.push('daewoon input.monthBranch does not match');
+
   if (!Array.isArray(result.cycles) || result.cycles.length !== recomputed.cycles.length) {
     errors.push('daewoon cycles array is missing or incomplete');
   } else {
@@ -228,16 +206,21 @@ export function verifyDaewoon(input, result) {
       const expected = recomputed.cycles[i];
       const actual = result.cycles[i];
       if (!actual) { errors.push(`daewoon cycle ${i} is missing`); continue; }
-      if (actual.pillar !== expected.pillar) errors.push(`daewoon cycle ${i} pillar does not match`);
-      if (actual.stem !== expected.stem) errors.push(`daewoon cycle ${i} stem does not match`);
-      if (actual.branch !== expected.branch) errors.push(`daewoon cycle ${i} branch does not match`);
-      if (actual.startAge !== expected.startAge) errors.push(`daewoon cycle ${i} startAge does not match`);
-      if (actual.startYear !== expected.startYear) errors.push(`daewoon cycle ${i} startYear does not match`);
-      if (actual.direction !== expected.direction) errors.push(`daewoon cycle ${i} direction does not match`);
-      if (actual.index !== expected.index) errors.push(`daewoon cycle ${i} index does not match`);
+      for (const field of ['index', 'pillar', 'stem', 'branch', 'startAge', 'startYear', 'direction']) {
+        if (actual[field] !== expected[field]) errors.push(`daewoon cycle ${i} ${field} does not match`);
+      }
     }
   }
-  if (result.natalPolicy?.id !== NATAL_POLICY.id) errors.push('daewoon natalPolicy.id does not match');
+
+  if (!Array.isArray(result.unsupportedStates) || result.unsupportedStates.length !== recomputed.unsupportedStates.length) {
+    errors.push('daewoon unsupportedStates does not match');
+  } else {
+    for (let i = 0; i < recomputed.unsupportedStates.length; i += 1) {
+      if (result.unsupportedStates[i]?.id !== recomputed.unsupportedStates[i].id) errors.push(`daewoon unsupportedStates[${i}].id does not match`);
+      if (result.unsupportedStates[i]?.status !== recomputed.unsupportedStates[i].status) errors.push(`daewoon unsupportedStates[${i}].status does not match`);
+    }
+  }
+
   return { valid: errors.length === 0, errors };
 }
 
