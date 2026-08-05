@@ -13,6 +13,7 @@ import {
   buildAnnualCards as evaluateAnnualCards,
 } from './annual-rules.mjs';
 import { extractPersonalizationKey, composePersonalizedReading } from './reading-composer.mjs';
+import { calculateDaewoon } from '../../chart/daewoon-engine.mjs';
 
 const STEMS = Object.freeze(['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']);
 const BRANCHES = Object.freeze(['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']);
@@ -285,6 +286,10 @@ export function createAnnualReading(input, options = {}) {
   const facts = [...annualFacts, ...monthly.facts];
   const dbResult = options.readingStore ? buildAnnualCardsFromDB(facts, targetYear, options.readingStore) : null;
   const evaluated = dbResult || buildAnnualCards(facts, targetYear);
+  let daewoonResult = null;
+  if (options.daewoon !== false && input.daewoon) {
+    try { daewoonResult = calculateDaewoon(input.daewoon); } catch { daewoonResult = null; }
+  }
   const unsupportedStates = [
     { id: 'annual.hiddenStems.activation', status: 'unsupported', reason: 'Annual hidden-stem activation and weighting are excluded from v1.' },
     ...(natal.unknownTime ? [{ id: 'annual.natal.hour', status: 'unsupported', reason: 'Natal hour is unknown; time-dependent rules are suppressed.' }] : []),
@@ -325,7 +330,7 @@ export function createAnnualReading(input, options = {}) {
   };
   let finalResult = result;
   if (dbResult && options.personalize !== false) {
-    const pKey = extractPersonalizationKey(input.natal, options.daewoon, targetYear, { facts });
+    const pKey = extractPersonalizationKey(input.natal, daewoonResult, targetYear, { facts });
     if (pKey) {
       const baseForPersonalization = {
         cards: result.cards,

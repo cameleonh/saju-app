@@ -115,8 +115,7 @@ export function createReadingStore(db) {
     monthly: db.prepare('SELECT * FROM reading_monthly_slots WHERE pattern_id = ? AND review_status = ? ORDER BY lunar_month ASC, half ASC'),
   };
 
-  const { n } = stmts.patternCount.get();
-  if (n === 0) loadSeed(stmts);
+  loadSeed(stmts);
 
   function parse(row) {
     if (!row) return null;

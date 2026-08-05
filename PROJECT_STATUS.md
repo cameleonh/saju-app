@@ -2,14 +2,22 @@
 
 | Field | Value |
 |---|---|
-| Status date | 2026-08-05 |
+| Status date | 2026-08-06 |
 | Project root | `D:\\codings\\260801_saju-app` |
-| Current phase | Managed AWS resources, recovery, and credential-rotation drills verified; production remains local-only pending operator-controlled legal and security sign-off |
+| Current phase | Reading pattern DB (31 patterns, Layer A) + personalization composer (Layer B) + LLM generation pipeline completed; production remains local-only pending operator-controlled legal and security sign-off |
 | Production default | `SAJU_STORAGE=local-only` |
 
 ## Current objective
 
 Keep the deterministic natal, annual, and daewoon product available without central collection, while preparing an operator-safe account save service on the lowest-cost managed AWS stack.
+
+## Reading pattern DB (2026-08-06)
+
+- **Layer A (static pattern DB):** 31 reading patterns (10 day masters × 3 target years + 1 legacy), each with 8 cards + 13 domain modules + 24 monthly slots = 1,395 text modules total. Expert-grade Korean natural-language readings modeled on the Hyemin sample, with hanja minimized and prescriptions in second person.
+- **Layer B (personalization composer):** `reading-composer.mjs` dynamically injects month-branch seasonal context, daewoon 10-god themes, clash/harmony modifiers, and age/gender tone adjustments on top of the Layer A base, producing a distinct reading for each natal chart.
+- **LLM generation pipeline:** `scripts/llm-generate-reading.mjs` calls Windows Ollama (gemma3/GLM-4.6) via WSL→cmd.exe bridge, generates draft patterns with `review_status: 'draft'`, and saves to `server/storage/seeds/`. Dry-run and single-pattern generation verified.
+- **UI rendering:** `annual/client.mjs` renders 13 domain modules in a collapsible `<details>` grid within the annual reading section, with print-friendly page breaks.
+- **DB integration:** `createAnnualReading` uses DB patterns first (`readingSource: 'pattern-db'`) and falls back to the rule engine (`readingSource: 'rule-engine'`) when no pattern matches. Daewoon data is accepted and passed to the personalization composer.
 
 ## Implemented
 
