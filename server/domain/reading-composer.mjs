@@ -3,6 +3,7 @@
 // 정적 패턴 DB 모듈(A1/A2/A3)을 사용자 명식에 맞춰 동적 조합
 
 import { derivePatternId } from '../storage/readings.mjs';
+import { enrichDomain, getElementTheory, getTenGodActions } from './reading-enrichment.mjs';
 
 const STEM_HANGUL = { '甲': '갑', '乙': '을', '丙': '병', '丁': '정', '戊': '무', '己': '기', '庚': '경', '辛': '신', '壬': '임', '癸': '계' };
 const BRANCH_HANGUL = { '子': '자', '丑': '축', '寅': '인', '卯': '묘', '辰': '진', '巳': '사', '午': '오', '未': '미', '申': '신', '酉': '유', '戌': '술', '亥': '해' };
@@ -279,8 +280,14 @@ export function composePersonalizedReading(baseReading, pKey, readingStore) {
   });
 
   // 도메인에 개인화 정보 주입
+  const dayMasterElement = ELEMENTS[pKey.dayStem];
   const personalizedDomains = (baseReading.domains || []).map((domain) => {
-    const domainCopy = { ...domain, points: [...(domain.points || [])] };
+    let domainCopy = { ...domain, points: [...(domain.points || [])] };
+
+    // Deterministic enrichment: 색상·방향·숫자·장부·행동 주입
+    if (dayMasterElement && pKey.tenGod) {
+      domainCopy = enrichDomain(domainCopy, dayMasterElement, pKey.tenGod);
+    }
 
     // DB 월지 모듈이 있으면 해당 도메인의 points를 DB에서 가져옴
     if (monthDbModules) {
@@ -307,6 +314,15 @@ export function composePersonalizedReading(baseReading, pKey, readingStore) {
       domainCopy.points.push(`${personalTone.ageGroup}`);
       if (personalTone.lifecycleNote) domainCopy.points.push(personalTone.lifecycleNote);
     }
+
+    // 중복 포인트 제거 (enrichment + DB module + fallback 간 겹침 방지)
+    const seen = new Set();
+    domainCopy.points = domainCopy.points.filter((p) => {
+      const key = String(p).trim();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
     return domainCopy;
   });
