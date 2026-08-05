@@ -1,5 +1,5 @@
 // Auto-normalized by scripts/normalize-seeds.mjs
-// Generated: 2026-08-05T14:17:25.909Z
+// Generated: 2026-08-05T14:19:15.735Z
 // Patterns: 30 / 30
 
 export const NORMALIZED_SEEDS = {

@@ -12,6 +12,7 @@ import {
   TEN_GOD_GUIDANCE,
   buildAnnualCards as evaluateAnnualCards,
 } from './annual-rules.mjs';
+import { extractPersonalizationKey, composePersonalizedReading } from './reading-composer.mjs';
 
 const STEMS = Object.freeze(['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']);
 const BRANCHES = Object.freeze(['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']);
@@ -322,7 +323,26 @@ export function createAnnualReading(input, options = {}) {
     ...(dbResult?._dbDomains ? { domains: dbResult._dbDomains } : {}),
     readingSource: dbResult ? 'pattern-db' : 'rule-engine',
   };
-  return { ...result, contentHash: stableHash(result) };
+  let finalResult = result;
+  if (dbResult && options.personalize !== false) {
+    const pKey = extractPersonalizationKey(input.natal, options.daewoon, targetYear, { facts });
+    if (pKey) {
+      const baseForPersonalization = {
+        cards: result.cards,
+        domains: dbResult._dbDomains || [],
+        monthlyFlow: result.monthlyFlow,
+      };
+      const personalized = composePersonalizedReading(baseForPersonalization, pKey, options.readingStore);
+      finalResult = {
+        ...result,
+        cards: personalized.cards,
+        domains: personalized.domains,
+        monthlyFlow: personalized.monthlyFlow,
+        personalization: personalized.personalization,
+      };
+    }
+  }
+  return { ...finalResult, contentHash: stableHash(finalResult) };
 }
 
 export function annualYearAt(instant, targetYear) {
