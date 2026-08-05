@@ -63,7 +63,11 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
   const requestWindows = new Map();
   const allowRequest = (request) => {
     const now = Date.now();
-    const key = request.socket.remoteAddress || 'unknown';
+    const forwarded = request.headers['x-forwarded-for'];
+    const socketAddress = request.socket.remoteAddress || 'unknown';
+    const key = (forwarded && socketAddress === '127.0.0.1')
+      ? (String(forwarded).split(',')[0].trim() || socketAddress)
+      : socketAddress;
     const current = requestWindows.get(key);
     if (!current || now - current.startedAt >= RATE_LIMIT_WINDOW_MS) {
       requestWindows.set(key, { startedAt: now, count: 1 });
@@ -132,7 +136,7 @@ export function createIngestionServer({ staticRoot = null, storage = null } = {}
         submissionId,
         ...decision,
         durable: Boolean(storage),
-        persistence: storage ? `${storage.kind}:${storage.filePath}` : decision.persistence,
+        persistence: storage ? storage.kind : decision.persistence,
         trainingProjection: projection ? { schemaVersion: projection.schemaVersion, readyForGovernanceReview: true } : null,
       });
     } catch (error) {

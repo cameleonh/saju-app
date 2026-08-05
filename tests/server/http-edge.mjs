@@ -44,7 +44,7 @@ assert.equal(healthBody.persistence, 'sqlite', '/health reports only the storage
 
 const submissionResponse = await fetch(`${url}/v1/submissions`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(valid()) });
 const submissionBody = await submissionResponse.json();
-assert.ok(submissionBody.persistence.startsWith('sqlite:'), 'submission persistence echoes the kind and file path');
+assert.equal(submissionBody.persistence, 'sqlite', 'submission persistence reports only the storage kind, not the file path');
 assert.equal(submissionBody.durable, true);
 
 assert.equal((await fetch(`${url}/index.html`)).status, 200);
