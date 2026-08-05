@@ -93,12 +93,12 @@ const store = createReadingStore(db);
   ok('buildAnnualCardsFromDB: null store → null');
 }
 
-// 8. buildAnnualCardsFromDB with non-matching pattern
+// 8. buildAnnualCardsFromDB with non-matching pattern (계_임_자 — 존재하지 않는 조합)
 {
   const mockFacts = [
-    { id: 'annual.year.stem', value: '甲', detail: '甲辰의 천간은 甲입니다.' },
-    { id: 'annual.year.branch', value: '辰', detail: '甲辰의 지지는 辰입니다.' },
-    { id: 'annual.stem.tenGodToDayMaster', value: '비견', detail: '일간 甲을 기준으로 연간 甲은 비견 관계입니다.' },
+    { id: 'annual.year.stem', value: '壬', detail: '壬子의 천간은 壬입니다.' },
+    { id: 'annual.year.branch', value: '子', detail: '壬子의 지지는 子입니다.' },
+    { id: 'annual.stem.tenGodToDayMaster', value: '비견', detail: '일간 壬을 기준으로 연간 壬은 비견 관계입니다.' },
   ];
   const result = buildAnnualCardsFromDB(mockFacts, 2024, store);
   assert.equal(result, null);
