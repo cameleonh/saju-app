@@ -86,6 +86,34 @@ CREATE INDEX IF NOT EXISTS idx_card_pattern ON reading_card_modules(pattern_id);
 CREATE INDEX IF NOT EXISTS idx_domain_pattern ON reading_domain_modules(pattern_id);
 CREATE INDEX IF NOT EXISTS idx_monthly_pattern ON reading_monthly_slots(pattern_id);
 CREATE INDEX IF NOT EXISTS idx_pattern_lookup ON reading_pattern_keys(day_master, year_stem, year_branch);
+
+CREATE TABLE IF NOT EXISTS reading_month_pattern_keys (
+  month_pattern_id   TEXT PRIMARY KEY,
+  day_master         TEXT NOT NULL,
+  month_branch       TEXT NOT NULL,
+  season             TEXT NOT NULL,
+  element_interaction TEXT NOT NULL,
+  label              TEXT NOT NULL,
+  created_at         TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE (day_master, month_branch)
+);
+
+CREATE TABLE IF NOT EXISTS reading_month_modules (
+  module_id      TEXT PRIMARY KEY,
+  month_pattern_id TEXT NOT NULL REFERENCES reading_month_pattern_keys(month_pattern_id),
+  domain_key     TEXT NOT NULL,
+  domain_label   TEXT NOT NULL,
+  domain_index   INTEGER NOT NULL,
+  points         TEXT NOT NULL DEFAULT '[]',
+  closing        TEXT,
+  tone           TEXT NOT NULL DEFAULT 'natural',
+  review_status  TEXT NOT NULL DEFAULT 'draft',
+  created_at     TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE (month_pattern_id, domain_key)
+);
+
+CREATE INDEX IF NOT EXISTS idx_month_pattern_lookup ON reading_month_pattern_keys(day_master, month_branch);
+CREATE INDEX IF NOT EXISTS idx_month_module_pattern ON reading_month_modules(month_pattern_id);
 `;
 
 import { MU_GI_HAE_SEED } from './seed-mu-gi-hae.mjs';
@@ -113,9 +141,15 @@ export function createReadingStore(db) {
     cards: db.prepare('SELECT * FROM reading_card_modules WHERE pattern_id = ? AND review_status = ? ORDER BY card_index ASC'),
     domains: db.prepare('SELECT * FROM reading_domain_modules WHERE pattern_id = ? AND review_status = ? ORDER BY domain_index ASC'),
     monthly: db.prepare('SELECT * FROM reading_monthly_slots WHERE pattern_id = ? AND review_status = ? ORDER BY lunar_month ASC, half ASC'),
+    monthPattern: db.prepare('SELECT * FROM reading_month_pattern_keys WHERE day_master = ? AND month_branch = ?'),
+    monthModules: db.prepare('SELECT * FROM reading_month_modules WHERE month_pattern_id = ? AND review_status = ? ORDER BY domain_index ASC'),
+    insertMonthPattern: db.prepare(`INSERT OR IGNORE INTO reading_month_pattern_keys (month_pattern_id, day_master, month_branch, season, element_interaction, label) VALUES (?, ?, ?, ?, ?, ?)`),
+    insertMonthModule: db.prepare(`INSERT OR IGNORE INTO reading_month_modules (module_id, month_pattern_id, domain_key, domain_label, domain_index, points, closing, tone, review_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+    monthPatternCount: db.prepare('SELECT COUNT(*) as n FROM reading_month_pattern_keys'),
   };
 
   loadSeed(stmts);
+  loadMonthSeeds(stmts);
 
   function parse(row) {
     if (!row) return null;
@@ -161,10 +195,19 @@ export function createReadingStore(db) {
     return { pattern, cards, domains, monthly };
   }
 
+  function getMonthModule(dayMaster, monthBranch, reviewStatus = 'approved') {
+    const pattern = stmts.monthPattern.get(dayMaster, monthBranch);
+    if (!pattern) return null;
+    const modules = stmts.monthModules.all(pattern.month_pattern_id, reviewStatus).map(parse);
+    if (modules.length === 0) return null;
+    return { pattern, modules };
+  }
+
   return {
     kind: 'reading-store',
     getPattern, getCardModules, getDomainModules, getMonthlySlots,
     hasReading, getFullReading, derivePatternId,
+    getMonthModule,
   };
 }
 
@@ -190,5 +233,22 @@ function insertSeedPattern(stmts, seed) {
   }
   for (const m of (monthly || [])) {
     stmts.insertMonthly.run(m.slot_id, m.pattern_id, m.lunar_month, m.month_pillar, m.half, m.guidance, m.tone || 'natural', m.review_status || 'approved');
+  }
+}
+
+// 월지 시드 파일들 동적 로드
+let _monthSeeds = [];
+try { const m = await import('./seeds/month-gap-eul.mjs'); if (m.MONTH_GAP_EUL?.patterns) _monthSeeds.push(...m.MONTH_GAP_EUL.patterns); } catch {}
+try { const m = await import('./seeds/month-byeong-jeong.mjs'); if (m.MONTH_BYEONG_JEONG?.patterns) _monthSeeds.push(...m.MONTH_BYEONG_JEONG.patterns); } catch {}
+try { const m = await import('./seeds/month-mu-gi.mjs'); if (m.MONTH_MU_GI?.patterns) _monthSeeds.push(...m.MONTH_MU_GI.patterns); } catch {}
+try { const m = await import('./seeds/month-gyeong-sin.mjs'); if (m.MONTH_GYEONG_SIN?.patterns) _monthSeeds.push(...m.MONTH_GYEONG_SIN.patterns); } catch {}
+try { const m = await import('./seeds/month-im-gye.mjs'); if (m.MONTH_IM_GYE?.patterns) _monthSeeds.push(...m.MONTH_IM_GYE.patterns); } catch {}
+
+function loadMonthSeeds(stmts) {
+  for (const p of _monthSeeds) {
+    stmts.insertMonthPattern.run(p.month_pattern_id, p.day_master, p.month_branch, p.season, p.element_interaction, p.label);
+    for (const m of (p.modules || [])) {
+      stmts.insertMonthModule.run(m.module_id, p.month_pattern_id, m.domain_key, m.domain_label, m.domain_index, JSON.stringify(m.points || []), m.closing || null, m.tone || 'natural', m.review_status || 'approved');
+    }
   }
 }

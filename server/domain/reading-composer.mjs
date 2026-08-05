@@ -231,7 +231,30 @@ function buildPersonalTone(pKey) {
 export function composePersonalizedReading(baseReading, pKey, readingStore) {
   if (!baseReading || !pKey) return baseReading;
 
-  const monthModule = pKey.monthBranch ? buildMonthModule(pKey.dayStem, pKey.monthBranch) : null;
+  // DB 월지 모듈 우선, 없으면 규칙 기반 fallback
+  let monthModule = null;
+  let monthDbModules = null;
+  if (pKey.monthBranch && readingStore?.getMonthModule) {
+    const dmHangul = STEM_HANGUL[pKey.dayStem];
+    const mbHangul = BRANCH_HANGUL[pKey.monthBranch];
+    if (dmHangul && mbHangul) {
+      const dbResult = readingStore.getMonthModule(dmHangul, mbHangul);
+      if (dbResult?.modules?.length > 0) {
+        monthDbModules = dbResult.modules;
+        const seasonal = MONTH_BRANCH_SEASONAL[pKey.monthBranch];
+        monthModule = {
+          season: seasonal?.season || '',
+          theme: dbResult.pattern.label,
+          seasonalNote: dbResult.pattern.element_interaction,
+          healthHint: dbResult.modules.find(m => m.domain_key === 'health')?.points?.[0] || '',
+        };
+      }
+    }
+  }
+  if (!monthModule && pKey.monthBranch) {
+    monthModule = buildMonthModule(pKey.dayStem, pKey.monthBranch);
+  }
+
   const daewoonModule = pKey.daewoonTenGod ? buildDaewoonModule(pKey.daewoonTenGod, pKey.daewoonPillar) : null;
   const interactionMods = buildInteractionModifiers(pKey.branchRelations);
   const personalTone = buildPersonalTone(pKey);
@@ -259,9 +282,18 @@ export function composePersonalizedReading(baseReading, pKey, readingStore) {
   const personalizedDomains = (baseReading.domains || []).map((domain) => {
     const domainCopy = { ...domain, points: [...(domain.points || [])] };
 
-    // health에 월지 계절 건강 정보 추가
-    if (domain.domain_key === 'health' && monthModule) {
-      domainCopy.points.push(`태어난 계절(${monthModule.season}) 특성: ${monthModule.healthHint}`);
+    // DB 월지 모듈이 있으면 해당 도메인의 points를 DB에서 가져옴
+    if (monthDbModules) {
+      const dbDomain = monthDbModules.find(m => m.domain_key === domain.domain_key);
+      if (dbDomain?.points?.length > 0) {
+        domainCopy.points.push(...dbDomain.points);
+        if (dbDomain.closing) domainCopy.closing = dbDomain.closing;
+      }
+    } else {
+      // fallback: health에 월지 계절 건강 정보 추가
+      if (domain.domain_key === 'health' && monthModule) {
+        domainCopy.points.push(`태어난 계절(${monthModule.season}) 특성: ${monthModule.healthHint}`);
+      }
     }
 
     // career에 대운 정보 추가
