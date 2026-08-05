@@ -11,3 +11,4 @@ node_modules/
 *.log
 *.pem
 자료/
+server/storage/seeds/_normalized-all.mjs
