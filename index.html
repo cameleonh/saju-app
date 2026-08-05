@@ -1542,55 +1542,100 @@
         function exportChart() {
           downloadRecord({ id: state.currentRecordId || null, chart: state.chart, annual: state.annual, messages: state.messages, training: state.training }, 'saju-chart.json');
         }
-        function downloadAnnualCardPng(annual, cardIndex) {
+        async function downloadAnnualCardPng(annual, cardIndex) {
           const card = annual.cards[cardIndex];
           if (!card) return showToast('카드를 찾을 수 없어요');
+          try { await document.fonts?.ready; } catch {}
           const W = 720, H = 1080;
           const canvas = document.createElement('canvas');
           canvas.width = W; canvas.height = H;
           const ctx = canvas.getContext('2d');
+          if (!ctx) return showToast('이 브라우저에서는 이미지를 만들 수 없어요');
           const grad = ctx.createLinearGradient(0, 0, W, H);
           grad.addColorStop(0, '#fffaef'); grad.addColorStop(1, '#f0e5cc');
           ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
           ctx.strokeStyle = 'rgba(177,135,52,0.42)'; ctx.lineWidth = 2;
           ctx.strokeRect(24, 24, W - 48, H - 48);
           ctx.fillStyle = 'rgba(177,135,52,0.08)'; ctx.fillRect(24, 24, W - 48, 4);
+          const x = 56, maxWidth = W - 112;
           let y = 80;
           ctx.fillStyle = '#8a7548'; ctx.font = '600 20px "Noto Sans KR", sans-serif';
-          ctx.fillText(`${cardIndex + 1} / ${annual.cards.length} · ${card.theme || ''}`, 56, y);
-          y += 44;
+          ctx.fillText(`${cardIndex + 1} / ${annual.cards.length} · ${card.cardType || ''}`, x, y);
+          y += 34;
           ctx.fillStyle = '#1a1a1a'; ctx.font = '700 42px "Noto Serif KR", serif';
-          ctx.fillText(card.title || '', 56, y, W - 112);
-          y += 56;
+          y = drawCanvasTextBlock(ctx, card.title, { x, y, maxWidth, lineHeight: 52, maxLines: 2 });
+          y += 14;
           ctx.fillStyle = '#4a4a4a'; ctx.font = '600 24px "Noto Sans KR", sans-serif';
-          const summary = card.summary || '';
-          ctx.fillText(summary, 56, y, W - 112);
-          y += 50;
-          if (Array.isArray(card.keywords)) {
-            ctx.font = '500 18px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#6b5d3f';
-            card.keywords.forEach((kw) => {
-              ctx.fillStyle = 'rgba(177,135,52,0.15)'; roundRect(ctx, 56, y - 20, ctx.measureText(kw).width + 24, 32, 8); ctx.fill();
-              ctx.fillStyle = '#6b5d3f'; ctx.fillText(kw, 68, y);
-              y += 2 + ctx.measureText(kw).width + 40;
-            });
-            y = Math.max(y, cardIndex * 0 + 320);
-          }
-          y += 20;
+          y = drawCanvasTextBlock(ctx, card.summary, { x, y, maxWidth, lineHeight: 34, maxLines: 3 });
+          y = drawCanvasKeywordChips(ctx, card.keywords, x, y + 18, maxWidth);
+          y += 10;
           ctx.fillStyle = '#3a3a3a'; ctx.font = '400 20px "Noto Sans KR", sans-serif';
-          if (Array.isArray(card.points)) for (const pt of card.points) {
-            const lines = wrapText(ctx, '· ' + pt, W - 132);
-            for (const line of lines) { y += 30; ctx.fillText(line, 56, y, W - 112); }
-            y += 8;
+          if (Array.isArray(card.bullets)) for (const bullet of card.bullets.slice(0, 3)) {
+            y = drawCanvasTextBlock(ctx, `• ${bullet}`, { x, y, maxWidth, lineHeight: 29, maxLines: 2 });
+            y += 7;
           }
-          y += 16;
-          if (card.action) { ctx.fillStyle = 'rgba(33,89,73,0.08)'; roundRect(ctx, 48, y, W - 96, 70, 12); ctx.fill(); ctx.fillStyle = '#21594a'; ctx.font = '700 18px "Noto Sans KR", sans-serif'; ctx.fillText('해볼 일', 64, y + 28); ctx.font = '400 17px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#3a3a3a'; ctx.fillText(card.action, 64, y + 52, W - 128); y += 90; }
-          if (card.watch) { ctx.fillStyle = 'rgba(164,101,45,0.09)'; roundRect(ctx, 48, y, W - 96, 70, 12); ctx.fill(); ctx.fillStyle = '#a4652d'; ctx.font = '700 18px "Noto Sans KR", sans-serif'; ctx.fillText('주의', 64, y + 28); ctx.font = '400 17px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#3a3a3a'; ctx.fillText(card.watch, 64, y + 52, W - 128); y += 90; }
+          y += 9;
+          if (card.action) {
+            ctx.fillStyle = 'rgba(33,89,73,0.08)'; roundRect(ctx, 48, y, W - 96, 100, 12); ctx.fill();
+            ctx.fillStyle = '#21594a'; ctx.font = '700 18px "Noto Sans KR", sans-serif'; ctx.fillText('해볼 일', 64, y + 28);
+            ctx.fillStyle = '#3a3a3a'; ctx.font = '400 17px "Noto Sans KR", sans-serif';
+            drawCanvasTextBlock(ctx, card.action, { x: 64, y: y + 50, maxWidth: W - 128, lineHeight: 23, maxLines: 2 });
+            y += 114;
+          }
+          if (card.watch) {
+            ctx.fillStyle = 'rgba(164,101,45,0.09)'; roundRect(ctx, 48, y, W - 96, 100, 12); ctx.fill();
+            ctx.fillStyle = '#a4652d'; ctx.font = '700 18px "Noto Sans KR", sans-serif'; ctx.fillText('주의', 64, y + 28);
+            ctx.fillStyle = '#3a3a3a'; ctx.font = '400 17px "Noto Sans KR", sans-serif';
+            drawCanvasTextBlock(ctx, card.watch, { x: 64, y: y + 50, maxWidth: W - 128, lineHeight: 23, maxLines: 2 });
+          }
           ctx.fillStyle = '#aaa'; ctx.font = '400 13px "Noto Sans KR", sans-serif';
-          ctx.fillText(`saju.blog · ${annual.targetYear}년 ${annual.yearPillar} · ${annual.calculationPolicy.id}`, 56, H - 48);
-          canvas.toBlob((blob) => { if (!blob) return showToast('이미지 생성에 실패했어요'); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `saju-annual-${annual.targetYear}-card-${cardIndex + 1}.png`; link.click(); URL.revokeObjectURL(link.href); showToast('카드 이미지를 다운로드했어요'); }, 'image/png');
+          ctx.fillText(`saju.blog · ${annual.targetYear}년 ${annual.yearPillar} · ${annual.calculationPolicy?.id || ''}`, x, H - 48);
+          canvas.toBlob((blob) => {
+            if (!blob) return showToast('이미지 생성에 실패했어요');
+            const link = document.createElement('a');
+            const objectUrl = URL.createObjectURL(blob);
+            link.href = objectUrl;
+            link.download = `saju-annual-${annual.targetYear}-card-${cardIndex + 1}.png`;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
+            showToast('카드 이미지를 다운로드했어요');
+          }, 'image/png');
         }
         function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
-        function wrapText(ctx, text, maxW) { const chars = [...text]; const lines = []; let line = ''; for (const ch of chars) { const test = line + ch; if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = ch; } else line = test; } if (line) lines.push(line); return lines; }
+        function canvasTextLines(ctx, text, maxWidth, maxLines) {
+          const lines = []; let line = '';
+          for (const character of String(text || '')) {
+            const candidate = line + character;
+            if (line && ctx.measureText(candidate).width > maxWidth) { lines.push(line); line = character; }
+            else line = candidate;
+          }
+          if (line) lines.push(line);
+          if (lines.length <= maxLines) return lines;
+          const visible = lines.slice(0, maxLines);
+          let last = visible[maxLines - 1].replace(/\s+$/, '');
+          while (last && ctx.measureText(`${last}…`).width > maxWidth) last = last.slice(0, -1);
+          visible[maxLines - 1] = `${last}…`;
+          return visible;
+        }
+        function drawCanvasTextBlock(ctx, text, { x, y, maxWidth, lineHeight, maxLines }) {
+          const lines = canvasTextLines(ctx, text, maxWidth, maxLines);
+          lines.forEach((line, index) => ctx.fillText(line, x, y + index * lineHeight));
+          return y + lines.length * lineHeight;
+        }
+        function drawCanvasKeywordChips(ctx, keywords, x, y, maxWidth) {
+          if (!Array.isArray(keywords) || !keywords.length) return y;
+          ctx.font = '500 18px "Noto Sans KR", sans-serif';
+          let chipX = x, chipY = y;
+          for (const keyword of keywords.slice(0, 3)) {
+            const label = canvasTextLines(ctx, keyword, maxWidth - 28, 1)[0] || '';
+            const chipWidth = Math.min(maxWidth, ctx.measureText(label).width + 28);
+            if (chipX > x && chipX + chipWidth > x + maxWidth) { chipX = x; chipY += 44; }
+            ctx.fillStyle = 'rgba(177,135,52,0.15)'; roundRect(ctx, chipX, chipY, chipWidth, 34, 8); ctx.fill();
+            ctx.fillStyle = '#6b5d3f'; ctx.fillText(label, chipX + 14, chipY + 23);
+            chipX += chipWidth + 10;
+          }
+          return chipY + 44;
+        }
 
         if (new URLSearchParams(window.location.search).has('demo')) { const demoInput = { ...state.form, place: '서울특별시 종로구 청운효자동', placeCode: '1111051500' }; state.chart = calculateChart(demoInput); state.screen = 'result'; state.saveState = 'outbox'; state.openReadings = ['single-0']; }
         if ('serviceWorker' in navigator && window.location.protocol !== 'file:') navigator.serviceWorker.register('service-worker.js').catch(() => {});

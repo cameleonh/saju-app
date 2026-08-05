@@ -13,7 +13,7 @@ Keep the deterministic natal, annual, and daewoon product available without cent
 
 ## Implemented
 
-- `KR-CIVIL-1.0`, `KR-ANNUAL-IPCHUN-1.1`, and `KR-DAEWOON-1.0` deterministic engines, server verification, PWA shell, local IndexedDB history, single/couple flows, lunar conversion, and the reviewed 1900–2100 boundary behavior.
+- `KR-CIVIL-1.0`, `KR-ANNUAL-IPCHUN-1.1`, and `KR-DAEWOON-1.0` deterministic engines, server verification, PWA shell, local IndexedDB history, single/couple flows, lunar conversion, content-sized annual cards, privacy-safe 720×1080 annual-card PNG export, and the reviewed 1900–2100 boundary behavior.
 - Production runtime configuration that rejects SQLite and fails closed to local-only mode unless the complete PostgreSQL/KMS/Cognito configuration is present.
 - A real bounded-context PostgreSQL adapter against `ops`, `vault`, and `governance`, checksum-locked migrations, advisory locking, a non-owner runtime role, RLS, account-owned history/read/delete, and idempotent saves.
 - KMS envelope encryption for original and normalized birth input using AES-256-GCM data keys. Plaintext birth input, including nested daewoon input, is removed from chart JSON storage and reconstructed only after an authorized vault decrypt; email evidence uses a domain-separated keyed HMAC.
@@ -26,7 +26,7 @@ Keep the deterministic natal, annual, and daewoon product available without cent
 
 ## Fresh verification
 
-- `npm test`: 752 assertions passed plus 48 official solar-term boundary loops across the full unit/HTTP/lifecycle suite.
+- `npm test`: 760 assertions passed plus 48 official solar-term boundary loops across the full unit/HTTP/lifecycle suite.
 - Disposable PostgreSQL 16 integration: 42 assertions passed after applying all migrations twice, including keyed identity evidence, nested-birth plaintext exclusion, KMS envelopes, RLS ownership, individual/account deletion, and backup-expiry finalization.
 - `npm audit --omit=dev`: 0 vulnerabilities. Node syntax checks, POSIX shell syntax checks, `git diff --check`, dependency-tree validation, and repository secret-pattern scan passed.
 - GitHub `main` and the Lightsail release are kept on the same verified release. The Node service, Apache configuration, and daily deletion-finalizer timer are active; `/health` reports `durable: false`, confirming that cloud save remains fail-closed.
