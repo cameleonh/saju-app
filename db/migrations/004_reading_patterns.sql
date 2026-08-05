@@ -25,7 +25,7 @@ create table if not exists content.pattern_keys (
   year_branch      text not null check (year_branch in ('자','축','인','묘','진','사','오','미','신','유','술','해')),
   -- 도출값 (엔진이 계산, DB에 pinned)
   ten_god_stem     text not null check (ten_god_stem in ('비견','겁재','식신','상관','편재','정재','편관','정관','편인','정인')),
-  branch_relation  text not null default 'none' check (branch_relation in ('clash','harmony','none')),
+  branch_relation  text not null default 'none',
   -- 메타
   label            text not null,
   created_at       timestamptz not null default now(),

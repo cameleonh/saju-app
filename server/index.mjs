@@ -36,11 +36,15 @@ if (config.storageMode === 'postgres') {
   const storagePath = process.env.SAJU_DB_PATH || path.join(projectRoot, 'data', 'saju.sqlite');
   storage = createSqliteStorage(storagePath);
 }
-let readingStore = null;
-if (storage?.kind === 'sqlite' && storage.filePath) {
-  const { DatabaseSync } = await import('node:sqlite');
-  readingStore = createReadingStore(new DatabaseSync(storage.filePath));
-}
+// Reading pattern DB is pure content (not user data) — always seeded from
+// .mjs files at startup. Uses the existing SQLite file in SQLite mode, or an
+// in-memory SQLite DB in PostgreSQL / local-only modes.  This keeps readings
+// deterministic and decouples content from the governed user-data store.
+const { DatabaseSync } = await import('node:sqlite');
+const readingDbPath = (storage?.kind === 'sqlite' && storage.filePath)
+  ? storage.filePath
+  : ':memory:';
+const readingStore = createReadingStore(new DatabaseSync(readingDbPath));
 const server = createIngestionServer({ staticRoot: projectRoot, storage, auth, readingStore });
 server.listen(port, '127.0.0.1', () => console.log(`saju ingestion adapter listening on http://127.0.0.1:${port} with ${storage?.kind || 'local-only'}`));
 

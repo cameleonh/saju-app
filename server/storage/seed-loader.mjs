@@ -81,7 +81,7 @@ export function insertPatterns(db, patterns) {
         c.title, c.summary,
         JSON.stringify(c.keywords || []), JSON.stringify(c.bullets || []),
         c.action, c.watch, JSON.stringify(c.evidence || []),
-        c.tone || 'natural', c.review_status || 'approved'
+        c.tone || 'natural', c.review_status || 'draft'
       );
       if (result.changes > 0) inserted.cards++;
     }
@@ -90,7 +90,7 @@ export function insertPatterns(db, patterns) {
       const result = stmts.insertDomain.run(
         d.module_id, d.pattern_id, d.domain_key, d.domain_label, d.domain_index,
         JSON.stringify(d.points || []), d.closing || null,
-        d.tone || 'natural', d.review_status || 'approved'
+        d.tone || 'natural', d.review_status || 'draft'
       );
       if (result.changes > 0) inserted.domains++;
     }
@@ -98,7 +98,7 @@ export function insertPatterns(db, patterns) {
     for (const m of (p.monthly || [])) {
       const result = stmts.insertMonthly.run(
         m.slot_id, m.pattern_id, m.lunar_month, m.month_pillar, m.half,
-        m.guidance, m.tone || 'natural', m.review_status || 'approved'
+        m.guidance, m.tone || 'natural', m.review_status || 'draft'
       );
       if (result.changes > 0) inserted.monthly++;
     }
