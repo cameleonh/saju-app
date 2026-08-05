@@ -3,11 +3,16 @@ import fs from 'node:fs';
 
 const provision = fs.readFileSync(new URL('../../infra/lightsail/provision.sh', import.meta.url), 'utf8');
 const configure = fs.readFileSync(new URL('../../deploy/bin/configure-managed-data.sh', import.meta.url), 'utf8');
+const configurePostgresRole = fs.readFileSync(new URL('../../scripts/configure-postgres-role.mjs', import.meta.url), 'utf8');
 const service = fs.readFileSync(new URL('../../deploy/systemd/saju-app.service', import.meta.url), 'utf8');
 const deletionFinalizeService = fs.readFileSync(new URL('../../deploy/systemd/saju-app-deletion-finalize.service', import.meta.url), 'utf8');
 const deletionFinalizeTimer = fs.readFileSync(new URL('../../deploy/systemd/saju-app-deletion-finalize.timer', import.meta.url), 'utf8');
 const updater = fs.readFileSync(new URL('../../deploy/bin/update-saju-app.sh', import.meta.url), 'utf8');
 const apache = fs.readFileSync(new URL('../../deploy/apache/saju.blog-le-ssl.conf', import.meta.url), 'utf8');
+const createUserPoolBlock = provision.slice(
+  provision.indexOf('aws cognito-idp create-user-pool'),
+  provision.indexOf('aws cognito-idp set-user-pool-mfa-config'),
+);
 
 assert.match(provision, /name=='Micro'/, 'the fixed-cost standard Micro bundle is selected explicitly');
 assert.match(provision, /--no-publicly-accessible/, 'the managed database is private');
@@ -16,8 +21,13 @@ assert.match(provision, /create-user --user-name "\$SAJU_RUNTIME_IAM_USER"/, 'a 
 assert.match(provision, /kms:EncryptionContext:purpose.*birth-vault/, 'runtime KMS access is bound to the non-PII application context');
 assert.match(provision, /cognito-idp:AdminDeleteUser/, 'runtime identity deletion is limited to the selected Cognito pool');
 assert.match(provision, /--mfa-configuration ON/, 'cloud accounts require Cognito MFA after the gated launch');
+assert.match(provision, /set-user-pool-mfa-config[\s\S]*--software-token-mfa-configuration Enabled=true/, 'TOTP is enabled with the dedicated Cognito MFA configuration API');
+assert.doesNotMatch(createUserPoolBlock, /--software-token-mfa-configuration/, 'unsupported create-user-pool TOTP arguments are not used');
+assert.match(provision, /describe-user-pool-domain[\s\S]*DomainDescription\.UserPoolId/, 'Cognito domain existence is determined from the returned pool id instead of the command exit code');
+assert.match(provision, /domain_pool_id.*!=.*user_pool_id/, 'a globally reused Cognito domain cannot be silently attached to the wrong pool');
 assert.match(provision, /MinimumLength=14/, 'cloud accounts require a strong minimum password length');
 assert.match(configure, /SAJU_RUNTIME_DB_PASSWORD must be base64url-safe/, 'database password cannot alter environment-file parsing');
+assert.match(configurePostgresRole, /\$1::text/, 'PostgreSQL can infer the password parameter type when formatting the role statement');
 assert.match(configure, /SAJU_CLOUD_SAVE_APPROVED.*yes/, 'managed persistence requires an explicit post-signoff operator gate');
 assert.match(configure, /LAUNCH-SIGNOFF\.md/, 'managed persistence refuses a repository sign-off that still contains blocked gates');
 assert.match(configure, /install -o root -g www-data -m 640 "\$aws_tmp" \/etc\/saju-app-aws\.env/, 'runtime AWS credentials are installed outside the release with restricted permissions');

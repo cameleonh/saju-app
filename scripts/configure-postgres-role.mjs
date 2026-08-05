@@ -12,7 +12,7 @@ try {
       create role saju_runtime login in role saju_app;
     end if;
   end $$`);
-  const statement = await client.query("select format('alter role saju_runtime password %L', $1) as sql", [password]);
+  const statement = await client.query("select format('alter role saju_runtime password %L', $1::text) as sql", [password]);
   await client.query(statement.rows[0].sql);
   await client.query('alter role saju_runtime connection limit 12');
 } finally {

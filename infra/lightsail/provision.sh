@@ -48,8 +48,6 @@ if [ -z "$user_pool_id" ] || [ "$user_pool_id" = "None" ]; then
     --pool-name "$SAJU_USER_POOL_NAME" \
     --username-attributes email \
     --auto-verified-attributes email \
-    --mfa-configuration ON \
-    --software-token-mfa-configuration Enabled=true \
     --account-recovery-setting 'RecoveryMechanisms=[{Priority=1,Name=verified_email}]' \
     --deletion-protection ACTIVE \
     --user-pool-tier ESSENTIALS \
@@ -58,6 +56,10 @@ if [ -z "$user_pool_id" ] || [ "$user_pool_id" = "None" ]; then
     --user-pool-tags application=saju,environment=production \
     --query UserPool.Id --output text)
 fi
+aws cognito-idp set-user-pool-mfa-config \
+  --user-pool-id "$user_pool_id" \
+  --mfa-configuration ON \
+  --software-token-mfa-configuration Enabled=true >/dev/null
 
 client_id=$(aws cognito-idp list-user-pool-clients --user-pool-id "$user_pool_id" --max-results 60 --query "UserPoolClients[?ClientName=='saju-web']|[0].ClientId" --output text)
 if [ -z "$client_id" ] || [ "$client_id" = "None" ]; then
@@ -78,8 +80,12 @@ if [ -z "$client_id" ] || [ "$client_id" = "None" ]; then
     --query UserPoolClient.ClientId --output text)
 fi
 
-if ! aws cognito-idp describe-user-pool-domain --domain "$SAJU_COGNITO_DOMAIN_PREFIX" >/dev/null 2>&1; then
+domain_pool_id=$(aws cognito-idp describe-user-pool-domain --domain "$SAJU_COGNITO_DOMAIN_PREFIX" --query 'DomainDescription.UserPoolId' --output text)
+if [ -z "$domain_pool_id" ] || [ "$domain_pool_id" = "None" ]; then
   aws cognito-idp create-user-pool-domain --domain "$SAJU_COGNITO_DOMAIN_PREFIX" --user-pool-id "$user_pool_id" --managed-login-version 2 >/dev/null
+elif [ "$domain_pool_id" != "$user_pool_id" ]; then
+  echo "Cognito domain belongs to a different user pool" >&2
+  exit 1
 fi
 
 if ! aws iam get-user --user-name "$SAJU_RUNTIME_IAM_USER" >/dev/null 2>&1; then
