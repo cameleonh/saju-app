@@ -23,10 +23,12 @@ After DNS propagates, issue the certificate for `saju.blog` and `www.saju.blog` 
 Set the global Apache `ServerName` to suppress the `AH00558` startup warning:
 
 ```sh
-echo "ServerName saju.blog" | sudo tee /etc/apache2/conf-available/servername.conf
+printf '%s\n' "ServerName 127.0.0.1" | sudo tee /etc/apache2/conf-available/servername.conf
 sudo a2enconf servername
 sudo apache2ctl configtest && sudo systemctl reload apache2
 ```
+
+Keep this global value distinct from every public virtual-host name. An enabled unnamed TLS site such as Debian's `default-ssl.conf` inherits the global name; setting it to `saju.blog` would make that site collide with the real Saju TLS virtual host and serve its self-signed certificate for `saju.blog`.
 
 ## Deployment updates
 
