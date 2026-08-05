@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사주 리딩 — 무토 출생 2019년 — 자연어 버전</title>
+<style>
+  :root {
+    --paper-50: #faf7f2; --paper-100: #f5f0e8; --paper-200: #ebe3d6; --paper-300: #ddd1be;
+    --ink-950: #2a2630; --ink-800: #4a4350; --ink-600: #6e6670; --ink-400: #9b8f88;
+    --vermilion-600: #b55f4b; --vermilion-100: #f5e6e0;
+    --moon-300: #c9b48a; --moon-600: #8a7651;
+    --jade-600: #4a8a6a; --jade-100: #e0efe6;
+    --sky-100: #e8eef5; --sky-600: #4a6a8a;
+    --amber-100: #faf3e0; --amber-600: #b89a4a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Noto Sans KR', -apple-system, 'Apple SD Gothic Neo', sans-serif; background: var(--paper-100); color: var(--ink-950); line-height: 1.75; }
+  .container { max-width: 720px; margin: 0 auto; padding: 32px 20px 100px; }
+
+  .doc-header { text-align: center; margin-bottom: 48px; padding-bottom: 28px; border-bottom: 2px solid var(--paper-300); }
+  .doc-header .eyebrow { font-size: 13px; color: var(--ink-400); letter-spacing: 0.1em; margin-bottom: 8px; }
+  .doc-header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; }
+  .doc-header .meta { font-size: 14px; color: var(--ink-600); }
+
+  .layer-tabs { display: flex; gap: 8px; margin-bottom: 36px; justify-content: center; }
+  .layer-tab { padding: 10px 24px; border: 2px solid var(--paper-300); background: var(--paper-50); border-radius: 8px; font-size: 15px; font-weight: 600; color: var(--ink-600); cursor: pointer; transition: all 160ms; font-family: inherit; }
+  .layer-tab.active { border-color: var(--vermilion-600); color: var(--vermilion-600); background: var(--vermilion-100); }
+
+  .layer-section { display: none; }
+  .layer-section.visible { display: block; }
+
+  /* Cards (Layer 1) */
+  .card { background: var(--paper-50); border: 1px solid var(--paper-300); border-radius: 12px; padding: 22px; margin-bottom: 16px; }
+  .card-num { width: 28px; height: 28px; display: inline-grid; place-items: center; color: var(--vermilion-600); border: 1px solid rgba(181,95,75,0.4); border-radius: 4px; font-family: serif; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; line-height: 1.4; }
+  .card .lead { font-size: 16px; color: var(--ink-800); margin-bottom: 12px; line-height: 1.7; }
+  .keywords { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .keyword { padding: 4px 12px; background: var(--jade-100); border-radius: 14px; font-size: 12px; color: var(--jade-600); font-weight: 500; }
+  .card ul { list-style: none; margin-bottom: 14px; }
+  .card li { font-size: 15px; color: var(--ink-800); padding: 5px 0 5px 18px; position: relative; line-height: 1.65; }
+  .card li::before { content: '·'; position: absolute; left: 6px; color: var(--ink-400); font-weight: 700; }
+  .action-block, .watch-block { padding: 12px 14px; border-radius: 8px; margin-bottom: 8px; }
+  .action-block { background: var(--jade-100); }
+  .watch-block { background: var(--amber-100); }
+  .action-block strong, .watch-block strong { font-size: 13px; display: block; margin-bottom: 4px; }
+  .action-block strong { color: var(--jade-600); }
+  .watch-block strong { color: var(--amber-600); }
+  .action-block p, .watch-block p { font-size: 15px; color: var(--ink-800); line-height: 1.7; }
+
+  /* Layer 2 */
+  .section-title { font-size: 20px; font-weight: 800; margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--paper-300); }
+  .section-title:first-child { margin-top: 0; }
+  .section-title .desc { font-size: 14px; font-weight: 400; color: var(--ink-600); margin-top: 4px; }
+
+  .domain-card { background: var(--paper-50); border: 1px solid var(--paper-300); border-radius: 10px; padding: 20px 22px; margin-bottom: 14px; }
+  .domain-card h3 { font-size: 16px; font-weight: 700; color: var(--vermilion-600); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--paper-200); }
+  .domain-card ol { padding-left: 20px; }
+  .domain-card li { font-size: 15px; color: var(--ink-800); padding: 4px 0; line-height: 1.7; }
+  .domain-card .closing { margin-top: 10px; font-size: 14px; color: var(--ink-600); font-style: italic; }
+
+  .month-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+  @media (max-width: 600px) { .month-grid { grid-template-columns: 1fr; } }
+  .month-card { background: var(--paper-50); border: 1px solid var(--paper-300); border-radius: 8px; padding: 16px; }
+  .month-card .mhead { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .month-card .mhead strong { font-size: 15px; }
+  .month-card .mhead .mnote { font-size: 12px; color: var(--ink-400); }
+  .month-card .half { padding: 6px 0; border-top: 1px dashed var(--paper-200); }
+  .month-card .half:first-of-type { border-top: none; }
+  .month-card .half .hlabel { font-size: 12px; color: var(--moon-600); font-weight: 600; display: block; margin-bottom: 3px; }
+  .month-card .half p { font-size: 14px; color: var(--ink-800); line-height: 1.65; }
+
+  .upsell { margin: 32px 0; padding: 22px 28px; background: linear-gradient(135deg, var(--vermilion-100), var(--moon-300)22); border: 2px dashed var(--vermilion-600); border-radius: 12px; text-align: center; }
+  .upsell h3 { font-size: 18px; color: var(--vermilion-600); margin-bottom: 8px; }
+  .upsell p { font-size: 14px; color: var(--ink-800); margin-bottom: 14px; }
+  .upsell-btn { display: inline-block; padding: 10px 28px; background: var(--vermilion-600); color: white; border-radius: 8px; font-weight: 700; font-size: 15px; }
+
+  .closing-msg { margin-top: 40px; padding: 24px; background: var(--paper-200); border-radius: 12px; text-align: center; }
+  .closing-msg p { font-size: 15px; color: var(--ink-800); line-height: 1.8; }
+  .closing-msg strong { color: var(--vermilion-600); }
+
+  .footer-note { margin-top: 48px; padding: 16px 20px; background: var(--paper-200); border-radius: 8px; font-size: 12px; color: var(--ink-400); line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="doc-header">
+  <div class="eyebrow">연운 · 정밀 풀이</div>
+  <h1>2019년 기해년, 무토 출생의 흐름</h1>
+  <p class="meta">입춘(2월 4일)부터 다음 입춘 직전까지</p>
+</div>
+
+<div class="layer-tabs">
+  <button class="layer-tab active" onclick="showLayer(1)">카드로 보기</button>
+  <button class="layer-tab" onclick="showLayer(2)">상세 풀이</button>
+</div>
+
+<!-- ============ LAYER 1 ============ -->
+<div class="layer-section visible" id="layer1">
+
+<div class="card">
+  <span class="card-num">1</span>
+  <h3>2019년 기해년, 무토 출생의 연운</h3>
+  <p class="lead">산처럼 크고 묵직한 무토의 기운 위에, 같은 흙인 기토가 겹치면서 답답함과 경쟁이 피어납니다. 그러나 해수(물)가 흘러들며 이동과 변화의 물결을 가져오니, 전체적으로는 긍정적인 변화가 많은 해입니다.</p>
+  <div class="keywords"><span class="keyword">경쟁·기싸움</span><span class="keyword">이동·변화</span><span class="keyword">새로운 인연</span></div>
+  <ul>
+    <li>기토는 무토와 같은 흙이지만 성질이 달라, 겹치면 답답함과 경쟁을 만듭니다</li>
+    <li>해수는 이동, 변화, 새로움을 의미합니다. 애정운에서도 새 인연의 가능성이 있습니다</li>
+    <li>무토 출생에게 2019년은 "새로움에 도전"하는 마음이 열쇠입니다</li>
+  </ul>
+  <div class="action-block"><strong>해볼 일</strong><p>애정운, 인간관계, 직업운, 가치관이 새롭게 재편되는 해입니다. 열린 마음으로 도전하세요. 내 생각이 진리만은 아님을 기억하는 것이 올해의 나침반입니다.</p></div>
+  <div class="watch-block"><strong>주의</strong><p>같은 흙끼리의 기싸움, 주변과의 경쟁이 답답함을 만들 수 있습니다. 어떤 상황에서도 바르게 진행해야 긍정적인 변화를 얻습니다.</p></div>
+</div>
+
+<div class="card">
+  <span class="card-num">2</span>
+  <h3>마음가짐과 전체 흐름</h3>
+  <p class="lead">무토의 고집과 기토의 경쟁이 부딪히는 해. "새로움에 도전"과 "바른 마음"이 올해의 두 기둥입니다.</p>
+  <div class="keywords"><span class="keyword">새로움</span><span class="keyword">열린 마음</span><span class="keyword">도덕성</span></div>
+  <ul>
+    <li>첫째, '새로움에 도전' — 애정, 인간관계, 직업, 가치관이 새롭게 바뀝니다</li>
+    <li>둘째, '열린 마음' — 내 생각이 늘 옳은 것은 아님을 인정해야 합니다</li>
+    <li>셋째, '바른 길' — 어떤 문제, 어떤 인연이든 바르게 진행해야 즐거운 변화를 만듭니다</li>
+  </ul>
+  <div class="action-block"><strong>해볼 일</strong><p>지금은 묵은해의 끝자락에서 생기는 의욕과 열정을 입춘 이후 안정과 기회로 연결할 때입니다. 조급해하지 말고 여유를 갖고 앞을 계획하세요.</p></div>
+  <div class="watch-block"><strong>주의</strong><p>무토 출생은 본인만의 세계가 강한 편. 사랑도, 가족관계도, 인간관계에서도 항상 상대의 입장을 먼저 생각하는 자세가 필요합니다. 너무 많은 생각과 걱정이 발을 잡습니다.</p></div>
+</div>
+
+<div class="card">
+  <span class="card-num">3</span>
+  <h3>일과 사회활동</h3>
+  <p class="lead">하는 일이 한 단계 성장하고 주변에서 인정받는 흐름. 합격, 승진, 관운도 함께하는 시기입니다.</p>
+  <div class="keywords"><span class="keyword">성장</span><span class="keyword">인정</span><span class="keyword">합격·승진</span></div>
+  <ul>
+    <li>현재 하시는 일이 있다면 한 단계 성장하며 인정받는 흐름입니다</li>
+    <li>교육, 의료, 식품 관련 일에 도전하기에 좋은 시기입니다</li>
+    <li>다만 구설수를 조심해야 — 작은 규정이라도 반드시 지키세요</li>
+  </ul>
+  <div class="action-block"><strong>해볼 일</strong><p>직업적으로 발전하기 위해 공부하고, 새로운 사람들을 만나세요. 올해는 합격운과 문서·계약운이 긍정적인 시기입니다.</p></div>
+  <div class="watch-block"><strong>주의</strong><p>경쟁과 기싸움이 있는 해이므로, 직장 안에서의 대립에서는 '한 발 물러서는 것이 이기는 것'이라는 지혜가 필요합니다.</p></div>
+</div>
+
+<div class="card">
+  <span class="card-num">4</span>
+  <h3>돈과 현금 흐름</h3>
+  <p class="lead">들어오는 돈과 나가는 돈이 비슷할 수 있는 해. 계획해서 쓰는 것이 무엇보다 중요합니다.</p>
+  <div class="keywords"><span class="keyword">하반기 성장</span><span class="keyword">계획 소비</span><span class="keyword">돈거래 금지</span></div>
+  <ul>
+    <li>여름이 끝날 무렵부터 하반기에 재물 기운이 자라납니다</li>
+    <li>불필요한 소비는 줄이고, 일정 금액을 저축하는 것이 유리합니다</li>
+    <li>주변 사람과의 큰 돈거래는 절대 피하세요 — 올해는 들고 나는 돈이 비슷할 수 있습니다</li>
+  </ul>
+  <div class="action-block"><strong>해볼 일</strong><p>계획적인 소비가 가장 필요한 해입니다. 무엇을 사든 몇 번 다시 생각한 뒤에 고르세요. 유명 브랜드에 집착할 필요는 없습니다.</p></div>
+  <div class="watch-block"><strong>주의</strong><p>올해는 전반적으로 답답함을 느끼다가, 여름 끝부터 변화와 새로움이 밀려옵니다. 충동적 소비가 유혹으로 다가올 수 있습니다.</p></div>
+</div>
+
+<div class="card">
+  <span class="card-num">5</span>
+  <h3>인간관계와 애정운</h3>
+  <p class="lead">새로운 인연이 들어설 가능성이 큰 해. 이미 있는 인연이라면 마찰과 위기를 조심해야 합니다.</p>
+  <div class="keywords"><span class="keyword">새 인연</span><span class="keyword">허세 경계</span><span class="keyword">검정·흰색</span></div>
+  <ul>
+    <li>나보다 어린 사람들을 많이 만나게 됩니다 — 새로운 사람들이 전체적으로 이로운 해입니다</li>
+    <li>술을 많이 마시거나 노는 무리는 멀리하세요. 허세와 거짓말하는 사람을 가려내야 합니다</li>
+    <li>애정운: 전혀 다른 삶과 가치관을 가진 사람을 만날 가능성. 첫인상보다 여러 번 만나보고 결정하세요</li>
+  </ul>
+  <div class="action-block"><strong>해볼 일</strong><p>검정색과 흰색이 애정운을 높여줍니다. 한여름이나 한겨울에 애정운이 상승합니다. 친구의 연인은 멀리하고, 가족과 대화하려 노력하세요.</p></div>
+  <div class="watch-block"><strong>주의</strong><p>짝사랑은 피하세요. 애매한 관계도 피하고, 게으름은 독이 됩니다. 상대의 거짓말은 반드시 가려내야 합니다.</p></div>
+</div>
+
+<div class="card">
+  <span class="card-num">6</span>
+  <h3>건강과 일상 리듬</h3>
+  <p class="lead">큰 사고나 질병은 없으되, 너무 많은 걱정과 근심이 마음과 몸을 지치게 합니다.</p>
+  <div class="keywords"><span class="keyword">규칙적 운동</span><span class="keyword">산책·스트레칭</span><span class="keyword">즐기듯 살기</span></div>
+  <ul>
+    <li>큰 사건사고는 없을 것으로 보이나, 규칙적인 운동과 충분한 휴식이 필요합니다</li>
+    <li>무토 사주에는 산책, 스트레칭, 몸매 관리로 스트레스를 풀고 만족감을 높이는 것이 좋습니다</li>
+    <li>무언가를 사랑하는 것도 올해 마음과 몸을 건강하게 만드는 방법입니다</li>
+  </ul>
+  <div class="action-block"><strong>해볼 일</strong><p>운동 한 가지는 꼭 시작하세요. 즐기듯 삶에 도전하는 마음이 필요한 해입니다. 너무 많은 생각과 걱정을 내려놓으세요.</p></div>
+  <div class="watch-block"><strong>주의</strong><p>야식이나 계획에 없는 소비도 피하세요. 규칙적이고 차분한 일상이 필요한 흐름입니다.</p></div>
+</div>
+
+<div class="card">
+  <span class="card-num">7</span>
+  <h3>올해 꼭 해야 할 일</h3>
+  <p class="lead">세 가지가 2019년을 알차게 만듭니다.</p>
+  <div class="keywords"><span class="keyword">공부</span><span class="keyword">새 사람</span><span class="keyword">운동</span></div>
+  <ul>
+    <li>직업적으로 발전하기 위해 공부하세요</li>
+    <li>새로운 사람들을 만나려고 노력하세요</li>
+    <li>운동 한 가지는 꼭 해보세요</li>
+  </ul>
+  <div class="action-block"><strong>해볼 일</strong><p>이렇게 하시면 2019년은 훨씬 알차고 보람 있게 보낼 수 있습니다. 긍정적인 변화가 많고 감성적인 시기이니, 조금만 객관적으로 바라보며 도전하세요.</p></div>
+  <div class="watch-block"><strong>주의</strong><p>피할 것: 애매한 관계, 게으름, 야식, 충동적 소비. 가까운 것: 새로운 사람들, 검정·흰색, 숫자 3과 0, 서쪽, 왼쪽.</p></div>
+</div>
+
+<div class="card">
+  <span class="card-num">8</span>
+  <h3>계산 방법과 한계</h3>
+  <p class="lead">기해년의 두 글자를 하나씩 풀어 설명합니다.</p>
+  <ul>
+    <li><strong>기(己)</strong>: 무토 출생과 같은 흙이지만 다른 성질 — 경쟁·기싸움·구설수 조심, 새 직업·학업에 유리, 가족과 대화 필요</li>
+    <li><strong>해(亥)</strong>: 합격운·계약운 긍정, 이동·변화 많음, 게으름은 독, 계획적 소비 필요, 새로운 사랑 가능성</li>
+    <li>해석 기준: 자평명리의 일간·월령·십신 관계. 격국·용신·조후는 이 버전에서 다루지 않습니다</li>
+  </ul>
+  <div class="watch-block"><strong>주의</strong><p>사주는 관계, 건강, 재산, 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산된 사실과 실제 삶을 돌아볼 질문을 이어주는 참고 자료로 활용하세요.</p></div>
+</div>
+
+<div class="upsell">
+  <h3>👇 상세 풀이를 원하시나요?</h3>
+  <p>13개 항목 × 월별 24구간의 깊이 있는 풀이를 받아보세요</p>
+  <span class="upsell-btn">상세 풀이 보기</span>
+</div>
+
+</div>
+
+<!-- ============ LAYER 2 ============ -->
+<div class="layer-section" id="layer2">
+
+<div class="section-title">정밀 풀이 · 13개 항목<div class="desc">무토 출생의 2019년 기해년 — 전문가 해석 기반</div></div>
+
+<div class="domain-card">
+  <h3>마음가짐</h3>
+  <ol>
+    <li><strong>새로움에 도전</strong> — 애정운, 인간관계, 직업운, 가치관, 성격이 새롭게 바뀝니다</li>
+    <li><strong>열린 마음</strong> — 인간관계, 애정운, 사회활동 모두 열린 마음으로 도전하세요. 내 생각이 늘 옳은 것은 아닙니다</li>
+    <li><strong>바른 길</strong> — 어떤 상황, 어떤 문제, 어떤 인연이든 바르게 진행해야 즐거운 변화를 스스로 만듭니다</li>
+  </ol>
+</div>
+
+<div class="domain-card">
+  <h3>인간관계</h3>
+  <ol>
+    <li>나보다 어린 사람들을 많이 만나는 흐름입니다</li>
+    <li>술을 많이 마시거나 노는 무리는 멀리하세요</li>
+    <li>첫인상보다 만나면서 확신이 드는, 나와 잘 맞는 인연에 집중하세요</li>
+    <li>겉모습만으로 사람을 평가하지 마세요</li>
+    <li>허세, 허풍, 거짓말하는 사람을 가려내야 합니다</li>
+  </ol>
+</div>
+
+<div class="domain-card">
+  <h3>건강</h3>
+  <ol>
+    <li>큰 사고나 질병은 없을 것으로 보입니다</li>
+    <li>규칙적인 운동, 규칙적인 생활, 충분한 휴식이 필요합니다</li>
+    <li>너무 많이 걱정하고 근심할 수 있으니 항상 즐겁고 밝게 생각하세요</li>
+    <li>나만의 스트레스 해소법을 찾으세요 — 산책, 스트레칭, 몸매 관리로 만족감이 올라갑니다</li>
+    <li>무언가를 사랑하는 것도 올해 마음과 몸을 건강하게 만드는 방법입니다</li>
+  </ol>
+</div>
+
+<div class="domain-card">
+  <h3>학업 · 직업 · 사회활동</h3>
+  <ol>
+    <li>현재 하시는 일이 있다면 한 단계 성장하며 주변에서 인정받는 흐름입니다</li>
+    <li>교육, 의료, 식품 관련 일에 도전하기에 좋은 시기입니다</li>
+    <li>합격운, 승진운, 관운도 함께하는 시기입니다</li>
+  </ol>
+</div>
+
+<div class="domain-card">
+  <h3>가족</h3>
+  <ol>
+    <li>가족과 대화하려 노력해야 하는 해입니다</li>
+    <li>작은 일이라도 가족과 함께 상의하고, 소통하려 애쓰세요</li>
+    <li>가족과의 화합이 형성되어야 개인의 학업, 직업, 애정운도 함께 오릅니다</li>
+  </ol>
+</div>
+
+<div class="domain-card">
+  <h3>애정운</h3>
+  <ol>
+    <li>커플이든 싱글이든 새로운 인연이 들어설 가능성이 큽니다</li>
+    <li>이미 있는 인연이라면 마찰, 갈등, 위기를 지날 수 있습니다</li>
+    <li>나와 전혀 다른 삶과 가치관을 가진 사람을 만날 것으로 보입니다</li>
+    <li>첫인기도 중요하지만 여러 번 만나보고 결정하세요</li>
+    <li>상대방의 거짓말은 반드시 가려내야 합니다</li>
+    <li>친구의 연인은 멀리하고, 검정색과 흰색이 애정운을 높여줍니다</li>
+    <li>한여름이나 한겨울에 애정운이 상승합니다</li>
+    <li>우연한 만남에서 인연이 닿을 가능성도 높은 해입니다</li>
+  </ol>
+</div>
+
+<div class="domain-card">
+  <h3>재물</h3>
+  <ol>
+    <li>여름이 끝날 무렵부터 하반기에 재물 기운이 자라납니다</li>
+    <li>불필요한 소비는 줄이고 계획적으로 쓰세요</li>
+    <li>일정 금액을 저축하는 것도 유리합니다</li>
+    <li>주변 사람과의 큰 돈거래는 절대 피하세요</li>
+    <li>올해는 들어오는 돈과 나가는 돈이 비슷할 수 있습니다</li>
+  </ol>
+</div>
+
+<div class="domain-card">
+  <h3>패션</h3>
+  <ol>
+    <li>나이보다 조금 젊고 편하게 입는 것이 좋습니다</li>
+    <li>가짜 명품은 망신을 부르니 피하세요</li>
+    <li>유행에 어느 정도 민감한 것이 유리합니다</li>
+    <li>액세서리와 귀금속은 최소화하고, 머리를 밝은 색으로 염색해도 좋습니다</li>
+    <li>옷은 검정과 흰색이 유리하고, 머리색은 약간 밝은 색이 좋습니다</li>
+  </ol>
+</div>
+
+<div class="domain-card">
+  <h3>날씨와 계절</h3>
+  <ol>
+    <li><strong>봄</strong>: 인간관계에서 변화와 갈등이 있을 수 있습니다</li>
+    <li><strong>여름</strong>: 애정운과 직업운이 상승합니다</li>
+    <li><strong>가을</strong>: 새로운 직업, 학업, 취미, 운동에 도전하기 좋습니다</li>
+    <li><strong>겨울</strong>: 애정운이나 문서·계약운이 자라는 시기입니다</li>
+    <li>미세먼지가 많거나 흐린 날에는 외출, 쇼핑, 여행을 피하고, 맑은 날이나 비 오는 날이 유리합니다</li>
+  </ol>
+</div>
+
+<div class="domain-card">
+  <h3>물품 구입</h3>
+  <ol>
+    <li>불필요한 물건을 많이 살 가능성이 큽니다 — 계획이 필수입니다</li>
+    <li>무엇이든 몇 번 다시 생각한 뒤에 고르세요</li>
+    <li>신중하게 고르면 중고물품도 잘 맞는 흐름입니다</li>
+    <li>브랜드 이미지에 집착할 필요는 없습니다</li>
+  </ol>
+</div>
+
+<div class="domain-card">
+  <h3>피해야 할 기운</h3>
+  <ol>
+    <li>애정운에서 애매한 관계는 피하세요</li>
+    <li>게으름은 독 — 게으른 습관은 스스로 피하고 버려야 합니다</li>
+    <li>야식이나 계획에 없는 소비도 피하세요</li>
+  </ol>
+</div>
+
+<div class="domain-card">
+  <h3>이로운 기운</h3>
+  <ol>
+    <li>새로운 사람들이 전체적으로 이로운 해입니다</li>
+    <li>검정색, 흰색, 숫자 3과 0, 서쪽, 왼쪽이 유리합니다</li>
+  </ol>
+</div>
+
+<div class="domain-card">
+  <h3>꼭 해야 할 일</h3>
+  <ol>
+    <li>직업적으로 발전하기 위해 공부하세요</li>
+    <li>새로운 사람들을 만나려 노력하세요</li>
+    <li>운동 한 가지는 꼭 하세요</li>
+  </ol>
+  <p class="closing">이렇게 하시면 2019년은 훨씬 알차고 보람 있게 보내실 수 있습니다.</p>
+</div>
+
+<div class="section-title">월별 흐름 · 12달 × 앞뒤 = 24구간<div class="desc">음력 기준 · 2019년 기해년 월별 풀이</div></div>
+
+<div class="month-grid">
+  <div class="month-card">
+    <div class="mhead"><strong>음력 1월</strong><span class="mnote">병인월</span></div>
+    <div class="half"><span class="hlabel">전반기</span><p>시비와 다툼에서는 '지는 것이 이기는 것'이라고 생각하세요. 허황된 꿈과 계획은 현실성을 약하게 만듭니다.</p></div>
+    <div class="half"><span class="hlabel">후반기</span><p>말 한마디로 큰 빚을 갚을 수 있습니다. 영화 감상, 독서 등으로 삶을 밝게 바꿔 보세요.</p></div>
+  </div>
+
+  <div class="month-card">
+    <div class="mhead"><strong>음력 2월</strong><span class="mnote">정묘월</span></div>
+    <div class="half"><span class="hlabel">전반기</span><p>눈에 보이는 것만 믿어야 할 때입니다. 자기를 위해 투자해도 좋습니다.</p></div>
+    <div class="half"><span class="hlabel">후반기</span><p>약속은 반드시 지키세요. 다만 아무리 노력해도 되지 않는 인연이나 일은 포기하세요.</p></div>
+  </div>
+
+  <div class="month-card">
+    <div class="mhead"><strong>음력 3월</strong><span class="mnote">무진월</span></div>
+    <div class="half"><span class="hlabel">전반기</span><p>관운과 문서운이 강합니다. 인간관계에서는 상대를 먼저 생각하면 유리합니다.</p></div>
+    <div class="half"><span class="hlabel">후반기</span><p>서두르면 실수하기 쉬우니 신중해야 합니다. 믿었던 사람에게 당할 수 있으니 가까운 이를 의심하세요.</p></div>
+  </div>
+
+  <div class="month-card">
+    <div class="mhead"><strong>음력 4월</strong><span class="mnote">기사월</span></div>
+    <div class="half"><span class="hlabel">전반기</span><p>상대의 눈을 똑바로 보면 마음을 읽을 수 있습니다. 가까운 사람을 의심해야 할 때입니다.</p></div>
+    <div class="half"><span class="hlabel">후반기</span><p>계획은 미루지 말고 실천하세요. 주변의 의견을 무시하지 마세요.</p></div>
+  </div>
+
+  <div class="month-card">
+    <div class="mhead"><strong>음력 5월</strong><span class="mnote">경오월</span></div>
+    <div class="half"><span class="hlabel">전반기</span><p>무리한 소비와 경솔한 말행동을 피하세요. 빨리 포기하는 것도 필요합니다.</p></div>
+    <div class="half"><span class="hlabel">후반기</span><p>짜증을 내거나 화를 내지 마세요. 말 한마디가 큰 것을 해결합니다.</p></div>
+  </div>
+
+  <div class="month-card">
+    <div class="mhead"><strong>음력 6월</strong><span class="mnote">신미월</span></div>
+    <div class="half"><span class="hlabel">전반기</span><p>말은 은이고 침묵은 금입니다. 즐기듯 도전하는 마음이 필요합니다.</p></div>
+    <div class="half"><span class="hlabel">후반기</span><p>낯선 장소, 낯선 사람은 멀리하세요. 모르는 것이 약이 될 때도 있습니다.</p></div>
+  </div>
+
+  <div class="month-card">
+    <div class="mhead"><strong>음력 7월</strong><span class="mnote">임신월</span></div>
+    <div class="half"><span class="hlabel">전반기</span><p>계획대로 진행하고 소비하세요. 감정보다는 객관적인 시각이 필요합니다.</p></div>
+    <div class="half"><span class="hlabel">후반기</span><p>현재보다는 미래를 위해 결정하세요. 오해는 즉시 푸세요.</p></div>
+  </div>
+
+  <div class="month-card">
+    <div class="mhead"><strong>음력 8월</strong><span class="mnote">계유월</span></div>
+    <div class="half"><span class="hlabel">전반기</span><p>확실하게 결정해야 합니다. 시작보다 끝맺음이 중요합니다.</p></div>
+    <div class="half"><span class="hlabel">후반기</span><p>가족과 함께 여행, 쇼핑, 외식이 좋습니다. 좋은 일에만 신경 쓰세요.</p></div>
+  </div>
+
+  <div class="month-card">
+    <div class="mhead"><strong>음력 9월</strong><span class="mnote">갑술월</span></div>
+    <div class="half"><span class="hlabel">전반기</span><p>할 일은 미루지 마세요. 인간관계에서 배신이나 상처를 입을 수 있습니다.</p></div>
+    <div class="half"><span class="hlabel">후반기</span><p>작은 실수와 오해는 웃어넘기세요. 잘못은 바로 인정하면 쉽게 풀립니다.</p></div>
+  </div>
+
+  <div class="month-card">
+    <div class="mhead"><strong>음력 10월</strong><span class="mnote">을해월</span></div>
+    <div class="half"><span class="hlabel">전반기</span><p>결정한 일을 번복하지 마세요. 시작이 반이라는 말이 딱 맞는 때입니다.</p></div>
+    <div class="half"><span class="hlabel">후반기</span><p>과감하게 결정하면 유리합니다. 상황에 따라 작은 거짓말도 필요합니다.</p></div>
+  </div>
+
+  <div class="month-card">
+    <div class="mhead"><strong>음력 11월</strong><span class="mnote">병자월</span></div>
+    <div class="half"><span class="hlabel">전반기</span><p>상대의 거짓말을 가려내야 합니다. 자기를 위한 투자는 좋습니다.</p></div>
+    <div class="half"><span class="hlabel">후반기</span><p>약속은 반드시 지키세요. 충분한 휴식이나 명상이 필요한 때입니다.</p></div>
+  </div>
+
+  <div class="month-card">
+    <div class="mhead"><strong>음력 12월</strong><span class="mnote">정축월</span></div>
+    <div class="half"><span class="hlabel">전반기</span><p>새로운 물건을 사기에 좋습니다. 너무 높은 목표는 허탈감을 만듭니다.</p></div>
+    <div class="half"><span class="hlabel">후반기</span><p>포기하지 말고 꾸준히 하면 결과는 좋습니다. 우정보다 가족과 사랑에 집중하세요.</p></div>
+  </div>
+</div>
+
+<div class="closing-msg">
+  <p>전체적으로 <strong>2019년은 긍정적인 변화가 아주 많고 감성적인 시기</strong>입니다.<br>조금만 객관적으로 바라보며 도전하시면, 좋은 기운을 스스로 만들 수 있습니다.<br>조급해하지 마시고, 여유를 갖고 앞날을 계획하시길 바랍니다.</p>
+</div>
+
+</div><!-- layer2 -->
+
+<div class="footer-note">
+  프로토타입 — 무토 출생 × 기해년(2019) 단일 패턴 시안.<br>
+  텍스트는 전문 명리가 '혜민'의 실제 풀이에서 추출해 한자를 줄이고 일상어로 다듬었습니다.<br>
+  카드 구조는 기존 연운 시스템과 동일합니다 — 텍스트만 패턴 DB로 교체하면 됩니다.
+</div>
+
+</div>
+
+<script>
+function showLayer(n) {
+  document.querySelectorAll('.layer-tab').forEach((t, i) => t.classList.toggle('active', i === n - 1));
+  document.querySelectorAll('.layer-section').forEach((s, i) => s.classList.toggle('visible', i === n - 1));
+}
+</script>
+</body>
+</html>

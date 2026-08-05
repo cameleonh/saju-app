@@ -195,6 +195,67 @@ export function buildAnnualCards(facts, targetYear, profile = ANNUAL_PROFILE, ru
   return evaluateAnnualCards(facts, targetYear, profile, ruleSet);
 }
 
+const SAFETY_BOUNDARY = '전통 해석을 자기 점검에 쓰는 자료이며 사실이나 사건 예측이 아닙니다.';
+
+export function buildAnnualCardsFromDB(facts, targetYear, readingStore, profile = ANNUAL_PROFILE) {
+  if (!readingStore) return null;
+  const byId = new Map(facts.map((item) => [item.id, item]));
+  const dayStem = byId.get('annual.year.stem')?.detail?.match(/천간은 (\S)입니다/)?.[1];
+  const dayMasterFact = facts.find((f) => f.id === 'annual.stem.tenGodToDayMaster');
+  const dayMasterStem = dayMasterFact?.detail?.match(/일간 (\S)을/)?.[1];
+  const yearStem = byId.get('annual.year.stem')?.value;
+  const yearBranch = byId.get('annual.year.branch')?.value;
+  if (!dayMasterStem || !yearStem || !yearBranch) return null;
+  const patternId = readingStore.derivePatternId({ dayStem: dayMasterStem, yearStem, yearBranch });
+  if (!patternId || !readingStore.hasReading(patternId)) return null;
+  const { cards: dbCards, domains, monthly } = readingStore.getFullReading(patternId);
+  const pillarText = byId.get('annual.year.pillar')?.value || '';
+  const ruleSetVersion = ANNUAL_RULE_SET.version;
+  const cards = dbCards.map((row) => ({
+    schemaVersion: 'annual-card.v1',
+    scope: 'annual',
+    targetYear,
+    yearPillar: pillarText,
+    profile: { id: profile.id, version: profile.version },
+    cardType: row.card_type,
+    title: row.title,
+    summary: row.summary,
+    keywords: row.keywords.slice(0, 3),
+    bullets: row.bullets.slice(0, 3),
+    action: row.action,
+    watch: row.watch,
+    evidence: row.evidence.slice(0, 3),
+    rule: { id: `reading-db.${patternId}`, version: row.review_status === 'approved' ? '1.0.0' : '0.0.0', ruleSetVersion, priority: 100 - row.card_index, variant: 'db' },
+    claimTrace: [],
+    boundary: SAFETY_BOUNDARY,
+  }));
+  const monthlyFlow = monthly.map((row) => ({
+    monthIndex: row.lunar_month,
+    label: `음력 ${row.lunar_month}월`,
+    pillar: row.month_pillar,
+    effectiveRange: null,
+    theme: row.half === 'first' ? '전반기' : '후반기',
+    use: row.guidance,
+    watch: '',
+    evidence: [],
+    relations: [],
+    status: 'interpretive',
+    boundarySensitive: false,
+    unsupportedState: null,
+    rule: { id: `reading-db-monthly.${patternId}`, version: '1.0.0', ruleSetVersion },
+    claimTrace: [],
+  }));
+  const monthlyGrouped = [];
+  for (const m of monthlyFlow) {
+    let existing = monthlyGrouped.find((g) => g.monthIndex === m.monthIndex);
+    if (!existing) { existing = { ...m, theme: '', guidanceParts: [] }; monthlyGrouped.push(existing); }
+    existing.guidanceParts.push(`${m.theme}: ${m.use}`);
+    existing.theme = existing.guidanceParts.join(' / ');
+    existing.use = existing.guidanceParts.join(' / ');
+  }
+  return { cards, suppressedRules: [], claimTrace: [], _dbDomains: domains, _dbMonthly: monthlyGrouped };
+}
+
 function stableHash(value) {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
 }
@@ -205,7 +266,7 @@ export function calculateAnnualContentHash(value) {
   return stableHash(content);
 }
 
-export function createAnnualReading(input) {
+export function createAnnualReading(input, options = {}) {
   if (!input || typeof input !== 'object') throw new Error('annual input must be an object');
   const targetYear = assertSupportedTargetYear(input.targetYear);
   const chartPolicy = normalizeChartPolicy(input.chartPolicy);
@@ -221,7 +282,8 @@ export function createAnnualReading(input) {
   const annualFacts = buildAnnualFacts({ targetYear, pillar, boundary, dayStem, monthBranch, natalBranches: branches, unknownTime: Boolean(natal.unknownTime), chartPolicy });
   const monthly = buildMonthlyFactsAndFlow(targetYear, pillar, { dayStem, branches });
   const facts = [...annualFacts, ...monthly.facts];
-  const evaluated = buildAnnualCards(facts, targetYear);
+  const dbResult = options.readingStore ? buildAnnualCardsFromDB(facts, targetYear, options.readingStore) : null;
+  const evaluated = dbResult || buildAnnualCards(facts, targetYear);
   const unsupportedStates = [
     { id: 'annual.hiddenStems.activation', status: 'unsupported', reason: 'Annual hidden-stem activation and weighting are excluded from v1.' },
     ...(natal.unknownTime ? [{ id: 'annual.natal.hour', status: 'unsupported', reason: 'Natal hour is unknown; time-dependent rules are suppressed.' }] : []),
@@ -253,10 +315,12 @@ export function createAnnualReading(input) {
     },
     facts,
     cards: evaluated.cards,
-    monthlyFlow: monthly.monthlyFlow,
+    monthlyFlow: dbResult ? evaluated._dbMonthly : monthly.monthlyFlow,
     suppressedRules: evaluated.suppressedRules,
     unsupportedStates,
     claimTrace: [...evaluated.claimTrace, ...monthly.claimTrace],
+    ...(dbResult?._dbDomains ? { domains: dbResult._dbDomains } : {}),
+    readingSource: dbResult ? 'pattern-db' : 'rule-engine',
   };
   return { ...result, contentHash: stableHash(result) };
 }

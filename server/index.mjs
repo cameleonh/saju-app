@@ -9,6 +9,7 @@ import { loadRuntimeConfig } from './config.mjs';
 import { createKmsVault } from './crypto/kms-vault.mjs';
 import { createPostgresStorage } from './storage/postgres.mjs';
 import { createSqliteStorage } from './storage/sqlite.mjs';
+import { createReadingStore } from './storage/readings.mjs';
 
 const port = Number(process.env.PORT || 4174);
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -35,7 +36,12 @@ if (config.storageMode === 'postgres') {
   const storagePath = process.env.SAJU_DB_PATH || path.join(projectRoot, 'data', 'saju.sqlite');
   storage = createSqliteStorage(storagePath);
 }
-const server = createIngestionServer({ staticRoot: projectRoot, storage, auth });
+let readingStore = null;
+if (storage?.kind === 'sqlite' && storage.filePath) {
+  const { DatabaseSync } = await import('node:sqlite');
+  readingStore = createReadingStore(new DatabaseSync(storage.filePath));
+}
+const server = createIngestionServer({ staticRoot: projectRoot, storage, auth, readingStore });
 server.listen(port, '127.0.0.1', () => console.log(`saju ingestion adapter listening on http://127.0.0.1:${port} with ${storage?.kind || 'local-only'}`));
 
 async function shutdown() {

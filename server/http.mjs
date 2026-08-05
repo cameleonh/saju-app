@@ -62,7 +62,7 @@ async function serveStatic(root, request, response) {
   } catch { return false; }
 }
 
-export function createIngestionServer({ staticRoot = null, storage = null, auth = null } = {}) {
+export function createIngestionServer({ staticRoot = null, storage = null, auth = null, readingStore = null } = {}) {
   const requestWindows = new Map();
   const rateLimitSalt = crypto.randomBytes(32);
   let lastRateLimitSweep = 0;
@@ -136,7 +136,7 @@ export function createIngestionServer({ staticRoot = null, storage = null, auth 
       }
       if (request.method === 'POST' && pathname === '/v1/annual-readings') {
         const input = await readJson(request);
-        try { return sendJson(response, 200, createAnnualReading(input)); }
+        try { return sendJson(response, 200, createAnnualReading(input, { readingStore })); }
         catch (error) { return sendJson(response, 422, { error: 'annual_reading_rejected', message: error.message }); }
       }
       if (auth?.required === true && request.method === 'GET' && pathname === '/v1/submissions') {
