@@ -4,12 +4,12 @@
 |---|---|
 | Status date | 2026-08-05 |
 | Project root | `D:\\codings\\260801_saju-app` |
-| Current phase | Production natal engine deployed and verified; legal and governed-storage prerequisites remain; test coverage and the asynchronous HTTP storage boundary are hardened |
+| Current phase | Production natal, annual, and daewoon engines deployed and verified; legal and governed-storage prerequisites remain; test coverage and the asynchronous HTTP storage boundary are hardened |
 | Application code | Implemented in `index.html` with PWA shell |
 
 ## Current Objective
 
-Ship the versioned natal calculation baseline, then resolve the remaining legal/data-controller, governed storage, and product-learning prerequisites.
+Maintain the deployed deterministic natal, annual, and daewoon baseline, then resolve the remaining legal/data-controller, governed storage, and product-learning prerequisites.
 
 ## Decisions in Force
 
@@ -104,6 +104,8 @@ Ship the versioned natal calculation baseline, then resolve the remaining legal/
 - A fresh 10,000-run Node microbenchmark of the ordinary natal calculation measured 0.0083ms median, 0.0152ms p95, and 0.8387ms maximum on the verification host; responsive browser QA remained the user-flow evidence rather than treating the microbenchmark as a mobile-device claim.
 - Implementation commit `127c99a` was pushed to PR #2; GitHub Actions `verify` passed and GitHub reported the PR as mergeable. Parallel native standards/spec reviewers failed at the encrypted tool-output transport boundary, so the leader completed the documented fallback review against Issue #1 and the three owner review comments without finding a remaining code blocker.
 - PR #2 was squash-merged to `main` as `ed819a2`; the resulting GitHub Actions `verify` run passed. The Lightsail pull updater built and atomically switched to that release, the Node service and deployment timer stayed active, Apache configuration passed, the internal durable SQLite health response was healthy, and `https://saju.blog/` returned 200 with real application content and no browser console errors.
+- Daewoon hardening commit `edbc734` completed the declared 1900-01-01–2100-12-31 birth-date range with a generated 2101 Xiaohan closing sentinel, reused the natal engine's historical `Asia/Seoul` legal-civil-time conversion, verified self and partner daewoon results against recomputed natal pillars, and converted malformed chart-plus-daewoon input into 422 validation responses instead of server errors. A fresh `npm test` passed 639 assertions plus 48 reviewed solar-term boundary loops, `npm audit --omit=dev` reported zero vulnerabilities, ephemeris regeneration was byte-identical, and a 146,828-case supported-range sweep passed for both directions.
+- GitHub Actions run `30974571440` passed for `edbc734`. Lightsail atomically switched to that release with the Node service and five-minute pull timer active, Apache `Syntax OK`, and durable SQLite health. Production returned 200 for the app, health, service worker v11, and daewoon module while protected package/server paths returned 404. A synthetic deterministic daewoon submission returned 202, tampered and malformed variants returned 422, and the accepted canary record was deleted with 200. Chromium loaded the mobile demo with eight daewoon cycles, one current-cycle marker, zero horizontal overflow at 390px, 1.121s total load time, and no console errors.
 - Fresh Chromium QA created, saved, reopened, and deleted the 2026 annual reading. The IndexedDB object and reopened UI retained the same content hash; next-card navigation moved focus to the active card with a visible gold focus ring; reduced-motion computed a 0.01ms transition; print hid natal/monthly/private content; and no console errors occurred.
 - Live overflow checks returned zero at 320, 390, 768, 1024, and 1440px. Mobile exposed one active card, while tablet/desktop exposed all eight in document order. Detailed evidence is in `devlog/_plan/260804_pr2_annual_reading_completion/030_browser_qa.md`.
 - A freshly restarted local server returned `{"status":"ok","service":"saju-ingestion-adapter","persistence":"sqlite","durable":true}`.
