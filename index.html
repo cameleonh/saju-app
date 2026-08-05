@@ -286,6 +286,14 @@
       .annual-document-view article, .monthly-flow article { padding: 14px; border: 1px solid var(--paper-300); border-radius: 14px; background: rgba(255,255,255,.42); }
       .monthly-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 14px; }
       .monthly-head span { font-size: 12px; color: var(--ink-600); }
+      .annual-domains { margin-top: 16px; border-top: 1px solid var(--paper-300); padding-top: 14px; }
+      .annual-domains summary { cursor: pointer; font-weight: 750; }
+      .reading-domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-top: 14px; }
+      .reading-domain-card { padding: 16px 18px; border: 1px solid var(--paper-300); border-radius: 10px; background: rgba(255,255,255,.42); }
+      .reading-domain-card h4 { font-size: 15px; font-weight: 700; color: var(--vermilion-600, #b55f4b); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--paper-200); }
+      .reading-domain-card ol { padding-left: 18px; }
+      .reading-domain-card li { font-size: 14px; color: var(--ink-800, #4a4350); padding: 2px 0; line-height: 1.65; }
+      .reading-domain-card .domain-closing { margin-top: 8px; font-size: 13px; color: var(--ink-600, #6e6670); font-style: italic; }
       .annual-hash { margin: 16px 0 0; }
       .reading-card { background: transparent; border: 0; border-top: 1px solid var(--paper-200); }
       .reading-card:first-of-type { border-top: 0; }
@@ -412,6 +420,11 @@
       @media print {
         .topbar, .mobile-nav, .site-footer, .result-toolbar, .result-side, .annual-controls, .annual-card-grid, .chat-card, .reading-report, .notice { display: none !important; }
         .result-main > :not(.annual-reading), .monthly-flow, .annual-fact, .annual-hash { display: none !important; }
+        .annual-domains > summary { display: none; }
+        .annual-domains > p { display: none; }
+        .annual-domains { display: block; border: 0; padding: 0; margin-top: 1em; }
+        .reading-domain-grid { display: block; }
+        .reading-domain-card { page-break-inside: avoid; border: 1px solid #ccc; margin-bottom: 1em; }
         body { background: white; color: #111; }
         .container, .section, .result-layout, .result-main { display: block; width: auto; max-width: none; padding: 0; margin: 0; }
         .annual-reading { border: 0; box-shadow: none; padding: 0; }

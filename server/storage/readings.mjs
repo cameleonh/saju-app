@@ -90,6 +90,14 @@ CREATE INDEX IF NOT EXISTS idx_pattern_lookup ON reading_pattern_keys(day_master
 
 import { MU_GI_HAE_SEED } from './seed-mu-gi-hae.mjs';
 
+// 10간 시드 파일들 (에이전트가 작성, 없으면 자동 무시)
+let _extraSeeds = [];
+try { const m = await import('./seeds/gap-eul-seeds.mjs'); if (m.GAP_EUL_SEEDS?.patterns) _extraSeeds.push(...m.GAP_EUL_SEEDS.patterns); } catch {}
+try { const m = await import('./seeds/byeong-jeong-seeds.mjs'); if (m.BYEONG_JEONG_SEEDS?.patterns) _extraSeeds.push(...m.BYEONG_JEONG_SEEDS.patterns); } catch {}
+try { const m = await import('./seeds/mu-gi-seeds.mjs'); if (m.MU_GI_SEEDS?.patterns) _extraSeeds.push(...m.MU_GI_SEEDS.patterns); } catch {}
+try { const m = await import('./seeds/gyeong-sin-seeds.mjs'); if (m.GYEONG_SIN_SEEDS?.patterns) _extraSeeds.push(...m.GYEONG_SIN_SEEDS.patterns); } catch {}
+try { const m = await import('./seeds/im-gye-seeds.mjs'); if (m.IM_GYE_SEEDS?.patterns) _extraSeeds.push(...m.IM_GYE_SEEDS.patterns); } catch {}
+
 export function createReadingStore(db) {
   if (!db) throw new Error('db handle is required for readingStore');
 
@@ -162,15 +170,26 @@ export function createReadingStore(db) {
 }
 
 function loadSeed(stmts) {
-  const { pattern, cards, domains, monthly } = MU_GI_HAE_SEED;
-  stmts.insertPattern.run(pattern.pattern_id, pattern.day_master, pattern.year_stem, pattern.year_branch, pattern.ten_god_stem, pattern.branch_relation, pattern.label);
-  for (const c of cards) {
-    stmts.insertCard.run(c.module_id, c.pattern_id, c.card_type, c.card_index, c.title, c.summary, JSON.stringify(c.keywords), JSON.stringify(c.bullets), c.action, c.watch, JSON.stringify(c.evidence), c.tone, c.review_status);
+  insertSeedPattern(stmts, MU_GI_HAE_SEED);
+  for (const p of _extraSeeds) {
+    insertSeedPattern(stmts, p);
   }
-  for (const d of domains) {
-    stmts.insertDomain.run(d.module_id, d.pattern_id, d.domain_key, d.domain_label, d.domain_index, JSON.stringify(d.points), d.closing || null, d.tone, d.review_status);
+}
+
+function insertSeedPattern(stmts, seed) {
+  const isNested = !seed.pattern_id && seed.pattern;
+  const meta = isNested ? seed.pattern : seed;
+  const cards = isNested ? (seed.cards || []) : (seed.cards || []);
+  const domains = isNested ? (seed.domains || []) : (seed.domains || []);
+  const monthly = isNested ? (seed.monthly || []) : (seed.monthly || []);
+  stmts.insertPattern.run(meta.pattern_id, meta.day_master, meta.year_stem, meta.year_branch, meta.ten_god_stem, meta.branch_relation || 'none', meta.label);
+  for (const c of (cards || [])) {
+    stmts.insertCard.run(c.module_id, c.pattern_id, c.card_type, c.card_index, c.title, c.summary, JSON.stringify(c.keywords || []), JSON.stringify(c.bullets || []), c.action, c.watch, JSON.stringify(c.evidence || []), c.tone || 'natural', c.review_status || 'approved');
   }
-  for (const m of monthly) {
-    stmts.insertMonthly.run(m.slot_id, m.pattern_id, m.lunar_month, m.month_pillar, m.half, m.guidance, m.tone, m.review_status);
+  for (const d of (domains || [])) {
+    stmts.insertDomain.run(d.module_id, d.pattern_id, d.domain_key, d.domain_label, d.domain_index, JSON.stringify(d.points || []), d.closing || null, d.tone || 'natural', d.review_status || 'approved');
+  }
+  for (const m of (monthly || [])) {
+    stmts.insertMonthly.run(m.slot_id, m.pattern_id, m.lunar_month, m.month_pillar, m.half, m.guidance, m.tone || 'natural', m.review_status || 'approved');
   }
 }
