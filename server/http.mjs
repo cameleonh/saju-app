@@ -99,6 +99,9 @@ export function createIngestionServer({ staticRoot = null, storage = null, auth 
         return sendJson(response, 429, { error: 'rate_limited', message: '잠시 후 다시 시도해 주세요.' });
       }
       if (auth?.handle && await auth.handle(request, response)) return;
+      if (!auth?.handle && request.method === 'GET' && pathname === '/v1/me') {
+        return sendJson(response, 200, { authenticated: false, available: false });
+      }
       const submissionResource = /^\/v1\/submissions\/([A-Za-z0-9_-]{1,120})$/.exec(pathname);
       const withdrawalResource = /^\/v1\/submissions\/([A-Za-z0-9_-]{1,120})\/training-withdrawal$/.exec(pathname);
       const mutationRoute = (request.method === 'POST' && (pathname === '/v1/submissions' || pathname === '/v1/calendar/convert' || pathname === '/v1/natal-charts' || pathname === '/v1/annual-readings' || Boolean(withdrawalResource)))

@@ -69,6 +69,10 @@ assert.equal(notJson.status, 400);
 const emptyBody = await fetch(`${url}/v1/submissions`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '' });
 assert.equal(emptyBody.status, 422, 'empty body parses to {} and fails validation');
 
+const localOnlyAccount = await fetch(`${url}/v1/me`);
+assert.equal(localOnlyAccount.status, 200, 'local-only mode exposes a quiet account-capability response');
+assert.deepEqual(await localOnlyAccount.json(), { authenticated: false, available: false });
+
 assert.equal((await fetch(`${url}/v1/submissions/extra-segment/training-withdrawal/extra`)).status, 404);
 
 const storedSubmissionId = submissionBody.submissionId;

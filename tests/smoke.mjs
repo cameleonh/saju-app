@@ -120,6 +120,7 @@ assert.match(html, /purpose-receipt-bound/);
 assert.match(html, /serviceWorker\.register/);
 assert.match(html, /async function loadCloudRecords\(/, 'account history is loaded from the authenticated API');
 assert.match(html, /state\.account\.available \? `<button data-action=/, 'the account control is hidden while the gated account API is unavailable');
+assert.match(html, /available: response\.ok && result\.available !== false/, 'the UI honors the local-only account capability flag');
 assert.match(html, /data-action="account-delete"/, 'the account lifecycle UI exposes deletion');
 assert.match(html, /fetch\('\/v1\/account', \{ method: 'DELETE' \}\)/, 'account deletion uses the authenticated lifecycle endpoint');
 assert.match(html, /aria-live/);

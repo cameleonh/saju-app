@@ -1170,7 +1170,7 @@
           try {
             const response = await fetch('/v1/me', { headers: { accept: 'application/json' } });
             const result = response.ok ? await response.json() : { authenticated: false };
-            state.account = { authenticated: result.authenticated === true, loading: false, available: response.ok };
+            state.account = { authenticated: result.authenticated === true, loading: false, available: response.ok && result.available !== false };
           } catch {
             state.account = { authenticated: false, loading: false, available: false };
           }
