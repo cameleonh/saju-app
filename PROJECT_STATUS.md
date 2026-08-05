@@ -26,7 +26,7 @@ Keep the deterministic natal, annual, and daewoon product available without cent
 
 ## Fresh verification
 
-- `npm test`: 732 assertions passed plus 48 official solar-term boundary loops across the full unit/HTTP/lifecycle suite.
+- `npm test`: 733 assertions passed plus 48 official solar-term boundary loops across the full unit/HTTP/lifecycle suite.
 - Disposable PostgreSQL 16 integration: 42 assertions passed after applying all migrations twice, including keyed identity evidence, nested-birth plaintext exclusion, KMS envelopes, RLS ownership, individual/account deletion, and backup-expiry finalization.
 - `npm audit --omit=dev`: 0 vulnerabilities. Node syntax checks, POSIX shell syntax checks, `git diff --check`, dependency-tree validation, and repository secret-pattern scan passed.
 - Browser QA, Git push, AWS provisioning, and production deployment evidence remain to be completed in the current release operation.

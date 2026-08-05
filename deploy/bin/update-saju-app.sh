@@ -30,6 +30,19 @@ wait_for_health() {
     return 1
 }
 
+install_operator_files() {
+    operator_root="$1"
+    install -m 644 "$operator_root/deploy/systemd/saju-app.service" /etc/systemd/system/saju-app.service
+    install -m 644 "$operator_root/deploy/systemd/saju-app-deletion-finalize.service" /etc/systemd/system/saju-app-deletion-finalize.service
+    install -m 644 "$operator_root/deploy/systemd/saju-app-deletion-finalize.timer" /etc/systemd/system/saju-app-deletion-finalize.timer
+    install -m 644 "$operator_root/deploy/apache/saju.blog.conf" /etc/apache2/sites-available/saju.blog.conf
+    install -m 644 "$operator_root/deploy/apache/saju.blog-le-ssl.conf" /etc/apache2/sites-available/saju.blog-le-ssl.conf
+    install -m 755 "$operator_root/deploy/bin/update-saju-app.sh" /usr/local/sbin/saju-app-update
+    install -m 755 "$operator_root/deploy/bin/configure-managed-data.sh" /usr/local/sbin/saju-app-configure-managed-data
+    apache2ctl configtest
+    systemctl daemon-reload
+}
+
 umask 022
 install -d -o root -g root -m 755 "$STATE_DIR" "$RELEASES_DIR"
 exec 9>"$LOCK_FILE"
@@ -49,6 +62,9 @@ release_root="$RELEASES_DIR/$commit"
 current_root="$(readlink -f "$CURRENT_LINK" 2>/dev/null || true)"
 
 if [ "$current_root" = "$release_root" ]; then
+    install_operator_files "$SOURCE_DIR"
+    systemctl enable --now saju-app-deletion-finalize.timer
+    systemctl reload apache2
     exit 0
 fi
 
@@ -67,13 +83,7 @@ if ! (
         set +a
         node scripts/migrate-postgres.mjs
     fi
-    install -m 644 deploy/systemd/saju-app.service /etc/systemd/system/saju-app.service
-    install -m 644 deploy/systemd/saju-app-deletion-finalize.service /etc/systemd/system/saju-app-deletion-finalize.service
-    install -m 644 deploy/systemd/saju-app-deletion-finalize.timer /etc/systemd/system/saju-app-deletion-finalize.timer
-    install -m 644 deploy/apache/saju.blog.conf /etc/apache2/sites-available/saju.blog.conf
-    install -m 644 deploy/apache/saju.blog-le-ssl.conf /etc/apache2/sites-available/saju.blog-le-ssl.conf
-    apache2ctl configtest
-    systemctl daemon-reload
+    install_operator_files "$release_root"
     systemctl stop saju-app || true
     install -d -o www-data -g www-data -m 750 "$RUNTIME_DIR"
     if [ -f "$STATE_DIR/saju.sqlite" ] && [ ! -e "$RUNTIME_DIR/saju.sqlite" ]; then
@@ -91,8 +101,6 @@ if ! (
     systemctl is-active --quiet saju-app
     wait_for_health
     systemctl reload apache2
-    install -m 755 deploy/bin/update-saju-app.sh /usr/local/sbin/saju-app-update
-    install -m 755 deploy/bin/configure-managed-data.sh /usr/local/sbin/saju-app-configure-managed-data
 ); then
     if [ -n "$previous_root" ] && [ -d "$previous_root" ]; then
         switch_link "$previous_root"

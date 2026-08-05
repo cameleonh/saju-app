@@ -25,6 +25,7 @@ assert.match(service, /Environment=SAJU_STORAGE=local-only/, 'a fresh production
 assert.match(service, /EnvironmentFile=-\/etc\/saju-app-aws\.env/, 'the runtime credential boundary is explicit');
 assert.match(updater, /\. \/etc\/saju-app-migrate\.env[\s\S]*node scripts\/migrate-postgres\.mjs/, 'release updates run locked migrations using the root-only bootstrap environment');
 assert.match(updater, /systemctl enable --now saju-app-deletion-finalize\.timer/, 'backup-expiry evidence is finalized by the deployed daily timer');
+assert.match(updater, /if \[ "\$current_root" = "\$release_root" \]; then[\s\S]*install_operator_files "\$SOURCE_DIR"/, 'operator files are synchronized even after an updater bootstrap reaches the current commit');
 assert.match(deletionFinalizeService, /ConditionPathExists=\/etc\/saju-app-migrate\.env/, 'deletion finalization stays inactive until managed storage is configured');
 assert.match(deletionFinalizeService, /EnvironmentFile=\/etc\/saju-app-migrate\.env/, 'deletion finalization uses the root-only administrative database boundary');
 assert.match(deletionFinalizeTimer, /OnCalendar=daily/, 'deletion evidence finalization runs daily');

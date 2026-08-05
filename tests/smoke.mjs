@@ -91,9 +91,9 @@ assert.match(html, /function warningMarkup\(warnings\)/, 'boundary warnings use 
 assert.match(html, /aria-expanded="\$\{isActive\}"[\s\S]*?isActive \? `<div class="fact-detail">/, 'boundary evidence expands into a visible detail');
 assert.match(apacheSslConfig, /^\s*ProxyPass \/ http:\/\/127\.0\.0\.1:4174\/$/m, 'Apache sends all HTTPS assets through the Node public allowlist');
 assert.match(apacheSslConfig, /^\s*ProxyPassReverse \/ http:\/\/127\.0\.0\.1:4174\/$/m, 'Apache preserves reverse-proxy responses for all HTTPS assets');
-assert.match(deployUpdater, /install -m 644 deploy\/apache\/saju\.blog-le-ssl\.conf \/etc\/apache2\/sites-available\/saju\.blog-le-ssl\.conf/, 'the release updater installs the reviewed HTTPS proxy boundary');
+assert.match(deployUpdater, /install -m 644 "\$operator_root\/deploy\/apache\/saju\.blog-le-ssl\.conf" \/etc\/apache2\/sites-available\/saju\.blog-le-ssl\.conf/, 'the release updater installs the reviewed HTTPS proxy boundary');
 assert.match(deployUpdater, /apache2ctl configtest[\s\S]*systemctl reload apache2/, 'the release updater validates Apache before reloading it');
-assert.match(deployUpdater, /install -m 755 deploy\/bin\/update-saju-app\.sh \/usr\/local\/sbin\/saju-app-update/, 'the deployed updater refreshes itself after a healthy release');
+assert.match(deployUpdater, /install -m 755 "\$operator_root\/deploy\/bin\/update-saju-app\.sh" \/usr\/local\/sbin\/saju-app-update/, 'the deployed updater refreshes itself for normal and bootstrap releases');
 assert.match(deployUpdater, /RUNTIME_DIR="\$STATE_DIR\/runtime"/, 'SQLite runtime state has a dedicated service-writable directory');
 assert.match(deployUpdater, /mv "\$STATE_DIR\/saju\.sqlite" "\$RUNTIME_DIR\/saju\.sqlite"/, 'the updater preserves an existing production SQLite database during migration');
 assert.match(serviceUnit, /Environment=SAJU_STORAGE=local-only/, 'a fresh production release fails closed without central persistence');
