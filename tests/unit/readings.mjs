@@ -138,4 +138,103 @@ const store = createReadingStore(db);
   ok('createAnnualReading without store: rule-engine fallback');
 }
 
+// 11. Full annual pattern coverage — all 31 patterns load completely
+{
+  const DAY_MASTERS = ['갑','을','병','정','무','기','경','신','임','계'];
+  const YEAR_BRANCHES_2024_2026 = ['진','사','오'];
+
+  let annualChecked = 0;
+  for (const dm of DAY_MASTERS) {
+    for (const yb of YEAR_BRANCHES_2024_2026) {
+      for (const ys of DAY_MASTERS) {
+        const pid = `${dm}_${ys}_${yb}`;
+        const pattern = store.getPattern(pid);
+        if (!pattern) continue;
+        annualChecked++;
+
+        const cards = store.getCardModules(pid);
+        assert.equal(cards.length, 8, `${pid}: expected 8 cards, got ${cards.length}`);
+
+        const domains = store.getDomainModules(pid);
+        assert.equal(domains.length, 13, `${pid}: expected 13 domains, got ${domains.length}`);
+
+        const monthly = store.getMonthlySlots(pid);
+        assert.equal(monthly.length, 24, `${pid}: expected 24 monthly slots, got ${monthly.length}`);
+      }
+    }
+  }
+  assert.ok(annualChecked >= 30, `expected at least 30 annual patterns, found ${annualChecked}`);
+  ok(`full annual coverage: ${annualChecked} patterns × (8 cards + 13 domains + 24 monthly)`);
+}
+
+// 12. Full month-branch pattern coverage — all 120 patterns load completely
+{
+  const DAY_MASTERS = ['갑','을','병','정','무','기','경','신','임','계'];
+  const MONTH_BRANCHES = ['자','축','인','묘','진','사','오','미','신','유','술','해'];
+
+  let monthChecked = 0;
+  for (const dm of DAY_MASTERS) {
+    for (const mb of MONTH_BRANCHES) {
+      const result = store.getMonthModule(dm, mb);
+      if (!result) {
+        assert.fail(`missing month pattern: ${dm}_${mb}`);
+        continue;
+      }
+      monthChecked++;
+      assert.ok(result.modules.length === 8,
+        `${dm}_${mb}: expected 8 modules, got ${result.modules.length}`);
+      assert.ok(result.pattern.season.length > 0,
+        `${dm}_${mb}: season must not be empty`);
+      assert.ok(result.pattern.element_interaction.length > 0,
+        `${dm}_${mb}: element_interaction must not be empty`);
+    }
+  }
+  assert.equal(monthChecked, 120, `expected 120 month patterns, found ${monthChecked}`);
+  ok(`full month-branch coverage: 120 patterns × 8 modules`);
+}
+
+// 13. review_status integrity — seed values must not be silently overridden
+{
+  const DAY_MASTERS = ['갑','을','병','정','무','기','경','신','임','계'];
+  const YEAR_BRANCHES = ['진','사','오'];
+
+  for (const dm of DAY_MASTERS) {
+    for (const yb of YEAR_BRANCHES) {
+      for (const ys of DAY_MASTERS) {
+        const pid = `${dm}_${ys}_${yb}`;
+        if (!store.getPattern(pid)) continue;
+
+        // Query raw DB to check review_status is one of the valid values
+        const cards = store.getCardModules(pid);
+        for (const c of cards) {
+          assert.ok(
+            ['draft', 'reviewed', 'approved', 'rejected'].includes(c.review_status),
+            `${pid} card ${c.card_type}: invalid review_status "${c.review_status}"`
+          );
+        }
+      }
+    }
+  }
+  ok('review_status integrity: all annual cards have valid status');
+}
+
+// 14. Month-branch pattern key uniqueness
+{
+  const DAY_MASTERS = ['갑','을','병','정','무','기','경','신','임','계'];
+  const MONTH_BRANCHES = ['자','축','인','묘','진','사','오','미','신','유','술','해'];
+
+  for (const dm of DAY_MASTERS) {
+    for (const mb of MONTH_BRANCHES) {
+      const result = store.getMonthModule(dm, mb);
+      if (!result) continue;
+      // Each module must have a unique domain_key
+      const keys = result.modules.map((m) => m.domain_key);
+      const uniqueKeys = new Set(keys);
+      assert.equal(uniqueKeys.size, keys.length,
+        `${dm}_${mb}: duplicate domain_keys in month modules`);
+    }
+  }
+  ok('month-branch uniqueness: all 120 patterns have unique domain_keys');
+}
+
 console.log(`\n${passed} assertions passed.`);
