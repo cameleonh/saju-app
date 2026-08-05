@@ -1,1184 +1,5039 @@
-// server/storage/seeds/im-gye-seeds.mjs
-// 시드 데이터: 임수·계수 일간 × 갑진·을사·병오년 패턴 (6개)
-// 명리학적 근거: 자평명리의 일간·월령·십신 관계. 한자 최소화, 일상어 paraphrasing.
-// 작성일: 2026-08-05
+// 시드 파일 (2024-2027 패턴 포함)
+// 2027 패턴: enrichment 기반 동적 리딩 (review_status: approved)
 
-export const IM_GYE_SEEDS = Object.freeze({ patterns: [
-
-// ============================================================
-// 패턴 1: 임수 × 갑진년 (2024, 십신: 식신)
-// 갑목(큰 나무) — 임수의 지혜·경험이 온화한 결과물로 결실.
-// 진토(늦봄 습토) — 흩어지는 물을 품어 저장, 뿌리내림.
-// ============================================================
-{
-  pattern: {
-    pattern_id: '임_갑_진', day_master: '임', year_stem: '갑', year_branch: '진',
-    ten_god_stem: '식신', branch_relation: 'damp_earth_stores_water',
-    label: '임수 출생 × 갑진년 — 큰 나무의 결실과 늦봄 흙의 뿌리내림',
-  },
-
-  cards: [
-    { module_id: '임_갑_진_cover', pattern_id: '임_갑_진', card_type: 'cover', card_index: 1,
-      title: '2024년 갑진년, 임수 출생의 연운',
-      summary: '넓고 깊은 바다 같은 임수(壬水)의 흐름 위로 큰 나무가 자라나 한 해의 결실을 빚어냅니다. 흩어지려던 큰 물이 늦봄의 축축한 흙에 머물러 뿌리를 내리니, 자유로운 흐름이 한 단계 안정으로 응어리지는 해입니다.',
-      keywords: ['결과물', '뿌리내림', '안정적 토대'],
-      bullets: [
-        '갑목(큰 나무)은 임수의 넓은 지혜와 경험이 온화하게 결과물로 피어나는 힘입니다 — 가르침, 양육, 표현이 자연스럽게 솟아오릅니다',
-        '진토(축축한 흙)는 흩어지려는 물을 품고 저장하는 자리입니다 — 이동과 확산보다 머무름과 저축이 자리를 잡습니다',
-        '임수 출생에게 2024년은 "표현하고, 결과 내고, 정착의 토대를 다지는" 한 해입니다',
+export const IM_GYE_SEEDS = {
+  "patterns": [
+    {
+      "pattern": {
+        "pattern_id": "임_갑_진",
+        "day_master": "임",
+        "year_stem": "갑",
+        "year_branch": "진",
+        "ten_god_stem": "식신",
+        "branch_relation": "damp_earth_stores_water",
+        "label": "임수 출생 × 갑진년 — 큰 나무의 결실과 늦봄 흙의 뿌리내림"
+      },
+      "cards": [
+        {
+          "module_id": "임_갑_진_cover",
+          "pattern_id": "임_갑_진",
+          "card_type": "cover",
+          "card_index": 1,
+          "title": "2024년 갑진년, 임수 출생의 연운",
+          "summary": "넓고 깊은 바다 같은 임수(壬水)의 흐름 위로 큰 나무가 자라나 한 해의 결실을 빚어냅니다. 흩어지려던 큰 물이 늦봄의 축축한 흙에 머물러 뿌리를 내리니, 자유로운 흐름이 한 단계 안정으로 응어리지는 해입니다.",
+          "keywords": [
+            "결과물",
+            "뿌리내림",
+            "안정적 토대"
+          ],
+          "bullets": [
+            "갑목(큰 나무)은 임수의 넓은 지혜와 경험이 온화하게 결과물로 피어나는 힘입니다 — 가르침, 양육, 표현이 자연스럽게 솟아오릅니다",
+            "진토(축축한 흙)는 흩어지려는 물을 품고 저장하는 자리입니다 — 이동과 확산보다 머무름과 저축이 자리를 잡습니다",
+            "임수 출생에게 2024년은 \"표현하고, 결과 내고, 정착의 토대를 다지는\" 한 해입니다"
+          ],
+          "action": "올해는 임수 특유의 넓은 시야를 한 가지 결과물로 응집시키는 때입니다. 가르치고, 만들고, 드러내는 일에 에너지를 쏟으세요. 자유롭게 떠돌던 물이 한 곳에 고여 열매를 맺는 형국입니다.",
+          "watch": "임수는 본래 흐르고 퍼지는 성향이라 정착이 쉽지 않습니다. 올해의 안정이 지루하게 느껴져 다시 흩어지려는 유혹이 올 수 있습니다. 한 번 시작한 일은 끝맺는 것이 올해의 숙제입니다.",
+          "evidence": [
+            "annual.year.pillar",
+            "annual.stem.tenGodToDayMaster",
+            "annual.boundary.ipchun"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_overall",
+          "pattern_id": "임_갑_진",
+          "card_type": "overall",
+          "card_index": 2,
+          "title": "마음가짐과 전체 흐름",
+          "summary": "임수의 넓은 흐름이 한 곳에 머물러 결실을 맺는 해. \"표현으로 결과 내기\"와 \"한 자리에 뿌리내리기\"가 올해의 두 기둥입니다.",
+          "keywords": [
+            "표현",
+            "결실",
+            "정착"
+          ],
+          "bullets": [
+            "첫째, \"표현으로 결과 내기\" — 임수의 큰 지혜와 경험이 가르침·창작·제안으로 밖으로 흘러나옵니다",
+            "둘째, \"한 자리에 뿌리내리기\" — 흩어지려는 물이 축축한 흙에 닿아 머무르고 쌓입니다",
+            "셋째, \"끝까지 가기\" — 임수는 시작은 잘하되 마무리가 약합니다. 올해는 마무리가 곧 결실입니다"
+          ],
+          "action": "올해의 에너지는 흩어지는 데 쓰면 사라지고, 모으는 데 쓰면 자랍니다. 한두 가지 일에 깊이 집중하고, 그것을 끝까지 끌고 가세요.",
+          "watch": "물이 흙에 고이면 답답함도 생깁니다. 자유를 잃었다는 느낌이 들 수 있으나, 그 답답함이야말로 결실의 조건입니다. 포기하지 마세요.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_work",
+          "pattern_id": "임_갑_진",
+          "card_type": "work",
+          "card_index": 3,
+          "title": "일과 사회활동",
+          "summary": "지혜와 경험이 드러나며 인정받는 흐름. 가르치고, 기획하고, 결과물을 내는 일에 유리한 시기입니다.",
+          "keywords": [
+            "성과",
+            "가르침",
+            "인정"
+          ],
+          "bullets": [
+            "지금 하시는 일이 있다면, 임수의 박식함과 통찰이 밖으로 드러나며 주변에서 인정을 받는 흐름입니다",
+            "교육, 기획, 집필, 컨설팅, 콘텐츠처럼 \"자기 것을 세상에 내놓는\" 일에 특히 유리합니다",
+            "다만 결과물이 나온 뒤에도 마무리와 뒷정리를 게을리하지 마세요 — 임수는 시작에 강하되 끝이 약합니다"
+          ],
+          "action": "올해는 자기 지식과 경험을 한 가지 결과물로 정리해 보세요. 강의, 글, 프로젝트 무엇이든 좋습니다. 내보이는 것이 곧 성장입니다.",
+          "watch": "여러 갈래로 퍼지는 임수의 성향 때문에 일이 분산되기 쉽습니다. 한 번에 한 가지에 집중하고, 나머지는 미루더라도 지금 하는 것을 끝내세요.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_money",
+          "pattern_id": "임_갑_진",
+          "card_type": "money",
+          "card_index": 4,
+          "title": "돈과 현금 흐름",
+          "summary": "흩어지던 돈이 한 곳에 모이는 흐름. 저축과 자산 형성에 유리한 시기입니다.",
+          "keywords": [
+            "저축",
+            "자산 형성",
+            "계획 소비"
+          ],
+          "bullets": [
+            "축축한 흙이 물을 품듯, 나가던 돈이 머무는 자리가 생깁니다 — 저축과 자산 형성에 좋은 시기입니다",
+            "결과물과 성과가 가시화되면서 들어오는 돈의 흐름이 안정됩니다",
+            "다만 임수의 큰 물은 쓸 곳이 많아지기도 합니다 — 계획 없이 흘려 보내면 다시 흩어집니다"
+          ],
+          "action": "올해는 모으는 해입니다. 일정 금액을 정해 꾸준히 저축하고, 큰 지출은 계획해서 결정하세요. 흙이 물을 저장하듯 돈을 담아 두는 그릇을 만드세요.",
+          "watch": "가르치고 베푸는 일이 많아지면 \"공짜로\" 에너지와 시간을 쓰게 될 수 있습니다. 적정한 보상을 요구하는 것도 올해의 과제입니다.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.policy"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_relationships",
+          "pattern_id": "임_갑_진",
+          "card_type": "relationships",
+          "card_index": 5,
+          "title": "인간관계와 애정운",
+          "summary": "가르치고 배우는 관계, 그리고 깊이 있는 인연이 자리 잡는 흐름. 편안한 표현이 사람을 끌어당깁니다.",
+          "keywords": [
+            "스승·제자",
+            "깊은 인연",
+            "편안한 표현"
+          ],
+          "bullets": [
+            "지식과 경험을 나누는 자리에서 좋은 인연이 생깁니다 — 배우려는 사람, 가르치려는 사람과의 만남이 유리합니다",
+            "이미 있는 인연이라면, 서로의 속마음을 편안하게 꺼내놓는 대화가 관계를 깊게 만듭니다",
+            "애정운: 무거운 책임감보다는 편안하고 넓은 마음으로 다가가는 사람에게 인연이 열립니다"
+          ],
+          "action": "올해는 \"나누는 관계\"가 사람을 부릅니다. 가르치거나 배우는 자리에 나가 보세요. 애정운은 부담 없이 대화가 통하는 사람에게서 자랍니다.",
+          "watch": "임수의 넓은 마음이 지나치면 경계가 흐려집니다. 모두에게 좋은 사람이 되려다 정작 소중한 사람을 놓칠 수 있습니다. 우선순위를 정하세요.",
+          "evidence": [
+            "annual.branch.relationsToNatal",
+            "annual.monthCommand.context"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_growth",
+          "pattern_id": "임_갑_진",
+          "card_type": "growth",
+          "card_index": 6,
+          "title": "건강과 일상 리듬",
+          "summary": "큰 물이 흙에 머물면 잔잔해지듯, 마음과 몸이 한 자리에 안착하는 시기입니다.",
+          "keywords": [
+            "안정",
+            "규칙적 리듬",
+            "집중력"
+          ],
+          "bullets": [
+            "큰 사고나 질병은 큰 우려가 없으되, 임수 특유의 산만함과 정착 부담이 스트레스가 될 수 있습니다",
+            "물이 흙에 닿아 고이듯, 규칙적인 일상 리듬이 마음의 안정을 가져옵니다",
+            "한 가지에 깊이 몰입하는 연습이 올해의 건강과 성장을 함께 만듭니다"
+          ],
+          "action": "하루에 한 시간이라도 \"한 가지에만 집중하는 시간\"을 만드세요. 명상, 독서, 집필 무엇이든 좋습니다. 흩어진 에너지를 모으는 연습이 올해의 핵심입니다.",
+          "watch": "정착의 부담을 느껴 다시 도피하려는 충동이 올 수 있습니다. 그것은 성장의 신호이니 도망치지 말고 머물러 보세요.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.monthCommand.context"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_action",
+          "pattern_id": "임_갑_진",
+          "card_type": "action",
+          "card_index": 7,
+          "title": "올해 꼭 해야 할 일",
+          "summary": "세 가지가 2024년을 알차게 만듭니다.",
+          "keywords": [
+            "결과물",
+            "저축",
+            "한 가지 집중"
+          ],
+          "bullets": [
+            "지식과 경험을 한 가지 결과물로 정리해 내놓으세요 — 강의, 글, 프로젝트 무엇이든 좋습니다",
+            "일정 금액을 정해 꾸준히 저축하세요 — 흩어지는 물을 모으는 그릇을 만드세요",
+            "한 가지 일을 끝까지 마무리하세요 — 시작이 아니라 끝맺음이 올해의 열매입니다"
+          ],
+          "action": "이렇게 하시면 2024년은 임수의 넓은 흐름이 단단한 결실로 바뀌는 한 해가 됩니다. 자유를 잃는 것이 아니라, 자유가 한 곳에 응집해 힘을 얻는 때입니다.",
+          "watch": "피할 것: 산만한 분산, 시작만 하고 미루기, 지나친 베풂. 가까운 것: 배우고 가르치는 자리, 편안한 대화, 푸른색과 남색, 서늘한 공간.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal",
+            "annual.policy"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_method",
+          "pattern_id": "임_갑_진",
+          "card_type": "method",
+          "card_index": 8,
+          "title": "계산 방법과 한계",
+          "summary": "갑진년의 두 글자를 하나씩 풀어 설명합니다.",
+          "keywords": [
+            "갑목 분석",
+            "진토 분석",
+            "근거"
+          ],
+          "bullets": [
+            "갑(甲): 임수의 넓은 지혜와 경험이 온화하게 결과물로 피어나는 힘 — 가르침, 표현, 창작에 유리. 단, 물이 나무를 키우며 에너지가 쓰이니 과로 주의",
+            "진(辰): 물을 품고 저장하는 축축한 흙 — 흩어지는 임수가 머물러 뿌리내리는 자리. 저축, 안정, 정착에 유리. 단, 물이 흙에 갇혀 답답함도 생김",
+            "해석 기준: 자평명리의 일간·월령·십신 관계. 격국·용신·조후는 이 버전에서 다루지 않습니다"
+          ],
+          "action": "각 항목의 근거를 확인하며 읽어보세요.",
+          "watch": "사주는 관계, 건강, 재산, 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산된 사실과 실제 삶을 돌아볼 질문을 이어주는 참고 자료로 활용하세요.",
+          "evidence": [
+            "annual.policy",
+            "annual.boundary.ipchun"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '올해는 임수 특유의 넓은 시야를 한 가지 결과물로 응집시키는 때입니다. 가르치고, 만들고, 드러내는 일에 에너지를 쏟으세요. 자유롭게 떠돌던 물이 한 곳에 고여 열매를 맺는 형국입니다.',
-      watch: '임수는 본래 흐르고 퍼지는 성향이라 정착이 쉽지 않습니다. 올해의 안정이 지루하게 느껴져 다시 흩어지려는 유혹이 올 수 있습니다. 한 번 시작한 일은 끝맺는 것이 올해의 숙제입니다.',
-      evidence: ['annual.year.pillar', 'annual.stem.tenGodToDayMaster', 'annual.boundary.ipchun'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_갑_진_overall', pattern_id: '임_갑_진', card_type: 'overall', card_index: 2,
-      title: '마음가짐과 전체 흐름',
-      summary: '임수의 넓은 흐름이 한 곳에 머물러 결실을 맺는 해. "표현으로 결과 내기"와 "한 자리에 뿌리내리기"가 올해의 두 기둥입니다.',
-      keywords: ['표현', '결실', '정착'],
-      bullets: [
-        '첫째, "표현으로 결과 내기" — 임수의 큰 지혜와 경험이 가르침·창작·제안으로 밖으로 흘러나옵니다',
-        '둘째, "한 자리에 뿌리내리기" — 흩어지려는 물이 축축한 흙에 닿아 머무르고 쌓입니다',
-        '셋째, "끝까지 가기" — 임수는 시작은 잘하되 마무리가 약합니다. 올해는 마무리가 곧 결실입니다',
+      "domains": [
+        {
+          "module_id": "임_갑_진_mindset",
+          "pattern_id": "임_갑_진",
+          "domain_key": "mindset",
+          "domain_label": "마음가짐",
+          "domain_index": 1,
+          "points": [
+            "표현으로 결과 내기 — 임수의 큰 지혜와 경험이 가르침, 창작, 제안으로 밖으로 흘러나옵니다",
+            "한 자리에 뿌리내리기 — 흩어지려는 물이 축축한 흙에 닿아 머무르고 쌓입니다. 정착의 부담을 견디세요",
+            "끝까지 가기 — 임수는 시작은 잘하되 마무리가 약합니다. 올해는 마무리가 곧 결실입니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_rel",
+          "pattern_id": "임_갑_진",
+          "domain_key": "relationships",
+          "domain_label": "인간관계",
+          "domain_index": 2,
+          "points": [
+            "지식과 경험을 나누는 자리에서 좋은 인연이 생깁니다",
+            "배우려는 사람, 가르치려는 사람과의 만남이 유리합니다",
+            "모두에게 좋은 사람이 되려다 정작 소중한 사람을 놓치지 마세요",
+            "대화가 편안히 통하는 사람에게 인연이 깊어집니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_health",
+          "pattern_id": "임_갑_진",
+          "domain_key": "health",
+          "domain_label": "건강",
+          "domain_index": 3,
+          "points": [
+            "큰 사고나 질병은 큰 우려가 없으되, 정착의 부담이 스트레스가 될 수 있습니다",
+            "규칙적인 일상 리듬이 마음의 안정을 가져옵니다",
+            "물을 자주 마시고, 신장과 비뇨기 건강을 살피세요",
+            "한 가지에 몰입하는 시간을 만드세요 — 명상, 독서, 집필이 좋습니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_career",
+          "pattern_id": "임_갑_진",
+          "domain_key": "career",
+          "domain_label": "학업 · 직업 · 사회활동",
+          "domain_index": 4,
+          "points": [
+            "지식과 경험이 밖으로 드러나며 인정받는 흐름입니다",
+            "교육, 기획, 집필, 컨설팅, 콘텐츠 등 자기 것을 내놓는 일에 유리합니다",
+            "결과물이 나온 뒤 마무리와 뒷정리를 게을리하지 마세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_family",
+          "pattern_id": "임_갑_진",
+          "domain_key": "family",
+          "domain_label": "가족",
+          "domain_index": 5,
+          "points": [
+            "가족과 지식을 나누고 함께 배우는 시간이 관계를 좋게 만듭니다",
+            "정착의 기운이 강하니 집안을 정비하고 뿌리를 내리는 일에 신경 쓰세요",
+            "가족에게 너무 많이 베풀지 말고, 적정한 선을 정하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_romance",
+          "pattern_id": "임_갑_진",
+          "domain_key": "romance",
+          "domain_label": "애정운",
+          "domain_index": 6,
+          "points": [
+            "편안하게 대화가 통하는 사람에게 인연이 열립니다",
+            "무거운 책임감보다는 넓고 여유로운 마음으로 다가가세요",
+            "지식을 나누는 자리, 배움의 자리에서 좋은 만남이 있습니다",
+            "너무 많은 사람에게 친절을 베풀면 애정운이 흩어집니다 — 한 사람에게 집중하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_wealth",
+          "pattern_id": "임_갑_진",
+          "domain_key": "wealth",
+          "domain_label": "재물",
+          "domain_index": 7,
+          "points": [
+            "나가던 돈이 머무는 자리가 생깁니다 — 저축과 자산 형성에 좋습니다",
+            "결과물과 성과가 가시화되면서 수입 흐름이 안정됩니다",
+            "계획 없이 흘려 보내면 다시 흩어지니, 지출을 적으세요",
+            "가르치는 일에 공짜로 시간을 쓰지 말고 적정한 보상을 요구하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_fashion",
+          "pattern_id": "임_갑_진",
+          "domain_key": "fashion",
+          "domain_label": "패션",
+          "domain_index": 8,
+          "points": [
+            "단정하되 너무 꽉 막히지 않은, 흐르는 듯한 실루엣이 좋습니다",
+            "푸른색과 남색이 임수의 기운을 돕습니다",
+            "액세서리는 심플하게, 자연 소재가 유리합니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_season",
+          "pattern_id": "임_갑_진",
+          "domain_key": "season",
+          "domain_label": "날씨와 계절",
+          "domain_index": 9,
+          "points": [
+            "봄: 표현과 창작의 에너지가 가장 강합니다. 결과물을 내기 좋은 계절입니다",
+            "여름: 물이 더위에 지치기 쉬우니 휴식과 수분 보충이 필요합니다",
+            "가을: 수확의 계절 — 올해의 노력이 결실로 나타납니다",
+            "겨울: 임수가 편안해지는 계절 — 충전과 정비의 시간입니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_pur",
+          "pattern_id": "임_갑_진",
+          "domain_key": "purchases",
+          "domain_label": "물품 구입",
+          "domain_index": 10,
+          "points": [
+            "저축과 자산 형성에 유리하니 큰 지출은 신중하게 계획하세요",
+            "배움과 성장에 쓰는 돈은 올해 가장 가치 있는 투자입니다",
+            "한 번 살 때 충분히 고민하고, 흩어지는 잡비를 줄이세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_avoid",
+          "pattern_id": "임_갑_진",
+          "domain_key": "avoid",
+          "domain_label": "피해야 할 기운",
+          "domain_index": 11,
+          "points": [
+            "산만한 분산 — 여러 일을 동시에 시작하고 아무것도 끝내지 못하는 것",
+            "시작만 하고 미루기 — 임수의 고질적 약점, 올해는 끝맺음이 숙제입니다",
+            "지나친 베풂 — 에너지와 시간이 새어나갑니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_fav",
+          "pattern_id": "임_갑_진",
+          "domain_key": "favorable",
+          "domain_label": "이로운 기운",
+          "domain_index": 12,
+          "points": [
+            "배우고 가르치는 자리가 전체적으로 이롭습니다",
+            "푸른색, 남색, 서늘하고 조용한 공간이 유리합니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_갑_진_must",
+          "pattern_id": "임_갑_진",
+          "domain_key": "must_do",
+          "domain_label": "꼭 해야 할 일",
+          "domain_index": 13,
+          "points": [
+            "지식과 경험을 한 가지 결과물로 정리해 내놓으세요",
+            "일정 금액을 정해 꾸준히 저축하세요",
+            "한 가지 일을 끝까지 마무리하세요"
+          ],
+          "closing": "이렇게 하시면 2024년은 임수의 넓은 흐름이 단단한 결실로 바뀌는 한 해가 됩니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '올해의 에너지는 흩어지는 데 쓰면 사라지고, 모으는 데 쓰면 자랍니다. 한두 가지 일에 깊이 집중하고, 그것을 끝까지 끌고 가세요.',
-      watch: '물이 흙에 고이면 답답함도 생깁니다. 자유를 잃었다는 느낌이 들 수 있으나, 그 답답함이야말로 결실의 조건입니다. 포기하지 마세요.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_갑_진_work', pattern_id: '임_갑_진', card_type: 'work', card_index: 3,
-      title: '일과 사회활동',
-      summary: '지혜와 경험이 드러나며 인정받는 흐름. 가르치고, 기획하고, 결과물을 내는 일에 유리한 시기입니다.',
-      keywords: ['성과', '가르침', '인정'],
-      bullets: [
-        '지금 하시는 일이 있다면, 임수의 박식함과 통찰이 밖으로 드러나며 주변에서 인정을 받는 흐름입니다',
-        '교육, 기획, 집필, 컨설팅, 콘텐츠처럼 "자기 것을 세상에 내놓는" 일에 특히 유리합니다',
-        '다만 결과물이 나온 뒤에도 마무리와 뒷정리를 게을리하지 마세요 — 임수는 시작에 강하되 끝이 약합니다',
+      "monthly": [
+        {
+          "slot_id": "임_갑_진_m1f",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 1,
+          "month_pillar": "병인월",
+          "half": "first",
+          "guidance": "새해 인연이 피어나는 시기입니다. 첫인상보다 몇 번 더 만나보고 판단하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m1s",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 1,
+          "month_pillar": "병인월",
+          "half": "second",
+          "guidance": "충동적으로 시작하기 쉬우니 한 발 물러서서 계획부터 세우세요. 서두르면 흩어집니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m2f",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 2,
+          "month_pillar": "정묘월",
+          "half": "first",
+          "guidance": "표현과 창작의 기운이 강합니다. 무언가를 만들어 보세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m2s",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 2,
+          "month_pillar": "정묘월",
+          "half": "second",
+          "guidance": "말이 많아지기 쉬우니 한마디 한마디를 아끼세요. 침묵이 힘을 모읍니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m3f",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 3,
+          "month_pillar": "무진월",
+          "half": "first",
+          "guidance": "정착과 뿌리내림이 강한 달입니다. 계약과 문서운이 유리합니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m3s",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 3,
+          "month_pillar": "무진월",
+          "half": "second",
+          "guidance": "물이 흙에 답답하게 갇힐 수 있습니다. 답답함을 참고 마무리에 집중하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m4f",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 4,
+          "month_pillar": "기사월",
+          "half": "first",
+          "guidance": "더위와 유혹이 함께 옵니다. 충동적 소비를 경계하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m4s",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 4,
+          "month_pillar": "기사월",
+          "half": "second",
+          "guidance": "결과물을 밖으로 드러내기 좋은 시기입니다. 망설이지 말고 내보이세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m5f",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 5,
+          "month_pillar": "경오월",
+          "half": "first",
+          "guidance": "한여름 더위에 임수의 물이 지치기 쉽습니다. 휴식과 수분 보충이 필요합니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m5s",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 5,
+          "month_pillar": "경오월",
+          "half": "second",
+          "guidance": "규칙과 압박이 느껴지나 그것이 곧 안정입니다. 묵묵히 견디세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m6f",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 6,
+          "month_pillar": "신미월",
+          "half": "first",
+          "guidance": "쇠의 기운이 임수를 보충합니다. 충전의 시간을 가지세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m6s",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 6,
+          "month_pillar": "신미월",
+          "half": "second",
+          "guidance": "낯선 자리보다 편안한 사람들과 시간을 보내세요. 에너지가 모입니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m7f",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 7,
+          "month_pillar": "임신월",
+          "half": "first",
+          "guidance": "임수와 같은 물이 흘러들어 힘이 붙는 달입니다. 자신감이 자라는 시기입니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m7s",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 7,
+          "month_pillar": "임신월",
+          "half": "second",
+          "guidance": "같은 물이 겹치면 흩어질 수 있습니다. 과신하지 말고 중심을 잡으세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m8f",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 8,
+          "month_pillar": "계유월",
+          "half": "first",
+          "guidance": "작은 물이 합류해 잔잔해집니다. 세밀한 마무리에 집중하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m8s",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 8,
+          "month_pillar": "계유월",
+          "half": "second",
+          "guidance": "결실을 점검하고 정리하는 시기입니다. 남은 일을 끝내세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m9f",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 9,
+          "month_pillar": "갑술월",
+          "half": "first",
+          "guidance": "다시 나무가 자라며 새 결과물이 피어납니다. 마무리한 것을 다듬으세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m9s",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 9,
+          "month_pillar": "갑술월",
+          "half": "second",
+          "guidance": "작은 실수와 오해는 웃어넘기세요. 넓은 마음이 사람을 삽니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m10f",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 10,
+          "month_pillar": "을해월",
+          "half": "first",
+          "guidance": "물과 나무가 어우러져 편안한 달입니다. 일의 속도를 조절하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m10s",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 10,
+          "month_pillar": "을해월",
+          "half": "second",
+          "guidance": "겨울로 접어들며 임수가 편안해집니다. 올해의 결실을 돌아보세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m11f",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 11,
+          "month_pillar": "병자월",
+          "half": "first",
+          "guidance": "한겨울 물이 왕성해집니다. 임수가 가장 힘을 얻는 달입니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m11s",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 11,
+          "month_pillar": "병자월",
+          "half": "second",
+          "guidance": "너무 강해진 물이 범람할 수 있으니 한발 물러서 관조하세요. 충분한 휴식이 필요합니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m12f",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 12,
+          "month_pillar": "정축월",
+          "half": "first",
+          "guidance": "올해의 결실을 점검하며 내년을 준비하세요. 자산을 정리하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_갑_진_m12s",
+          "pattern_id": "임_갑_진",
+          "lunar_month": 12,
+          "month_pillar": "정축월",
+          "half": "second",
+          "guidance": "넓은 마음으로 한 해를 마무리하세요. 미룬 일은 지금 끝내야 합니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        }
+      ]
+    },
+    {
+      "pattern": {
+        "pattern_id": "임_을_사",
+        "day_master": "임",
+        "year_stem": "을",
+        "year_branch": "사",
+        "ten_god_stem": "상관",
+        "branch_relation": "water_meets_fire",
+        "label": "임수 출생 × 을사년 — 덩굴처럼 뻗는 제안과 초여름 불의 기회"
+      },
+      "cards": [
+        {
+          "module_id": "임_을_사_cover",
+          "pattern_id": "임_을_사",
+          "card_type": "cover",
+          "card_index": 1,
+          "title": "2025년 을사년, 임수 출생의 연운",
+          "summary": "자유롭게 흐르던 임수가 덩굴처럼 유연하게 뻗어나가며, 답답했던 것들을 날카롭게 짚어내고 바꾸어 놓는 한 해입니다. 그 개선의 말이 초여름의 불을 만나 뜻밖의 기회로 이어지니, \"말이 곧 기회를 부르는\" 시기입니다.",
+          "keywords": [
+            "제안·개선",
+            "말이 기회를 부름",
+            "융통성"
+          ],
+          "bullets": [
+            "을목(덩굴)은 임수의 흐름이 유연하게 감고 뻗으며 기존의 답답함을 짚어내는 힘입니다 — 제안, 비판, 개선이 자연스럽게 솟습니다",
+            "사화(초여름 불)는 임수가 만나는 재물의 자리 — 제안과 통찰이 구체적 기회와 수입으로 이어집니다",
+            "임수 출생에게 2025년은 \"불편함을 말로 바꾸고, 그 말이 기회를 부르는\" 한 해입니다"
+          ],
+          "action": "올해는 임수의 넓은 시야로 답답한 것을 짚어내고, 그것을 부드럽되 날카롭게 제안으로 풀어내는 때입니다. 침묵보다 말이, 말보다 제안이 힘을 얻는 해입니다.",
+          "watch": "제안이 날카로우면 윗사람이나 규칙과 부딪히기 쉽습니다. \"맞는 말\"도 때와 방식을 가려야 힘을 얻습니다. 물과 불이 만나 증기가 되듯 감정이 출렁일 수 있으니 한 박자 쉬어 가세요.",
+          "evidence": [
+            "annual.year.pillar",
+            "annual.stem.tenGodToDayMaster",
+            "annual.boundary.ipchun"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_overall",
+          "pattern_id": "임_을_사",
+          "card_type": "overall",
+          "card_index": 2,
+          "title": "마음가짐과 전체 흐름",
+          "summary": "임수의 자유로운 흐름이 유연하게 뻗으며 답답함을 개선하는 해. \"거침없는 제안\"과 \"말의 온도 조절\"이 올해의 두 기둥입니다.",
+          "keywords": [
+            "제안",
+            "융통성",
+            "말의 온도"
+          ],
+          "bullets": [
+            "첫째, \"거침없는 제안\" — 임수의 통찰이 답답함을 짚어내고 더 나은 방법을 제시합니다",
+            "둘째, \"융통성\" — 덩굴처럼 굽히고 감으며 가는 유연함이 막힘을 뚫습니다",
+            "셋째, \"말의 온도 조절\" — 날카로운 말도 부드럽게 전하면 기회가 되고, 거칠게 전하면 상처가 됩니다"
+          ],
+          "action": "올해의 힘은 \"어떻게 말하느냐\"에 달려 있습니다. 통찰은 같아도, 전하는 방식에 따라 기회가 되기도 적이 되기도 합니다. 한 박자 늦추고 부드럽게 전하세요.",
+          "watch": "물과 불이 만나 증기가 피어오르듯, 감정과 에너지가 출렁입니다. 흥분한 상태에서 내뱉은 말은 뒤로 되돌리기 어렵습니다. 말은 천천히, 행동은 신중하게.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_work",
+          "pattern_id": "임_을_사",
+          "card_type": "work",
+          "card_index": 3,
+          "title": "일과 사회활동",
+          "summary": "개선과 혁신의 제안이 힘을 발하는 시기. 기획, 컨설팅, 기술, 창작 일에 유리합니다.",
+          "keywords": [
+            "혁신",
+            "제안",
+            "기획·컨설팅"
+          ],
+          "bullets": [
+            "답답한 절차나 묵은 관행을 짚어내고 더 나은 방법을 제안하는 일에서 두각을 나타냅니다",
+            "기획, 컨설팅, 기술, 디자인, 콘텐츠처럼 \"불편함을 개선하는\" 일에 특히 유리합니다",
+            "다만 제안이 윗사람의 체면을 건드리지 않도록, \"맞는 말\"도 부드럽게 포장하세요"
+          ],
+          "action": "올해는 임수의 통찰을 제안으로 세상에 내놓는 때입니다. 회의 자리, 기획서, 글 어디든 좋습니다. 단, 제안이 곧 비판이 되지 않도록 \"더 나은 방법\"을 강조하세요.",
+          "watch": "혁신적인 제안일수록 기존을 지키는 사람과 부딪힙니다. 싸워서 이기려 하지 말고, 설득과 성과로 보여주세요. 한 번에 안 되면 덩굴처럼 여러 번 감아서 가세요.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_money",
+          "pattern_id": "임_을_사",
+          "card_type": "money",
+          "card_index": 4,
+          "title": "돈과 현금 흐름",
+          "summary": "제안과 통찰이 실제 수입으로 연결되는 시기. 말과 아이디어가 돈이 되는 해입니다.",
+          "keywords": [
+            "제안이 수입으로",
+            "기회성 수입",
+            "감정적 소비 경계"
+          ],
+          "bullets": [
+            "상관이 재를 돕는 흐름 — 제안, 컨설팅, 기획, 강연 등에서 기회성 수입이 열릴 수 있습니다",
+            "아이디어와 말이 곧 돈이 되는 시기이니, 자신의 통찰을 함부로 넘기지 마세요",
+            "다만 물과 불의 긴장으로 감정이 출렁이면 충동적 소비가 유혹으로 다가옵니다"
+          ],
+          "action": "올해는 \"말과 아이디어의 값어치\"를 매기는 해입니다. 공짜로 통찰을 내주지 말고, 적정한 보상을 협상하세요. 기회가 오면 임수 특유의 결단력으로 잡으세요.",
+          "watch": "기회성 수입이 들쑥날쑥할 수 있습니다. 들어올 때 모아 두고, 감정적으로 큰돈을 쓰는 순간을 피하세요. 흥분한 상태의 결정은 뒤탈립니다.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.policy"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_relationships",
+          "pattern_id": "임_을_사",
+          "card_type": "relationships",
+          "card_index": 5,
+          "title": "인간관계와 애정운",
+          "summary": "말이 오가는 자리에서 인연이 피어나는 해. 대화가 통하는 사람에게 끌립니다.",
+          "keywords": [
+            "대화가 통하는 인연",
+            "지적 끌림",
+            "말조심"
+          ],
+          "bullets": [
+            "의견을 나누고 토론하는 자리에서 좋은 인연이 생깁니다 — 말이 통하는 사람에게 끌립니다",
+            "다만 임수의 거침없는 말이 상대의 자존심을 건드릴 수 있습니다 — 맞는 말도 부드럽게",
+            "애정운: 지적인 대화와 유머가 오가는 자리에서 인연이 열립니다. 가벼운 농담은 좋되 날카로운 놀림은 피하세요"
+          ],
+          "action": "올해는 \"대화의 질\"이 관계를 결정합니다. 깊이 있는 대화를 나눌 수 있는 사람에게 시간을 쏟으세요. 애정운은 말이 통하는 사람에게서 자랍니다.",
+          "watch": "임수의 넓은 말발이 상대를 압도할 수 있습니다. 대화는 혼자 떠는 것이 아니라 함께 짓는 것임을 기억하세요. 듣는 귀를 무겁게 하세요.",
+          "evidence": [
+            "annual.branch.relationsToNatal",
+            "annual.monthCommand.context"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_growth",
+          "pattern_id": "임_을_사",
+          "card_type": "growth",
+          "card_index": 6,
+          "title": "건강과 일상 리듬",
+          "summary": "물과 불이 만나 증기가 피어오르듯, 에너지가 역동적으로 소모되는 시기입니다.",
+          "keywords": [
+            "감정 조절",
+            "수분 보충",
+            "휴식 리듬"
+          ],
+          "bullets": [
+            "큰 사고나 질병은 큰 우려가 없으되, 물·불의 긴장으로 감정 기복과 피로가 올 수 있습니다",
+            "물을 자주 마시고, 심장과 혈액순환을 살피세요 — 더위와 흥분이 몸을 지치게 합니다",
+            "감정이 출렁일 때는 한 박자 쉬고, 말과 행동을 미루는 연습이 필요합니다"
+          ],
+          "action": "올해는 \"한 박자 쉬어 가는\" 연습이 건강의 핵심입니다. 흥분이 올라오면 심호흡부터 하세요. 규칙적인 수분 섭취와 가벼운 유산소 운동이 물·불의 균형을 돕습니다.",
+          "watch": "밤늦게까지 말하고 토론하다 보면 잠이 부족해집니다. 수면을 우선하고, 흥분된 상태로 잠들지 않도록 잠깐의 정리 시간을 가지세요.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.monthCommand.context"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_action",
+          "pattern_id": "임_을_사",
+          "card_type": "action",
+          "card_index": 7,
+          "title": "올해 꼭 해야 할 일",
+          "summary": "세 가지가 2025년을 알차게 만듭니다.",
+          "keywords": [
+            "제안 내놓기",
+            "말 온도 조절",
+            "기회 잡기"
+          ],
+          "bullets": [
+            "임수의 통찰을 하나의 제안이나 기획으로 정리해 내놓으세요",
+            "맞는 말도 부드럽게 전하는 연습을 하세요 — \"어떻게\"가 \"무엇\"보다 중요한 해입니다",
+            "기회성 수입이나 제안이 들어오면 임수 특유의 결단력으로 잡으세요"
+          ],
+          "action": "이렇게 하시면 2025년은 임수의 자유로운 흐름이 구체적 기회로 이어지는 한 해가 됩니다. 덩굴은 힘으로 뚫는 것이 아니라 감고 휘어감으로써 올라갑니다.",
+          "watch": "피할 것: 윗사람과의 정면 충돌, 흥분한 상태의 말과 결정, 충동적 소비. 가까운 것: 대화가 통하는 사람, 토론과 기획의 자리, 푸른색과 붉은색의 중간 톤.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal",
+            "annual.policy"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_method",
+          "pattern_id": "임_을_사",
+          "card_type": "method",
+          "card_index": 8,
+          "title": "계산 방법과 한계",
+          "summary": "을사년의 두 글자를 하나씩 풀어 설명합니다.",
+          "keywords": [
+            "을목 분석",
+            "사화 분석",
+            "근거"
+          ],
+          "bullets": [
+            "을(乙): 임수의 흐름이 유연하게 감고 뻗으며 답답함을 짚어내는 힘 — 제안, 개선, 혁신에 유리. 단, 거친 말은 관계를 상하게 함",
+            "사(巳): 임수가 만나는 초여름의 불 — 제안이 기회와 수입으로 이어지는 자리. 단, 물·불 긴장으로 감정 기복과 피로",
+            "해석 기준: 자평명리의 일간·월령·십신 관계. 격국·용신·조후는 이 버전에서 다루지 않습니다"
+          ],
+          "action": "각 항목의 근거를 확인하며 읽어보세요.",
+          "watch": "사주는 관계, 건강, 재산, 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산된 사실과 실제 삶을 돌아볼 질문을 이어주는 참고 자료로 활용하세요.",
+          "evidence": [
+            "annual.policy",
+            "annual.boundary.ipchun"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '올해는 자기 지식과 경험을 한 가지 결과물로 정리해 보세요. 강의, 글, 프로젝트 무엇이든 좋습니다. 내보이는 것이 곧 성장입니다.',
-      watch: '여러 갈래로 퍼지는 임수의 성향 때문에 일이 분산되기 쉽습니다. 한 번에 한 가지에 집중하고, 나머지는 미루더라도 지금 하는 것을 끝내세요.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_갑_진_money', pattern_id: '임_갑_진', card_type: 'money', card_index: 4,
-      title: '돈과 현금 흐름',
-      summary: '흩어지던 돈이 한 곳에 모이는 흐름. 저축과 자산 형성에 유리한 시기입니다.',
-      keywords: ['저축', '자산 형성', '계획 소비'],
-      bullets: [
-        '축축한 흙이 물을 품듯, 나가던 돈이 머무는 자리가 생깁니다 — 저축과 자산 형성에 좋은 시기입니다',
-        '결과물과 성과가 가시화되면서 들어오는 돈의 흐름이 안정됩니다',
-        '다만 임수의 큰 물은 쓸 곳이 많아지기도 합니다 — 계획 없이 흘려 보내면 다시 흩어집니다',
+      "domains": [
+        {
+          "module_id": "임_을_사_mindset",
+          "pattern_id": "임_을_사",
+          "domain_key": "mindset",
+          "domain_label": "마음가짐",
+          "domain_index": 1,
+          "points": [
+            "거침없는 제안 — 임수의 통찰이 답답함을 짚어내고 더 나은 방법을 제시합니다",
+            "융통성 — 덩굴처럼 굽히고 감으며 가는 유연함이 막힘을 뚫습니다",
+            "말의 온도 조절 — 날카로운 말도 부드럽게 전하면 기회가 되고 거칠게 전하면 상처가 됩니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_rel",
+          "pattern_id": "임_을_사",
+          "domain_key": "relationships",
+          "domain_label": "인간관계",
+          "domain_index": 2,
+          "points": [
+            "의견을 나누고 토론하는 자리에서 좋은 인연이 생깁니다",
+            "임수의 거침없는 말이 상대의 자존심을 건드릴 수 있습니다 — 맞는 말도 부드럽게",
+            "듣는 귀를 무겁게 하세요 — 대화는 함께 짓는 것입니다",
+            "말이 통하는 사람에게 시간과 마음을 쏟으세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_health",
+          "pattern_id": "임_을_사",
+          "domain_key": "health",
+          "domain_label": "건강",
+          "domain_index": 3,
+          "points": [
+            "물과 불의 긴장으로 감정 기복과 피로가 올 수 있습니다",
+            "물을 자주 마시고 심장과 혈액순환을 살피세요",
+            "흥분이 올라오면 한 박자 쉬고 심호흡부터 하세요",
+            "수면을 우선하고, 흥분된 상태로 잠들지 않도록 정리 시간을 가지세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_career",
+          "pattern_id": "임_을_사",
+          "domain_key": "career",
+          "domain_label": "학업 · 직업 · 사회활동",
+          "domain_index": 4,
+          "points": [
+            "개선과 혁신의 제안이 힘을 발하는 시기입니다",
+            "기획, 컨설팅, 기술, 디자인, 콘텐츠 등 불편함을 개선하는 일에 유리합니다",
+            "제안이 윗사람의 체면을 건드리지 않도록 부드럽게 포장하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_family",
+          "pattern_id": "임_을_사",
+          "domain_key": "family",
+          "domain_label": "가족",
+          "domain_index": 5,
+          "points": [
+            "가족과 의견이 엇갈릴 수 있습니다 — 맞는 말도 부드럽게 전하세요",
+            "가족의 답답함을 임수의 통찰로 풀어주는 역할이 좋습니다",
+            "잔소리가 되지 않도록, 제안은 한두 가지로 줄이세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_romance",
+          "pattern_id": "임_을_사",
+          "domain_key": "romance",
+          "domain_label": "애정운",
+          "domain_index": 6,
+          "points": [
+            "지적인 대화와 유머가 오가는 자리에서 인연이 열립니다",
+            "가벼운 농담은 좋되 날카로운 놀림은 피하세요",
+            "말이 통하는 사람에게 끌리는 해입니다",
+            "임수의 넓은 말발이 상대를 압도하지 않게 듣는 귀를 무겁게 하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_wealth",
+          "pattern_id": "임_을_사",
+          "domain_key": "wealth",
+          "domain_label": "재물",
+          "domain_index": 7,
+          "points": [
+            "제안, 컨설팅, 기획, 강연 등에서 기회성 수입이 열릴 수 있습니다",
+            "말과 아이디어의 값어치를 매기세요 — 공짜로 통찰을 내주지 마세요",
+            "기회가 오면 임수 특유의 결단력으로 잡으세요",
+            "감정적으로 큰돈을 쓰는 순간을 피하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_fashion",
+          "pattern_id": "임_을_사",
+          "domain_key": "fashion",
+          "domain_label": "패션",
+          "domain_index": 8,
+          "points": [
+            "유연하고 흐르는 듯한 실루엣이 임수의 덩굴 에너지와 맞습니다",
+            "푸른색과 붉은색의 중간 톤 — 보라색 계열이 물·불의 균형을 돕습니다",
+            "액세서리는 유려하고 곡선적인 디자인이 유리합니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_season",
+          "pattern_id": "임_을_사",
+          "domain_key": "season",
+          "domain_label": "날씨와 계절",
+          "domain_index": 9,
+          "points": [
+            "봄: 제안과 기획의 에너지가 강합니다. 무언가를 정리해 내놓기 좋은 계절입니다",
+            "여름: 물·불 긴장이 가장 강한 때 — 감정과 피로를 경계하세요",
+            "가을: 제안의 결실이 보이는 계절 — 수확과 정산의 시간입니다",
+            "겨울: 임수가 편안해지며 내년을 준비하는 충전의 계절입니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_pur",
+          "pattern_id": "임_을_사",
+          "domain_key": "purchases",
+          "domain_label": "물품 구입",
+          "domain_index": 10,
+          "points": [
+            "감정적으로 충동 구매를 하기 쉬운 해입니다 — 하룻밤 자고 결정하세요",
+            "기획과 창작에 쓰는 도구는 가치 있는 투자입니다",
+            "흥분된 상태의 큰 지출은 피하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_avoid",
+          "pattern_id": "임_을_사",
+          "domain_key": "avoid",
+          "domain_label": "피해야 할 기운",
+          "domain_index": 11,
+          "points": [
+            "윗사람과의 정면 충돌 — 맞는 말도 때와 방식을 가려야 합니다",
+            "흥분한 상태의 말과 결정 — 뒤로 되돌리기 어렵습니다",
+            "충동적 소비 — 감정이 출렁일 때 돈이 새어나갑니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_fav",
+          "pattern_id": "임_을_사",
+          "domain_key": "favorable",
+          "domain_label": "이로운 기운",
+          "domain_index": 12,
+          "points": [
+            "대화가 통하는 사람, 토론과 기획의 자리가 이롭습니다",
+            "보라색 계열, 유려한 곡선, 물가 근처가 유리합니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_을_사_must",
+          "pattern_id": "임_을_사",
+          "domain_key": "must_do",
+          "domain_label": "꼭 해야 할 일",
+          "domain_index": 13,
+          "points": [
+            "임수의 통찰을 하나의 제안이나 기획으로 정리해 내놓으세요",
+            "맞는 말도 부드럽게 전하는 연습을 하세요",
+            "기회가 들어오면 임수 특유의 결단력으로 잡으세요"
+          ],
+          "closing": "이렇게 하시면 2025년은 임수의 자유로운 흐름이 구체적 기회로 이어지는 한 해가 됩니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '올해는 모으는 해입니다. 일정 금액을 정해 꾸준히 저축하고, 큰 지출은 계획해서 결정하세요. 흙이 물을 저장하듯 돈을 담아 두는 그릇을 만드세요.',
-      watch: '가르치고 베푸는 일이 많아지면 "공짜로" 에너지와 시간을 쓰게 될 수 있습니다. 적정한 보상을 요구하는 것도 올해의 과제입니다.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.policy'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_갑_진_relationships', pattern_id: '임_갑_진', card_type: 'relationships', card_index: 5,
-      title: '인간관계와 애정운',
-      summary: '가르치고 배우는 관계, 그리고 깊이 있는 인연이 자리 잡는 흐름. 편안한 표현이 사람을 끌어당깁니다.',
-      keywords: ['스승·제자', '깊은 인연', '편안한 표현'],
-      bullets: [
-        '지식과 경험을 나누는 자리에서 좋은 인연이 생깁니다 — 배우려는 사람, 가르치려는 사람과의 만남이 유리합니다',
-        '이미 있는 인연이라면, 서로의 속마음을 편안하게 꺼내놓는 대화가 관계를 깊게 만듭니다',
-        '애정운: 무거운 책임감보다는 편안하고 넓은 마음으로 다가가는 사람에게 인연이 열립니다',
+      "monthly": [
+        {
+          "slot_id": "임_을_사_m1f",
+          "pattern_id": "임_을_사",
+          "lunar_month": 1,
+          "month_pillar": "무인월",
+          "half": "first",
+          "guidance": "새해 인연과 제안이 피어나는 시기입니다. 말을 아끼면 기회가 자랍니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m1s",
+          "pattern_id": "임_을_사",
+          "lunar_month": 1,
+          "month_pillar": "무인월",
+          "half": "second",
+          "guidance": "계획을 세우되 고집은 빼세요. 유연함이 막힘을 뚫습니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m2f",
+          "pattern_id": "임_을_사",
+          "lunar_month": 2,
+          "month_pillar": "기묘월",
+          "half": "first",
+          "guidance": "부드러운 표현이 사람을 끕니다. 직설보다 돌려 말하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m2s",
+          "pattern_id": "임_을_사",
+          "lunar_month": 2,
+          "month_pillar": "기묘월",
+          "half": "second",
+          "guidance": "작은 실수는 넓은 마음으로 넘기세요. 잔소리는 인연을 멀게 합니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m3f",
+          "pattern_id": "임_을_사",
+          "lunar_month": 3,
+          "month_pillar": "경진월",
+          "half": "first",
+          "guidance": "제안과 기획을 정리하기 좋은 달입니다. 한 가지에 집중하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m3s",
+          "pattern_id": "임_을_사",
+          "lunar_month": 3,
+          "month_pillar": "경진월",
+          "half": "second",
+          "guidance": "규칙과 압박이 느껴지나 거기에 맞추는 것이 유리한 달입니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m4f",
+          "pattern_id": "임_을_사",
+          "lunar_month": 4,
+          "month_pillar": "신사월",
+          "half": "first",
+          "guidance": "제안이 기회로 이어지는 달입니다. 용기 내어 내놓으세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m4s",
+          "pattern_id": "임_을_사",
+          "lunar_month": 4,
+          "month_pillar": "신사월",
+          "half": "second",
+          "guidance": "물·불 긴장이 강해집니다. 흥분을 가라앉히고 한 박자 쉬세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m5f",
+          "pattern_id": "임_을_사",
+          "lunar_month": 5,
+          "month_pillar": "임오월",
+          "half": "first",
+          "guidance": "임수의 힘이 붙는 달입니다. 자신감을 가지고 밀고 나가세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m5s",
+          "pattern_id": "임_을_사",
+          "lunar_month": 5,
+          "month_pillar": "임오월",
+          "half": "second",
+          "guidance": "물과 불이 겹쳐 감정이 출렁입니다. 결정은 하룻밤 미루세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m6f",
+          "pattern_id": "임_을_사",
+          "lunar_month": 6,
+          "month_pillar": "계미월",
+          "half": "first",
+          "guidance": "세밀한 마무리가 힘을 발합니다. 작은 것을 다듬으세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m6s",
+          "pattern_id": "임_을_사",
+          "lunar_month": 6,
+          "month_pillar": "계미월",
+          "half": "second",
+          "guidance": "감정에 휘둘리지 마세요. 객관적인 시각이 필요한 달입니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m7f",
+          "pattern_id": "임_을_사",
+          "lunar_month": 7,
+          "month_pillar": "갑신월",
+          "half": "first",
+          "guidance": "쇠가 물을 보충하며 임수가 안정되는 달입니다. 결실을 다듬으세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m7s",
+          "pattern_id": "임_을_사",
+          "lunar_month": 7,
+          "month_pillar": "갑신월",
+          "half": "second",
+          "guidance": "결과물을 밖으로 드러내기 좋습니다. 망설임을 버리세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m8f",
+          "pattern_id": "임_을_사",
+          "lunar_month": 8,
+          "month_pillar": "을유월",
+          "half": "first",
+          "guidance": "부드러운 표현과 섬세함이 힘을 얻는 달입니다. 인연을 가꾸세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m8s",
+          "pattern_id": "임_을_사",
+          "lunar_month": 8,
+          "month_pillar": "을유월",
+          "half": "second",
+          "guidance": "말 한마디가 관계를 바꿉니다. 칭찬과 감사를 아끼지 마세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m9f",
+          "pattern_id": "임_을_사",
+          "lunar_month": 9,
+          "month_pillar": "병술월",
+          "half": "first",
+          "guidance": "올해의 제안이 결실로 나타나는 달입니다. 정산하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m9s",
+          "pattern_id": "임_을_사",
+          "lunar_month": 9,
+          "month_pillar": "병술월",
+          "half": "second",
+          "guidance": "작은 오해는 즉시 푸세요. 미뤄둔 대화가 해답이 됩니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m10f",
+          "pattern_id": "임_을_사",
+          "lunar_month": 10,
+          "month_pillar": "정해월",
+          "half": "first",
+          "guidance": "물과 나무가 어우러져 편안한 달입니다. 인연과 시간을 보내세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m10s",
+          "pattern_id": "임_을_사",
+          "lunar_month": 10,
+          "month_pillar": "정해월",
+          "half": "second",
+          "guidance": "겨울로 접어들며 임수가 충전됩니다. 내년의 제안을 미리 그려보세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m11f",
+          "pattern_id": "임_을_사",
+          "lunar_month": 11,
+          "month_pillar": "무자월",
+          "half": "first",
+          "guidance": "한겨울 임수가 편안해지는 달입니다. 휴식과 정비가 우선입니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m11s",
+          "pattern_id": "임_을_사",
+          "lunar_month": 11,
+          "month_pillar": "무자월",
+          "half": "second",
+          "guidance": "올해를 돌아보고 미룬 제안을 정리하세요. 내년의 씨앗을 뿌리세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m12f",
+          "pattern_id": "임_을_사",
+          "lunar_month": 12,
+          "month_pillar": "기축월",
+          "half": "first",
+          "guidance": "한 해를 마무리하며 수입과 인연을 정리하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_을_사_m12s",
+          "pattern_id": "임_을_사",
+          "lunar_month": 12,
+          "month_pillar": "기축월",
+          "half": "second",
+          "guidance": "넓은 마음으로 사람을 품으세요. 내년의 기회가 올해의 인연에서 나옵니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        }
+      ]
+    },
+    {
+      "pattern": {
+        "pattern_id": "임_병_오",
+        "day_master": "임",
+        "year_stem": "병",
+        "year_branch": "오",
+        "ten_god_stem": "편재",
+        "branch_relation": "strong_fire_clashes_water",
+        "label": "임수 출생 × 병오년 — 눈부신 기회의 유혹과 한여름 불의 흩어짐"
+      },
+      "cards": [
+        {
+          "module_id": "임_병_오_cover",
+          "pattern_id": "임_병_오",
+          "card_type": "cover",
+          "card_index": 1,
+          "title": "2026년 병오년, 임수 출생의 연운",
+          "summary": "넓은 바다 위로 태양이 눈부시게 떠오르듯, 임수에게 크고 화려한 기회가 밀려드는 한 해입니다. 겉은 반짝이나, 한여름의 강한 불이 임수의 물을 말려갈 수 있으니 — \"기회는 잡되, 욕심은 경계하고, 한 곳에 머무는 지혜\"가 올해의 열쇠입니다.",
+          "keywords": [
+            "큰 기회의 유혹",
+            "흩어짐 경계",
+            "본질 지키기"
+          ],
+          "bullets": [
+            "병화(태양)는 임수가 만나는 크고 눈부신 기회 — 새로운 수입, 뜻밖의 제안, 모험적 투자의 유혹이 강합니다",
+            "오화(한여름 왕성한 불)는 임수의 물을 말리는 자리 — 기회가 클수록 에너지·자본·건강이 흩어지기 쉽습니다",
+            "임수 출생에게 2026년은 \"기회는 잡되 본질(물)을 잃지 말 것\"이 화두인 한 해입니다"
+          ],
+          "action": "올해는 큰 기회가 눈앞에서 반짝이는 때입니다. 임수의 결단력으로 잡되, 한 번에 너무 많은 곳에 손을 대면 물이 말라갑니다. 한두 개의 확실한 기회에 에너지를 모으세요.",
+          "watch": "편재의 유혹은 \"더 큰 것이 있을 것 같은\" 느낌을 줍니다. 그 느낌을 좇다 보면 이미 잡은 것조차 놓치게 됩니다. 욕심은 임수의 물을 가장 빨리 말리는 불입니다.",
+          "evidence": [
+            "annual.year.pillar",
+            "annual.stem.tenGodToDayMaster",
+            "annual.boundary.ipchun"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_overall",
+          "pattern_id": "임_병_오",
+          "card_type": "overall",
+          "card_index": 2,
+          "title": "마음가짐과 전체 흐름",
+          "summary": "눈부신 기회의 유혹이 밀려오는 해. \"크고 화려한 것을 좇기\"보다 \"작고 확실한 것을 지키기\"가 올해의 살길입니다.",
+          "keywords": [
+            "유혹",
+            "선택과 집중",
+            "본질 보존"
+          ],
+          "bullets": [
+            "첫째, \"기회는 잡되 하나만 잡기\" — 열 가지가 반짝여도 손은 한두 개로 모으세요",
+            "둘째, \"욕심 경계\" — 더 큰 것이 있을 것 같다는 느낌이 임수의 물을 말립니다",
+            "셋째, \"체력·자본 보존\" — 한여름의 불이 임수의 에너지를 가장 빨리 빼앗습니다"
+          ],
+          "action": "올해의 지혜는 \"무엇을 잡을까\"가 아니라 \"무엇을 놓을까\"에 있습니다. 놓을 것을 먼저 정하세요. 임수의 큰 물은 한 곳에 모일 때 힘을 쓰고, 여럿에 흩어지면 사라집니다.",
+          "watch": "기회가 많아 보일 때가 가장 위험한 때입니다. 흥분과 자신감이 넘치는 만큼, 그만큼 신중함도 배로 가져야 합니다. \"너무 좋은 것\"에는 늘 한발 물러서서 의심하세요.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_work",
+          "pattern_id": "임_병_오",
+          "card_type": "work",
+          "card_index": 3,
+          "title": "일과 사회활동",
+          "summary": "큰 기회와 눈에 띄는 자리가 많은 시기. 다만 너무 많은 것을 한꺼번에 덥빈다면 모두 흩어집니다.",
+          "keywords": [
+            "큰 기회",
+            "선택과 집중",
+            "건강 관리"
+          ],
+          "bullets": [
+            "새로운 제안, 큰 프로젝트, 눈에 띄는 자리가 임수를 찾아올 수 있는 시기입니다",
+            "다만 여러 갈래로 손을 대면 임수 특유의 넓은 포용력이 오히려 독이 됩니다 — 하나를 깊이 하세요",
+            "한여름의 불이 에너지를 빼앗으니, 일의 속도보다 체력 관리가 먼저입니다"
+          ],
+          "action": "올해는 \"무엇을 할 것인가\"보다 \"무엇을 하지 않을 것인가\"를 먼저 정하세요. 기회가 왔을 때 임수의 결단력으로 하나를 잡되, 나머지는 과감히 놓으세요.",
+          "watch": "모든 기회를 다 잡으려 하면 아무것도 완성하지 못합니다. 임수의 물은 한 곳에 모일 때 비로소 깊어집니다. 분산은 올해 가장 큰 적입니다.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_money",
+          "pattern_id": "임_병_오",
+          "card_type": "money",
+          "card_index": 4,
+          "title": "돈과 현금 흐름",
+          "summary": "뜻밖의 큰 수입이 열릴 수 있는 시기. 다만 투자와 모험의 유혹도 가장 강한 해입니다.",
+          "keywords": [
+            "기회성 수입",
+            "투자 유혹 경계",
+            "한 곳에 모으기"
+          ],
+          "bullets": [
+            "편재의 기운 — 뜻밖의 큰 수입, 새로운 수익 기회가 열릴 수 있습니다",
+            "다만 그 수입이 들어오자마자 더 큰 투자로 새어나갈 위험이 큽니다",
+            "한여름의 불이 임수의 물을 말리듯, 자본이 빠르게 빠져나갈 수 있습니다"
+          ],
+          "action": "올해는 \"들어온 것을 지키는\" 것이 \"더 벌는\" 것보다 중요합니다. 큰 수입이 들어오면 즉시 안전한 곳으로 옮기고, 투자는 한도를 정해 엄격하게 제한하세요.",
+          "watch": "투자의 유혹이 가장 강한 해입니다. \"빠르게 크게\"라는 말에 현혹되지 마세요. 임수의 물은 한 번 말리면 다시 채우기 어렵습니다. 보수적으로 가세요.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.policy"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_relationships",
+          "pattern_id": "임_병_오",
+          "card_type": "relationships",
+          "card_index": 5,
+          "title": "인간관계와 애정운",
+          "summary": "매력이 빛나고 인연이 화려하게 피어나는 시기. 다만 한 사람에게 집중하지 않으면 모두 흩어집니다.",
+          "keywords": [
+            "매력의 시기",
+            "한 사람에게 집중",
+            "겉모습 경계"
+          ],
+          "bullets": [
+            "임수의 넓은 매력이 한여름 태양 아래 빛나는 시기 — 많은 사람이 다가올 수 있습니다",
+            "다만 관계가 넓고 얕아지기 쉬우니, 정작 소중한 한 사람을 놓치지 마세요",
+            "애정운: 화려한 인연의 유혹이 강하되, 겉모습과 조건에 현혹되지 말고 속을 보세요"
+          ],
+          "action": "올해는 \"많은 사람\"보다 \"한 사람\"이 중요합니다. 넓은 인맥은 좋되, 애정운은 한 사람에게 깊이 집중할 때 열립니다. 겉이 아닌 속을 보는 눈을 기르세요.",
+          "watch": "매력이 넘치는 시기일수록 관계의 경계가 흐려집니다. 애매한 관계, 여러 사람과의 엇된 인연은 임수의 에너지를 가장 빨리 말립니다. 선을 단단히 그으세요.",
+          "evidence": [
+            "annual.branch.relationsToNatal",
+            "annual.monthCommand.context"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_growth",
+          "pattern_id": "임_병_오",
+          "card_type": "growth",
+          "card_index": 6,
+          "title": "건강과 일상 리듬",
+          "summary": "한여름의 강한 불이 임수의 물을 말리는 시기. 체력과 수분 보존이 무엇보다 중요합니다.",
+          "keywords": [
+            "체력 보존",
+            "수분 섭취",
+            "심장·더위 경계"
+          ],
+          "bullets": [
+            "한여름의 불이 임수의 에너지를 가장 빨리 빼앗습니다 — 과로와 무리가 큰 부담이 됩니다",
+            "물을 자주 마시고, 신장·비뇨기·심장·혈압을 살피세요",
+            "더위와 흥분이 겹치면 불면과 피로가 찾아올 수 있으니, 서늘함과 휴식을 우선하세요"
+          ],
+          "action": "올해는 \"보존의 해\"입니다. 무리한 일정을 줄이고, 수분 섭취와 수면을 최우선으로 하세요. 한낮의 활동을 피하고 서늘한 시간대에 움직이세요.",
+          "watch": "기회가 많다고 밤낮없이 일하면 임수의 물이 금방 마릅니다. 체력이 무너지면 잡은 기회도 지킬 수 없습니다. 쉬는 것도 올해의 과제입니다.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.monthCommand.context"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_action",
+          "pattern_id": "임_병_오",
+          "card_type": "action",
+          "card_index": 7,
+          "title": "올해 꼭 해야 할 일",
+          "summary": "세 가지가 2026년을 안전하게 만듭니다.",
+          "keywords": [
+            "하나 잡기",
+            "자본 보존",
+            "체력 관리"
+          ],
+          "bullets": [
+            "기회가 와도 한두 개만 잡고 나머지는 과감히 놓으세요",
+            "큰 수입이 들어오면 즉시 안전한 곳으로 옮기고 투자 한도를 엄격히 정하세요",
+            "체력과 수분을 최우선으로 관리하세요 — 임수의 물이 곧 올해의 자본입니다"
+          ],
+          "action": "이렇게 하시면 2026년은 임수에게 눈부신 기회가 안정적 결실로 남는 한 해가 됩니다. 반짝이는 것을 좇기보다, 이미 손에 잡은 것을 지키는 것이 올해의 지혜입니다.",
+          "watch": "피할 것: 너무 많은 곳에 손 대기, \"더 큰 것\"을 좇는 욕심, 과로와 무리한 투자. 가까운 것: 서늘하고 조용한 곳, 한 사람과의 깊은 시간, 남색과 흰색, 물가.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal",
+            "annual.policy"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_method",
+          "pattern_id": "임_병_오",
+          "card_type": "method",
+          "card_index": 8,
+          "title": "계산 방법과 한계",
+          "summary": "병오년의 두 글자를 하나씩 풀어 설명합니다.",
+          "keywords": [
+            "병화 분석",
+            "오화 분석",
+            "근거"
+          ],
+          "bullets": [
+            "병(丙): 임수가 만나는 크고 눈부신 태양 — 새로운 기회, 큰 수입, 모험의 유혹. 단, 너무 밝은 빛에 눈이 멀어 본질을 놓치기 쉬움",
+            "오(午): 한여름 왕성한 불 — 임수의 물을 말리는 자리. 기회가 클수록 에너지·자본·건강이 소모됨. 단, 오화 속 정화와 임수의 합이 강한 끌림을 만듦",
+            "해석 기준: 자평명리의 일간·월령·십신 관계. 격국·용신·조후는 이 버전에서 다루지 않습니다"
+          ],
+          "action": "각 항목의 근거를 확인하며 읽어보세요.",
+          "watch": "사주는 관계, 건강, 재산, 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산된 사실과 실제 삶을 돌아볼 질문을 이어주는 참고 자료로 활용하세요.",
+          "evidence": [
+            "annual.policy",
+            "annual.boundary.ipchun"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '올해는 "나누는 관계"가 사람을 부릅니다. 가르치거나 배우는 자리에 나가 보세요. 애정운은 부담 없이 대화가 통하는 사람에게서 자랍니다.',
-      watch: '임수의 넓은 마음이 지나치면 경계가 흐려집니다. 모두에게 좋은 사람이 되려다 정작 소중한 사람을 놓칠 수 있습니다. 우선순위를 정하세요.',
-      evidence: ['annual.branch.relationsToNatal', 'annual.monthCommand.context'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_갑_진_growth', pattern_id: '임_갑_진', card_type: 'growth', card_index: 6,
-      title: '건강과 일상 리듬',
-      summary: '큰 물이 흙에 머물면 잔잔해지듯, 마음과 몸이 한 자리에 안착하는 시기입니다.',
-      keywords: ['안정', '규칙적 리듬', '집중력'],
-      bullets: [
-        '큰 사고나 질병은 큰 우려가 없으되, 임수 특유의 산만함과 정착 부담이 스트레스가 될 수 있습니다',
-        '물이 흙에 닿아 고이듯, 규칙적인 일상 리듬이 마음의 안정을 가져옵니다',
-        '한 가지에 깊이 몰입하는 연습이 올해의 건강과 성장을 함께 만듭니다',
+      "domains": [
+        {
+          "module_id": "임_병_오_mindset",
+          "pattern_id": "임_병_오",
+          "domain_key": "mindset",
+          "domain_label": "마음가짐",
+          "domain_index": 1,
+          "points": [
+            "기회는 잡되 하나만 잡기 — 열 가지가 반짝여도 손은 한두 개로 모으세요",
+            "욕심 경계 — 더 큰 것이 있을 것 같다는 느낌이 임수의 물을 말립니다",
+            "본질 지키기 — 임수의 물(에너지·건강·안정)이 곧 올해의 자본입니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_rel",
+          "pattern_id": "임_병_오",
+          "domain_key": "relationships",
+          "domain_label": "인간관계",
+          "domain_index": 2,
+          "points": [
+            "매력이 빛나 많은 사람이 다가올 수 있습니다",
+            "관계가 넓고 얕아지기 쉬우니 소중한 사람을 놓치지 마세요",
+            "관계의 경계를 단단히 그으세요 — 애매한 관계가 에너지를 말립니다",
+            "겉모습이 아닌 속을 보는 눈을 기르세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_health",
+          "pattern_id": "임_병_오",
+          "domain_key": "health",
+          "domain_label": "건강",
+          "domain_index": 3,
+          "points": [
+            "한여름의 불이 임수의 에너지를 가장 빨리 빼앗습니다 — 과로를 피하세요",
+            "물을 자주 마시고 신장·비뇨기·심장·혈압을 살피세요",
+            "더위와 흥분이 겹치면 불면과 피로가 찾아옵니다",
+            "한낮 활동을 피하고 서늘한 시간대에 움직이세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_career",
+          "pattern_id": "임_병_오",
+          "domain_key": "career",
+          "domain_label": "학업 · 직업 · 사회활동",
+          "domain_index": 4,
+          "points": [
+            "큰 기회와 눈에 띄는 자리가 찾아올 수 있는 시기입니다",
+            "여러 갈래로 손을 대면 분산되어 아무것도 완성하지 못합니다",
+            "일의 속도보다 체력 관리가 먼저입니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_family",
+          "pattern_id": "임_병_오",
+          "domain_key": "family",
+          "domain_label": "가족",
+          "domain_index": 5,
+          "points": [
+            "가족에게 넓은 마음을 쓰되, 한 사람에게 집중하는 시간을 가지세요",
+            "가족의 욕심이나 요구에 무한정 응하지 마세요 — 선이 필요합니다",
+            "바쁜 일정 속에서도 가족과 서늘하게 대화하는 시간을 만드세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_romance",
+          "pattern_id": "임_병_오",
+          "domain_key": "romance",
+          "domain_label": "애정운",
+          "domain_index": 6,
+          "points": [
+            "매력이 빛나 화려한 인연의 유혹이 강한 시기입니다",
+            "겉모습과 조건에 현혹되지 말고 속을 보세요",
+            "한 사람에게 깊이 집중할 때 애정운이 열립니다",
+            "애매한 관계, 여러 사람과의 엇된 인연은 에너지를 말립니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_wealth",
+          "pattern_id": "임_병_오",
+          "domain_key": "wealth",
+          "domain_label": "재물",
+          "domain_index": 7,
+          "points": [
+            "뜻밖의 큰 수입과 새로운 수익 기회가 열릴 수 있습니다",
+            "들어온 것을 지키는 것이 더 벌는 것보다 중요합니다",
+            "투자는 한도를 정해 엄격하게 제한하세요",
+            "자본이 빠르게 빠져나갈 수 있으니 보수적으로 가세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_fashion",
+          "pattern_id": "임_병_오",
+          "domain_key": "fashion",
+          "domain_label": "패션",
+          "domain_index": 8,
+          "points": [
+            "서늘하고 단정한 톤이 한여름의 열기를 가라앉힙니다",
+            "남색과 흰색이 임수의 물을 돕습니다 — 붉은색은 줄이세요",
+            "액세서리는 심플하고 서늘한 소재(은, 진주 등)가 유리합니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_season",
+          "pattern_id": "임_병_오",
+          "domain_key": "season",
+          "domain_label": "날씨와 계절",
+          "domain_index": 9,
+          "points": [
+            "봄: 기회의 싹이 피어오르는 계절 — 신중하게 하나를 고르세요",
+            "여름: 한여름 불이 가장 강한 때 — 건강과 자본 보존이 최우선입니다",
+            "가을: 열기가 식으며 결실이 보이는 계절 — 수확을 정리하세요",
+            "겨울: 임수가 편안해지며 충전하는 계절 — 내년을 대비하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_pur",
+          "pattern_id": "임_병_오",
+          "domain_key": "purchases",
+          "domain_label": "물품 구입",
+          "domain_index": 10,
+          "points": [
+            "흥분된 상태의 큰 지출은 최대한 피하세요 — 하룻밤 자고 결정하세요",
+            "체력과 건강에 쓰는 돈은 가치 있는 투자입니다",
+            "화려한 겉모습보다 실용성을 우선하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_avoid",
+          "pattern_id": "임_병_오",
+          "domain_key": "avoid",
+          "domain_label": "피해야 할 기운",
+          "domain_index": 11,
+          "points": [
+            "너무 많은 곳에 손 대기 — 임수의 물이 분산되어 사라집니다",
+            "\"더 큰 것\"을 좇는 욕심 — 이미 잡은 것조차 놓치게 합니다",
+            "과로와 무리한 투자 — 체력과 자본을 동시에 말립니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_fav",
+          "pattern_id": "임_병_오",
+          "domain_key": "favorable",
+          "domain_label": "이로운 기운",
+          "domain_index": 12,
+          "points": [
+            "서늘하고 조용한 곳, 한 사람과의 깊은 시간이 이롭습니다",
+            "남색, 흰색, 물가, 서늘한 계절이 유리합니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_병_오_must",
+          "pattern_id": "임_병_오",
+          "domain_key": "must_do",
+          "domain_label": "꼭 해야 할 일",
+          "domain_index": 13,
+          "points": [
+            "기회가 와도 한두 개만 잡고 나머지는 과감히 놓으세요",
+            "큰 수입이 들어오면 안전한 곳으로 옮기고 투자 한도를 엄격히 정하세요",
+            "체력과 수분을 최우선으로 관리하세요"
+          ],
+          "closing": "이렇게 하시면 2026년은 임수에게 눈부신 기회가 안정적 결실로 남는 한 해가 됩니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '하루에 한 시간이라도 "한 가지에만 집중하는 시간"을 만드세요. 명상, 독서, 집필 무엇이든 좋습니다. 흩어진 에너지를 모으는 연습이 올해의 핵심입니다.',
-      watch: '정착의 부담을 느껴 다시 도피하려는 충동이 올 수 있습니다. 그것은 성장의 신호이니 도망치지 말고 머물러 보세요.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.monthCommand.context'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_갑_진_action', pattern_id: '임_갑_진', card_type: 'action', card_index: 7,
-      title: '올해 꼭 해야 할 일',
-      summary: '세 가지가 2024년을 알차게 만듭니다.',
-      keywords: ['결과물', '저축', '한 가지 집중'],
-      bullets: [
-        '지식과 경험을 한 가지 결과물로 정리해 내놓으세요 — 강의, 글, 프로젝트 무엇이든 좋습니다',
-        '일정 금액을 정해 꾸준히 저축하세요 — 흩어지는 물을 모으는 그릇을 만드세요',
-        '한 가지 일을 끝까지 마무리하세요 — 시작이 아니라 끝맺음이 올해의 열매입니다',
+      "monthly": [
+        {
+          "slot_id": "임_병_오_m1f",
+          "pattern_id": "임_병_오",
+          "lunar_month": 1,
+          "month_pillar": "임인월",
+          "half": "first",
+          "guidance": "새해 물이 강해지는 달입니다. 큰 기회의 싹이 보이나 서두르지 마세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m1s",
+          "pattern_id": "임_병_오",
+          "lunar_month": 1,
+          "month_pillar": "임인월",
+          "half": "second",
+          "guidance": "물이 나무를 키우며 에너지가 쓰입니다. 한 가지에 집중하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m2f",
+          "pattern_id": "임_병_오",
+          "lunar_month": 2,
+          "month_pillar": "계묘월",
+          "half": "first",
+          "guidance": "섬세함과 직관이 피어나는 달입니다. 인연을 깊이 가꾸세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m2s",
+          "pattern_id": "임_병_오",
+          "lunar_month": 2,
+          "month_pillar": "계묘월",
+          "half": "second",
+          "guidance": "감정에 휘둘리지 마세요. 객관적인 판단이 필요한 달입니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m3f",
+          "pattern_id": "임_병_오",
+          "lunar_month": 3,
+          "month_pillar": "갑진월",
+          "half": "first",
+          "guidance": "뿌리내림과 저장이 강한 달입니다. 자산과 인연을 정리하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m3s",
+          "pattern_id": "임_병_오",
+          "lunar_month": 3,
+          "month_pillar": "갑진월",
+          "half": "second",
+          "guidance": "큰 기회가 보이기 시작합니다. 하나만 신중히 고르세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m4f",
+          "pattern_id": "임_병_오",
+          "lunar_month": 4,
+          "month_pillar": "을사월",
+          "half": "first",
+          "guidance": "불의 기운이 피어오르기 시작합니다. 유혹을 경계하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m4s",
+          "pattern_id": "임_병_오",
+          "lunar_month": 4,
+          "month_pillar": "을사월",
+          "half": "second",
+          "guidance": "물·불의 긴장이 강해집니다. 휴식과 수분 보충이 필요합니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m5f",
+          "pattern_id": "임_병_오",
+          "lunar_month": 5,
+          "month_pillar": "병오월",
+          "half": "first",
+          "guidance": "한여름 태양이 가장 강한 달입니다. 큰 결정은 미루고 체력을 보존하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m5s",
+          "pattern_id": "임_병_오",
+          "lunar_month": 5,
+          "month_pillar": "병오월",
+          "half": "second",
+          "guidance": "임수의 물이 가장 많이 마르는 때입니다. 무리를 피하고 서늘함을 찾으세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m6f",
+          "pattern_id": "임_병_오",
+          "lunar_month": 6,
+          "month_pillar": "정미월",
+          "half": "first",
+          "guidance": "열기가 여전합니다. 세밀한 마무리에 집중하며 에너지를 아끼세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m6s",
+          "pattern_id": "임_병_오",
+          "lunar_month": 6,
+          "month_pillar": "정미월",
+          "half": "second",
+          "guidance": "감정 소모가 큰 달입니다. 혼자만의 정리 시간을 가지세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m7f",
+          "pattern_id": "임_병_오",
+          "lunar_month": 7,
+          "month_pillar": "무신월",
+          "half": "first",
+          "guidance": "쇠가 물을 보충하며 열기가 식기 시작합니다. 결실을 점검하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m7s",
+          "pattern_id": "임_병_오",
+          "lunar_month": 7,
+          "month_pillar": "무신월",
+          "half": "second",
+          "guidance": "규칙과 책임이 따르나 그것이 올해의 수확을 지킵니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m8f",
+          "pattern_id": "임_병_오",
+          "lunar_month": 8,
+          "month_pillar": "기유월",
+          "half": "first",
+          "guidance": "섬세한 정리가 힘을 얻는 달입니다. 수입과 인연을 점검하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m8s",
+          "pattern_id": "임_병_오",
+          "lunar_month": 8,
+          "month_pillar": "기유월",
+          "half": "second",
+          "guidance": "올해의 노력이 결실로 나타납니다. 정산하고 안정시키세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m9f",
+          "pattern_id": "임_병_오",
+          "lunar_month": 9,
+          "month_pillar": "경술월",
+          "half": "first",
+          "guidance": "수확의 계절입니다. 모은 것을 단단히 저장하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m9s",
+          "pattern_id": "임_병_오",
+          "lunar_month": 9,
+          "month_pillar": "경술월",
+          "half": "second",
+          "guidance": "쇠가 물을 돕는 달입니다. 남은 일을 끝맺고 다듬으세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m10f",
+          "pattern_id": "임_병_오",
+          "lunar_month": 10,
+          "month_pillar": "신해월",
+          "half": "first",
+          "guidance": "물이 강해지며 임수가 편안해집니다. 충전의 시간을 가지세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m10s",
+          "pattern_id": "임_병_오",
+          "lunar_month": 10,
+          "month_pillar": "신해월",
+          "half": "second",
+          "guidance": "쇠와 물이 어우러져 안정되는 달입니다. 내년을 대비하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m11f",
+          "pattern_id": "임_병_오",
+          "lunar_month": 11,
+          "month_pillar": "임자월",
+          "half": "first",
+          "guidance": "한겨울 임수가 가장 강해지는 달입니다. 힘이 붙는 시기입니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m11s",
+          "pattern_id": "임_병_오",
+          "lunar_month": 11,
+          "month_pillar": "임자월",
+          "half": "second",
+          "guidance": "같은 물이 겹쳐 흩어질 수 있습니다. 과신 말고 중심을 잡으세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m12f",
+          "pattern_id": "임_병_오",
+          "lunar_month": 12,
+          "month_pillar": "계축월",
+          "half": "first",
+          "guidance": "한 해를 마무리하며 수입과 자산을 정리하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_병_오_m12s",
+          "pattern_id": "임_병_오",
+          "lunar_month": 12,
+          "month_pillar": "계축월",
+          "half": "second",
+          "guidance": "올해의 교훈를 되새기며 내년의 기회를 신중히 그리세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        }
+      ]
+    },
+    {
+      "pattern": {
+        "pattern_id": "계_갑_진",
+        "day_master": "계",
+        "year_stem": "갑",
+        "year_branch": "진",
+        "ten_god_stem": "상관",
+        "branch_relation": "damp_earth_stores_water",
+        "label": "계수 출생 × 갑진년 — 예민한 직관의 제안과 늦봄 흙의 뿌리내림"
+      },
+      "cards": [
+        {
+          "module_id": "계_갑_진_cover",
+          "pattern_id": "계_갑_진",
+          "card_type": "cover",
+          "card_index": 1,
+          "title": "2024년 갑진년, 계수 출생의 연운",
+          "summary": "이슬 같은 계수(癸水)의 섬세한 직관이 큰 나무로 뻗어나가며, 답답함을 날카롭게 짚어내는 한 해입니다. 작은 물이 큰 나무를 키우느라 에너지가 쓰이나, 늦봄의 축축한 흙이 계수의 고향이 되어 뿌리를 내려 줍니다 — \"직관을 표현하되, 부드럽게, 그리고 한 걸음씩\"이 올해의 열쇠입니다.",
+          "keywords": [
+            "직관의 제안",
+            "뿌리내림",
+            "부드러운 표현"
+          ],
+          "bullets": [
+            "갑목(큰 나무)은 계수의 섬세한 직관이 밖으로 튀어나오는 힘 — 통찰과 제안이 강해지나, 작은 물이 큰 나무를 키우느라 에너지가 많이 쓰입니다",
+            "진토(축축한 흙)는 계수가 숨어 있는 고향 — 흩어지기 쉬운 기운이 머물러 안정을 얻되, 무거운 책임과 압박도 함께 옵니다",
+            "계수 출생에게 2024년은 \"직관을 세상에 드러내되 상처 주지 말고, 뿌리를 내리되 압박을 견디는\" 한 해입니다"
+          ],
+          "action": "올해는 계수 특유의 예민한 통찰을 한 가지 제안으로 정리해 내놓는 때입니다. 다만 작은 물이 큰 나무를 다 키울 수는 없으니, 한 가지에만 에너지를 쏟고 충분히 쉬세요.",
+          "watch": "계수는 원래 예민하고 쉽게 상처받습니다. 직관이 날카로워질수록 말도 날카로워지니, \"맞는 말\"도 부드럽게 전하세요. 압박과 책임이 우울을 부를 수 있으니 혼자 끙끙 앓지 말고 도움을 청하세요.",
+          "evidence": [
+            "annual.year.pillar",
+            "annual.stem.tenGodToDayMaster",
+            "annual.boundary.ipchun"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_overall",
+          "pattern_id": "계_갑_진",
+          "card_type": "overall",
+          "card_index": 2,
+          "title": "마음가짐과 전체 흐름",
+          "summary": "계수의 깊은 직관이 밖으로 흘러나가는 해. \"통찰을 부드럽게 전하기\"와 \"뿌리 내려 중심 잡기\"가 올해의 두 기둥입니다.",
+          "keywords": [
+            "직관",
+            "부드러움",
+            "중심 잡기"
+          ],
+          "bullets": [
+            "첫째, \"통찰을 부드럽게 전하기\" — 계수의 섬세한 눈이 답답함을 짚어내나, 말이 거칠면 관계가 상합니다",
+            "둘째, \"뿌리 내려 중심 잡기\" — 흩어지는 기운이 축축한 흙에 닿아 안정을 얻되, 압박을 견뎌야 합니다",
+            "셋째, \"에너지 아끼기\" — 작은 물이 큰 나무를 키우느라 고갈되기 쉬우니, 쉬는 것을 부끄러워하지 마세요"
+          ],
+          "action": "올해의 힘은 \"얼마나 깊이 보느냐\"가 아니라 \"그것을 어떻게 전하느냐\"에 달려 있습니다. 통찰은 같아도, 부드럽게 전하면 사람을 얻고 거칠게 전하면 사람을 잃습니다.",
+          "watch": "계수는 혼자서 깊이 파고드는 성향이 강합니다. 올해는 그 깊이를 세상과 나누어야 힘이 됩니다. 다만 나누다 보면 에너지가 빠지니, 혼자만의 충전 시간도 반드시 가지세요.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_work",
+          "pattern_id": "계_갑_진",
+          "card_type": "work",
+          "card_index": 3,
+          "title": "일과 사회활동",
+          "summary": "통찰과 기획력이 빛나는 시기. 다만 윗사람과의 마찰을 경계해야 합니다.",
+          "keywords": [
+            "통찰",
+            "기획·분석",
+            "윗사람 마찰 경계"
+          ],
+          "bullets": [
+            "계수 특유의 섬세한 분석력과 통찰이 밖으로 드러나며, 기획·연구·분석·컨설팅 일에서 두각을 나타냅니다",
+            "다만 기존 방식이나 윗사람의 방침과 부딪히기 쉬우니, \"더 나은 방법\"을 제안하되 체면을 살려 주세요",
+            "큰 일을 한꺼번에 떠안지 말고, 한 가지를 깊이 파고드는 것이 올해 계수에게 가장 효율적입니다"
+          ],
+          "action": "올해는 계수의 깊은 눈을 한 가지 주제에 집중하세요. 분석, 기획, 연구, 글 — 무엇이든 깊이 파고들어 결과물로 내놓으세요. 단, 윗사람에게는 제안이 아닌 \"도움\"의 형태로 전하세요.",
+          "watch": "계수의 통찰은 날카로워 자칫 비판으로 들립니다. \"이것이 문제입니다\"보다 \"이렇게 하면 더 좋겠습니다\"로 바꾸어 말하세요. 한마디의 온도가 올해의 성패를 가릅니다.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_money",
+          "pattern_id": "계_갑_진",
+          "card_type": "money",
+          "card_index": 4,
+          "title": "돈과 현금 흐름",
+          "summary": "통찰과 기획이 수입으로 연결될 수 있는 시기. 다만 들어오는 만큼 빠져나가기도 쉽습니다.",
+          "keywords": [
+            "지식이 수입으로",
+            "안정적 축적",
+            "에너지 관리"
+          ],
+          "bullets": [
+            "섬세한 분석과 기획력이 인정받아 수입으로 이어질 수 있는 시기입니다",
+            "다만 계수는 에너지가 약해 무리하면 금방 고갈되니, 건강을 지키는 것이 곧 재물 지키기입니다",
+            "축축한 흙이 물을 저장하듯, 들어온 돈을 한 곳에 모아 두는 것이 유리합니다"
+          ],
+          "action": "올해는 \"지식과 통찰의 값어치\"를 매기는 해입니다. 공짜로 분석과 기획을 내주지 말고 적정한 보상을 요구하세요. 들어온 돈은 안전한 곳에 모아 두세요.",
+          "watch": "계수는 마음이 약해 돈 문제를 잘 못 거절합니다. 큰 돈거래, 보증, 무리한 대출은 절대 피하세요. 에너지가 고갈되면 수입의 흐름도 끊깁니다.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.policy"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_relationships",
+          "pattern_id": "계_갑_진",
+          "card_type": "relationships",
+          "card_index": 5,
+          "title": "인간관계와 애정운",
+          "summary": "깊이 있는 대화가 통하는 사람과 인연이 피어나는 해. 다만 예민함이 관계를 시험합니다.",
+          "keywords": [
+            "깊은 대화",
+            "예민함 관리",
+            "속을 보는 눈"
+          ],
+          "bullets": [
+            "계수의 섬세함이 빛나, 겉이 아닌 속을 볼 줄 아는 사람과 깊은 인연이 생깁니다",
+            "다만 직관이 날카로워 상대의 작은 결점도 보이니, \"맞는 말\"도 삼가고 참아 주는 너그러움이 필요합니다",
+            "애정운: 지적이고 차분한 대화가 통하는 사람에게 인연이 열립니다. 첫인상보다 몇 번 더 만나보세요"
+          ],
+          "action": "올해는 \"깊이 대화할 수 있는 사람\"이 곧 좋은 인연입니다. 얕은 관계보다 소수와 깊은 시간을 가지세요. 애정운은 차분히 속을 알아가는 사람에게서 자랍니다.",
+          "watch": "계수의 예민함이 상대의 작은 실수도 크게 느끼게 합니다. 상대의 결점을 들추기보다 장점을 먼저 보세요. 혼자 상처받고 혼자 멀어지는 패턴을 경계하세요.",
+          "evidence": [
+            "annual.branch.relationsToNatal",
+            "annual.monthCommand.context"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_growth",
+          "pattern_id": "계_갑_진",
+          "card_type": "growth",
+          "card_index": 6,
+          "title": "건강과 일상 리듬",
+          "summary": "에너지 고갈과 우울을 경계해야 하는 시기. 충분한 휴식과 수분 섭취가 생명줄입니다.",
+          "keywords": [
+            "우울 경계",
+            "수분 섭취",
+            "충분한 휴식"
+          ],
+          "bullets": [
+            "작은 물이 큰 나무를 키우느라 에너지가 고갈되기 쉬운 해입니다 — 무리하지 마세요",
+            "계수는 우울과 침체에 빠지기 쉬우니, 햇빛을 자주 쬐고 사람들을 만나며 마음을 여세요",
+            "물을 자주 마시고, 신장·비뇨기·수면을 살피세요 — 수분과 휴식이 곧 계수의 생명줄입니다"
+          ],
+          "action": "올해는 \"쉬는 것을 부끄러워하지 않는\" 것이 건강의 핵심입니다. 혼자만의 시간도 좋되, 너무 오래 침잠하지 않도록 햇빛과 사람을 가까이 하세요.",
+          "watch": "생각이 깊어지다 우울로 빠지기 쉬운 시기입니다. 혼자 끙끙 앓지 말고, 믿을 수 있는 사람에게 마음을 꺼내놓으세요. 수면 부족은 계수의 직관마저 흐리게 합니다.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.monthCommand.context"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_action",
+          "pattern_id": "계_갑_진",
+          "card_type": "action",
+          "card_index": 7,
+          "title": "올해 꼭 해야 할 일",
+          "summary": "세 가지가 2024년을 알차게 만듭니다.",
+          "keywords": [
+            "통찰 하나 정리",
+            "부드럽게 전하기",
+            "충분한 휴식"
+          ],
+          "bullets": [
+            "섬세한 직관을 한 가지 주제나 결과물로 깊이 파고들어 정리하세요",
+            "통찰을 전할 때는 \"맞는 말\"보다 \"듣기 좋은 말\"을 연습하세요",
+            "에너지 고갈을 막기 위해 충분히 쉬고, 수분과 수면을 우선하세요"
+          ],
+          "action": "이렇게 하시면 2024년은 계수의 깊은 직관이 단단한 결실로 바뀌는 한 해가 됩니다. 이슬이 큰 나무를 적시듯, 작지만 깊은 것 하나에 집중하세요.",
+          "watch": "피할 것: 혼자 끙끙 앓기, 거친 말과 비판, 무리한 일정. 가까운 것: 깊이 대화할 수 있는 사람, 햇빛과 산책, 맑은 물, 푸른색과 남색.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal",
+            "annual.policy"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_method",
+          "pattern_id": "계_갑_진",
+          "card_type": "method",
+          "card_index": 8,
+          "title": "계산 방법과 한계",
+          "summary": "갑진년의 두 글자를 하나씩 풀어 설명합니다.",
+          "keywords": [
+            "갑목 분석",
+            "진토 분석",
+            "근거"
+          ],
+          "bullets": [
+            "갑(甲): 계수의 섬세한 직관이 큰 나무로 뻗어나가는 힘 — 통찰, 제안, 분석에 유리. 단, 작은 물이 큰 나무를 키우느라 에너지 고갈, 거친 말은 관계를 상하게 함",
+            "진(辰): 계수가 숨어 있는 고향 흙 — 안정과 저장에 유리. 단, 무거운 책임과 압박(관성)이 동반, 우울 경계 필요",
+            "해석 기준: 자평명리의 일간·월령·십신 관계. 격국·용신·조후는 이 버전에서 다루지 않습니다"
+          ],
+          "action": "각 항목의 근거를 확인하며 읽어보세요.",
+          "watch": "사주는 관계, 건강, 재산, 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산된 사실과 실제 삶을 돌아볼 질문을 이어주는 참고 자료로 활용하세요.",
+          "evidence": [
+            "annual.policy",
+            "annual.boundary.ipchun"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '이렇게 하시면 2024년은 임수의 넓은 흐름이 단단한 결실로 바뀌는 한 해가 됩니다. 자유를 잃는 것이 아니라, 자유가 한 곳에 응집해 힘을 얻는 때입니다.',
-      watch: '피할 것: 산만한 분산, 시작만 하고 미루기, 지나친 베풂. 가까운 것: 배우고 가르치는 자리, 편안한 대화, 푸른색과 남색, 서늘한 공간.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal', 'annual.policy'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_갑_진_method', pattern_id: '임_갑_진', card_type: 'method', card_index: 8,
-      title: '계산 방법과 한계',
-      summary: '갑진년의 두 글자를 하나씩 풀어 설명합니다.',
-      keywords: ['갑목 분석', '진토 분석', '근거'],
-      bullets: [
-        '갑(甲): 임수의 넓은 지혜와 경험이 온화하게 결과물로 피어나는 힘 — 가르침, 표현, 창작에 유리. 단, 물이 나무를 키우며 에너지가 쓰이니 과로 주의',
-        '진(辰): 물을 품고 저장하는 축축한 흙 — 흩어지는 임수가 머물러 뿌리내리는 자리. 저축, 안정, 정착에 유리. 단, 물이 흙에 갇혀 답답함도 생김',
-        '해석 기준: 자평명리의 일간·월령·십신 관계. 격국·용신·조후는 이 버전에서 다루지 않습니다',
+      "domains": [
+        {
+          "module_id": "계_갑_진_mindset",
+          "pattern_id": "계_갑_진",
+          "domain_key": "mindset",
+          "domain_label": "마음가짐",
+          "domain_index": 1,
+          "points": [
+            "통찰을 부드럽게 전하기 — 직관이 날카로울수록 말은 더 부드러워야 합니다",
+            "뿌리 내려 중심 잡기 — 흩어지는 기운이 축축한 흙에 닿아 안정을 얻되 압박을 견디세요",
+            "에너지 아끼기 — 작은 물이 큰 나무를 키우느라 고갈되기 쉬우니 쉬는 것을 부끄러워하지 마세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_rel",
+          "pattern_id": "계_갑_진",
+          "domain_key": "relationships",
+          "domain_label": "인간관계",
+          "domain_index": 2,
+          "points": [
+            "겉이 아닌 속을 볼 줄 아는 사람과 깊은 인연이 생깁니다",
+            "직관이 날카로워 상대의 결점이 잘 보이나, 참아 주는 너그러움이 필요합니다",
+            "얕은 관계보다 소수와 깊은 시간을 가지세요",
+            "혼자 상처받고 혼자 멀어지는 패턴을 경계하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_health",
+          "pattern_id": "계_갑_진",
+          "domain_key": "health",
+          "domain_label": "건강",
+          "domain_index": 3,
+          "points": [
+            "에너지 고갈과 우울을 경계해야 하는 시기입니다 — 무리하지 마세요",
+            "햇빛을 자주 쬐고 사람들을 만나며 마음을 여세요",
+            "물을 자주 마시고 신장·비뇨기·수면을 살피세요",
+            "충분한 휴식이 곧 계수의 생명줄입니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_career",
+          "pattern_id": "계_갑_진",
+          "domain_key": "career",
+          "domain_label": "학업 · 직업 · 사회활동",
+          "domain_index": 4,
+          "points": [
+            "섬세한 분석력과 통찰이 밖으로 드러나는 시기입니다",
+            "기획, 연구, 분석, 컨설팅 일에서 두각을 나타냅니다",
+            "윗사람과의 마찰을 경계하고 제안을 도움의 형태로 전하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_family",
+          "pattern_id": "계_갑_진",
+          "domain_key": "family",
+          "domain_label": "가족",
+          "domain_index": 5,
+          "points": [
+            "가족의 속을 먼저 알아채는 계수의 섬세함이 큰 힘이 됩니다",
+            "다만 잔소리와 걱정이 지나치면 부담이 되니 한두 가지만 말하세요",
+            "가족에게 마음을 열고 혼자 끙끙 앓지 마세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_romance",
+          "pattern_id": "계_갑_진",
+          "domain_key": "romance",
+          "domain_label": "애정운",
+          "domain_index": 6,
+          "points": [
+            "지적이고 차분한 대화가 통하는 사람에게 인연이 열립니다",
+            "첫인상보다 몇 번 더 만나보고 결정하세요",
+            "상대의 결점을 들추기보다 장점을 먼저 보세요",
+            "예민함이 관계를 시험하니 한발 물러서 관조하는 여유를 가지세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_wealth",
+          "pattern_id": "계_갑_진",
+          "domain_key": "wealth",
+          "domain_label": "재물",
+          "domain_index": 7,
+          "points": [
+            "섬세한 분석과 기획력이 인정받아 수입으로 이어질 수 있습니다",
+            "공짜로 분석과 기획을 내주지 말고 적정한 보상을 요구하세요",
+            "들어온 돈은 안전한 곳에 모아 두세요",
+            "큰 돈거래, 보증, 무리한 대출은 절대 피하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_fashion",
+          "pattern_id": "계_갑_진",
+          "domain_key": "fashion",
+          "domain_label": "패션",
+          "domain_index": 8,
+          "points": [
+            "단정하고 차분한 톤이 계수의 섬세함을 돋보이게 합니다",
+            "푸른색과 남색이 계수의 기운을 돕습니다",
+            "액세서리는 심플하고 섬세한 디자인이 유리합니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_season",
+          "pattern_id": "계_갑_진",
+          "domain_key": "season",
+          "domain_label": "날씨와 계절",
+          "domain_index": 9,
+          "points": [
+            "봄: 통찰과 제안의 에너지가 강합니다. 결과물을 내기 좋은 계절입니다",
+            "여름: 더위에 계수가 마르기 쉬우니 수분과 휴식이 필요합니다",
+            "가을: 쇠가 물을 보충하며 결실이 피어나는 계절입니다",
+            "겨울: 계수가 편안해지는 계절 — 충전과 정비의 시간입니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_pur",
+          "pattern_id": "계_갑_진",
+          "domain_key": "purchases",
+          "domain_label": "물품 구입",
+          "domain_index": 10,
+          "points": [
+            "배움과 연구에 쓰는 돈은 올해 가장 가치 있는 투자입니다",
+            "감정적으로 충동 구매를 하기 쉬우니 하룻밤 자고 결정하세요",
+            "섬세하게 비교하고 신중하게 고르세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_avoid",
+          "pattern_id": "계_갑_진",
+          "domain_key": "avoid",
+          "domain_label": "피해야 할 기운",
+          "domain_index": 11,
+          "points": [
+            "혼자 끙끙 앓기 — 계수의 가장 큰 함정입니다",
+            "거친 말과 비판 — 맞는 말도 관계를 부숩니다",
+            "무리한 일정 — 에너지 고갈로 이어집니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_fav",
+          "pattern_id": "계_갑_진",
+          "domain_key": "favorable",
+          "domain_label": "이로운 기운",
+          "domain_index": 12,
+          "points": [
+            "깊이 대화할 수 있는 사람, 햇빛과 산책이 이롭습니다",
+            "맑은 물, 푸른색과 남색, 조용하고 서늘한 공간이 유리합니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_갑_진_must",
+          "pattern_id": "계_갑_진",
+          "domain_key": "must_do",
+          "domain_label": "꼭 해야 할 일",
+          "domain_index": 13,
+          "points": [
+            "섬세한 직관을 한 가지 주제로 깊이 파고들어 정리하세요",
+            "통찰을 전할 때 부드럽게 전하는 연습을 하세요",
+            "충분히 쉬고 수분과 수면을 우선하세요"
+          ],
+          "closing": "이렇게 하시면 2024년은 계수의 깊은 직관이 단단한 결실로 바뀌는 한 해가 됩니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '각 항목의 근거를 확인하며 읽어보세요.',
-      watch: '사주는 관계, 건강, 재산, 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산된 사실과 실제 삶을 돌아볼 질문을 이어주는 참고 자료로 활용하세요.',
-      evidence: ['annual.policy', 'annual.boundary.ipchun'],
-      tone: 'natural', review_status: 'approved' },
-  ],
-
-  domains: [
-    { module_id: '임_갑_진_mindset', pattern_id: '임_갑_진', domain_key: 'mindset', domain_label: '마음가짐', domain_index: 1,
-      points: ['표현으로 결과 내기 — 임수의 큰 지혜와 경험이 가르침, 창작, 제안으로 밖으로 흘러나옵니다', '한 자리에 뿌리내리기 — 흩어지려는 물이 축축한 흙에 닿아 머무르고 쌓입니다. 정착의 부담을 견디세요', '끝까지 가기 — 임수는 시작은 잘하되 마무리가 약합니다. 올해는 마무리가 곧 결실입니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_갑_진_rel', pattern_id: '임_갑_진', domain_key: 'relationships', domain_label: '인간관계', domain_index: 2,
-      points: ['지식과 경험을 나누는 자리에서 좋은 인연이 생깁니다', '배우려는 사람, 가르치려는 사람과의 만남이 유리합니다', '모두에게 좋은 사람이 되려다 정작 소중한 사람을 놓치지 마세요', '대화가 편안히 통하는 사람에게 인연이 깊어집니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_갑_진_health', pattern_id: '임_갑_진', domain_key: 'health', domain_label: '건강', domain_index: 3,
-      points: ['큰 사고나 질병은 큰 우려가 없으되, 정착의 부담이 스트레스가 될 수 있습니다', '규칙적인 일상 리듬이 마음의 안정을 가져옵니다', '물을 자주 마시고, 신장과 비뇨기 건강을 살피세요', '한 가지에 몰입하는 시간을 만드세요 — 명상, 독서, 집필이 좋습니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_갑_진_career', pattern_id: '임_갑_진', domain_key: 'career', domain_label: '학업 · 직업 · 사회활동', domain_index: 4,
-      points: ['지식과 경험이 밖으로 드러나며 인정받는 흐름입니다', '교육, 기획, 집필, 컨설팅, 콘텐츠 등 자기 것을 내놓는 일에 유리합니다', '결과물이 나온 뒤 마무리와 뒷정리를 게을리하지 마세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_갑_진_family', pattern_id: '임_갑_진', domain_key: 'family', domain_label: '가족', domain_index: 5,
-      points: ['가족과 지식을 나누고 함께 배우는 시간이 관계를 좋게 만듭니다', '정착의 기운이 강하니 집안을 정비하고 뿌리를 내리는 일에 신경 쓰세요', '가족에게 너무 많이 베풀지 말고, 적정한 선을 정하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_갑_진_romance', pattern_id: '임_갑_진', domain_key: 'romance', domain_label: '애정운', domain_index: 6,
-      points: ['편안하게 대화가 통하는 사람에게 인연이 열립니다', '무거운 책임감보다는 넓고 여유로운 마음으로 다가가세요', '지식을 나누는 자리, 배움의 자리에서 좋은 만남이 있습니다', '너무 많은 사람에게 친절을 베풀면 애정운이 흩어집니다 — 한 사람에게 집중하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_갑_진_wealth', pattern_id: '임_갑_진', domain_key: 'wealth', domain_label: '재물', domain_index: 7,
-      points: ['나가던 돈이 머무는 자리가 생깁니다 — 저축과 자산 형성에 좋습니다', '결과물과 성과가 가시화되면서 수입 흐름이 안정됩니다', '계획 없이 흘려 보내면 다시 흩어지니, 지출을 적으세요', '가르치는 일에 공짜로 시간을 쓰지 말고 적정한 보상을 요구하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_갑_진_fashion', pattern_id: '임_갑_진', domain_key: 'fashion', domain_label: '패션', domain_index: 8,
-      points: ['단정하되 너무 꽉 막히지 않은, 흐르는 듯한 실루엣이 좋습니다', '푸른색과 남색이 임수의 기운을 돕습니다', '액세서리는 심플하게, 자연 소재가 유리합니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_갑_진_season', pattern_id: '임_갑_진', domain_key: 'season', domain_label: '날씨와 계절', domain_index: 9,
-      points: ['봄: 표현과 창작의 에너지가 가장 강합니다. 결과물을 내기 좋은 계절입니다', '여름: 물이 더위에 지치기 쉬우니 휴식과 수분 보충이 필요합니다', '가을: 수확의 계절 — 올해의 노력이 결실로 나타납니다', '겨울: 임수가 편안해지는 계절 — 충전과 정비의 시간입니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_갑_진_pur', pattern_id: '임_갑_진', domain_key: 'purchases', domain_label: '물품 구입', domain_index: 10,
-      points: ['저축과 자산 형성에 유리하니 큰 지출은 신중하게 계획하세요', '배움과 성장에 쓰는 돈은 올해 가장 가치 있는 투자입니다', '한 번 살 때 충분히 고민하고, 흩어지는 잡비를 줄이세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_갑_진_avoid', pattern_id: '임_갑_진', domain_key: 'avoid', domain_label: '피해야 할 기운', domain_index: 11,
-      points: ['산만한 분산 — 여러 일을 동시에 시작하고 아무것도 끝내지 못하는 것', '시작만 하고 미루기 — 임수의 고질적 약점, 올해는 끝맺음이 숙제입니다', '지나친 베풂 — 에너지와 시간이 새어나갑니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_갑_진_fav', pattern_id: '임_갑_진', domain_key: 'favorable', domain_label: '이로운 기운', domain_index: 12,
-      points: ['배우고 가르치는 자리가 전체적으로 이롭습니다', '푸른색, 남색, 서늘하고 조용한 공간이 유리합니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_갑_진_must', pattern_id: '임_갑_진', domain_key: 'must_do', domain_label: '꼭 해야 할 일', domain_index: 13,
-      points: ['지식과 경험을 한 가지 결과물로 정리해 내놓으세요', '일정 금액을 정해 꾸준히 저축하세요', '한 가지 일을 끝까지 마무리하세요'],
-      closing: '이렇게 하시면 2024년은 임수의 넓은 흐름이 단단한 결실로 바뀌는 한 해가 됩니다.', tone: 'natural', review_status: 'approved' },
-  ],
-
-  monthly: [
-    { slot_id: '임_갑_진_m1f', pattern_id: '임_갑_진', lunar_month: 1, month_pillar: '병인월', half: 'first', guidance: '새해 인연이 피어나는 시기입니다. 첫인상보다 몇 번 더 만나보고 판단하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m1s', pattern_id: '임_갑_진', lunar_month: 1, month_pillar: '병인월', half: 'second', guidance: '충동적으로 시작하기 쉬우니 한 발 물러서서 계획부터 세우세요. 서두르면 흩어집니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m2f', pattern_id: '임_갑_진', lunar_month: 2, month_pillar: '정묘월', half: 'first', guidance: '표현과 창작의 기운이 강합니다. 무언가를 만들어 보세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m2s', pattern_id: '임_갑_진', lunar_month: 2, month_pillar: '정묘월', half: 'second', guidance: '말이 많아지기 쉬우니 한마디 한마디를 아끼세요. 침묵이 힘을 모읍니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m3f', pattern_id: '임_갑_진', lunar_month: 3, month_pillar: '무진월', half: 'first', guidance: '정착과 뿌리내림이 강한 달입니다. 계약과 문서운이 유리합니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m3s', pattern_id: '임_갑_진', lunar_month: 3, month_pillar: '무진월', half: 'second', guidance: '물이 흙에 답답하게 갇힐 수 있습니다. 답답함을 참고 마무리에 집중하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m4f', pattern_id: '임_갑_진', lunar_month: 4, month_pillar: '기사월', half: 'first', guidance: '더위와 유혹이 함께 옵니다. 충동적 소비를 경계하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m4s', pattern_id: '임_갑_진', lunar_month: 4, month_pillar: '기사월', half: 'second', guidance: '결과물을 밖으로 드러내기 좋은 시기입니다. 망설이지 말고 내보이세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m5f', pattern_id: '임_갑_진', lunar_month: 5, month_pillar: '경오월', half: 'first', guidance: '한여름 더위에 임수의 물이 지치기 쉽습니다. 휴식과 수분 보충이 필요합니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m5s', pattern_id: '임_갑_진', lunar_month: 5, month_pillar: '경오월', half: 'second', guidance: '규칙과 압박이 느껴지나 그것이 곧 안정입니다. 묵묵히 견디세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m6f', pattern_id: '임_갑_진', lunar_month: 6, month_pillar: '신미월', half: 'first', guidance: '쇠의 기운이 임수를 보충합니다. 충전의 시간을 가지세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m6s', pattern_id: '임_갑_진', lunar_month: 6, month_pillar: '신미월', half: 'second', guidance: '낯선 자리보다 편안한 사람들과 시간을 보내세요. 에너지가 모입니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m7f', pattern_id: '임_갑_진', lunar_month: 7, month_pillar: '임신월', half: 'first', guidance: '임수와 같은 물이 흘러들어 힘이 붙는 달입니다. 자신감이 자라는 시기입니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m7s', pattern_id: '임_갑_진', lunar_month: 7, month_pillar: '임신월', half: 'second', guidance: '같은 물이 겹치면 흩어질 수 있습니다. 과신하지 말고 중심을 잡으세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m8f', pattern_id: '임_갑_진', lunar_month: 8, month_pillar: '계유월', half: 'first', guidance: '작은 물이 합류해 잔잔해집니다. 세밀한 마무리에 집중하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m8s', pattern_id: '임_갑_진', lunar_month: 8, month_pillar: '계유월', half: 'second', guidance: '결실을 점검하고 정리하는 시기입니다. 남은 일을 끝내세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m9f', pattern_id: '임_갑_진', lunar_month: 9, month_pillar: '갑술월', half: 'first', guidance: '다시 나무가 자라며 새 결과물이 피어납니다. 마무리한 것을 다듬으세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m9s', pattern_id: '임_갑_진', lunar_month: 9, month_pillar: '갑술월', half: 'second', guidance: '작은 실수와 오해는 웃어넘기세요. 넓은 마음이 사람을 삽니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m10f', pattern_id: '임_갑_진', lunar_month: 10, month_pillar: '을해월', half: 'first', guidance: '물과 나무가 어우러져 편안한 달입니다. 일의 속도를 조절하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m10s', pattern_id: '임_갑_진', lunar_month: 10, month_pillar: '을해월', half: 'second', guidance: '겨울로 접어들며 임수가 편안해집니다. 올해의 결실을 돌아보세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m11f', pattern_id: '임_갑_진', lunar_month: 11, month_pillar: '병자월', half: 'first', guidance: '한겨울 물이 왕성해집니다. 임수가 가장 힘을 얻는 달입니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m11s', pattern_id: '임_갑_진', lunar_month: 11, month_pillar: '병자월', half: 'second', guidance: '너무 강해진 물이 범람할 수 있으니 한발 물러서 관조하세요. 충분한 휴식이 필요합니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m12f', pattern_id: '임_갑_진', lunar_month: 12, month_pillar: '정축월', half: 'first', guidance: '올해의 결실을 점검하며 내년을 준비하세요. 자산을 정리하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_갑_진_m12s', pattern_id: '임_갑_진', lunar_month: 12, month_pillar: '정축월', half: 'second', guidance: '넓은 마음으로 한 해를 마무리하세요. 미룬 일은 지금 끝내야 합니다.', tone: 'natural', review_status: 'approved' },
-  ],
-},
-
-// ============================================================
-// 패턴 2: 임수 × 을사년 (2025, 십신: 상관)
-// 을목(덩굴) — 자유로운 흐름이 유연히 뻗으며 답답함을 개선하는 제안.
-// 사화(초여름 불) — 물·불의 긴장, 상관생재로 제안이 기회로.
-// ============================================================
-{
-  pattern: {
-    pattern_id: '임_을_사', day_master: '임', year_stem: '을', year_branch: '사',
-    ten_god_stem: '상관', branch_relation: 'water_meets_fire',
-    label: '임수 출생 × 을사년 — 덩굴처럼 뻗는 제안과 초여름 불의 기회',
-  },
-
-  cards: [
-    { module_id: '임_을_사_cover', pattern_id: '임_을_사', card_type: 'cover', card_index: 1,
-      title: '2025년 을사년, 임수 출생의 연운',
-      summary: '자유롭게 흐르던 임수가 덩굴처럼 유연하게 뻗어나가며, 답답했던 것들을 날카롭게 짚어내고 바꾸어 놓는 한 해입니다. 그 개선의 말이 초여름의 불을 만나 뜻밖의 기회로 이어지니, "말이 곧 기회를 부르는" 시기입니다.',
-      keywords: ['제안·개선', '말이 기회를 부름', '융통성'],
-      bullets: [
-        '을목(덩굴)은 임수의 흐름이 유연하게 감고 뻗으며 기존의 답답함을 짚어내는 힘입니다 — 제안, 비판, 개선이 자연스럽게 솟습니다',
-        '사화(초여름 불)는 임수가 만나는 재물의 자리 — 제안과 통찰이 구체적 기회와 수입으로 이어집니다',
-        '임수 출생에게 2025년은 "불편함을 말로 바꾸고, 그 말이 기회를 부르는" 한 해입니다',
+      "monthly": [
+        {
+          "slot_id": "계_갑_진_m1f",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 1,
+          "month_pillar": "병인월",
+          "half": "first",
+          "guidance": "새해 인연이 피어나는 시기입니다. 첫인상보다 속을 살피세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m1s",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 1,
+          "month_pillar": "병인월",
+          "half": "second",
+          "guidance": "조급함을 버리세요. 한 걸음씩 깊이 가는 것이 유리합니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m2f",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 2,
+          "month_pillar": "정묘월",
+          "half": "first",
+          "guidance": "표현과 통찰이 피어나는 달입니다. 부드럽게 전하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m2s",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 2,
+          "month_pillar": "정묘월",
+          "half": "second",
+          "guidance": "예민함이 관계를 시험합니다. 한발 물러서 관조하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m3f",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 3,
+          "month_pillar": "무진월",
+          "half": "first",
+          "guidance": "뿌리내림과 안정이 강한 달입니다. 축축한 흙이 계수의 고향이 됩니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m3s",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 3,
+          "month_pillar": "무진월",
+          "half": "second",
+          "guidance": "책임과 압박이 느껴지나 그것이 곧 안정입니다. 견디세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m4f",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 4,
+          "month_pillar": "기사월",
+          "half": "first",
+          "guidance": "더위가 시작되나 통찰이 빛납니다. 결과물을 내보이세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m4s",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 4,
+          "month_pillar": "기사월",
+          "half": "second",
+          "guidance": "계수가 마르기 쉽습니다. 수분과 휴식을 우선하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m5f",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 5,
+          "month_pillar": "경오월",
+          "half": "first",
+          "guidance": "한여름 더위가 계수를 지치게 합니다. 무리를 피하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m5s",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 5,
+          "month_pillar": "경오월",
+          "half": "second",
+          "guidance": "쇠의 기운이 계수를 보충합니다. 충전의 시간을 가지세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m6f",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 6,
+          "month_pillar": "신미월",
+          "half": "first",
+          "guidance": "섬세한 마무리가 힘을 발합니다. 작은 것을 다듬으세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m6s",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 6,
+          "month_pillar": "신미월",
+          "half": "second",
+          "guidance": "낯선 자리보다 편안한 사람과 시간을 보내세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m7f",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 7,
+          "month_pillar": "임신월",
+          "half": "first",
+          "guidance": "큰 물이 흘러들어 계수에 힘이 붙는 달입니다. 자신감을 가지세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m7s",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 7,
+          "month_pillar": "임신월",
+          "half": "second",
+          "guidance": "쇠가 물을 보충하며 안정됩니다. 결실을 점검하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m8f",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 8,
+          "month_pillar": "계유월",
+          "half": "first",
+          "guidance": "같은 물이 합류해 편안한 달입니다. 세밀한 마무리에 집중하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m8s",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 8,
+          "month_pillar": "계유월",
+          "half": "second",
+          "guidance": "결실을 정리하는 시기입니다. 남은 일을 끝내세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m9f",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 9,
+          "month_pillar": "갑술월",
+          "half": "first",
+          "guidance": "다시 통찰이 피어납니다. 새 주제를 깊이 파고드세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m9s",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 9,
+          "month_pillar": "갑술월",
+          "half": "second",
+          "guidance": "작은 오해는 즉시 푸세요. 미뤄둔 대화가 해답이 됩니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m10f",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 10,
+          "month_pillar": "을해월",
+          "half": "first",
+          "guidance": "물과 나무가 어우러져 편안한 달입니다. 일의 속도를 조절하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m10s",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 10,
+          "month_pillar": "을해월",
+          "half": "second",
+          "guidance": "겨울로 접어들며 계수가 편안해집니다. 충전의 시간을 가지세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m11f",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 11,
+          "month_pillar": "병자월",
+          "half": "first",
+          "guidance": "한겨울 계수가 가장 편안한 달입니다. 힘이 붙는 시기입니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m11s",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 11,
+          "month_pillar": "병자월",
+          "half": "second",
+          "guidance": "햇빛을 자주 쬐며 우울을 경계하세요. 사람들을 가까이 하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m12f",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 12,
+          "month_pillar": "정축월",
+          "half": "first",
+          "guidance": "한 해를 마무리하며 결실과 인연을 정리하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_갑_진_m12s",
+          "pattern_id": "계_갑_진",
+          "lunar_month": 12,
+          "month_pillar": "정축월",
+          "half": "second",
+          "guidance": "미룬 일은 지금 끝내세요. 혼자 앓지 말고 마음을 여세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        }
+      ]
+    },
+    {
+      "pattern": {
+        "pattern_id": "계_을_사",
+        "day_master": "계",
+        "year_stem": "을",
+        "year_branch": "사",
+        "ten_god_stem": "식신",
+        "branch_relation": "stem_branch_combination",
+        "label": "계수 출생 × 을사년 — 이슬이 덩굴을 적시고 여름 햇살을 받음"
+      },
+      "cards": [
+        {
+          "module_id": "계_을_사_cover",
+          "pattern_id": "계_을_사",
+          "card_type": "cover",
+          "card_index": 1,
+          "title": "2025년 을사년, 계수 출생의 연운",
+          "summary": "이슬 같은 계수(癸水)가 초록 덩굴을 부드럽게 적시며 키워내는 한 해입니다. 그 덩굴이 여름의 햇살을 받아 피어나니, 섬세한 표현과 보살핌이 따뜻한 기회로 이어집니다 — \"부드럽게 드러내고, 따뜻하게 끌어당기되, 에너지가 스며 빠져나가지 않도록\"이 올해의 열쇠입니다.",
+          "keywords": [
+            "부드러운 표현",
+            "따뜻한 기회",
+            "에너지 보존"
+          ],
+          "bullets": [
+            "을목(덩굴)은 계수가 부드럽게 적시고 키우는 힘 — 섬세한 표현, 보살핌, 편안한 결과물이 자연스럽게 솟습니다",
+            "사화(초여름 불)는 계수가 스며들어 합하는 자리 — 따뜻함과 빛을 끌어당겨 부드러운 표현이 기회로 이어집니다",
+            "계수 출생에게 2025년은 \"이슬이 덩굴을 적시고 덩굴이 햇살을 받듯\" 부드럽게 피어나는 한 해입니다"
+          ],
+          "action": "올해는 계수 특유의 섬세함을 부드러운 표현과 보살핌으로 밖으로 드러내는 때입니다. 가르치고, 돕고, 다듬는 일에 에너지를 쏟으세요. 다만 이슬이 태양에 스며들듯 에너지가 빠져나가기 쉬우니 충분히 쉬어야 합니다.",
+          "watch": "식신은 편안한 표현의 힘이라 올해는 비교적 순조롭습니다. 다만 \"편안하다\"는 방심으로 이어지기 쉽습니다. 너무 많이 주고 베풀다 보면 계수의 이슬이 말라갑니다. 주되 덜어내는 양은 정하세요.",
+          "evidence": [
+            "annual.year.pillar",
+            "annual.stem.tenGodToDayMaster",
+            "annual.boundary.ipchun"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_overall",
+          "pattern_id": "계_을_사",
+          "card_type": "overall",
+          "card_index": 2,
+          "title": "마음가짐과 전체 흐름",
+          "summary": "계수의 섬세함이 부드럽게 피어나는 해. \"온화한 표현\"과 \"에너지 보존\"이 올해의 두 기둥입니다.",
+          "keywords": [
+            "온화한 표현",
+            "보살핌",
+            "에너지 보존"
+          ],
+          "bullets": [
+            "첫째, \"온화한 표현\" — 계수의 섬세한 통찰이 부드럽고 따뜻하게 밖으로 흘러나옵니다",
+            "둘째, \"보살핌\" — 돕고 가르치고 다듬는 일에서 계수의 가치가 빛납니다",
+            "셋째, \"에너지 보존\" — 이슬이 태양에 스며들듯 에너지가 빠져나가기 쉬우니 양을 정하세요"
+          ],
+          "action": "올해의 힘은 \"얼마나 부드럽게 전하느냐\"에 달려 있습니다. 작년의 날카로운 통찰이 올해는 온화한 표현으로 자연스럽게 스며듭니다. 그 부드러움이 사람과 기회를 부릅니다.",
+          "watch": "올해는 흐름이 비교적 순조로운 만큼 방심하기 쉽습니다. \"잘 되고 있으니 더 베풀어도 되지\"라는 생각이 계수의 에너지를 말립니다. 편안함 속에서도 한계를 지키세요.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_work",
+          "pattern_id": "계_을_사",
+          "card_type": "work",
+          "card_index": 3,
+          "title": "일과 사회활동",
+          "summary": "섬세함과 보살핌이 빛을 발하는 시기. 교육, 돌봄, 디자인, 창작 일에 유리합니다.",
+          "keywords": [
+            "섬세함",
+            "보살핌·돌봄",
+            "부드러운 성과"
+          ],
+          "bullets": [
+            "계수 특유의 섬세함과 따뜻함이 밖으로 드러나며, 교육, 돌봄, 디자인, 창작, 상담 일에서 두각을 나타냅니다",
+            "따뜻하고 부드러운 표현이 사람을 끌어당겨 자연스러운 기회와 협업이 열립니다",
+            "다만 에너지가 빠져나가기 쉬우니, 한 가지 일에 깊이 몰두하고 충분히 쉬세요"
+          ],
+          "action": "올해는 계수의 섬세함을 \"사람을 돕고 다듬는\" 일에 쓰세요. 누군가를 가르치거나 돌보거나 다듬어 주는 일에서 계수의 가치가 가장 빛납니다. 단, 한 번에 너무 많은 사람을 돕지는 마세요.",
+          "watch": "도움을 주다 보면 경계가 흐려져 \"내 것\"과 \"남의 것\"이 섞입니다. 친절은 좋되, 업무의 선은 단단히 지키세요. 베풂이 지나치면 정작 본업의 결과물이 흐트러집니다.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_money",
+          "pattern_id": "계_을_사",
+          "card_type": "money",
+          "card_index": 4,
+          "title": "돈과 현금 흐름",
+          "summary": "부드러운 표현과 보살핌이 자연스럽게 수입으로 연결되는 시기입니다.",
+          "keywords": [
+            "자연스러운 수입",
+            "보살핌의 보상",
+            "에너지 관리"
+          ],
+          "bullets": [
+            "섬세한 결과물과 따뜻한 서비스가 인정받아 수입으로 이어질 수 있는 시기입니다",
+            "다만 친절에 기대어 \"공짜로\" 에너지를 쏟다 보면 수입의 흐름도 에너지도 함께 빠집니다",
+            "계수의 에너지가 사화(불)에 스며들어 소진될 수 있으니, 건강이 곧 재물입니다"
+          ],
+          "action": "올해는 \"섬세함과 따뜻함의 값어치\"를 매기는 해입니다. 친절이라며 공짜로 내주지 말고 적정한 보상을 받으세요. 부드럽게, 그러나 확실히 값을 매기세요.",
+          "watch": "마음이 약해 값을 깎아주거나 공짜로 도와주기 쉽습니다. 한 번 그렇게 하면 습관이 되어 계수의 에너지가 새어나갑니다. 친절은 유지하되 가격의 선은 지키세요.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.policy"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_relationships",
+          "pattern_id": "계_을_사",
+          "card_type": "relationships",
+          "card_index": 5,
+          "title": "인간관계와 애정운",
+          "summary": "따뜻하고 섬세한 매력이 사람을 끄는 시기. 부드러운 관계가 피어납니다.",
+          "keywords": [
+            "따뜻한 매력",
+            "섬세한 배려",
+            "에너지 한계"
+          ],
+          "bullets": [
+            "계수의 섬세하고 따뜻한 매력이 빛나, 편안하고 깊이 있는 인연이 피어납니다",
+            "다만 모두를 다 돕고 품으려 하면 계수의 이슬이 금방 마릅니다 — 소수에게 집중하세요",
+            "애정운: 따뜻하게 배려해 주는 사람, 섬세함을 알아봐 주는 사람에게 인연이 열립니다"
+          ],
+          "action": "올해는 \"따뜻하게 배려하는\" 계수의 매력이 관계를 부릅니다. 애정운은 섬세함을 알아주고 따뜻이 대화하는 사람에게서 자랍니다. 다만 모두에게 친절하려 하지 말고 소수에게 깊이하세요.",
+          "watch": "계수의 친절이 지나치면 상대가 그것을 당연히 여깁니다. 주되 받는 것도 균형을 맞추세요. 일방적으로 주기만 하면 관계가 아니라 소모가 됩니다.",
+          "evidence": [
+            "annual.branch.relationsToNatal",
+            "annual.monthCommand.context"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_growth",
+          "pattern_id": "계_을_사",
+          "card_type": "growth",
+          "card_index": 6,
+          "title": "건강과 일상 리듬",
+          "summary": "이슬이 태양에 스며들듯 에너지가 소진되기 쉬운 시기. 수분과 휴식이 생명줄입니다.",
+          "keywords": [
+            "에너지 고갈 경계",
+            "수분 섭취",
+            "햇빛과 휴식"
+          ],
+          "bullets": [
+            "계수의 에너지가 사화(불)에 스며들어 빠져나가기 쉬운 해입니다 — 무리하지 마세요",
+            "물을 자주 마시고, 수면을 충분히 취하며, 신장·비뇨기 건강을 살피세요",
+            "따뜻한 햇빛을 자주 쬐면 우울을 막고 계수의 기운을 보충할 수 있습니다"
+          ],
+          "action": "올해는 \"충분히 쉬는 것\"이 건강의 핵심입니다. 베풀고 돕는 일에 에너지를 쓴 만큼, 반드시 혼자만의 충전 시간을 가지세요. 햇빛 산책이 계수에게 약이 됩니다.",
+          "watch": "친절과 보살핌에 에너지를 쏟다 보면 정작 자신을 돌보지 못합니다. 남을 돕기 전에 먼저 자신의 그릇을 채우세요. 빈 그릇으로는 아무것도 담아 줄 수 없습니다.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.monthCommand.context"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_action",
+          "pattern_id": "계_을_사",
+          "card_type": "action",
+          "card_index": 7,
+          "title": "올해 꼭 해야 할 일",
+          "summary": "세 가지가 2025년을 알차게 만듭니다.",
+          "keywords": [
+            "부드럽게 드러내기",
+            "값 매기기",
+            "충분한 휴식"
+          ],
+          "bullets": [
+            "섬세한 통찰과 보살핌을 부드러운 표현으로 밖에 드러내세요",
+            "친절에 기대지 말고, 자신의 섬세함과 시간에 분명한 값을 매기세요",
+            "베푼 만큼 반드시 충전하고, 수분과 수면과 햇빛을 우선하세요"
+          ],
+          "action": "이렇게 하시면 2025년은 계수의 섬세함이 따뜻한 기회로 피어나는 한 해가 됩니다. 이슬이 덩굴을 적시면 덩굴이 자라고, 덩굴이 자라면 햇살을 받습니다 — 부드럽게, 그러나 에너지를 아끼세요.",
+          "watch": "피할 것: 무한정 베풀기, 공짜로 에너지 쓰기, 방심한 과로. 가까운 것: 따뜻이 배려해 주는 사람, 햇빛 산책, 맑은 물, 푸른색과 연두색.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal",
+            "annual.policy"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_method",
+          "pattern_id": "계_을_사",
+          "card_type": "method",
+          "card_index": 8,
+          "title": "계산 방법과 한계",
+          "summary": "을사년의 두 글자를 하나씩 풀어 설명합니다.",
+          "keywords": [
+            "을목 분석",
+            "사화 분석",
+            "근거"
+          ],
+          "bullets": [
+            "을(乙): 계수가 부드럽게 적시고 키우는 덩굴 — 섬세한 표현, 보살핌, 편안한 결과물에 유리. 단, 너무 많이 주면 에너지 고갈",
+            "사(巳): 계수가 스며들어 합하는 초여름의 불 — 따뜻함과 빛을 끌어당겨 표현이 기회로 이어짐. 단, 이슬이 태양에 증발하듯 에너지 소모",
+            "해석 기준: 자평명리의 일간·월령·십신 관계. 격국·용신·조후는 이 버전에서 다루지 않습니다"
+          ],
+          "action": "각 항목의 근거를 확인하며 읽어보세요.",
+          "watch": "사주는 관계, 건강, 재산, 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산된 사실과 실제 삶을 돌아볼 질문을 이어주는 참고 자료로 활용하세요.",
+          "evidence": [
+            "annual.policy",
+            "annual.boundary.ipchun"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '올해는 임수의 넓은 시야로 답답한 것을 짚어내고, 그것을 부드럽되 날카롭게 제안으로 풀어내는 때입니다. 침묵보다 말이, 말보다 제안이 힘을 얻는 해입니다.',
-      watch: '제안이 날카로우면 윗사람이나 규칙과 부딪히기 쉽습니다. "맞는 말"도 때와 방식을 가려야 힘을 얻습니다. 물과 불이 만나 증기가 되듯 감정이 출렁일 수 있으니 한 박자 쉬어 가세요.',
-      evidence: ['annual.year.pillar', 'annual.stem.tenGodToDayMaster', 'annual.boundary.ipchun'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_을_사_overall', pattern_id: '임_을_사', card_type: 'overall', card_index: 2,
-      title: '마음가짐과 전체 흐름',
-      summary: '임수의 자유로운 흐름이 유연하게 뻗으며 답답함을 개선하는 해. "거침없는 제안"과 "말의 온도 조절"이 올해의 두 기둥입니다.',
-      keywords: ['제안', '융통성', '말의 온도'],
-      bullets: [
-        '첫째, "거침없는 제안" — 임수의 통찰이 답답함을 짚어내고 더 나은 방법을 제시합니다',
-        '둘째, "융통성" — 덩굴처럼 굽히고 감으며 가는 유연함이 막힘을 뚫습니다',
-        '셋째, "말의 온도 조절" — 날카로운 말도 부드럽게 전하면 기회가 되고, 거칠게 전하면 상처가 됩니다',
+      "domains": [
+        {
+          "module_id": "계_을_사_mindset",
+          "pattern_id": "계_을_사",
+          "domain_key": "mindset",
+          "domain_label": "마음가짐",
+          "domain_index": 1,
+          "points": [
+            "온화한 표현 — 계수의 섬세한 통찰이 부드럽고 따뜻하게 밖으로 흘러나옵니다",
+            "보살핌 — 돕고 가르치고 다듬는 일에서 계수의 가치가 빛납니다",
+            "에너지 보존 — 이슬이 태양에 스며들듯 에너지가 빠져나가기 쉬우니 양을 정하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_rel",
+          "pattern_id": "계_을_사",
+          "domain_key": "relationships",
+          "domain_label": "인간관계",
+          "domain_index": 2,
+          "points": [
+            "섬세하고 따뜻한 매력이 편안하고 깊은 인연을 피어냅니다",
+            "모두를 다 품으려 하면 이슬이 마릅니다 — 소수에게 집중하세요",
+            "주되 받는 것도 균형을 맞추세요 — 일방적 베풂은 소모입니다",
+            "섬세함을 알아주는 사람에게 시간과 마음을 쏟으세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_health",
+          "pattern_id": "계_을_사",
+          "domain_key": "health",
+          "domain_label": "건강",
+          "domain_index": 3,
+          "points": [
+            "에너지가 사화(불)에 스며들어 소진되기 쉬운 해입니다 — 무리하지 마세요",
+            "물을 자주 마시고 수면을 충분히 취하며 신장·비뇨기를 살피세요",
+            "따뜻한 햇빛을 자주 쬐면 우울을 막고 기운을 보충합니다",
+            "남을 돕기 전에 먼저 자신의 그릇을 채우세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_career",
+          "pattern_id": "계_을_사",
+          "domain_key": "career",
+          "domain_label": "학업 · 직업 · 사회활동",
+          "domain_index": 4,
+          "points": [
+            "섬세함과 따뜻함이 밖으로 드러나는 시기입니다",
+            "교육, 돌봄, 디자인, 창작, 상담 일에서 두각을 나타냅니다",
+            "한 가지 일에 깊이 몰두하고 충분히 쉬어야 에너지가 유지됩니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_family",
+          "pattern_id": "계_을_사",
+          "domain_key": "family",
+          "domain_label": "가족",
+          "domain_index": 5,
+          "points": [
+            "가족을 따뜻이 돌보는 계수의 섬세함이 가족의 큰 힘이 됩니다",
+            "다만 모든 가족을 다 챙기려 하면 에너지가 새어나갑니다",
+            "가족에게 받는 것도 허락하세요 — 일방적 희생은 지침의 원인이 됩니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_romance",
+          "pattern_id": "계_을_사",
+          "domain_key": "romance",
+          "domain_label": "애정운",
+          "domain_index": 6,
+          "points": [
+            "따뜻이 배려해 주고 섬세함을 알아봐 주는 사람에게 인연이 열립니다",
+            "편안한 대화가 통하는 자리에서 인연이 자랍니다",
+            "너무 많은 사람에게 친절을 베풀면 애정운이 흩어집니다 — 한 사람에게 집중하세요",
+            "주되 받는 것도 균형을 맞추어야 관계가 건강해집니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_wealth",
+          "pattern_id": "계_을_사",
+          "domain_key": "wealth",
+          "domain_label": "재물",
+          "domain_index": 7,
+          "points": [
+            "섬세한 결과물과 따뜻한 서비스가 인정받아 수입으로 이어집니다",
+            "친절에 기대어 공짜로 에너지를 쏟지 마세요 — 분명한 값을 매기세요",
+            "건강이 곧 재물입니다 — 에너지를 지켜야 수입의 흐름도 유지됩니다",
+            "들어온 돈은 안전한 곳에 모아 두세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_fashion",
+          "pattern_id": "계_을_사",
+          "domain_key": "fashion",
+          "domain_label": "패션",
+          "domain_index": 8,
+          "points": [
+            "부드럽고 따뜻한 톤이 계수의 섬세한 매력을 돋보이게 합니다",
+            "푸른색과 연두색이 계수와 덩굴의 조화를 돕습니다",
+            "액세서리는 섬세하고 자연 소재가 유리합니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_season",
+          "pattern_id": "계_을_사",
+          "domain_key": "season",
+          "domain_label": "날씨와 계절",
+          "domain_index": 9,
+          "points": [
+            "봄: 부드러운 표현과 보살핌의 에너지가 가장 강한 계절입니다",
+            "여름: 계수가 태양에 스며들어 에너지가 소모되는 때 — 수분과 휴식이 우선입니다",
+            "가을: 쇠가 물을 보충하며 섬세한 결실이 피어나는 계절입니다",
+            "겨울: 계수가 편안해지며 충전하는 계절 — 내년의 표현을 미리 준비하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_pur",
+          "pattern_id": "계_을_사",
+          "domain_key": "purchases",
+          "domain_label": "물품 구입",
+          "domain_index": 10,
+          "points": [
+            "성장과 돌봄에 쓰는 돈은 가치 있는 투자입니다",
+            "친절에 현혹되어 불필요한 것을 사지 않도록 주의하세요",
+            "섬세하게 비교하고 따뜻한 마음으로 신중하게 고르세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_avoid",
+          "pattern_id": "계_을_사",
+          "domain_key": "avoid",
+          "domain_label": "피해야 할 기운",
+          "domain_index": 11,
+          "points": [
+            "무한정 베풀기 — 계수의 이슬이 말라갑니다",
+            "공짜로 에너지와 시간 쓰기 — 수입의 흐름도 끊깁니다",
+            "방심한 과로 — 편안함 속에서 에너지가 소모됩니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_fav",
+          "pattern_id": "계_을_사",
+          "domain_key": "favorable",
+          "domain_label": "이로운 기운",
+          "domain_index": 12,
+          "points": [
+            "따뜻이 배려해 주는 사람, 햇빛 산책이 이롭습니다",
+            "맑은 물, 푸른색과 연두색, 조용하고 따뜻한 공간이 유리합니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_을_사_must",
+          "pattern_id": "계_을_사",
+          "domain_key": "must_do",
+          "domain_label": "꼭 해야 할 일",
+          "domain_index": 13,
+          "points": [
+            "섬세한 통찰과 보살핌을 부드러운 표현으로 밖에 드러내세요",
+            "자신의 섬세함과 시간에 분명한 값을 매기세요",
+            "베푼 만큼 반드시 충전하고 수분과 수면과 햇빛을 우선하세요"
+          ],
+          "closing": "이렇게 하시면 2025년은 계수의 섬세함이 따뜻한 기회로 피어나는 한 해가 됩니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '올해의 힘은 "어떻게 말하느냐"에 달려 있습니다. 통찰은 같아도, 전하는 방식에 따라 기회가 되기도 적이 되기도 합니다. 한 박자 늦추고 부드럽게 전하세요.',
-      watch: '물과 불이 만나 증기가 피어오르듯, 감정과 에너지가 출렁입니다. 흥분한 상태에서 내뱉은 말은 뒤로 되돌리기 어렵습니다. 말은 천천히, 행동은 신중하게.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_을_사_work', pattern_id: '임_을_사', card_type: 'work', card_index: 3,
-      title: '일과 사회활동',
-      summary: '개선과 혁신의 제안이 힘을 발하는 시기. 기획, 컨설팅, 기술, 창작 일에 유리합니다.',
-      keywords: ['혁신', '제안', '기획·컨설팅'],
-      bullets: [
-        '답답한 절차나 묵은 관행을 짚어내고 더 나은 방법을 제안하는 일에서 두각을 나타냅니다',
-        '기획, 컨설팅, 기술, 디자인, 콘텐츠처럼 "불편함을 개선하는" 일에 특히 유리합니다',
-        '다만 제안이 윗사람의 체면을 건드리지 않도록, "맞는 말"도 부드럽게 포장하세요',
+      "monthly": [
+        {
+          "slot_id": "계_을_사_m1f",
+          "pattern_id": "계_을_사",
+          "lunar_month": 1,
+          "month_pillar": "무인월",
+          "half": "first",
+          "guidance": "새해 부드러운 표현의 씨앗이 피어납니다. 따뜻하게 다가가세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m1s",
+          "pattern_id": "계_을_사",
+          "lunar_month": 1,
+          "month_pillar": "무인월",
+          "half": "second",
+          "guidance": "계획을 세우되 여유를 가지세요. 서두르면 섬세함이 사라집니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m2f",
+          "pattern_id": "계_을_사",
+          "lunar_month": 2,
+          "month_pillar": "기묘월",
+          "half": "first",
+          "guidance": "부드러운 배려가 사람을 끄는 달입니다. 칭찬을 아끼지 마세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m2s",
+          "pattern_id": "계_을_사",
+          "lunar_month": 2,
+          "month_pillar": "기묘월",
+          "half": "second",
+          "guidance": "너무 많이 주지 마세요. 받는 것도 허락해야 관계가 건강합니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m3f",
+          "pattern_id": "계_을_사",
+          "lunar_month": 3,
+          "month_pillar": "경진월",
+          "half": "first",
+          "guidance": "섬세한 결과물을 정리하기 좋은 달입니다. 한 가지에 집중하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m3s",
+          "pattern_id": "계_을_사",
+          "lunar_month": 3,
+          "month_pillar": "경진월",
+          "half": "second",
+          "guidance": "쇠가 계수를 보충합니다. 충전의 시간을 가지세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m4f",
+          "pattern_id": "계_을_사",
+          "lunar_month": 4,
+          "month_pillar": "신사월",
+          "half": "first",
+          "guidance": "계수가 사화와 합하는 달입니다. 부드러운 표현이 기회로 이어집니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m4s",
+          "pattern_id": "계_을_사",
+          "lunar_month": 4,
+          "month_pillar": "신사월",
+          "half": "second",
+          "guidance": "이슬이 태양에 스며들듯 에너지가 소모됩니다. 충분히 쉬세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m5f",
+          "pattern_id": "계_을_사",
+          "lunar_month": 5,
+          "month_pillar": "임오월",
+          "half": "first",
+          "guidance": "큰 물이 계수에 힘을 보탭니다. 자신감을 가지고 밀고 나가세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m5s",
+          "pattern_id": "계_을_사",
+          "lunar_month": 5,
+          "month_pillar": "임오월",
+          "half": "second",
+          "guidance": "여름 불이 강해집니다. 수분과 휴식, 햇빛 산책이 필요합니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m6f",
+          "pattern_id": "계_을_사",
+          "lunar_month": 6,
+          "month_pillar": "계미월",
+          "half": "first",
+          "guidance": "같은 물이 합류해 편안한 달입니다. 세밀한 마무리에 집중하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m6s",
+          "pattern_id": "계_을_사",
+          "lunar_month": 6,
+          "month_pillar": "계미월",
+          "half": "second",
+          "guidance": "감정에 휘둘리지 마세요. 객관적인 시각이 필요한 달입니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m7f",
+          "pattern_id": "계_을_사",
+          "lunar_month": 7,
+          "month_pillar": "갑신월",
+          "half": "first",
+          "guidance": "쇠가 물을 보충하며 계수가 안정됩니다. 결실을 다듬으세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m7s",
+          "pattern_id": "계_을_사",
+          "lunar_month": 7,
+          "month_pillar": "갑신월",
+          "half": "second",
+          "guidance": "결과물을 밖으로 드러내기 좋습니다. 부드럽게 내보이세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m8f",
+          "pattern_id": "계_을_사",
+          "lunar_month": 8,
+          "month_pillar": "을유월",
+          "half": "first",
+          "guidance": "섬세한 표현과 따뜻함이 힘을 얻는 달입니다. 인연을 가꾸세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m8s",
+          "pattern_id": "계_을_사",
+          "lunar_month": 8,
+          "month_pillar": "을유월",
+          "half": "second",
+          "guidance": "말 한마디가 관계를 따뜻하게 합니다. 감사를 표현하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m9f",
+          "pattern_id": "계_을_사",
+          "lunar_month": 9,
+          "month_pillar": "병술월",
+          "half": "first",
+          "guidance": "올해의 부드러운 노력이 결실로 나타납니다. 정산하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m9s",
+          "pattern_id": "계_을_사",
+          "lunar_month": 9,
+          "month_pillar": "병술월",
+          "half": "second",
+          "guidance": "작은 오해는 따뜻한 대화로 푸세요. 미루면 굳어집니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m10f",
+          "pattern_id": "계_을_사",
+          "lunar_month": 10,
+          "month_pillar": "정해월",
+          "half": "first",
+          "guidance": "물과 나무가 어우러져 편안한 달입니다. 인연과 따뜻한 시간을 보내세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m10s",
+          "pattern_id": "계_을_사",
+          "lunar_month": 10,
+          "month_pillar": "정해월",
+          "half": "second",
+          "guidance": "겨울로 접어들며 계수가 충전됩니다. 내년의 표현을 미리 그려보세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m11f",
+          "pattern_id": "계_을_사",
+          "lunar_month": 11,
+          "month_pillar": "무자월",
+          "half": "first",
+          "guidance": "한겨울 계수가 편안한 달입니다. 휴식과 정비가 우선입니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m11s",
+          "pattern_id": "계_을_사",
+          "lunar_month": 11,
+          "month_pillar": "무자월",
+          "half": "second",
+          "guidance": "햇빛을 쬐며 우울을 경계하세요. 따뜻한 사람들을 가까이 하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m12f",
+          "pattern_id": "계_을_사",
+          "lunar_month": 12,
+          "month_pillar": "기축월",
+          "half": "first",
+          "guidance": "한 해를 마무리하며 따뜻하게 인연과 수입을 정리하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_을_사_m12s",
+          "pattern_id": "계_을_사",
+          "lunar_month": 12,
+          "month_pillar": "기축월",
+          "half": "second",
+          "guidance": "받은 따뜻함에 감사하며 내년의 보살핌을 준비하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        }
+      ]
+    },
+    {
+      "pattern": {
+        "pattern_id": "계_병_오",
+        "day_master": "계",
+        "year_stem": "병",
+        "year_branch": "오",
+        "ten_god_stem": "정재",
+        "branch_relation": "strong_fire_evaporates_water",
+        "label": "계수 출생 × 병오년 — 아침 이슬에 비친 태양, 확실한 기회와 수분 보존"
+      },
+      "cards": [
+        {
+          "module_id": "계_병_오_cover",
+          "pattern_id": "계_병_오",
+          "card_type": "cover",
+          "card_index": 1,
+          "title": "2026년 병오년, 계수 출생의 연운",
+          "summary": "아침 이슬에 태양이 비쳐 반짝이듯, 계수(癸水)에게 확실하고 약속된 기회가 들어오는 한 해입니다. 안정적 수입과 정당한 보상의 자리이나, 한여름의 강한 불이 계수의 이슬을 말려갈 수 있으니 — \"작고 확실한 것을 지키며, 섬세함을 잃지 않는 것\"이 올해의 열쇠입니다.",
+          "keywords": [
+            "확실한 보상",
+            "수분 보존",
+            "섬세함 유지"
+          ],
+          "bullets": [
+            "병화(태양)는 계수가 만나는 확실하고 약속된 기회 — 안정적 수입, 정당한 보상, 성실의 결실이 열립니다",
+            "오화(한여름 왕성한 불)는 계수의 이슬을 말리는 자리 — 기회가 확실한 만큼 에너지·감정·체력이 소모됩니다",
+            "계수 출생에게 2026년은 \"받을 것을 받되, 주되 말라가지 않도록\" 보존의 지혜가 필요한 한 해입니다"
+          ],
+          "action": "올해는 그동안 쌓아온 섬세함과 성실이 약속된 보상으로 돌아오는 때입니다. 다만 큰 불 앞에서 이슬은 쉽게 마르니, 한 걸음씩, 충분히 쉬어 가며 에너지를 아끼세요.",
+          "watch": "정재라 기본은 안정적이지만, 한여름의 열기가 계수의 수분을 빼앗습니다. \"확실하니까 더 밀어붙여야지\"라는 생각이 계수를 고갈시킵니다. 속도보다 지구력이 올해의 생명줄입니다.",
+          "evidence": [
+            "annual.year.pillar",
+            "annual.stem.tenGodToDayMaster",
+            "annual.boundary.ipchun"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_overall",
+          "pattern_id": "계_병_오",
+          "card_type": "overall",
+          "card_index": 2,
+          "title": "마음가짐과 전체 흐름",
+          "summary": "확실한 보상이 들어오되 에너지가 소모되는 해. \"작고 확실한 것 지키기\"와 \"수분 보존\"이 올해의 두 기둥입니다.",
+          "keywords": [
+            "확실한 보상",
+            "보존",
+            "섬세함 유지"
+          ],
+          "bullets": [
+            "첫째, \"작고 확실한 것 지키기\" — 크고 화려한 것을 좇기보다 손에 잡힌 것을 단단히 쥐세요",
+            "둘째, \"수분 보존\" — 한여름의 불이 계수의 에너지·감정·체력을 가장 빨리 빼앗습니다",
+            "셋째, \"섬세함 유지\" — 바쁘고 확실한 흐름 속에서도 계수 특유의 깊은 눈을 잃지 마세요"
+          ],
+          "action": "올해의 지혜는 \"더 받으려 하기\"보다 \"받은 것을 지키기\"에 있습니다. 계수의 이슬은 한 번 마르면 다시 채우기 어렵습니다. 확실한 보상이 와도 과욕은 금물입니다.",
+          "watch": "안정적이라는 확신이 방심을 부릅니다. \"올해는 괜찮겠지\"라며 무리하다 한여름에 한꺼번에 무너지기 쉽습니다. 편안함 속에서도 한계를 단단히 지키세요.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_work",
+          "pattern_id": "계_병_오",
+          "card_type": "work",
+          "card_index": 3,
+          "title": "일과 사회활동",
+          "summary": "성실의 결실과 확실한 보상이 따르는 시기. 다만 체력 관리가 무엇보다 중요합니다.",
+          "keywords": [
+            "성실의 결실",
+            "안정적 보상",
+            "체력 관리"
+          ],
+          "bullets": [
+            "그동안 쌓아온 섬세함과 성실이 인정받아 안정적 자리와 보상으로 이어질 수 있는 시기입니다",
+            "다만 한여름의 불이 에너지를 빼앗으니, 일의 속도보다 지구력과 체력 관리가 먼저입니다",
+            "계수 특유의 깊은 눈을 잃지 말고, 바쁜 흐름 속에서도 한 걸음 물러서 살피는 시간을 가지세요"
+          ],
+          "action": "올해는 \"성실이 보상으로 돌아오는\" 때입니다. 단, 보상이 따른다고 무리하면 계수의 이슐이 마릅니다. 확실한 일에 집중하되, 반드시 쉬는 시간을 일정에 넣으세요.",
+          "watch": "안정적 자리가 주어지면 책임이 따릅니다. 그 책임이 한여름의 불처럼 계수를 압박할 수 있습니다. 모든 것을 떠안지 말고, 나누고 줄이는 용기가 필요합니다.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_money",
+          "pattern_id": "계_병_오",
+          "card_type": "money",
+          "card_index": 4,
+          "title": "돈과 현금 흐름",
+          "summary": "안정적 수입과 확실한 보상이 들어오는 시기. 다만 들어온 것을 지키는 것이 더 중요합니다.",
+          "keywords": [
+            "안정적 수입",
+            "보존",
+            "투자 한도"
+          ],
+          "bullets": [
+            "정재의 기운 — 안정적이고 약속된 수입, 정당한 보상이 열리는 시기입니다",
+            "다만 안정적이라는 확신이 투자와 지출의 유혹을 부릅니다 — 한도를 엄격히 정하세요",
+            "한여름의 불이 자본까지 말릴 수 있으니, 들어온 돈은 안전한 곳에 단단히 모아 두세요"
+          ],
+          "action": "올해는 \"받은 것을 지키는\" 것이 핵심입니다. 안정적 수입이 들어와도 그것을 다시 위험에 돌리지 마세요. 저축과 안전 자산 비중을 높이고, 투자는 최소한으로 하세요.",
+          "watch": "\"올해는 안정적이니까 투자해도 되지\"라는 생각이 가장 위험합니다. 계수의 이슬은 한 번 마르면 회복이 느립니다. 보수적이고 확실한 길을 고수하세요.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.policy"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_relationships",
+          "pattern_id": "계_병_오",
+          "card_type": "relationships",
+          "card_index": 5,
+          "title": "인간관계와 애정운",
+          "summary": "안정적이고 신뢰 깊은 인연이 자리 잡는 시기. 다만 바쁜 흐름이 관계를 소홀하게 만듭니다.",
+          "keywords": [
+            "안정적 인연",
+            "신뢰",
+            "시간 내어주기"
+          ],
+          "bullets": [
+            "신뢰와 안정이 바탕이 되는 인연이 자리 잡을 수 있는 시기입니다",
+            "다만 확실한 일과 보상에 쫓겨 정작 소중한 사람에게 시간을 주지 못하기 쉽습니다",
+            "애정운: 변함없이 곁을 지켜 주는 사람, 섬세함을 알아주는 사람에게 인연이 깊어집니다"
+          ],
+          "action": "올해는 \"시간을 내어 주는 것\"이 관계의 핵심입니다. 바쁘고 확실한 흐름 속에서도 소중한 사람과 느리고 깊은 시간을 가지세요. 안정이 관계의 밑거름입니다.",
+          "watch": "안정적 보상에 취해 관계를 소홀히 하면, 정작 중요한 사람이 멀어집니다. 계수의 섬세함은 사람에게 쓸 때 가장 빛납니다 — 일에만 쓰지 마세요.",
+          "evidence": [
+            "annual.branch.relationsToNatal",
+            "annual.monthCommand.context"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_growth",
+          "pattern_id": "계_병_오",
+          "card_type": "growth",
+          "card_index": 6,
+          "title": "건강과 일상 리듬",
+          "summary": "한여름의 강한 불이 계수의 이슬을 말리는 시기. 수분, 수면, 우울 경계가 생명줄입니다.",
+          "keywords": [
+            "수분 보존",
+            "우울 경계",
+            "지구력"
+          ],
+          "bullets": [
+            "한여름의 불이 계수의 에너지와 수분을 가장 빨리 빼앗습니다 — 무리와 과로를 피하세요",
+            "물을 자주 마시고, 수면을 충분히 취하며, 신장·비뇨기·심장·혈압을 살피세요",
+            "안정적 흐름 속에서도 우울과 고갈이 조용히 찾아올 수 있으니 햇빛과 사람을 가까이 하세요"
+          ],
+          "action": "올해는 \"지구력의 해\"입니다. 확실한 일이 따르더라도 체력을 먼저 챙기세요. 규칙적인 수분 섭취, 충분한 수면, 햇빛 산책이 계수의 이슬을 지킵니다.",
+          "watch": "\"괜찮겠지\"라는 방심이 한여름에 한꺼번에 무너지기 쉽습니다. 바쁘다는 핑계로 쉬는 것을 미루지 마세요. 계수가 무너지면 모든 것이 멈춥니다.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.monthCommand.context"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_action",
+          "pattern_id": "계_병_오",
+          "card_type": "action",
+          "card_index": 7,
+          "title": "올해 꼭 해야 할 일",
+          "summary": "세 가지가 2026년을 안정되게 만듭니다.",
+          "keywords": [
+            "받은 것 지키기",
+            "체력 우선",
+            "섬세함 유지"
+          ],
+          "bullets": [
+            "안정적 수입이 들어와도 그것을 다시 위험에 돌리지 말고 안전한 곳에 모으세요",
+            "체력과 수분을 최우선으로 관리하세요 — 한여름의 불이 계수를 가장 빨리 말립니다",
+            "바쁜 흐름 속에서도 계수 특유의 깊은 눈과 섬세함을 잃지 마세요"
+          ],
+          "action": "이렇게 하시면 2026년은 계수에게 확실한 보상이 안정적 결실로 남는 한 해가 됩니다. 아침 이슬에 태양이 비치듯 반짝이되, 한낮의 불길에 마르지 않도록 스스로를 보존하세요.",
+          "watch": "피할 것: 안정에 취한 방심, 무리한 투자와 과로, 관계 소홀. 가까운 것: 느리고 깊은 대화, 햇빛 산책, 맑은 물, 푸른색과 남색, 서늘한 공간.",
+          "evidence": [
+            "annual.stem.tenGodToDayMaster",
+            "annual.branch.relationsToNatal",
+            "annual.policy"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_method",
+          "pattern_id": "계_병_오",
+          "card_type": "method",
+          "card_index": 8,
+          "title": "계산 방법과 한계",
+          "summary": "병오년의 두 글자를 하나씩 풀어 설명합니다.",
+          "keywords": [
+            "병화 분석",
+            "오화 분석",
+            "근거"
+          ],
+          "bullets": [
+            "병(丙): 계수가 만나는 확실하고 약속된 태양 — 안정적 수입, 정당한 보상, 성실의 결실. 단, 너무 강한 빛에 계수의 섬세함이 흐려지기 쉬움",
+            "오(午): 한여름 왕성한 불 — 계수의 이슬을 말리는 자리. 확실한 기회와 보상이 따르나 에너지·체력·감정이 소모됨",
+            "해석 기준: 자평명리의 일간·월령·십신 관계. 격국·용신·조후는 이 버전에서 다루지 않습니다"
+          ],
+          "action": "각 항목의 근거를 확인하며 읽어보세요.",
+          "watch": "사주는 관계, 건강, 재산, 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산된 사실과 실제 삶을 돌아볼 질문을 이어주는 참고 자료로 활용하세요.",
+          "evidence": [
+            "annual.policy",
+            "annual.boundary.ipchun"
+          ],
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '올해는 임수의 통찰을 제안으로 세상에 내놓는 때입니다. 회의 자리, 기획서, 글 어디든 좋습니다. 단, 제안이 곧 비판이 되지 않도록 "더 나은 방법"을 강조하세요.',
-      watch: '혁신적인 제안일수록 기존을 지키는 사람과 부딪힙니다. 싸워서 이기려 하지 말고, 설득과 성과로 보여주세요. 한 번에 안 되면 덩굴처럼 여러 번 감아서 가세요.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_을_사_money', pattern_id: '임_을_사', card_type: 'money', card_index: 4,
-      title: '돈과 현금 흐름',
-      summary: '제안과 통찰이 실제 수입으로 연결되는 시기. 말과 아이디어가 돈이 되는 해입니다.',
-      keywords: ['제안이 수입으로', '기회성 수입', '감정적 소비 경계'],
-      bullets: [
-        '상관이 재를 돕는 흐름 — 제안, 컨설팅, 기획, 강연 등에서 기회성 수입이 열릴 수 있습니다',
-        '아이디어와 말이 곧 돈이 되는 시기이니, 자신의 통찰을 함부로 넘기지 마세요',
-        '다만 물과 불의 긴장으로 감정이 출렁이면 충동적 소비가 유혹으로 다가옵니다',
+      "domains": [
+        {
+          "module_id": "계_병_오_mindset",
+          "pattern_id": "계_병_오",
+          "domain_key": "mindset",
+          "domain_label": "마음가짐",
+          "domain_index": 1,
+          "points": [
+            "작고 확실한 것 지키기 — 크고 화려한 것을 좇기보다 손에 잡힌 것을 단단히 쥐세요",
+            "수분 보존 — 한여름의 불이 계수의 에너지·감정·체력을 가장 빨리 빼앗습니다",
+            "섬세함 유지 — 바쁘고 확실한 흐름 속에서도 계수 특유의 깊은 눈을 잃지 마세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_rel",
+          "pattern_id": "계_병_오",
+          "domain_key": "relationships",
+          "domain_label": "인간관계",
+          "domain_index": 2,
+          "points": [
+            "신뢰와 안정이 바탕이 되는 인연이 자리 잡는 시기입니다",
+            "확실한 일에 쫓겨 소중한 사람에게 시간을 주지 못하지 마세요",
+            "변함없이 곁을 지켜 주는 사람에게 마음을 쏟으세요",
+            "일에만 에너지를 쓰지 말고 사람에게도 나누세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_health",
+          "pattern_id": "계_병_오",
+          "domain_key": "health",
+          "domain_label": "건강",
+          "domain_index": 3,
+          "points": [
+            "한여름의 불이 계수의 에너지와 수분을 가장 빨리 빼앗습니다 — 무리와 과로를 피하세요",
+            "물을 자주 마시고 수면을 충분히 취하며 신장·비뇨기·심장·혈압을 살피세요",
+            "안정적 흐름 속에서도 우울과 고갈이 조용히 찾아올 수 있습니다",
+            "햇빛 산책과 충분한 휴식이 계수의 생명줄입니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_career",
+          "pattern_id": "계_병_오",
+          "domain_key": "career",
+          "domain_label": "학업 · 직업 · 사회활동",
+          "domain_index": 4,
+          "points": [
+            "섬세함과 성실이 인정받아 안정적 자리와 보상으로 이어지는 시기입니다",
+            "일의 속도보다 지구력과 체력 관리가 먼저입니다",
+            "바쁜 흐름 속에서도 한 걸음 물러서 살피는 시간을 가지세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_family",
+          "pattern_id": "계_병_오",
+          "domain_key": "family",
+          "domain_label": "가족",
+          "domain_index": 5,
+          "points": [
+            "가족과 느리고 안정적인 시간을 가지는 것이 올해의 큰 힘이 됩니다",
+            "바쁘다는 핑계로 가족을 소홀히 하지 마세요",
+            "가족의 신뢰가 곧 계수의 안정의 밑거름입니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_romance",
+          "pattern_id": "계_병_오",
+          "domain_key": "romance",
+          "domain_label": "애정운",
+          "domain_index": 6,
+          "points": [
+            "변함없이 곁을 지켜 주고 섬세함을 알아주는 사람에게 인연이 깊어집니다",
+            "안정과 신뢰가 바탕이 되는 인연이 자리 잡는 시기입니다",
+            "바쁜 흐름에 정작 소중한 사람을 소홀히 하지 마세요",
+            "느리고 깊은 시간이 애정운을 키웁니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_wealth",
+          "pattern_id": "계_병_오",
+          "domain_key": "wealth",
+          "domain_label": "재물",
+          "domain_index": 7,
+          "points": [
+            "안정적이고 약속된 수입과 정당한 보상이 열리는 시기입니다",
+            "들어온 돈은 안전한 곳에 단단히 모아 두세요",
+            "투자와 지출의 한도를 엄격히 정하세요",
+            "안정에 취해 다시 위험에 돌리지 마세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_fashion",
+          "pattern_id": "계_병_오",
+          "domain_key": "fashion",
+          "domain_label": "패션",
+          "domain_index": 8,
+          "points": [
+            "서늘하고 차분한 톤이 한여름의 열기를 가라앉힙니다",
+            "푸른색과 남색이 계수의 기운을 돕습니다 — 붉은색은 줄이세요",
+            "액세서리는 심플하고 서늘한 소재(은, 진주 등)가 유리합니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_season",
+          "pattern_id": "계_병_오",
+          "domain_key": "season",
+          "domain_label": "날씨와 계절",
+          "domain_index": 9,
+          "points": [
+            "봄: 안정의 씨앗이 피어나는 계절 — 한 가지 확실한 일에 뿌리를 내리세요",
+            "여름: 한여름 불이 가장 강한 때 — 수분과 체력 보존이 최우선입니다",
+            "가을: 열기가 식으며 결실이 피어나는 계절 — 수확을 정리하세요",
+            "겨울: 계수가 편안해지며 충전하는 계절 — 내년을 대비하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_pur",
+          "pattern_id": "계_병_오",
+          "domain_key": "purchases",
+          "domain_label": "물품 구입",
+          "domain_index": 10,
+          "points": [
+            "안정적 수입이 들어와도 지출 한도를 엄격히 정하세요",
+            "체력과 건강에 쓰는 돈은 가치 있는 투자입니다",
+            "화려한 겉모습보다 실용성과 내구성을 우선하세요"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_avoid",
+          "pattern_id": "계_병_오",
+          "domain_key": "avoid",
+          "domain_label": "피해야 할 기운",
+          "domain_index": 11,
+          "points": [
+            "안정에 취한 방심 — \"괜찮겠지\"가 한여름에 무너뜨립니다",
+            "무리한 투자와 과로 — 체력과 자본을 동시에 말립니다",
+            "관계 소홀 — 확실한 일에 쫓겨 소중한 사람을 놓칩니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_fav",
+          "pattern_id": "계_병_오",
+          "domain_key": "favorable",
+          "domain_label": "이로운 기운",
+          "domain_index": 12,
+          "points": [
+            "느리고 깊은 대화, 햇빛 산책, 서늘하고 조용한 공간이 이롭습니다",
+            "맑은 물, 푸른색과 남색, 안정적인 인연이 유리합니다"
+          ],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_병_오_must",
+          "pattern_id": "계_병_오",
+          "domain_key": "must_do",
+          "domain_label": "꼭 해야 할 일",
+          "domain_index": 13,
+          "points": [
+            "안정적 수입을 안전한 곳에 모으고 다시 위험에 돌리지 마세요",
+            "체력과 수분을 최우선으로 관리하세요",
+            "바쁜 흐름 속에서도 섬세함과 깊은 눈을 잃지 마세요"
+          ],
+          "closing": "이렇게 하시면 2026년은 계수에게 확실한 보상이 안정적 결실로 남는 한 해가 됩니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '올해는 "말과 아이디어의 값어치"를 매기는 해입니다. 공짜로 통찰을 내주지 말고, 적정한 보상을 협상하세요. 기회가 오면 임수 특유의 결단력으로 잡으세요.',
-      watch: '기회성 수입이 들쑥날쑥할 수 있습니다. 들어올 때 모아 두고, 감정적으로 큰돈을 쓰는 순간을 피하세요. 흥분한 상태의 결정은 뒤탈립니다.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.policy'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_을_사_relationships', pattern_id: '임_을_사', card_type: 'relationships', card_index: 5,
-      title: '인간관계와 애정운',
-      summary: '말이 오가는 자리에서 인연이 피어나는 해. 대화가 통하는 사람에게 끌립니다.',
-      keywords: ['대화가 통하는 인연', '지적 끌림', '말조심'],
-      bullets: [
-        '의견을 나누고 토론하는 자리에서 좋은 인연이 생깁니다 — 말이 통하는 사람에게 끌립니다',
-        '다만 임수의 거침없는 말이 상대의 자존심을 건드릴 수 있습니다 — 맞는 말도 부드럽게',
-        '애정운: 지적인 대화와 유머가 오가는 자리에서 인연이 열립니다. 가벼운 농담은 좋되 날카로운 놀림은 피하세요',
+      "monthly": [
+        {
+          "slot_id": "계_병_오_m1f",
+          "pattern_id": "계_병_오",
+          "lunar_month": 1,
+          "month_pillar": "임인월",
+          "half": "first",
+          "guidance": "새해 물이 강해지며 계수에 힘이 붙는 달입니다. 안정의 씨앗을 심으세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m1s",
+          "pattern_id": "계_병_오",
+          "lunar_month": 1,
+          "month_pillar": "임인월",
+          "half": "second",
+          "guidance": "물이 나무를 키우며 에너지가 쓰입니다. 한 가지에 집중하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m2f",
+          "pattern_id": "계_병_오",
+          "lunar_month": 2,
+          "month_pillar": "계묘월",
+          "half": "first",
+          "guidance": "같은 물이 합류해 편안한 달입니다. 섬세함을 살피세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m2s",
+          "pattern_id": "계_병_오",
+          "lunar_month": 2,
+          "month_pillar": "계묘월",
+          "half": "second",
+          "guidance": "감정에 휘둘리지 마세요. 객관적 판단이 필요한 달입니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m3f",
+          "pattern_id": "계_병_오",
+          "lunar_month": 3,
+          "month_pillar": "갑진월",
+          "half": "first",
+          "guidance": "축축한 흙이 계수의 고향이 되는 달입니다. 뿌리를 내리세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m3s",
+          "pattern_id": "계_병_오",
+          "lunar_month": 3,
+          "month_pillar": "갑진월",
+          "half": "second",
+          "guidance": "안정의 토대가 잡히는 달입니다. 확실한 일 하나를 정하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m4f",
+          "pattern_id": "계_병_오",
+          "lunar_month": 4,
+          "month_pillar": "을사월",
+          "half": "first",
+          "guidance": "불의 기운이 피어오릅니다. 보상의 싹이 보이나 서두르지 마세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m4s",
+          "pattern_id": "계_병_오",
+          "lunar_month": 4,
+          "month_pillar": "을사월",
+          "half": "second",
+          "guidance": "계수가 마르기 시작합니다. 수분과 휴식을 우선하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m5f",
+          "pattern_id": "계_병_오",
+          "lunar_month": 5,
+          "month_pillar": "병오월",
+          "half": "first",
+          "guidance": "한여름 태양이 가장 강한 달입니다. 큰 결정은 미루고 체력을 보존하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m5s",
+          "pattern_id": "계_병_오",
+          "lunar_month": 5,
+          "month_pillar": "병오월",
+          "half": "second",
+          "guidance": "계수의 이슬이 가장 많이 마르는 때입니다. 무리를 피하고 햇빛과 물을 가까이 하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m6f",
+          "pattern_id": "계_병_오",
+          "lunar_month": 6,
+          "month_pillar": "정미월",
+          "half": "first",
+          "guidance": "열기가 여전합니다. 세밀한 마무리에 집중하며 에너지를 아끼세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m6s",
+          "pattern_id": "계_병_오",
+          "lunar_month": 6,
+          "month_pillar": "정미월",
+          "half": "second",
+          "guidance": "우울과 고갈이 조용히 올 수 있습니다. 사람들을 가까이 하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m7f",
+          "pattern_id": "계_병_오",
+          "lunar_month": 7,
+          "month_pillar": "무신월",
+          "half": "first",
+          "guidance": "쇠가 물을 보충하며 열기가 식기 시작합니다. 안정을 점검하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m7s",
+          "pattern_id": "계_병_오",
+          "lunar_month": 7,
+          "month_pillar": "무신월",
+          "half": "second",
+          "guidance": "규칙과 책임이 따르나 그것이 올해의 수확을 지킵니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m8f",
+          "pattern_id": "계_병_오",
+          "lunar_month": 8,
+          "month_pillar": "기유월",
+          "half": "first",
+          "guidance": "섬세한 정리가 힘을 얻는 달입니다. 수입과 인연을 점검하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m8s",
+          "pattern_id": "계_병_오",
+          "lunar_month": 8,
+          "month_pillar": "기유월",
+          "half": "second",
+          "guidance": "올해의 노력이 결실로 나타납니다. 정산하고 안정시키세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m9f",
+          "pattern_id": "계_병_오",
+          "lunar_month": 9,
+          "month_pillar": "경술월",
+          "half": "first",
+          "guidance": "수확의 계절입니다. 모은 것을 단단히 저장하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m9s",
+          "pattern_id": "계_병_오",
+          "lunar_month": 9,
+          "month_pillar": "경술월",
+          "half": "second",
+          "guidance": "쇠가 계수를 돕는 달입니다. 남은 일을 끝맺고 다듬으세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m10f",
+          "pattern_id": "계_병_오",
+          "lunar_month": 10,
+          "month_pillar": "신해월",
+          "half": "first",
+          "guidance": "물이 강해지며 계수가 편안해집니다. 충전의 시간을 가지세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m10s",
+          "pattern_id": "계_병_오",
+          "lunar_month": 10,
+          "month_pillar": "신해월",
+          "half": "second",
+          "guidance": "쇠와 물이 어우러져 안정되는 달입니다. 내년을 대비하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m11f",
+          "pattern_id": "계_병_오",
+          "lunar_month": 11,
+          "month_pillar": "임자월",
+          "half": "first",
+          "guidance": "한겨울 계수가 가장 편안하고 강해지는 달입니다. 힘이 붙는 시기입니다.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m11s",
+          "pattern_id": "계_병_오",
+          "lunar_month": 11,
+          "month_pillar": "임자월",
+          "half": "second",
+          "guidance": "햇빛을 쬐며 우울을 경계하세요. 따뜻한 사람들을 가까이 하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m12f",
+          "pattern_id": "계_병_오",
+          "lunar_month": 12,
+          "month_pillar": "계축월",
+          "half": "first",
+          "guidance": "한 해를 마무리하며 수입과 자산을 안전하게 정리하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_병_오_m12s",
+          "pattern_id": "계_병_오",
+          "lunar_month": 12,
+          "month_pillar": "계축월",
+          "half": "second",
+          "guidance": "올해의 안정을 돌아보며 내년의 확실한 씨앗을 준비하세요.",
+          "tone": "natural",
+          "review_status": "approved"
+        }
+      ]
+    },
+    {
+      "pattern_id": "임_정_미",
+      "day_master": "임",
+      "year_stem": "정",
+      "year_branch": "미",
+      "ten_god_stem": "정재",
+      "branch_relation": "none",
+      "label": "바다, 큰 강, 폭포 — 넓고 깊고 흐르는 큰 물 × 정미년 — 섬세한 불빛이 풍요로운 대지를 비추는 해",
+      "cards": [
+        {
+          "module_id": "임_정_미_cover",
+          "pattern_id": "임_정_미",
+          "card_type": "cover",
+          "card_index": 1,
+          "title": "2027년 정미년, 임 출생의 연운",
+          "summary": "정미년 — 섬세한 불빛이 풍요로운 대지를 비추는 해. 일간 임(壬) — 바다, 큰 강, 폭포 — 넓고 깊고 흐르는 큰 물. 십신: 정재.",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_overall",
+          "pattern_id": "임_정_미",
+          "card_type": "overall",
+          "card_index": 2,
+          "title": "마음가짐과 전체 흐름",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_work",
+          "pattern_id": "임_정_미",
+          "card_type": "work",
+          "card_index": 3,
+          "title": "일과 사회활동",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_money",
+          "pattern_id": "임_정_미",
+          "card_type": "money",
+          "card_index": 4,
+          "title": "돈과 현금 흐름",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_relationships",
+          "pattern_id": "임_정_미",
+          "card_type": "relationships",
+          "card_index": 5,
+          "title": "인간관계와 애정운",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_growth",
+          "pattern_id": "임_정_미",
+          "card_type": "growth",
+          "card_index": 6,
+          "title": "건강과 일상 리듬",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_action",
+          "pattern_id": "임_정_미",
+          "card_type": "action",
+          "card_index": 7,
+          "title": "올해 꼭 해야 할 일",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_method",
+          "pattern_id": "임_정_미",
+          "card_type": "method",
+          "card_index": 8,
+          "title": "계산 방법과 한계",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '올해는 "대화의 질"이 관계를 결정합니다. 깊이 있는 대화를 나눌 수 있는 사람에게 시간을 쏟으세요. 애정운은 말이 통하는 사람에게서 자랍니다.',
-      watch: '임수의 넓은 말발이 상대를 압도할 수 있습니다. 대화는 혼자 떠는 것이 아니라 함께 짓는 것임을 기억하세요. 듣는 귀를 무겁게 하세요.',
-      evidence: ['annual.branch.relationsToNatal', 'annual.monthCommand.context'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_을_사_growth', pattern_id: '임_을_사', card_type: 'growth', card_index: 6,
-      title: '건강과 일상 리듬',
-      summary: '물과 불이 만나 증기가 피어오르듯, 에너지가 역동적으로 소모되는 시기입니다.',
-      keywords: ['감정 조절', '수분 보충', '휴식 리듬'],
-      bullets: [
-        '큰 사고나 질병은 큰 우려가 없으되, 물·불의 긴장으로 감정 기복과 피로가 올 수 있습니다',
-        '물을 자주 마시고, 심장과 혈액순환을 살피세요 — 더위와 흥분이 몸을 지치게 합니다',
-        '감정이 출렁일 때는 한 박자 쉬고, 말과 행동을 미루는 연습이 필요합니다',
+      "domains": [
+        {
+          "module_id": "임_정_미_mindset",
+          "pattern_id": "임_정_미",
+          "domain_key": "mindset",
+          "domain_label": "마음가짐",
+          "domain_index": 1,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_relationships",
+          "pattern_id": "임_정_미",
+          "domain_key": "relationships",
+          "domain_label": "인간관계",
+          "domain_index": 2,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_health",
+          "pattern_id": "임_정_미",
+          "domain_key": "health",
+          "domain_label": "건강",
+          "domain_index": 3,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_career",
+          "pattern_id": "임_정_미",
+          "domain_key": "career",
+          "domain_label": "학업 · 직업 · 사회활동",
+          "domain_index": 4,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_family",
+          "pattern_id": "임_정_미",
+          "domain_key": "family",
+          "domain_label": "가족",
+          "domain_index": 5,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_romance",
+          "pattern_id": "임_정_미",
+          "domain_key": "romance",
+          "domain_label": "애정운",
+          "domain_index": 6,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_wealth",
+          "pattern_id": "임_정_미",
+          "domain_key": "wealth",
+          "domain_label": "재물",
+          "domain_index": 7,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_fashion",
+          "pattern_id": "임_정_미",
+          "domain_key": "fashion",
+          "domain_label": "패션",
+          "domain_index": 8,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_season",
+          "pattern_id": "임_정_미",
+          "domain_key": "season",
+          "domain_label": "날씨와 계절",
+          "domain_index": 9,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_purchases",
+          "pattern_id": "임_정_미",
+          "domain_key": "purchases",
+          "domain_label": "물품 구입",
+          "domain_index": 10,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_avoid",
+          "pattern_id": "임_정_미",
+          "domain_key": "avoid",
+          "domain_label": "피해야 할 기운",
+          "domain_index": 11,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_favorable",
+          "pattern_id": "임_정_미",
+          "domain_key": "favorable",
+          "domain_label": "이로운 기운",
+          "domain_index": 12,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "임_정_미_must_do",
+          "pattern_id": "임_정_미",
+          "domain_key": "must_do",
+          "domain_label": "꼭 해야 할 일",
+          "domain_index": 13,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '올해는 "한 박자 쉬어 가는" 연습이 건강의 핵심입니다. 흥분이 올라오면 심호흡부터 하세요. 규칙적인 수분 섭취와 가벼운 유산소 운동이 물·불의 균형을 돕습니다.',
-      watch: '밤늦게까지 말하고 토론하다 보면 잠이 부족해집니다. 수면을 우선하고, 흥분된 상태로 잠들지 않도록 잠깐의 정리 시간을 가지세요.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.monthCommand.context'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_을_사_action', pattern_id: '임_을_사', card_type: 'action', card_index: 7,
-      title: '올해 꼭 해야 할 일',
-      summary: '세 가지가 2025년을 알차게 만듭니다.',
-      keywords: ['제안 내놓기', '말 온도 조절', '기회 잡기'],
-      bullets: [
-        '임수의 통찰을 하나의 제안이나 기획으로 정리해 내놓으세요',
-        '맞는 말도 부드럽게 전하는 연습을 하세요 — "어떻게"가 "무엇"보다 중요한 해입니다',
-        '기회성 수입이나 제안이 들어오면 임수 특유의 결단력으로 잡으세요',
+      "monthly": [
+        {
+          "slot_id": "임_정_미_m1f",
+          "pattern_id": "임_정_미",
+          "lunar_month": 1,
+          "month_pillar": "병인월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m1s",
+          "pattern_id": "임_정_미",
+          "lunar_month": 1,
+          "month_pillar": "병인월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m2f",
+          "pattern_id": "임_정_미",
+          "lunar_month": 2,
+          "month_pillar": "정묘월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m2s",
+          "pattern_id": "임_정_미",
+          "lunar_month": 2,
+          "month_pillar": "정묘월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m3f",
+          "pattern_id": "임_정_미",
+          "lunar_month": 3,
+          "month_pillar": "무진월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m3s",
+          "pattern_id": "임_정_미",
+          "lunar_month": 3,
+          "month_pillar": "무진월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m4f",
+          "pattern_id": "임_정_미",
+          "lunar_month": 4,
+          "month_pillar": "기사월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m4s",
+          "pattern_id": "임_정_미",
+          "lunar_month": 4,
+          "month_pillar": "기사월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m5f",
+          "pattern_id": "임_정_미",
+          "lunar_month": 5,
+          "month_pillar": "경오월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m5s",
+          "pattern_id": "임_정_미",
+          "lunar_month": 5,
+          "month_pillar": "경오월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m6f",
+          "pattern_id": "임_정_미",
+          "lunar_month": 6,
+          "month_pillar": "신미월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m6s",
+          "pattern_id": "임_정_미",
+          "lunar_month": 6,
+          "month_pillar": "신미월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m7f",
+          "pattern_id": "임_정_미",
+          "lunar_month": 7,
+          "month_pillar": "임신월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m7s",
+          "pattern_id": "임_정_미",
+          "lunar_month": 7,
+          "month_pillar": "임신월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m8f",
+          "pattern_id": "임_정_미",
+          "lunar_month": 8,
+          "month_pillar": "계유월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m8s",
+          "pattern_id": "임_정_미",
+          "lunar_month": 8,
+          "month_pillar": "계유월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m9f",
+          "pattern_id": "임_정_미",
+          "lunar_month": 9,
+          "month_pillar": "갑술월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m9s",
+          "pattern_id": "임_정_미",
+          "lunar_month": 9,
+          "month_pillar": "갑술월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m10f",
+          "pattern_id": "임_정_미",
+          "lunar_month": 10,
+          "month_pillar": "을해월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m10s",
+          "pattern_id": "임_정_미",
+          "lunar_month": 10,
+          "month_pillar": "을해월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m11f",
+          "pattern_id": "임_정_미",
+          "lunar_month": 11,
+          "month_pillar": "병자월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m11s",
+          "pattern_id": "임_정_미",
+          "lunar_month": 11,
+          "month_pillar": "병자월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m12f",
+          "pattern_id": "임_정_미",
+          "lunar_month": 12,
+          "month_pillar": "정축월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "임_정_미_m12s",
+          "pattern_id": "임_정_미",
+          "lunar_month": 12,
+          "month_pillar": "정축월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        }
+      ]
+    },
+    {
+      "pattern_id": "계_정_미",
+      "day_master": "계",
+      "year_stem": "정",
+      "year_branch": "미",
+      "ten_god_stem": "편재",
+      "branch_relation": "none",
+      "label": "이슬, 빗물, 샘물 — 조용히 스며들고 촉촉하게 만드는 물 × 정미년 — 섬세한 불빛이 풍요로운 대지를 비추는 해",
+      "cards": [
+        {
+          "module_id": "계_정_미_cover",
+          "pattern_id": "계_정_미",
+          "card_type": "cover",
+          "card_index": 1,
+          "title": "2027년 정미년, 계 출생의 연운",
+          "summary": "정미년 — 섬세한 불빛이 풍요로운 대지를 비추는 해. 일간 계(癸) — 이슬, 빗물, 샘물 — 조용히 스며들고 촉촉하게 만드는 물. 십신: 편재.",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_overall",
+          "pattern_id": "계_정_미",
+          "card_type": "overall",
+          "card_index": 2,
+          "title": "마음가짐과 전체 흐름",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_work",
+          "pattern_id": "계_정_미",
+          "card_type": "work",
+          "card_index": 3,
+          "title": "일과 사회활동",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_money",
+          "pattern_id": "계_정_미",
+          "card_type": "money",
+          "card_index": 4,
+          "title": "돈과 현금 흐름",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_relationships",
+          "pattern_id": "계_정_미",
+          "card_type": "relationships",
+          "card_index": 5,
+          "title": "인간관계와 애정운",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_growth",
+          "pattern_id": "계_정_미",
+          "card_type": "growth",
+          "card_index": 6,
+          "title": "건강과 일상 리듬",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_action",
+          "pattern_id": "계_정_미",
+          "card_type": "action",
+          "card_index": 7,
+          "title": "올해 꼭 해야 할 일",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_method",
+          "pattern_id": "계_정_미",
+          "card_type": "method",
+          "card_index": 8,
+          "title": "계산 방법과 한계",
+          "summary": "",
+          "keywords": [],
+          "bullets": [],
+          "action": "",
+          "watch": "",
+          "evidence": [],
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '이렇게 하시면 2025년은 임수의 자유로운 흐름이 구체적 기회로 이어지는 한 해가 됩니다. 덩굴은 힘으로 뚫는 것이 아니라 감고 휘어감으로써 올라갑니다.',
-      watch: '피할 것: 윗사람과의 정면 충돌, 흥분한 상태의 말과 결정, 충동적 소비. 가까운 것: 대화가 통하는 사람, 토론과 기획의 자리, 푸른색과 붉은색의 중간 톤.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal', 'annual.policy'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_을_사_method', pattern_id: '임_을_사', card_type: 'method', card_index: 8,
-      title: '계산 방법과 한계',
-      summary: '을사년의 두 글자를 하나씩 풀어 설명합니다.',
-      keywords: ['을목 분석', '사화 분석', '근거'],
-      bullets: [
-        '을(乙): 임수의 흐름이 유연하게 감고 뻗으며 답답함을 짚어내는 힘 — 제안, 개선, 혁신에 유리. 단, 거친 말은 관계를 상하게 함',
-        '사(巳): 임수가 만나는 초여름의 불 — 제안이 기회와 수입으로 이어지는 자리. 단, 물·불 긴장으로 감정 기복과 피로',
-        '해석 기준: 자평명리의 일간·월령·십신 관계. 격국·용신·조후는 이 버전에서 다루지 않습니다',
+      "domains": [
+        {
+          "module_id": "계_정_미_mindset",
+          "pattern_id": "계_정_미",
+          "domain_key": "mindset",
+          "domain_label": "마음가짐",
+          "domain_index": 1,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_relationships",
+          "pattern_id": "계_정_미",
+          "domain_key": "relationships",
+          "domain_label": "인간관계",
+          "domain_index": 2,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_health",
+          "pattern_id": "계_정_미",
+          "domain_key": "health",
+          "domain_label": "건강",
+          "domain_index": 3,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_career",
+          "pattern_id": "계_정_미",
+          "domain_key": "career",
+          "domain_label": "학업 · 직업 · 사회활동",
+          "domain_index": 4,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_family",
+          "pattern_id": "계_정_미",
+          "domain_key": "family",
+          "domain_label": "가족",
+          "domain_index": 5,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_romance",
+          "pattern_id": "계_정_미",
+          "domain_key": "romance",
+          "domain_label": "애정운",
+          "domain_index": 6,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_wealth",
+          "pattern_id": "계_정_미",
+          "domain_key": "wealth",
+          "domain_label": "재물",
+          "domain_index": 7,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_fashion",
+          "pattern_id": "계_정_미",
+          "domain_key": "fashion",
+          "domain_label": "패션",
+          "domain_index": 8,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_season",
+          "pattern_id": "계_정_미",
+          "domain_key": "season",
+          "domain_label": "날씨와 계절",
+          "domain_index": 9,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_purchases",
+          "pattern_id": "계_정_미",
+          "domain_key": "purchases",
+          "domain_label": "물품 구입",
+          "domain_index": 10,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_avoid",
+          "pattern_id": "계_정_미",
+          "domain_key": "avoid",
+          "domain_label": "피해야 할 기운",
+          "domain_index": 11,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_favorable",
+          "pattern_id": "계_정_미",
+          "domain_key": "favorable",
+          "domain_label": "이로운 기운",
+          "domain_index": 12,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "module_id": "계_정_미_must_do",
+          "pattern_id": "계_정_미",
+          "domain_key": "must_do",
+          "domain_label": "꼭 해야 할 일",
+          "domain_index": 13,
+          "points": [],
+          "closing": null,
+          "tone": "natural",
+          "review_status": "approved"
+        }
       ],
-      action: '각 항목의 근거를 확인하며 읽어보세요.',
-      watch: '사주는 관계, 건강, 재산, 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산된 사실과 실제 삶을 돌아볼 질문을 이어주는 참고 자료로 활용하세요.',
-      evidence: ['annual.policy', 'annual.boundary.ipchun'],
-      tone: 'natural', review_status: 'approved' },
-  ],
-
-  domains: [
-    { module_id: '임_을_사_mindset', pattern_id: '임_을_사', domain_key: 'mindset', domain_label: '마음가짐', domain_index: 1,
-      points: ['거침없는 제안 — 임수의 통찰이 답답함을 짚어내고 더 나은 방법을 제시합니다', '융통성 — 덩굴처럼 굽히고 감으며 가는 유연함이 막힘을 뚫습니다', '말의 온도 조절 — 날카로운 말도 부드럽게 전하면 기회가 되고 거칠게 전하면 상처가 됩니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_을_사_rel', pattern_id: '임_을_사', domain_key: 'relationships', domain_label: '인간관계', domain_index: 2,
-      points: ['의견을 나누고 토론하는 자리에서 좋은 인연이 생깁니다', '임수의 거침없는 말이 상대의 자존심을 건드릴 수 있습니다 — 맞는 말도 부드럽게', '듣는 귀를 무겁게 하세요 — 대화는 함께 짓는 것입니다', '말이 통하는 사람에게 시간과 마음을 쏟으세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_을_사_health', pattern_id: '임_을_사', domain_key: 'health', domain_label: '건강', domain_index: 3,
-      points: ['물과 불의 긴장으로 감정 기복과 피로가 올 수 있습니다', '물을 자주 마시고 심장과 혈액순환을 살피세요', '흥분이 올라오면 한 박자 쉬고 심호흡부터 하세요', '수면을 우선하고, 흥분된 상태로 잠들지 않도록 정리 시간을 가지세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_을_사_career', pattern_id: '임_을_사', domain_key: 'career', domain_label: '학업 · 직업 · 사회활동', domain_index: 4,
-      points: ['개선과 혁신의 제안이 힘을 발하는 시기입니다', '기획, 컨설팅, 기술, 디자인, 콘텐츠 등 불편함을 개선하는 일에 유리합니다', '제안이 윗사람의 체면을 건드리지 않도록 부드럽게 포장하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_을_사_family', pattern_id: '임_을_사', domain_key: 'family', domain_label: '가족', domain_index: 5,
-      points: ['가족과 의견이 엇갈릴 수 있습니다 — 맞는 말도 부드럽게 전하세요', '가족의 답답함을 임수의 통찰로 풀어주는 역할이 좋습니다', '잔소리가 되지 않도록, 제안은 한두 가지로 줄이세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_을_사_romance', pattern_id: '임_을_사', domain_key: 'romance', domain_label: '애정운', domain_index: 6,
-      points: ['지적인 대화와 유머가 오가는 자리에서 인연이 열립니다', '가벼운 농담은 좋되 날카로운 놀림은 피하세요', '말이 통하는 사람에게 끌리는 해입니다', '임수의 넓은 말발이 상대를 압도하지 않게 듣는 귀를 무겁게 하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_을_사_wealth', pattern_id: '임_을_사', domain_key: 'wealth', domain_label: '재물', domain_index: 7,
-      points: ['제안, 컨설팅, 기획, 강연 등에서 기회성 수입이 열릴 수 있습니다', '말과 아이디어의 값어치를 매기세요 — 공짜로 통찰을 내주지 마세요', '기회가 오면 임수 특유의 결단력으로 잡으세요', '감정적으로 큰돈을 쓰는 순간을 피하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_을_사_fashion', pattern_id: '임_을_사', domain_key: 'fashion', domain_label: '패션', domain_index: 8,
-      points: ['유연하고 흐르는 듯한 실루엣이 임수의 덩굴 에너지와 맞습니다', '푸른색과 붉은색의 중간 톤 — 보라색 계열이 물·불의 균형을 돕습니다', '액세서리는 유려하고 곡선적인 디자인이 유리합니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_을_사_season', pattern_id: '임_을_사', domain_key: 'season', domain_label: '날씨와 계절', domain_index: 9,
-      points: ['봄: 제안과 기획의 에너지가 강합니다. 무언가를 정리해 내놓기 좋은 계절입니다', '여름: 물·불 긴장이 가장 강한 때 — 감정과 피로를 경계하세요', '가을: 제안의 결실이 보이는 계절 — 수확과 정산의 시간입니다', '겨울: 임수가 편안해지며 내년을 준비하는 충전의 계절입니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_을_사_pur', pattern_id: '임_을_사', domain_key: 'purchases', domain_label: '물품 구입', domain_index: 10,
-      points: ['감정적으로 충동 구매를 하기 쉬운 해입니다 — 하룻밤 자고 결정하세요', '기획과 창작에 쓰는 도구는 가치 있는 투자입니다', '흥분된 상태의 큰 지출은 피하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_을_사_avoid', pattern_id: '임_을_사', domain_key: 'avoid', domain_label: '피해야 할 기운', domain_index: 11,
-      points: ['윗사람과의 정면 충돌 — 맞는 말도 때와 방식을 가려야 합니다', '흥분한 상태의 말과 결정 — 뒤로 되돌리기 어렵습니다', '충동적 소비 — 감정이 출렁일 때 돈이 새어나갑니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_을_사_fav', pattern_id: '임_을_사', domain_key: 'favorable', domain_label: '이로운 기운', domain_index: 12,
-      points: ['대화가 통하는 사람, 토론과 기획의 자리가 이롭습니다', '보라색 계열, 유려한 곡선, 물가 근처가 유리합니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_을_사_must', pattern_id: '임_을_사', domain_key: 'must_do', domain_label: '꼭 해야 할 일', domain_index: 13,
-      points: ['임수의 통찰을 하나의 제안이나 기획으로 정리해 내놓으세요', '맞는 말도 부드럽게 전하는 연습을 하세요', '기회가 들어오면 임수 특유의 결단력으로 잡으세요'],
-      closing: '이렇게 하시면 2025년은 임수의 자유로운 흐름이 구체적 기회로 이어지는 한 해가 됩니다.', tone: 'natural', review_status: 'approved' },
-  ],
-
-  monthly: [
-    { slot_id: '임_을_사_m1f', pattern_id: '임_을_사', lunar_month: 1, month_pillar: '무인월', half: 'first', guidance: '새해 인연과 제안이 피어나는 시기입니다. 말을 아끼면 기회가 자랍니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m1s', pattern_id: '임_을_사', lunar_month: 1, month_pillar: '무인월', half: 'second', guidance: '계획을 세우되 고집은 빼세요. 유연함이 막힘을 뚫습니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m2f', pattern_id: '임_을_사', lunar_month: 2, month_pillar: '기묘월', half: 'first', guidance: '부드러운 표현이 사람을 끕니다. 직설보다 돌려 말하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m2s', pattern_id: '임_을_사', lunar_month: 2, month_pillar: '기묘월', half: 'second', guidance: '작은 실수는 넓은 마음으로 넘기세요. 잔소리는 인연을 멀게 합니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m3f', pattern_id: '임_을_사', lunar_month: 3, month_pillar: '경진월', half: 'first', guidance: '제안과 기획을 정리하기 좋은 달입니다. 한 가지에 집중하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m3s', pattern_id: '임_을_사', lunar_month: 3, month_pillar: '경진월', half: 'second', guidance: '규칙과 압박이 느껴지나 거기에 맞추는 것이 유리한 달입니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m4f', pattern_id: '임_을_사', lunar_month: 4, month_pillar: '신사월', half: 'first', guidance: '제안이 기회로 이어지는 달입니다. 용기 내어 내놓으세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m4s', pattern_id: '임_을_사', lunar_month: 4, month_pillar: '신사월', half: 'second', guidance: '물·불 긴장이 강해집니다. 흥분을 가라앉히고 한 박자 쉬세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m5f', pattern_id: '임_을_사', lunar_month: 5, month_pillar: '임오월', half: 'first', guidance: '임수의 힘이 붙는 달입니다. 자신감을 가지고 밀고 나가세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m5s', pattern_id: '임_을_사', lunar_month: 5, month_pillar: '임오월', half: 'second', guidance: '물과 불이 겹쳐 감정이 출렁입니다. 결정은 하룻밤 미루세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m6f', pattern_id: '임_을_사', lunar_month: 6, month_pillar: '계미월', half: 'first', guidance: '세밀한 마무리가 힘을 발합니다. 작은 것을 다듬으세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m6s', pattern_id: '임_을_사', lunar_month: 6, month_pillar: '계미월', half: 'second', guidance: '감정에 휘둘리지 마세요. 객관적인 시각이 필요한 달입니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m7f', pattern_id: '임_을_사', lunar_month: 7, month_pillar: '갑신월', half: 'first', guidance: '쇠가 물을 보충하며 임수가 안정되는 달입니다. 결실을 다듬으세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m7s', pattern_id: '임_을_사', lunar_month: 7, month_pillar: '갑신월', half: 'second', guidance: '결과물을 밖으로 드러내기 좋습니다. 망설임을 버리세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m8f', pattern_id: '임_을_사', lunar_month: 8, month_pillar: '을유월', half: 'first', guidance: '부드러운 표현과 섬세함이 힘을 얻는 달입니다. 인연을 가꾸세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m8s', pattern_id: '임_을_사', lunar_month: 8, month_pillar: '을유월', half: 'second', guidance: '말 한마디가 관계를 바꿉니다. 칭찬과 감사를 아끼지 마세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m9f', pattern_id: '임_을_사', lunar_month: 9, month_pillar: '병술월', half: 'first', guidance: '올해의 제안이 결실로 나타나는 달입니다. 정산하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m9s', pattern_id: '임_을_사', lunar_month: 9, month_pillar: '병술월', half: 'second', guidance: '작은 오해는 즉시 푸세요. 미뤄둔 대화가 해답이 됩니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m10f', pattern_id: '임_을_사', lunar_month: 10, month_pillar: '정해월', half: 'first', guidance: '물과 나무가 어우러져 편안한 달입니다. 인연과 시간을 보내세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m10s', pattern_id: '임_을_사', lunar_month: 10, month_pillar: '정해월', half: 'second', guidance: '겨울로 접어들며 임수가 충전됩니다. 내년의 제안을 미리 그려보세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m11f', pattern_id: '임_을_사', lunar_month: 11, month_pillar: '무자월', half: 'first', guidance: '한겨울 임수가 편안해지는 달입니다. 휴식과 정비가 우선입니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m11s', pattern_id: '임_을_사', lunar_month: 11, month_pillar: '무자월', half: 'second', guidance: '올해를 돌아보고 미룬 제안을 정리하세요. 내년의 씨앗을 뿌리세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m12f', pattern_id: '임_을_사', lunar_month: 12, month_pillar: '기축월', half: 'first', guidance: '한 해를 마무리하며 수입과 인연을 정리하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_을_사_m12s', pattern_id: '임_을_사', lunar_month: 12, month_pillar: '기축월', half: 'second', guidance: '넓은 마음으로 사람을 품으세요. 내년의 기회가 올해의 인연에서 나옵니다.', tone: 'natural', review_status: 'approved' },
-  ],
-},
-
-// ============================================================
-// 패턴 3: 임수 × 병오년 (2026, 십신: 편재)
-// 병화(태양) — 바다 위 눈부신 태양, 큰 기회와 재물의 유혹.
-// 오화(한여름 왕성한 불) — 강한 불에 물이 마를 위험, 흩어짐 경계.
-// ============================================================
-{
-  pattern: {
-    pattern_id: '임_병_오', day_master: '임', year_stem: '병', year_branch: '오',
-    ten_god_stem: '편재', branch_relation: 'strong_fire_clashes_water',
-    label: '임수 출생 × 병오년 — 눈부신 기회의 유혹과 한여름 불의 흩어짐',
-  },
-
-  cards: [
-    { module_id: '임_병_오_cover', pattern_id: '임_병_오', card_type: 'cover', card_index: 1,
-      title: '2026년 병오년, 임수 출생의 연운',
-      summary: '넓은 바다 위로 태양이 눈부시게 떠오르듯, 임수에게 크고 화려한 기회가 밀려드는 한 해입니다. 겉은 반짝이나, 한여름의 강한 불이 임수의 물을 말려갈 수 있으니 — "기회는 잡되, 욕심은 경계하고, 한 곳에 머무는 지혜"가 올해의 열쇠입니다.',
-      keywords: ['큰 기회의 유혹', '흩어짐 경계', '본질 지키기'],
-      bullets: [
-        '병화(태양)는 임수가 만나는 크고 눈부신 기회 — 새로운 수입, 뜻밖의 제안, 모험적 투자의 유혹이 강합니다',
-        '오화(한여름 왕성한 불)는 임수의 물을 말리는 자리 — 기회가 클수록 에너지·자본·건강이 흩어지기 쉽습니다',
-        '임수 출생에게 2026년은 "기회는 잡되 본질(물)을 잃지 말 것"이 화두인 한 해입니다',
-      ],
-      action: '올해는 큰 기회가 눈앞에서 반짝이는 때입니다. 임수의 결단력으로 잡되, 한 번에 너무 많은 곳에 손을 대면 물이 말라갑니다. 한두 개의 확실한 기회에 에너지를 모으세요.',
-      watch: '편재의 유혹은 "더 큰 것이 있을 것 같은" 느낌을 줍니다. 그 느낌을 좇다 보면 이미 잡은 것조차 놓치게 됩니다. 욕심은 임수의 물을 가장 빨리 말리는 불입니다.',
-      evidence: ['annual.year.pillar', 'annual.stem.tenGodToDayMaster', 'annual.boundary.ipchun'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_병_오_overall', pattern_id: '임_병_오', card_type: 'overall', card_index: 2,
-      title: '마음가짐과 전체 흐름',
-      summary: '눈부신 기회의 유혹이 밀려오는 해. "크고 화려한 것을 좇기"보다 "작고 확실한 것을 지키기"가 올해의 살길입니다.',
-      keywords: ['유혹', '선택과 집중', '본질 보존'],
-      bullets: [
-        '첫째, "기회는 잡되 하나만 잡기" — 열 가지가 반짝여도 손은 한두 개로 모으세요',
-        '둘째, "욕심 경계" — 더 큰 것이 있을 것 같다는 느낌이 임수의 물을 말립니다',
-        '셋째, "체력·자본 보존" — 한여름의 불이 임수의 에너지를 가장 빨리 빼앗습니다',
-      ],
-      action: '올해의 지혜는 "무엇을 잡을까"가 아니라 "무엇을 놓을까"에 있습니다. 놓을 것을 먼저 정하세요. 임수의 큰 물은 한 곳에 모일 때 힘을 쓰고, 여럿에 흩어지면 사라집니다.',
-      watch: '기회가 많아 보일 때가 가장 위험한 때입니다. 흥분과 자신감이 넘치는 만큼, 그만큼 신중함도 배로 가져야 합니다. "너무 좋은 것"에는 늘 한발 물러서서 의심하세요.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_병_오_work', pattern_id: '임_병_오', card_type: 'work', card_index: 3,
-      title: '일과 사회활동',
-      summary: '큰 기회와 눈에 띄는 자리가 많은 시기. 다만 너무 많은 것을 한꺼번에 덥빈다면 모두 흩어집니다.',
-      keywords: ['큰 기회', '선택과 집중', '건강 관리'],
-      bullets: [
-        '새로운 제안, 큰 프로젝트, 눈에 띄는 자리가 임수를 찾아올 수 있는 시기입니다',
-        '다만 여러 갈래로 손을 대면 임수 특유의 넓은 포용력이 오히려 독이 됩니다 — 하나를 깊이 하세요',
-        '한여름의 불이 에너지를 빼앗으니, 일의 속도보다 체력 관리가 먼저입니다',
-      ],
-      action: '올해는 "무엇을 할 것인가"보다 "무엇을 하지 않을 것인가"를 먼저 정하세요. 기회가 왔을 때 임수의 결단력으로 하나를 잡되, 나머지는 과감히 놓으세요.',
-      watch: '모든 기회를 다 잡으려 하면 아무것도 완성하지 못합니다. 임수의 물은 한 곳에 모일 때 비로소 깊어집니다. 분산은 올해 가장 큰 적입니다.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_병_오_money', pattern_id: '임_병_오', card_type: 'money', card_index: 4,
-      title: '돈과 현금 흐름',
-      summary: '뜻밖의 큰 수입이 열릴 수 있는 시기. 다만 투자와 모험의 유혹도 가장 강한 해입니다.',
-      keywords: ['기회성 수입', '투자 유혹 경계', '한 곳에 모으기'],
-      bullets: [
-        '편재의 기운 — 뜻밖의 큰 수입, 새로운 수익 기회가 열릴 수 있습니다',
-        '다만 그 수입이 들어오자마자 더 큰 투자로 새어나갈 위험이 큽니다',
-        '한여름의 불이 임수의 물을 말리듯, 자본이 빠르게 빠져나갈 수 있습니다',
-      ],
-      action: '올해는 "들어온 것을 지키는" 것이 "더 벌는" 것보다 중요합니다. 큰 수입이 들어오면 즉시 안전한 곳으로 옮기고, 투자는 한도를 정해 엄격하게 제한하세요.',
-      watch: '투자의 유혹이 가장 강한 해입니다. "빠르게 크게"라는 말에 현혹되지 마세요. 임수의 물은 한 번 말리면 다시 채우기 어렵습니다. 보수적으로 가세요.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.policy'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_병_오_relationships', pattern_id: '임_병_오', card_type: 'relationships', card_index: 5,
-      title: '인간관계와 애정운',
-      summary: '매력이 빛나고 인연이 화려하게 피어나는 시기. 다만 한 사람에게 집중하지 않으면 모두 흩어집니다.',
-      keywords: ['매력의 시기', '한 사람에게 집중', '겉모습 경계'],
-      bullets: [
-        '임수의 넓은 매력이 한여름 태양 아래 빛나는 시기 — 많은 사람이 다가올 수 있습니다',
-        '다만 관계가 넓고 얕아지기 쉬우니, 정작 소중한 한 사람을 놓치지 마세요',
-        '애정운: 화려한 인연의 유혹이 강하되, 겉모습과 조건에 현혹되지 말고 속을 보세요',
-      ],
-      action: '올해는 "많은 사람"보다 "한 사람"이 중요합니다. 넓은 인맥은 좋되, 애정운은 한 사람에게 깊이 집중할 때 열립니다. 겉이 아닌 속을 보는 눈을 기르세요.',
-      watch: '매력이 넘치는 시기일수록 관계의 경계가 흐려집니다. 애매한 관계, 여러 사람과의 엇된 인연은 임수의 에너지를 가장 빨리 말립니다. 선을 단단히 그으세요.',
-      evidence: ['annual.branch.relationsToNatal', 'annual.monthCommand.context'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_병_오_growth', pattern_id: '임_병_오', card_type: 'growth', card_index: 6,
-      title: '건강과 일상 리듬',
-      summary: '한여름의 강한 불이 임수의 물을 말리는 시기. 체력과 수분 보존이 무엇보다 중요합니다.',
-      keywords: ['체력 보존', '수분 섭취', '심장·더위 경계'],
-      bullets: [
-        '한여름의 불이 임수의 에너지를 가장 빨리 빼앗습니다 — 과로와 무리가 큰 부담이 됩니다',
-        '물을 자주 마시고, 신장·비뇨기·심장·혈압을 살피세요',
-        '더위와 흥분이 겹치면 불면과 피로가 찾아올 수 있으니, 서늘함과 휴식을 우선하세요',
-      ],
-      action: '올해는 "보존의 해"입니다. 무리한 일정을 줄이고, 수분 섭취와 수면을 최우선으로 하세요. 한낮의 활동을 피하고 서늘한 시간대에 움직이세요.',
-      watch: '기회가 많다고 밤낮없이 일하면 임수의 물이 금방 마릅니다. 체력이 무너지면 잡은 기회도 지킬 수 없습니다. 쉬는 것도 올해의 과제입니다.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.monthCommand.context'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_병_오_action', pattern_id: '임_병_오', card_type: 'action', card_index: 7,
-      title: '올해 꼭 해야 할 일',
-      summary: '세 가지가 2026년을 안전하게 만듭니다.',
-      keywords: ['하나 잡기', '자본 보존', '체력 관리'],
-      bullets: [
-        '기회가 와도 한두 개만 잡고 나머지는 과감히 놓으세요',
-        '큰 수입이 들어오면 즉시 안전한 곳으로 옮기고 투자 한도를 엄격히 정하세요',
-        '체력과 수분을 최우선으로 관리하세요 — 임수의 물이 곧 올해의 자본입니다',
-      ],
-      action: '이렇게 하시면 2026년은 임수에게 눈부신 기회가 안정적 결실로 남는 한 해가 됩니다. 반짝이는 것을 좇기보다, 이미 손에 잡은 것을 지키는 것이 올해의 지혜입니다.',
-      watch: '피할 것: 너무 많은 곳에 손 대기, "더 큰 것"을 좇는 욕심, 과로와 무리한 투자. 가까운 것: 서늘하고 조용한 곳, 한 사람과의 깊은 시간, 남색과 흰색, 물가.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal', 'annual.policy'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '임_병_오_method', pattern_id: '임_병_오', card_type: 'method', card_index: 8,
-      title: '계산 방법과 한계',
-      summary: '병오년의 두 글자를 하나씩 풀어 설명합니다.',
-      keywords: ['병화 분석', '오화 분석', '근거'],
-      bullets: [
-        '병(丙): 임수가 만나는 크고 눈부신 태양 — 새로운 기회, 큰 수입, 모험의 유혹. 단, 너무 밝은 빛에 눈이 멀어 본질을 놓치기 쉬움',
-        '오(午): 한여름 왕성한 불 — 임수의 물을 말리는 자리. 기회가 클수록 에너지·자본·건강이 소모됨. 단, 오화 속 정화와 임수의 합이 강한 끌림을 만듦',
-        '해석 기준: 자평명리의 일간·월령·십신 관계. 격국·용신·조후는 이 버전에서 다루지 않습니다',
-      ],
-      action: '각 항목의 근거를 확인하며 읽어보세요.',
-      watch: '사주는 관계, 건강, 재산, 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산된 사실과 실제 삶을 돌아볼 질문을 이어주는 참고 자료로 활용하세요.',
-      evidence: ['annual.policy', 'annual.boundary.ipchun'],
-      tone: 'natural', review_status: 'approved' },
-  ],
-
-  domains: [
-    { module_id: '임_병_오_mindset', pattern_id: '임_병_오', domain_key: 'mindset', domain_label: '마음가짐', domain_index: 1,
-      points: ['기회는 잡되 하나만 잡기 — 열 가지가 반짝여도 손은 한두 개로 모으세요', '욕심 경계 — 더 큰 것이 있을 것 같다는 느낌이 임수의 물을 말립니다', '본질 지키기 — 임수의 물(에너지·건강·안정)이 곧 올해의 자본입니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_병_오_rel', pattern_id: '임_병_오', domain_key: 'relationships', domain_label: '인간관계', domain_index: 2,
-      points: ['매력이 빛나 많은 사람이 다가올 수 있습니다', '관계가 넓고 얕아지기 쉬우니 소중한 사람을 놓치지 마세요', '관계의 경계를 단단히 그으세요 — 애매한 관계가 에너지를 말립니다', '겉모습이 아닌 속을 보는 눈을 기르세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_병_오_health', pattern_id: '임_병_오', domain_key: 'health', domain_label: '건강', domain_index: 3,
-      points: ['한여름의 불이 임수의 에너지를 가장 빨리 빼앗습니다 — 과로를 피하세요', '물을 자주 마시고 신장·비뇨기·심장·혈압을 살피세요', '더위와 흥분이 겹치면 불면과 피로가 찾아옵니다', '한낮 활동을 피하고 서늘한 시간대에 움직이세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_병_오_career', pattern_id: '임_병_오', domain_key: 'career', domain_label: '학업 · 직업 · 사회활동', domain_index: 4,
-      points: ['큰 기회와 눈에 띄는 자리가 찾아올 수 있는 시기입니다', '여러 갈래로 손을 대면 분산되어 아무것도 완성하지 못합니다', '일의 속도보다 체력 관리가 먼저입니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_병_오_family', pattern_id: '임_병_오', domain_key: 'family', domain_label: '가족', domain_index: 5,
-      points: ['가족에게 넓은 마음을 쓰되, 한 사람에게 집중하는 시간을 가지세요', '가족의 욕심이나 요구에 무한정 응하지 마세요 — 선이 필요합니다', '바쁜 일정 속에서도 가족과 서늘하게 대화하는 시간을 만드세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_병_오_romance', pattern_id: '임_병_오', domain_key: 'romance', domain_label: '애정운', domain_index: 6,
-      points: ['매력이 빛나 화려한 인연의 유혹이 강한 시기입니다', '겉모습과 조건에 현혹되지 말고 속을 보세요', '한 사람에게 깊이 집중할 때 애정운이 열립니다', '애매한 관계, 여러 사람과의 엇된 인연은 에너지를 말립니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_병_오_wealth', pattern_id: '임_병_오', domain_key: 'wealth', domain_label: '재물', domain_index: 7,
-      points: ['뜻밖의 큰 수입과 새로운 수익 기회가 열릴 수 있습니다', '들어온 것을 지키는 것이 더 벌는 것보다 중요합니다', '투자는 한도를 정해 엄격하게 제한하세요', '자본이 빠르게 빠져나갈 수 있으니 보수적으로 가세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_병_오_fashion', pattern_id: '임_병_오', domain_key: 'fashion', domain_label: '패션', domain_index: 8,
-      points: ['서늘하고 단정한 톤이 한여름의 열기를 가라앉힙니다', '남색과 흰색이 임수의 물을 돕습니다 — 붉은색은 줄이세요', '액세서리는 심플하고 서늘한 소재(은, 진주 등)가 유리합니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_병_오_season', pattern_id: '임_병_오', domain_key: 'season', domain_label: '날씨와 계절', domain_index: 9,
-      points: ['봄: 기회의 싹이 피어오르는 계절 — 신중하게 하나를 고르세요', '여름: 한여름 불이 가장 강한 때 — 건강과 자본 보존이 최우선입니다', '가을: 열기가 식으며 결실이 보이는 계절 — 수확을 정리하세요', '겨울: 임수가 편안해지며 충전하는 계절 — 내년을 대비하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_병_오_pur', pattern_id: '임_병_오', domain_key: 'purchases', domain_label: '물품 구입', domain_index: 10,
-      points: ['흥분된 상태의 큰 지출은 최대한 피하세요 — 하룻밤 자고 결정하세요', '체력과 건강에 쓰는 돈은 가치 있는 투자입니다', '화려한 겉모습보다 실용성을 우선하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_병_오_avoid', pattern_id: '임_병_오', domain_key: 'avoid', domain_label: '피해야 할 기운', domain_index: 11,
-      points: ['너무 많은 곳에 손 대기 — 임수의 물이 분산되어 사라집니다', '"더 큰 것"을 좇는 욕심 — 이미 잡은 것조차 놓치게 합니다', '과로와 무리한 투자 — 체력과 자본을 동시에 말립니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_병_오_fav', pattern_id: '임_병_오', domain_key: 'favorable', domain_label: '이로운 기운', domain_index: 12,
-      points: ['서늘하고 조용한 곳, 한 사람과의 깊은 시간이 이롭습니다', '남색, 흰색, 물가, 서늘한 계절이 유리합니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '임_병_오_must', pattern_id: '임_병_오', domain_key: 'must_do', domain_label: '꼭 해야 할 일', domain_index: 13,
-      points: ['기회가 와도 한두 개만 잡고 나머지는 과감히 놓으세요', '큰 수입이 들어오면 안전한 곳으로 옮기고 투자 한도를 엄격히 정하세요', '체력과 수분을 최우선으로 관리하세요'],
-      closing: '이렇게 하시면 2026년은 임수에게 눈부신 기회가 안정적 결실로 남는 한 해가 됩니다.', tone: 'natural', review_status: 'approved' },
-  ],
-
-  monthly: [
-    { slot_id: '임_병_오_m1f', pattern_id: '임_병_오', lunar_month: 1, month_pillar: '임인월', half: 'first', guidance: '새해 물이 강해지는 달입니다. 큰 기회의 싹이 보이나 서두르지 마세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m1s', pattern_id: '임_병_오', lunar_month: 1, month_pillar: '임인월', half: 'second', guidance: '물이 나무를 키우며 에너지가 쓰입니다. 한 가지에 집중하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m2f', pattern_id: '임_병_오', lunar_month: 2, month_pillar: '계묘월', half: 'first', guidance: '섬세함과 직관이 피어나는 달입니다. 인연을 깊이 가꾸세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m2s', pattern_id: '임_병_오', lunar_month: 2, month_pillar: '계묘월', half: 'second', guidance: '감정에 휘둘리지 마세요. 객관적인 판단이 필요한 달입니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m3f', pattern_id: '임_병_오', lunar_month: 3, month_pillar: '갑진월', half: 'first', guidance: '뿌리내림과 저장이 강한 달입니다. 자산과 인연을 정리하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m3s', pattern_id: '임_병_오', lunar_month: 3, month_pillar: '갑진월', half: 'second', guidance: '큰 기회가 보이기 시작합니다. 하나만 신중히 고르세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m4f', pattern_id: '임_병_오', lunar_month: 4, month_pillar: '을사월', half: 'first', guidance: '불의 기운이 피어오르기 시작합니다. 유혹을 경계하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m4s', pattern_id: '임_병_오', lunar_month: 4, month_pillar: '을사월', half: 'second', guidance: '물·불의 긴장이 강해집니다. 휴식과 수분 보충이 필요합니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m5f', pattern_id: '임_병_오', lunar_month: 5, month_pillar: '병오월', half: 'first', guidance: '한여름 태양이 가장 강한 달입니다. 큰 결정은 미루고 체력을 보존하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m5s', pattern_id: '임_병_오', lunar_month: 5, month_pillar: '병오월', half: 'second', guidance: '임수의 물이 가장 많이 마르는 때입니다. 무리를 피하고 서늘함을 찾으세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m6f', pattern_id: '임_병_오', lunar_month: 6, month_pillar: '정미월', half: 'first', guidance: '열기가 여전합니다. 세밀한 마무리에 집중하며 에너지를 아끼세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m6s', pattern_id: '임_병_오', lunar_month: 6, month_pillar: '정미월', half: 'second', guidance: '감정 소모가 큰 달입니다. 혼자만의 정리 시간을 가지세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m7f', pattern_id: '임_병_오', lunar_month: 7, month_pillar: '무신월', half: 'first', guidance: '쇠가 물을 보충하며 열기가 식기 시작합니다. 결실을 점검하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m7s', pattern_id: '임_병_오', lunar_month: 7, month_pillar: '무신월', half: 'second', guidance: '규칙과 책임이 따르나 그것이 올해의 수확을 지킵니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m8f', pattern_id: '임_병_오', lunar_month: 8, month_pillar: '기유월', half: 'first', guidance: '섬세한 정리가 힘을 얻는 달입니다. 수입과 인연을 점검하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m8s', pattern_id: '임_병_오', lunar_month: 8, month_pillar: '기유월', half: 'second', guidance: '올해의 노력이 결실로 나타납니다. 정산하고 안정시키세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m9f', pattern_id: '임_병_오', lunar_month: 9, month_pillar: '경술월', half: 'first', guidance: '수확의 계절입니다. 모은 것을 단단히 저장하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m9s', pattern_id: '임_병_오', lunar_month: 9, month_pillar: '경술월', half: 'second', guidance: '쇠가 물을 돕는 달입니다. 남은 일을 끝맺고 다듬으세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m10f', pattern_id: '임_병_오', lunar_month: 10, month_pillar: '신해월', half: 'first', guidance: '물이 강해지며 임수가 편안해집니다. 충전의 시간을 가지세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m10s', pattern_id: '임_병_오', lunar_month: 10, month_pillar: '신해월', half: 'second', guidance: '쇠와 물이 어우러져 안정되는 달입니다. 내년을 대비하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m11f', pattern_id: '임_병_오', lunar_month: 11, month_pillar: '임자월', half: 'first', guidance: '한겨울 임수가 가장 강해지는 달입니다. 힘이 붙는 시기입니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m11s', pattern_id: '임_병_오', lunar_month: 11, month_pillar: '임자월', half: 'second', guidance: '같은 물이 겹쳐 흩어질 수 있습니다. 과신 말고 중심을 잡으세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m12f', pattern_id: '임_병_오', lunar_month: 12, month_pillar: '계축월', half: 'first', guidance: '한 해를 마무리하며 수입과 자산을 정리하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '임_병_오_m12s', pattern_id: '임_병_오', lunar_month: 12, month_pillar: '계축월', half: 'second', guidance: '올해의 교훈를 되새기며 내년의 기회를 신중히 그리세요.', tone: 'natural', review_status: 'approved' },
-  ],
-},
-
-// ============================================================
-// 패턴 4: 계수 × 갑진년 (2024, 십신: 상관)
-// 갑목(큰 나무) — 섬세한 직관이 날카로운 제안으로, 작은 물이 큰 나무 키움.
-// 진토(늦봄 습토) — 진토 속 계수의 고향, 안정이자 관성의 압박.
-// ============================================================
-{
-  pattern: {
-    pattern_id: '계_갑_진', day_master: '계', year_stem: '갑', year_branch: '진',
-    ten_god_stem: '상관', branch_relation: 'damp_earth_stores_water',
-    label: '계수 출생 × 갑진년 — 예민한 직관의 제안과 늦봄 흙의 뿌리내림',
-  },
-
-  cards: [
-    { module_id: '계_갑_진_cover', pattern_id: '계_갑_진', card_type: 'cover', card_index: 1,
-      title: '2024년 갑진년, 계수 출생의 연운',
-      summary: '이슬 같은 계수(癸水)의 섬세한 직관이 큰 나무로 뻗어나가며, 답답함을 날카롭게 짚어내는 한 해입니다. 작은 물이 큰 나무를 키우느라 에너지가 쓰이나, 늦봄의 축축한 흙이 계수의 고향이 되어 뿌리를 내려 줍니다 — "직관을 표현하되, 부드럽게, 그리고 한 걸음씩"이 올해의 열쇠입니다.',
-      keywords: ['직관의 제안', '뿌리내림', '부드러운 표현'],
-      bullets: [
-        '갑목(큰 나무)은 계수의 섬세한 직관이 밖으로 튀어나오는 힘 — 통찰과 제안이 강해지나, 작은 물이 큰 나무를 키우느라 에너지가 많이 쓰입니다',
-        '진토(축축한 흙)는 계수가 숨어 있는 고향 — 흩어지기 쉬운 기운이 머물러 안정을 얻되, 무거운 책임과 압박도 함께 옵니다',
-        '계수 출생에게 2024년은 "직관을 세상에 드러내되 상처 주지 말고, 뿌리를 내리되 압박을 견디는" 한 해입니다',
-      ],
-      action: '올해는 계수 특유의 예민한 통찰을 한 가지 제안으로 정리해 내놓는 때입니다. 다만 작은 물이 큰 나무를 다 키울 수는 없으니, 한 가지에만 에너지를 쏟고 충분히 쉬세요.',
-      watch: '계수는 원래 예민하고 쉽게 상처받습니다. 직관이 날카로워질수록 말도 날카로워지니, "맞는 말"도 부드럽게 전하세요. 압박과 책임이 우울을 부를 수 있으니 혼자 끙끙 앓지 말고 도움을 청하세요.',
-      evidence: ['annual.year.pillar', 'annual.stem.tenGodToDayMaster', 'annual.boundary.ipchun'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_갑_진_overall', pattern_id: '계_갑_진', card_type: 'overall', card_index: 2,
-      title: '마음가짐과 전체 흐름',
-      summary: '계수의 깊은 직관이 밖으로 흘러나가는 해. "통찰을 부드럽게 전하기"와 "뿌리 내려 중심 잡기"가 올해의 두 기둥입니다.',
-      keywords: ['직관', '부드러움', '중심 잡기'],
-      bullets: [
-        '첫째, "통찰을 부드럽게 전하기" — 계수의 섬세한 눈이 답답함을 짚어내나, 말이 거칠면 관계가 상합니다',
-        '둘째, "뿌리 내려 중심 잡기" — 흩어지는 기운이 축축한 흙에 닿아 안정을 얻되, 압박을 견뎌야 합니다',
-        '셋째, "에너지 아끼기" — 작은 물이 큰 나무를 키우느라 고갈되기 쉬우니, 쉬는 것을 부끄러워하지 마세요',
-      ],
-      action: '올해의 힘은 "얼마나 깊이 보느냐"가 아니라 "그것을 어떻게 전하느냐"에 달려 있습니다. 통찰은 같아도, 부드럽게 전하면 사람을 얻고 거칠게 전하면 사람을 잃습니다.',
-      watch: '계수는 혼자서 깊이 파고드는 성향이 강합니다. 올해는 그 깊이를 세상과 나누어야 힘이 됩니다. 다만 나누다 보면 에너지가 빠지니, 혼자만의 충전 시간도 반드시 가지세요.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_갑_진_work', pattern_id: '계_갑_진', card_type: 'work', card_index: 3,
-      title: '일과 사회활동',
-      summary: '통찰과 기획력이 빛나는 시기. 다만 윗사람과의 마찰을 경계해야 합니다.',
-      keywords: ['통찰', '기획·분석', '윗사람 마찰 경계'],
-      bullets: [
-        '계수 특유의 섬세한 분석력과 통찰이 밖으로 드러나며, 기획·연구·분석·컨설팅 일에서 두각을 나타냅니다',
-        '다만 기존 방식이나 윗사람의 방침과 부딪히기 쉬우니, "더 나은 방법"을 제안하되 체면을 살려 주세요',
-        '큰 일을 한꺼번에 떠안지 말고, 한 가지를 깊이 파고드는 것이 올해 계수에게 가장 효율적입니다',
-      ],
-      action: '올해는 계수의 깊은 눈을 한 가지 주제에 집중하세요. 분석, 기획, 연구, 글 — 무엇이든 깊이 파고들어 결과물로 내놓으세요. 단, 윗사람에게는 제안이 아닌 "도움"의 형태로 전하세요.',
-      watch: '계수의 통찰은 날카로워 자칫 비판으로 들립니다. "이것이 문제입니다"보다 "이렇게 하면 더 좋겠습니다"로 바꾸어 말하세요. 한마디의 온도가 올해의 성패를 가릅니다.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_갑_진_money', pattern_id: '계_갑_진', card_type: 'money', card_index: 4,
-      title: '돈과 현금 흐름',
-      summary: '통찰과 기획이 수입으로 연결될 수 있는 시기. 다만 들어오는 만큼 빠져나가기도 쉽습니다.',
-      keywords: ['지식이 수입으로', '안정적 축적', '에너지 관리'],
-      bullets: [
-        '섬세한 분석과 기획력이 인정받아 수입으로 이어질 수 있는 시기입니다',
-        '다만 계수는 에너지가 약해 무리하면 금방 고갈되니, 건강을 지키는 것이 곧 재물 지키기입니다',
-        '축축한 흙이 물을 저장하듯, 들어온 돈을 한 곳에 모아 두는 것이 유리합니다',
-      ],
-      action: '올해는 "지식과 통찰의 값어치"를 매기는 해입니다. 공짜로 분석과 기획을 내주지 말고 적정한 보상을 요구하세요. 들어온 돈은 안전한 곳에 모아 두세요.',
-      watch: '계수는 마음이 약해 돈 문제를 잘 못 거절합니다. 큰 돈거래, 보증, 무리한 대출은 절대 피하세요. 에너지가 고갈되면 수입의 흐름도 끊깁니다.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.policy'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_갑_진_relationships', pattern_id: '계_갑_진', card_type: 'relationships', card_index: 5,
-      title: '인간관계와 애정운',
-      summary: '깊이 있는 대화가 통하는 사람과 인연이 피어나는 해. 다만 예민함이 관계를 시험합니다.',
-      keywords: ['깊은 대화', '예민함 관리', '속을 보는 눈'],
-      bullets: [
-        '계수의 섬세함이 빛나, 겉이 아닌 속을 볼 줄 아는 사람과 깊은 인연이 생깁니다',
-        '다만 직관이 날카로워 상대의 작은 결점도 보이니, "맞는 말"도 삼가고 참아 주는 너그러움이 필요합니다',
-        '애정운: 지적이고 차분한 대화가 통하는 사람에게 인연이 열립니다. 첫인상보다 몇 번 더 만나보세요',
-      ],
-      action: '올해는 "깊이 대화할 수 있는 사람"이 곧 좋은 인연입니다. 얕은 관계보다 소수와 깊은 시간을 가지세요. 애정운은 차분히 속을 알아가는 사람에게서 자랍니다.',
-      watch: '계수의 예민함이 상대의 작은 실수도 크게 느끼게 합니다. 상대의 결점을 들추기보다 장점을 먼저 보세요. 혼자 상처받고 혼자 멀어지는 패턴을 경계하세요.',
-      evidence: ['annual.branch.relationsToNatal', 'annual.monthCommand.context'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_갑_진_growth', pattern_id: '계_갑_진', card_type: 'growth', card_index: 6,
-      title: '건강과 일상 리듬',
-      summary: '에너지 고갈과 우울을 경계해야 하는 시기. 충분한 휴식과 수분 섭취가 생명줄입니다.',
-      keywords: ['우울 경계', '수분 섭취', '충분한 휴식'],
-      bullets: [
-        '작은 물이 큰 나무를 키우느라 에너지가 고갈되기 쉬운 해입니다 — 무리하지 마세요',
-        '계수는 우울과 침체에 빠지기 쉬우니, 햇빛을 자주 쬐고 사람들을 만나며 마음을 여세요',
-        '물을 자주 마시고, 신장·비뇨기·수면을 살피세요 — 수분과 휴식이 곧 계수의 생명줄입니다',
-      ],
-      action: '올해는 "쉬는 것을 부끄러워하지 않는" 것이 건강의 핵심입니다. 혼자만의 시간도 좋되, 너무 오래 침잠하지 않도록 햇빛과 사람을 가까이 하세요.',
-      watch: '생각이 깊어지다 우울로 빠지기 쉬운 시기입니다. 혼자 끙끙 앓지 말고, 믿을 수 있는 사람에게 마음을 꺼내놓으세요. 수면 부족은 계수의 직관마저 흐리게 합니다.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.monthCommand.context'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_갑_진_action', pattern_id: '계_갑_진', card_type: 'action', card_index: 7,
-      title: '올해 꼭 해야 할 일',
-      summary: '세 가지가 2024년을 알차게 만듭니다.',
-      keywords: ['통찰 하나 정리', '부드럽게 전하기', '충분한 휴식'],
-      bullets: [
-        '섬세한 직관을 한 가지 주제나 결과물로 깊이 파고들어 정리하세요',
-        '통찰을 전할 때는 "맞는 말"보다 "듣기 좋은 말"을 연습하세요',
-        '에너지 고갈을 막기 위해 충분히 쉬고, 수분과 수면을 우선하세요',
-      ],
-      action: '이렇게 하시면 2024년은 계수의 깊은 직관이 단단한 결실로 바뀌는 한 해가 됩니다. 이슬이 큰 나무를 적시듯, 작지만 깊은 것 하나에 집중하세요.',
-      watch: '피할 것: 혼자 끙끙 앓기, 거친 말과 비판, 무리한 일정. 가까운 것: 깊이 대화할 수 있는 사람, 햇빛과 산책, 맑은 물, 푸른색과 남색.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal', 'annual.policy'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_갑_진_method', pattern_id: '계_갑_진', card_type: 'method', card_index: 8,
-      title: '계산 방법과 한계',
-      summary: '갑진년의 두 글자를 하나씩 풀어 설명합니다.',
-      keywords: ['갑목 분석', '진토 분석', '근거'],
-      bullets: [
-        '갑(甲): 계수의 섬세한 직관이 큰 나무로 뻗어나가는 힘 — 통찰, 제안, 분석에 유리. 단, 작은 물이 큰 나무를 키우느라 에너지 고갈, 거친 말은 관계를 상하게 함',
-        '진(辰): 계수가 숨어 있는 고향 흙 — 안정과 저장에 유리. 단, 무거운 책임과 압박(관성)이 동반, 우울 경계 필요',
-        '해석 기준: 자평명리의 일간·월령·십신 관계. 격국·용신·조후는 이 버전에서 다루지 않습니다',
-      ],
-      action: '각 항목의 근거를 확인하며 읽어보세요.',
-      watch: '사주는 관계, 건강, 재산, 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산된 사실과 실제 삶을 돌아볼 질문을 이어주는 참고 자료로 활용하세요.',
-      evidence: ['annual.policy', 'annual.boundary.ipchun'],
-      tone: 'natural', review_status: 'approved' },
-  ],
-
-  domains: [
-    { module_id: '계_갑_진_mindset', pattern_id: '계_갑_진', domain_key: 'mindset', domain_label: '마음가짐', domain_index: 1,
-      points: ['통찰을 부드럽게 전하기 — 직관이 날카로울수록 말은 더 부드러워야 합니다', '뿌리 내려 중심 잡기 — 흩어지는 기운이 축축한 흙에 닿아 안정을 얻되 압박을 견디세요', '에너지 아끼기 — 작은 물이 큰 나무를 키우느라 고갈되기 쉬우니 쉬는 것을 부끄러워하지 마세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_갑_진_rel', pattern_id: '계_갑_진', domain_key: 'relationships', domain_label: '인간관계', domain_index: 2,
-      points: ['겉이 아닌 속을 볼 줄 아는 사람과 깊은 인연이 생깁니다', '직관이 날카로워 상대의 결점이 잘 보이나, 참아 주는 너그러움이 필요합니다', '얕은 관계보다 소수와 깊은 시간을 가지세요', '혼자 상처받고 혼자 멀어지는 패턴을 경계하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_갑_진_health', pattern_id: '계_갑_진', domain_key: 'health', domain_label: '건강', domain_index: 3,
-      points: ['에너지 고갈과 우울을 경계해야 하는 시기입니다 — 무리하지 마세요', '햇빛을 자주 쬐고 사람들을 만나며 마음을 여세요', '물을 자주 마시고 신장·비뇨기·수면을 살피세요', '충분한 휴식이 곧 계수의 생명줄입니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_갑_진_career', pattern_id: '계_갑_진', domain_key: 'career', domain_label: '학업 · 직업 · 사회활동', domain_index: 4,
-      points: ['섬세한 분석력과 통찰이 밖으로 드러나는 시기입니다', '기획, 연구, 분석, 컨설팅 일에서 두각을 나타냅니다', '윗사람과의 마찰을 경계하고 제안을 도움의 형태로 전하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_갑_진_family', pattern_id: '계_갑_진', domain_key: 'family', domain_label: '가족', domain_index: 5,
-      points: ['가족의 속을 먼저 알아채는 계수의 섬세함이 큰 힘이 됩니다', '다만 잔소리와 걱정이 지나치면 부담이 되니 한두 가지만 말하세요', '가족에게 마음을 열고 혼자 끙끙 앓지 마세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_갑_진_romance', pattern_id: '계_갑_진', domain_key: 'romance', domain_label: '애정운', domain_index: 6,
-      points: ['지적이고 차분한 대화가 통하는 사람에게 인연이 열립니다', '첫인상보다 몇 번 더 만나보고 결정하세요', '상대의 결점을 들추기보다 장점을 먼저 보세요', '예민함이 관계를 시험하니 한발 물러서 관조하는 여유를 가지세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_갑_진_wealth', pattern_id: '계_갑_진', domain_key: 'wealth', domain_label: '재물', domain_index: 7,
-      points: ['섬세한 분석과 기획력이 인정받아 수입으로 이어질 수 있습니다', '공짜로 분석과 기획을 내주지 말고 적정한 보상을 요구하세요', '들어온 돈은 안전한 곳에 모아 두세요', '큰 돈거래, 보증, 무리한 대출은 절대 피하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_갑_진_fashion', pattern_id: '계_갑_진', domain_key: 'fashion', domain_label: '패션', domain_index: 8,
-      points: ['단정하고 차분한 톤이 계수의 섬세함을 돋보이게 합니다', '푸른색과 남색이 계수의 기운을 돕습니다', '액세서리는 심플하고 섬세한 디자인이 유리합니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_갑_진_season', pattern_id: '계_갑_진', domain_key: 'season', domain_label: '날씨와 계절', domain_index: 9,
-      points: ['봄: 통찰과 제안의 에너지가 강합니다. 결과물을 내기 좋은 계절입니다', '여름: 더위에 계수가 마르기 쉬우니 수분과 휴식이 필요합니다', '가을: 쇠가 물을 보충하며 결실이 피어나는 계절입니다', '겨울: 계수가 편안해지는 계절 — 충전과 정비의 시간입니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_갑_진_pur', pattern_id: '계_갑_진', domain_key: 'purchases', domain_label: '물품 구입', domain_index: 10,
-      points: ['배움과 연구에 쓰는 돈은 올해 가장 가치 있는 투자입니다', '감정적으로 충동 구매를 하기 쉬우니 하룻밤 자고 결정하세요', '섬세하게 비교하고 신중하게 고르세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_갑_진_avoid', pattern_id: '계_갑_진', domain_key: 'avoid', domain_label: '피해야 할 기운', domain_index: 11,
-      points: ['혼자 끙끙 앓기 — 계수의 가장 큰 함정입니다', '거친 말과 비판 — 맞는 말도 관계를 부숩니다', '무리한 일정 — 에너지 고갈로 이어집니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_갑_진_fav', pattern_id: '계_갑_진', domain_key: 'favorable', domain_label: '이로운 기운', domain_index: 12,
-      points: ['깊이 대화할 수 있는 사람, 햇빛과 산책이 이롭습니다', '맑은 물, 푸른색과 남색, 조용하고 서늘한 공간이 유리합니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_갑_진_must', pattern_id: '계_갑_진', domain_key: 'must_do', domain_label: '꼭 해야 할 일', domain_index: 13,
-      points: ['섬세한 직관을 한 가지 주제로 깊이 파고들어 정리하세요', '통찰을 전할 때 부드럽게 전하는 연습을 하세요', '충분히 쉬고 수분과 수면을 우선하세요'],
-      closing: '이렇게 하시면 2024년은 계수의 깊은 직관이 단단한 결실로 바뀌는 한 해가 됩니다.', tone: 'natural', review_status: 'approved' },
-  ],
-
-  monthly: [
-    { slot_id: '계_갑_진_m1f', pattern_id: '계_갑_진', lunar_month: 1, month_pillar: '병인월', half: 'first', guidance: '새해 인연이 피어나는 시기입니다. 첫인상보다 속을 살피세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m1s', pattern_id: '계_갑_진', lunar_month: 1, month_pillar: '병인월', half: 'second', guidance: '조급함을 버리세요. 한 걸음씩 깊이 가는 것이 유리합니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m2f', pattern_id: '계_갑_진', lunar_month: 2, month_pillar: '정묘월', half: 'first', guidance: '표현과 통찰이 피어나는 달입니다. 부드럽게 전하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m2s', pattern_id: '계_갑_진', lunar_month: 2, month_pillar: '정묘월', half: 'second', guidance: '예민함이 관계를 시험합니다. 한발 물러서 관조하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m3f', pattern_id: '계_갑_진', lunar_month: 3, month_pillar: '무진월', half: 'first', guidance: '뿌리내림과 안정이 강한 달입니다. 축축한 흙이 계수의 고향이 됩니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m3s', pattern_id: '계_갑_진', lunar_month: 3, month_pillar: '무진월', half: 'second', guidance: '책임과 압박이 느껴지나 그것이 곧 안정입니다. 견디세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m4f', pattern_id: '계_갑_진', lunar_month: 4, month_pillar: '기사월', half: 'first', guidance: '더위가 시작되나 통찰이 빛납니다. 결과물을 내보이세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m4s', pattern_id: '계_갑_진', lunar_month: 4, month_pillar: '기사월', half: 'second', guidance: '계수가 마르기 쉽습니다. 수분과 휴식을 우선하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m5f', pattern_id: '계_갑_진', lunar_month: 5, month_pillar: '경오월', half: 'first', guidance: '한여름 더위가 계수를 지치게 합니다. 무리를 피하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m5s', pattern_id: '계_갑_진', lunar_month: 5, month_pillar: '경오월', half: 'second', guidance: '쇠의 기운이 계수를 보충합니다. 충전의 시간을 가지세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m6f', pattern_id: '계_갑_진', lunar_month: 6, month_pillar: '신미월', half: 'first', guidance: '섬세한 마무리가 힘을 발합니다. 작은 것을 다듬으세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m6s', pattern_id: '계_갑_진', lunar_month: 6, month_pillar: '신미월', half: 'second', guidance: '낯선 자리보다 편안한 사람과 시간을 보내세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m7f', pattern_id: '계_갑_진', lunar_month: 7, month_pillar: '임신월', half: 'first', guidance: '큰 물이 흘러들어 계수에 힘이 붙는 달입니다. 자신감을 가지세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m7s', pattern_id: '계_갑_진', lunar_month: 7, month_pillar: '임신월', half: 'second', guidance: '쇠가 물을 보충하며 안정됩니다. 결실을 점검하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m8f', pattern_id: '계_갑_진', lunar_month: 8, month_pillar: '계유월', half: 'first', guidance: '같은 물이 합류해 편안한 달입니다. 세밀한 마무리에 집중하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m8s', pattern_id: '계_갑_진', lunar_month: 8, month_pillar: '계유월', half: 'second', guidance: '결실을 정리하는 시기입니다. 남은 일을 끝내세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m9f', pattern_id: '계_갑_진', lunar_month: 9, month_pillar: '갑술월', half: 'first', guidance: '다시 통찰이 피어납니다. 새 주제를 깊이 파고드세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m9s', pattern_id: '계_갑_진', lunar_month: 9, month_pillar: '갑술월', half: 'second', guidance: '작은 오해는 즉시 푸세요. 미뤄둔 대화가 해답이 됩니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m10f', pattern_id: '계_갑_진', lunar_month: 10, month_pillar: '을해월', half: 'first', guidance: '물과 나무가 어우러져 편안한 달입니다. 일의 속도를 조절하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m10s', pattern_id: '계_갑_진', lunar_month: 10, month_pillar: '을해월', half: 'second', guidance: '겨울로 접어들며 계수가 편안해집니다. 충전의 시간을 가지세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m11f', pattern_id: '계_갑_진', lunar_month: 11, month_pillar: '병자월', half: 'first', guidance: '한겨울 계수가 가장 편안한 달입니다. 힘이 붙는 시기입니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m11s', pattern_id: '계_갑_진', lunar_month: 11, month_pillar: '병자월', half: 'second', guidance: '햇빛을 자주 쬐며 우울을 경계하세요. 사람들을 가까이 하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m12f', pattern_id: '계_갑_진', lunar_month: 12, month_pillar: '정축월', half: 'first', guidance: '한 해를 마무리하며 결실과 인연을 정리하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_갑_진_m12s', pattern_id: '계_갑_진', lunar_month: 12, month_pillar: '정축월', half: 'second', guidance: '미룬 일은 지금 끝내세요. 혼자 앓지 말고 마음을 여세요.', tone: 'natural', review_status: 'approved' },
-  ],
-},
-
-// ============================================================
-// 패턴 5: 계수 × 을사년 (2025, 십신: 식신)
-// 을목(덩굴) — 섬세함이 부드럽게 피어나는 표현과 보살핌.
-// 사화(초여름 불) — 계·사 합, 이슬이 태양에 스며들어 기회로.
-// ============================================================
-{
-  pattern: {
-    pattern_id: '계_을_사', day_master: '계', year_stem: '을', year_branch: '사',
-    ten_god_stem: '식신', branch_relation: 'stem_branch_combination',
-    label: '계수 출생 × 을사년 — 이슬이 덩굴을 적시고 여름 햇살을 받음',
-  },
-
-  cards: [
-    { module_id: '계_을_사_cover', pattern_id: '계_을_사', card_type: 'cover', card_index: 1,
-      title: '2025년 을사년, 계수 출생의 연운',
-      summary: '이슬 같은 계수(癸水)가 초록 덩굴을 부드럽게 적시며 키워내는 한 해입니다. 그 덩굴이 여름의 햇살을 받아 피어나니, 섬세한 표현과 보살핌이 따뜻한 기회로 이어집니다 — "부드럽게 드러내고, 따뜻하게 끌어당기되, 에너지가 스며 빠져나가지 않도록"이 올해의 열쇠입니다.',
-      keywords: ['부드러운 표현', '따뜻한 기회', '에너지 보존'],
-      bullets: [
-        '을목(덩굴)은 계수가 부드럽게 적시고 키우는 힘 — 섬세한 표현, 보살핌, 편안한 결과물이 자연스럽게 솟습니다',
-        '사화(초여름 불)는 계수가 스며들어 합하는 자리 — 따뜻함과 빛을 끌어당겨 부드러운 표현이 기회로 이어집니다',
-        '계수 출생에게 2025년은 "이슬이 덩굴을 적시고 덩굴이 햇살을 받듯" 부드럽게 피어나는 한 해입니다',
-      ],
-      action: '올해는 계수 특유의 섬세함을 부드러운 표현과 보살핌으로 밖으로 드러내는 때입니다. 가르치고, 돕고, 다듬는 일에 에너지를 쏟으세요. 다만 이슬이 태양에 스며들듯 에너지가 빠져나가기 쉬우니 충분히 쉬어야 합니다.',
-      watch: '식신은 편안한 표현의 힘이라 올해는 비교적 순조롭습니다. 다만 "편안하다"는 방심으로 이어지기 쉽습니다. 너무 많이 주고 베풀다 보면 계수의 이슬이 말라갑니다. 주되 덜어내는 양은 정하세요.',
-      evidence: ['annual.year.pillar', 'annual.stem.tenGodToDayMaster', 'annual.boundary.ipchun'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_을_사_overall', pattern_id: '계_을_사', card_type: 'overall', card_index: 2,
-      title: '마음가짐과 전체 흐름',
-      summary: '계수의 섬세함이 부드럽게 피어나는 해. "온화한 표현"과 "에너지 보존"이 올해의 두 기둥입니다.',
-      keywords: ['온화한 표현', '보살핌', '에너지 보존'],
-      bullets: [
-        '첫째, "온화한 표현" — 계수의 섬세한 통찰이 부드럽고 따뜻하게 밖으로 흘러나옵니다',
-        '둘째, "보살핌" — 돕고 가르치고 다듬는 일에서 계수의 가치가 빛납니다',
-        '셋째, "에너지 보존" — 이슬이 태양에 스며들듯 에너지가 빠져나가기 쉬우니 양을 정하세요',
-      ],
-      action: '올해의 힘은 "얼마나 부드럽게 전하느냐"에 달려 있습니다. 작년의 날카로운 통찰이 올해는 온화한 표현으로 자연스럽게 스며듭니다. 그 부드러움이 사람과 기회를 부릅니다.',
-      watch: '올해는 흐름이 비교적 순조로운 만큼 방심하기 쉽습니다. "잘 되고 있으니 더 베풀어도 되지"라는 생각이 계수의 에너지를 말립니다. 편안함 속에서도 한계를 지키세요.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_을_사_work', pattern_id: '계_을_사', card_type: 'work', card_index: 3,
-      title: '일과 사회활동',
-      summary: '섬세함과 보살핌이 빛을 발하는 시기. 교육, 돌봄, 디자인, 창작 일에 유리합니다.',
-      keywords: ['섬세함', '보살핌·돌봄', '부드러운 성과'],
-      bullets: [
-        '계수 특유의 섬세함과 따뜻함이 밖으로 드러나며, 교육, 돌봄, 디자인, 창작, 상담 일에서 두각을 나타냅니다',
-        '따뜻하고 부드러운 표현이 사람을 끌어당겨 자연스러운 기회와 협업이 열립니다',
-        '다만 에너지가 빠져나가기 쉬우니, 한 가지 일에 깊이 몰두하고 충분히 쉬세요',
-      ],
-      action: '올해는 계수의 섬세함을 "사람을 돕고 다듬는" 일에 쓰세요. 누군가를 가르치거나 돌보거나 다듬어 주는 일에서 계수의 가치가 가장 빛납니다. 단, 한 번에 너무 많은 사람을 돕지는 마세요.',
-      watch: '도움을 주다 보면 경계가 흐려져 "내 것"과 "남의 것"이 섞입니다. 친절은 좋되, 업무의 선은 단단히 지키세요. 베풂이 지나치면 정작 본업의 결과물이 흐트러집니다.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_을_사_money', pattern_id: '계_을_사', card_type: 'money', card_index: 4,
-      title: '돈과 현금 흐름',
-      summary: '부드러운 표현과 보살핌이 자연스럽게 수입으로 연결되는 시기입니다.',
-      keywords: ['자연스러운 수입', '보살핌의 보상', '에너지 관리'],
-      bullets: [
-        '섬세한 결과물과 따뜻한 서비스가 인정받아 수입으로 이어질 수 있는 시기입니다',
-        '다만 친절에 기대어 "공짜로" 에너지를 쏟다 보면 수입의 흐름도 에너지도 함께 빠집니다',
-        '계수의 에너지가 사화(불)에 스며들어 소진될 수 있으니, 건강이 곧 재물입니다',
-      ],
-      action: '올해는 "섬세함과 따뜻함의 값어치"를 매기는 해입니다. 친절이라며 공짜로 내주지 말고 적정한 보상을 받으세요. 부드럽게, 그러나 확실히 값을 매기세요.',
-      watch: '마음이 약해 값을 깎아주거나 공짜로 도와주기 쉽습니다. 한 번 그렇게 하면 습관이 되어 계수의 에너지가 새어나갑니다. 친절은 유지하되 가격의 선은 지키세요.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.policy'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_을_사_relationships', pattern_id: '계_을_사', card_type: 'relationships', card_index: 5,
-      title: '인간관계와 애정운',
-      summary: '따뜻하고 섬세한 매력이 사람을 끄는 시기. 부드러운 관계가 피어납니다.',
-      keywords: ['따뜻한 매력', '섬세한 배려', '에너지 한계'],
-      bullets: [
-        '계수의 섬세하고 따뜻한 매력이 빛나, 편안하고 깊이 있는 인연이 피어납니다',
-        '다만 모두를 다 돕고 품으려 하면 계수의 이슬이 금방 마릅니다 — 소수에게 집중하세요',
-        '애정운: 따뜻하게 배려해 주는 사람, 섬세함을 알아봐 주는 사람에게 인연이 열립니다',
-      ],
-      action: '올해는 "따뜻하게 배려하는" 계수의 매력이 관계를 부릅니다. 애정운은 섬세함을 알아주고 따뜻이 대화하는 사람에게서 자랍니다. 다만 모두에게 친절하려 하지 말고 소수에게 깊이하세요.',
-      watch: '계수의 친절이 지나치면 상대가 그것을 당연히 여깁니다. 주되 받는 것도 균형을 맞추세요. 일방적으로 주기만 하면 관계가 아니라 소모가 됩니다.',
-      evidence: ['annual.branch.relationsToNatal', 'annual.monthCommand.context'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_을_사_growth', pattern_id: '계_을_사', card_type: 'growth', card_index: 6,
-      title: '건강과 일상 리듬',
-      summary: '이슬이 태양에 스며들듯 에너지가 소진되기 쉬운 시기. 수분과 휴식이 생명줄입니다.',
-      keywords: ['에너지 고갈 경계', '수분 섭취', '햇빛과 휴식'],
-      bullets: [
-        '계수의 에너지가 사화(불)에 스며들어 빠져나가기 쉬운 해입니다 — 무리하지 마세요',
-        '물을 자주 마시고, 수면을 충분히 취하며, 신장·비뇨기 건강을 살피세요',
-        '따뜻한 햇빛을 자주 쬐면 우울을 막고 계수의 기운을 보충할 수 있습니다',
-      ],
-      action: '올해는 "충분히 쉬는 것"이 건강의 핵심입니다. 베풀고 돕는 일에 에너지를 쓴 만큼, 반드시 혼자만의 충전 시간을 가지세요. 햇빛 산책이 계수에게 약이 됩니다.',
-      watch: '친절과 보살핌에 에너지를 쏟다 보면 정작 자신을 돌보지 못합니다. 남을 돕기 전에 먼저 자신의 그릇을 채우세요. 빈 그릇으로는 아무것도 담아 줄 수 없습니다.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.monthCommand.context'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_을_사_action', pattern_id: '계_을_사', card_type: 'action', card_index: 7,
-      title: '올해 꼭 해야 할 일',
-      summary: '세 가지가 2025년을 알차게 만듭니다.',
-      keywords: ['부드럽게 드러내기', '값 매기기', '충분한 휴식'],
-      bullets: [
-        '섬세한 통찰과 보살핌을 부드러운 표현으로 밖에 드러내세요',
-        '친절에 기대지 말고, 자신의 섬세함과 시간에 분명한 값을 매기세요',
-        '베푼 만큼 반드시 충전하고, 수분과 수면과 햇빛을 우선하세요',
-      ],
-      action: '이렇게 하시면 2025년은 계수의 섬세함이 따뜻한 기회로 피어나는 한 해가 됩니다. 이슬이 덩굴을 적시면 덩굴이 자라고, 덩굴이 자라면 햇살을 받습니다 — 부드럽게, 그러나 에너지를 아끼세요.',
-      watch: '피할 것: 무한정 베풀기, 공짜로 에너지 쓰기, 방심한 과로. 가까운 것: 따뜻이 배려해 주는 사람, 햇빛 산책, 맑은 물, 푸른색과 연두색.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal', 'annual.policy'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_을_사_method', pattern_id: '계_을_사', card_type: 'method', card_index: 8,
-      title: '계산 방법과 한계',
-      summary: '을사년의 두 글자를 하나씩 풀어 설명합니다.',
-      keywords: ['을목 분석', '사화 분석', '근거'],
-      bullets: [
-        '을(乙): 계수가 부드럽게 적시고 키우는 덩굴 — 섬세한 표현, 보살핌, 편안한 결과물에 유리. 단, 너무 많이 주면 에너지 고갈',
-        '사(巳): 계수가 스며들어 합하는 초여름의 불 — 따뜻함과 빛을 끌어당겨 표현이 기회로 이어짐. 단, 이슬이 태양에 증발하듯 에너지 소모',
-        '해석 기준: 자평명리의 일간·월령·십신 관계. 격국·용신·조후는 이 버전에서 다루지 않습니다',
-      ],
-      action: '각 항목의 근거를 확인하며 읽어보세요.',
-      watch: '사주는 관계, 건강, 재산, 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산된 사실과 실제 삶을 돌아볼 질문을 이어주는 참고 자료로 활용하세요.',
-      evidence: ['annual.policy', 'annual.boundary.ipchun'],
-      tone: 'natural', review_status: 'approved' },
-  ],
-
-  domains: [
-    { module_id: '계_을_사_mindset', pattern_id: '계_을_사', domain_key: 'mindset', domain_label: '마음가짐', domain_index: 1,
-      points: ['온화한 표현 — 계수의 섬세한 통찰이 부드럽고 따뜻하게 밖으로 흘러나옵니다', '보살핌 — 돕고 가르치고 다듬는 일에서 계수의 가치가 빛납니다', '에너지 보존 — 이슬이 태양에 스며들듯 에너지가 빠져나가기 쉬우니 양을 정하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_을_사_rel', pattern_id: '계_을_사', domain_key: 'relationships', domain_label: '인간관계', domain_index: 2,
-      points: ['섬세하고 따뜻한 매력이 편안하고 깊은 인연을 피어냅니다', '모두를 다 품으려 하면 이슬이 마릅니다 — 소수에게 집중하세요', '주되 받는 것도 균형을 맞추세요 — 일방적 베풂은 소모입니다', '섬세함을 알아주는 사람에게 시간과 마음을 쏟으세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_을_사_health', pattern_id: '계_을_사', domain_key: 'health', domain_label: '건강', domain_index: 3,
-      points: ['에너지가 사화(불)에 스며들어 소진되기 쉬운 해입니다 — 무리하지 마세요', '물을 자주 마시고 수면을 충분히 취하며 신장·비뇨기를 살피세요', '따뜻한 햇빛을 자주 쬐면 우울을 막고 기운을 보충합니다', '남을 돕기 전에 먼저 자신의 그릇을 채우세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_을_사_career', pattern_id: '계_을_사', domain_key: 'career', domain_label: '학업 · 직업 · 사회활동', domain_index: 4,
-      points: ['섬세함과 따뜻함이 밖으로 드러나는 시기입니다', '교육, 돌봄, 디자인, 창작, 상담 일에서 두각을 나타냅니다', '한 가지 일에 깊이 몰두하고 충분히 쉬어야 에너지가 유지됩니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_을_사_family', pattern_id: '계_을_사', domain_key: 'family', domain_label: '가족', domain_index: 5,
-      points: ['가족을 따뜻이 돌보는 계수의 섬세함이 가족의 큰 힘이 됩니다', '다만 모든 가족을 다 챙기려 하면 에너지가 새어나갑니다', '가족에게 받는 것도 허락하세요 — 일방적 희생은 지침의 원인이 됩니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_을_사_romance', pattern_id: '계_을_사', domain_key: 'romance', domain_label: '애정운', domain_index: 6,
-      points: ['따뜻이 배려해 주고 섬세함을 알아봐 주는 사람에게 인연이 열립니다', '편안한 대화가 통하는 자리에서 인연이 자랍니다', '너무 많은 사람에게 친절을 베풀면 애정운이 흩어집니다 — 한 사람에게 집중하세요', '주되 받는 것도 균형을 맞추어야 관계가 건강해집니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_을_사_wealth', pattern_id: '계_을_사', domain_key: 'wealth', domain_label: '재물', domain_index: 7,
-      points: ['섬세한 결과물과 따뜻한 서비스가 인정받아 수입으로 이어집니다', '친절에 기대어 공짜로 에너지를 쏟지 마세요 — 분명한 값을 매기세요', '건강이 곧 재물입니다 — 에너지를 지켜야 수입의 흐름도 유지됩니다', '들어온 돈은 안전한 곳에 모아 두세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_을_사_fashion', pattern_id: '계_을_사', domain_key: 'fashion', domain_label: '패션', domain_index: 8,
-      points: ['부드럽고 따뜻한 톤이 계수의 섬세한 매력을 돋보이게 합니다', '푸른색과 연두색이 계수와 덩굴의 조화를 돕습니다', '액세서리는 섬세하고 자연 소재가 유리합니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_을_사_season', pattern_id: '계_을_사', domain_key: 'season', domain_label: '날씨와 계절', domain_index: 9,
-      points: ['봄: 부드러운 표현과 보살핌의 에너지가 가장 강한 계절입니다', '여름: 계수가 태양에 스며들어 에너지가 소모되는 때 — 수분과 휴식이 우선입니다', '가을: 쇠가 물을 보충하며 섬세한 결실이 피어나는 계절입니다', '겨울: 계수가 편안해지며 충전하는 계절 — 내년의 표현을 미리 준비하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_을_사_pur', pattern_id: '계_을_사', domain_key: 'purchases', domain_label: '물품 구입', domain_index: 10,
-      points: ['성장과 돌봄에 쓰는 돈은 가치 있는 투자입니다', '친절에 현혹되어 불필요한 것을 사지 않도록 주의하세요', '섬세하게 비교하고 따뜻한 마음으로 신중하게 고르세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_을_사_avoid', pattern_id: '계_을_사', domain_key: 'avoid', domain_label: '피해야 할 기운', domain_index: 11,
-      points: ['무한정 베풀기 — 계수의 이슬이 말라갑니다', '공짜로 에너지와 시간 쓰기 — 수입의 흐름도 끊깁니다', '방심한 과로 — 편안함 속에서 에너지가 소모됩니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_을_사_fav', pattern_id: '계_을_사', domain_key: 'favorable', domain_label: '이로운 기운', domain_index: 12,
-      points: ['따뜻이 배려해 주는 사람, 햇빛 산책이 이롭습니다', '맑은 물, 푸른색과 연두색, 조용하고 따뜻한 공간이 유리합니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_을_사_must', pattern_id: '계_을_사', domain_key: 'must_do', domain_label: '꼭 해야 할 일', domain_index: 13,
-      points: ['섬세한 통찰과 보살핌을 부드러운 표현으로 밖에 드러내세요', '자신의 섬세함과 시간에 분명한 값을 매기세요', '베푼 만큼 반드시 충전하고 수분과 수면과 햇빛을 우선하세요'],
-      closing: '이렇게 하시면 2025년은 계수의 섬세함이 따뜻한 기회로 피어나는 한 해가 됩니다.', tone: 'natural', review_status: 'approved' },
-  ],
-
-  monthly: [
-    { slot_id: '계_을_사_m1f', pattern_id: '계_을_사', lunar_month: 1, month_pillar: '무인월', half: 'first', guidance: '새해 부드러운 표현의 씨앗이 피어납니다. 따뜻하게 다가가세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m1s', pattern_id: '계_을_사', lunar_month: 1, month_pillar: '무인월', half: 'second', guidance: '계획을 세우되 여유를 가지세요. 서두르면 섬세함이 사라집니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m2f', pattern_id: '계_을_사', lunar_month: 2, month_pillar: '기묘월', half: 'first', guidance: '부드러운 배려가 사람을 끄는 달입니다. 칭찬을 아끼지 마세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m2s', pattern_id: '계_을_사', lunar_month: 2, month_pillar: '기묘월', half: 'second', guidance: '너무 많이 주지 마세요. 받는 것도 허락해야 관계가 건강합니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m3f', pattern_id: '계_을_사', lunar_month: 3, month_pillar: '경진월', half: 'first', guidance: '섬세한 결과물을 정리하기 좋은 달입니다. 한 가지에 집중하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m3s', pattern_id: '계_을_사', lunar_month: 3, month_pillar: '경진월', half: 'second', guidance: '쇠가 계수를 보충합니다. 충전의 시간을 가지세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m4f', pattern_id: '계_을_사', lunar_month: 4, month_pillar: '신사월', half: 'first', guidance: '계수가 사화와 합하는 달입니다. 부드러운 표현이 기회로 이어집니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m4s', pattern_id: '계_을_사', lunar_month: 4, month_pillar: '신사월', half: 'second', guidance: '이슬이 태양에 스며들듯 에너지가 소모됩니다. 충분히 쉬세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m5f', pattern_id: '계_을_사', lunar_month: 5, month_pillar: '임오월', half: 'first', guidance: '큰 물이 계수에 힘을 보탭니다. 자신감을 가지고 밀고 나가세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m5s', pattern_id: '계_을_사', lunar_month: 5, month_pillar: '임오월', half: 'second', guidance: '여름 불이 강해집니다. 수분과 휴식, 햇빛 산책이 필요합니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m6f', pattern_id: '계_을_사', lunar_month: 6, month_pillar: '계미월', half: 'first', guidance: '같은 물이 합류해 편안한 달입니다. 세밀한 마무리에 집중하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m6s', pattern_id: '계_을_사', lunar_month: 6, month_pillar: '계미월', half: 'second', guidance: '감정에 휘둘리지 마세요. 객관적인 시각이 필요한 달입니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m7f', pattern_id: '계_을_사', lunar_month: 7, month_pillar: '갑신월', half: 'first', guidance: '쇠가 물을 보충하며 계수가 안정됩니다. 결실을 다듬으세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m7s', pattern_id: '계_을_사', lunar_month: 7, month_pillar: '갑신월', half: 'second', guidance: '결과물을 밖으로 드러내기 좋습니다. 부드럽게 내보이세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m8f', pattern_id: '계_을_사', lunar_month: 8, month_pillar: '을유월', half: 'first', guidance: '섬세한 표현과 따뜻함이 힘을 얻는 달입니다. 인연을 가꾸세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m8s', pattern_id: '계_을_사', lunar_month: 8, month_pillar: '을유월', half: 'second', guidance: '말 한마디가 관계를 따뜻하게 합니다. 감사를 표현하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m9f', pattern_id: '계_을_사', lunar_month: 9, month_pillar: '병술월', half: 'first', guidance: '올해의 부드러운 노력이 결실로 나타납니다. 정산하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m9s', pattern_id: '계_을_사', lunar_month: 9, month_pillar: '병술월', half: 'second', guidance: '작은 오해는 따뜻한 대화로 푸세요. 미루면 굳어집니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m10f', pattern_id: '계_을_사', lunar_month: 10, month_pillar: '정해월', half: 'first', guidance: '물과 나무가 어우러져 편안한 달입니다. 인연과 따뜻한 시간을 보내세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m10s', pattern_id: '계_을_사', lunar_month: 10, month_pillar: '정해월', half: 'second', guidance: '겨울로 접어들며 계수가 충전됩니다. 내년의 표현을 미리 그려보세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m11f', pattern_id: '계_을_사', lunar_month: 11, month_pillar: '무자월', half: 'first', guidance: '한겨울 계수가 편안한 달입니다. 휴식과 정비가 우선입니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m11s', pattern_id: '계_을_사', lunar_month: 11, month_pillar: '무자월', half: 'second', guidance: '햇빛을 쬐며 우울을 경계하세요. 따뜻한 사람들을 가까이 하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m12f', pattern_id: '계_을_사', lunar_month: 12, month_pillar: '기축월', half: 'first', guidance: '한 해를 마무리하며 따뜻하게 인연과 수입을 정리하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_을_사_m12s', pattern_id: '계_을_사', lunar_month: 12, month_pillar: '기축월', half: 'second', guidance: '받은 따뜻함에 감사하며 내년의 보살핌을 준비하세요.', tone: 'natural', review_status: 'approved' },
-  ],
-},
-
-// ============================================================
-// 패턴 6: 계수 × 병오년 (2026, 십신: 정재)
-// 병화(태양) — 이슬에 비친 아침 태양, 확실한 보상과 안정적 수입.
-// 오화(한여름 강한 불) — 강한 불에 이슬이 마름, 수분 보존이 과제.
-// ============================================================
-{
-  pattern: {
-    pattern_id: '계_병_오', day_master: '계', year_stem: '병', year_branch: '오',
-    ten_god_stem: '정재', branch_relation: 'strong_fire_evaporates_water',
-    label: '계수 출생 × 병오년 — 아침 이슬에 비친 태양, 확실한 기회와 수분 보존',
-  },
-
-  cards: [
-    { module_id: '계_병_오_cover', pattern_id: '계_병_오', card_type: 'cover', card_index: 1,
-      title: '2026년 병오년, 계수 출생의 연운',
-      summary: '아침 이슬에 태양이 비쳐 반짝이듯, 계수(癸水)에게 확실하고 약속된 기회가 들어오는 한 해입니다. 안정적 수입과 정당한 보상의 자리이나, 한여름의 강한 불이 계수의 이슬을 말려갈 수 있으니 — "작고 확실한 것을 지키며, 섬세함을 잃지 않는 것"이 올해의 열쇠입니다.',
-      keywords: ['확실한 보상', '수분 보존', '섬세함 유지'],
-      bullets: [
-        '병화(태양)는 계수가 만나는 확실하고 약속된 기회 — 안정적 수입, 정당한 보상, 성실의 결실이 열립니다',
-        '오화(한여름 왕성한 불)는 계수의 이슬을 말리는 자리 — 기회가 확실한 만큼 에너지·감정·체력이 소모됩니다',
-        '계수 출생에게 2026년은 "받을 것을 받되, 주되 말라가지 않도록" 보존의 지혜가 필요한 한 해입니다',
-      ],
-      action: '올해는 그동안 쌓아온 섬세함과 성실이 약속된 보상으로 돌아오는 때입니다. 다만 큰 불 앞에서 이슬은 쉽게 마르니, 한 걸음씩, 충분히 쉬어 가며 에너지를 아끼세요.',
-      watch: '정재라 기본은 안정적이지만, 한여름의 열기가 계수의 수분을 빼앗습니다. "확실하니까 더 밀어붙여야지"라는 생각이 계수를 고갈시킵니다. 속도보다 지구력이 올해의 생명줄입니다.',
-      evidence: ['annual.year.pillar', 'annual.stem.tenGodToDayMaster', 'annual.boundary.ipchun'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_병_오_overall', pattern_id: '계_병_오', card_type: 'overall', card_index: 2,
-      title: '마음가짐과 전체 흐름',
-      summary: '확실한 보상이 들어오되 에너지가 소모되는 해. "작고 확실한 것 지키기"와 "수분 보존"이 올해의 두 기둥입니다.',
-      keywords: ['확실한 보상', '보존', '섬세함 유지'],
-      bullets: [
-        '첫째, "작고 확실한 것 지키기" — 크고 화려한 것을 좇기보다 손에 잡힌 것을 단단히 쥐세요',
-        '둘째, "수분 보존" — 한여름의 불이 계수의 에너지·감정·체력을 가장 빨리 빼앗습니다',
-        '셋째, "섬세함 유지" — 바쁘고 확실한 흐름 속에서도 계수 특유의 깊은 눈을 잃지 마세요',
-      ],
-      action: '올해의 지혜는 "더 받으려 하기"보다 "받은 것을 지키기"에 있습니다. 계수의 이슬은 한 번 마르면 다시 채우기 어렵습니다. 확실한 보상이 와도 과욕은 금물입니다.',
-      watch: '안정적이라는 확신이 방심을 부릅니다. "올해는 괜찮겠지"라며 무리하다 한여름에 한꺼번에 무너지기 쉽습니다. 편안함 속에서도 한계를 단단히 지키세요.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_병_오_work', pattern_id: '계_병_오', card_type: 'work', card_index: 3,
-      title: '일과 사회활동',
-      summary: '성실의 결실과 확실한 보상이 따르는 시기. 다만 체력 관리가 무엇보다 중요합니다.',
-      keywords: ['성실의 결실', '안정적 보상', '체력 관리'],
-      bullets: [
-        '그동안 쌓아온 섬세함과 성실이 인정받아 안정적 자리와 보상으로 이어질 수 있는 시기입니다',
-        '다만 한여름의 불이 에너지를 빼앗으니, 일의 속도보다 지구력과 체력 관리가 먼저입니다',
-        '계수 특유의 깊은 눈을 잃지 말고, 바쁜 흐름 속에서도 한 걸음 물러서 살피는 시간을 가지세요',
-      ],
-      action: '올해는 "성실이 보상으로 돌아오는" 때입니다. 단, 보상이 따른다고 무리하면 계수의 이슐이 마릅니다. 확실한 일에 집중하되, 반드시 쉬는 시간을 일정에 넣으세요.',
-      watch: '안정적 자리가 주어지면 책임이 따릅니다. 그 책임이 한여름의 불처럼 계수를 압박할 수 있습니다. 모든 것을 떠안지 말고, 나누고 줄이는 용기가 필요합니다.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_병_오_money', pattern_id: '계_병_오', card_type: 'money', card_index: 4,
-      title: '돈과 현금 흐름',
-      summary: '안정적 수입과 확실한 보상이 들어오는 시기. 다만 들어온 것을 지키는 것이 더 중요합니다.',
-      keywords: ['안정적 수입', '보존', '투자 한도'],
-      bullets: [
-        '정재의 기운 — 안정적이고 약속된 수입, 정당한 보상이 열리는 시기입니다',
-        '다만 안정적이라는 확신이 투자와 지출의 유혹을 부릅니다 — 한도를 엄격히 정하세요',
-        '한여름의 불이 자본까지 말릴 수 있으니, 들어온 돈은 안전한 곳에 단단히 모아 두세요',
-      ],
-      action: '올해는 "받은 것을 지키는" 것이 핵심입니다. 안정적 수입이 들어와도 그것을 다시 위험에 돌리지 마세요. 저축과 안전 자산 비중을 높이고, 투자는 최소한으로 하세요.',
-      watch: '"올해는 안정적이니까 투자해도 되지"라는 생각이 가장 위험합니다. 계수의 이슬은 한 번 마르면 회복이 느립니다. 보수적이고 확실한 길을 고수하세요.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.policy'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_병_오_relationships', pattern_id: '계_병_오', card_type: 'relationships', card_index: 5,
-      title: '인간관계와 애정운',
-      summary: '안정적이고 신뢰 깊은 인연이 자리 잡는 시기. 다만 바쁜 흐름이 관계를 소홀하게 만듭니다.',
-      keywords: ['안정적 인연', '신뢰', '시간 내어주기'],
-      bullets: [
-        '신뢰와 안정이 바탕이 되는 인연이 자리 잡을 수 있는 시기입니다',
-        '다만 확실한 일과 보상에 쫓겨 정작 소중한 사람에게 시간을 주지 못하기 쉽습니다',
-        '애정운: 변함없이 곁을 지켜 주는 사람, 섬세함을 알아주는 사람에게 인연이 깊어집니다',
-      ],
-      action: '올해는 "시간을 내어 주는 것"이 관계의 핵심입니다. 바쁘고 확실한 흐름 속에서도 소중한 사람과 느리고 깊은 시간을 가지세요. 안정이 관계의 밑거름입니다.',
-      watch: '안정적 보상에 취해 관계를 소홀히 하면, 정작 중요한 사람이 멀어집니다. 계수의 섬세함은 사람에게 쓸 때 가장 빛납니다 — 일에만 쓰지 마세요.',
-      evidence: ['annual.branch.relationsToNatal', 'annual.monthCommand.context'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_병_오_growth', pattern_id: '계_병_오', card_type: 'growth', card_index: 6,
-      title: '건강과 일상 리듬',
-      summary: '한여름의 강한 불이 계수의 이슬을 말리는 시기. 수분, 수면, 우울 경계가 생명줄입니다.',
-      keywords: ['수분 보존', '우울 경계', '지구력'],
-      bullets: [
-        '한여름의 불이 계수의 에너지와 수분을 가장 빨리 빼앗습니다 — 무리와 과로를 피하세요',
-        '물을 자주 마시고, 수면을 충분히 취하며, 신장·비뇨기·심장·혈압을 살피세요',
-        '안정적 흐름 속에서도 우울과 고갈이 조용히 찾아올 수 있으니 햇빛과 사람을 가까이 하세요',
-      ],
-      action: '올해는 "지구력의 해"입니다. 확실한 일이 따르더라도 체력을 먼저 챙기세요. 규칙적인 수분 섭취, 충분한 수면, 햇빛 산책이 계수의 이슬을 지킵니다.',
-      watch: '"괜찮겠지"라는 방심이 한여름에 한꺼번에 무너지기 쉽습니다. 바쁘다는 핑계로 쉬는 것을 미루지 마세요. 계수가 무너지면 모든 것이 멈춥니다.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.monthCommand.context'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_병_오_action', pattern_id: '계_병_오', card_type: 'action', card_index: 7,
-      title: '올해 꼭 해야 할 일',
-      summary: '세 가지가 2026년을 안정되게 만듭니다.',
-      keywords: ['받은 것 지키기', '체력 우선', '섬세함 유지'],
-      bullets: [
-        '안정적 수입이 들어와도 그것을 다시 위험에 돌리지 말고 안전한 곳에 모으세요',
-        '체력과 수분을 최우선으로 관리하세요 — 한여름의 불이 계수를 가장 빨리 말립니다',
-        '바쁜 흐름 속에서도 계수 특유의 깊은 눈과 섬세함을 잃지 마세요',
-      ],
-      action: '이렇게 하시면 2026년은 계수에게 확실한 보상이 안정적 결실로 남는 한 해가 됩니다. 아침 이슬에 태양이 비치듯 반짝이되, 한낮의 불길에 마르지 않도록 스스로를 보존하세요.',
-      watch: '피할 것: 안정에 취한 방심, 무리한 투자와 과로, 관계 소홀. 가까운 것: 느리고 깊은 대화, 햇빛 산책, 맑은 물, 푸른색과 남색, 서늘한 공간.',
-      evidence: ['annual.stem.tenGodToDayMaster', 'annual.branch.relationsToNatal', 'annual.policy'],
-      tone: 'natural', review_status: 'approved' },
-
-    { module_id: '계_병_오_method', pattern_id: '계_병_오', card_type: 'method', card_index: 8,
-      title: '계산 방법과 한계',
-      summary: '병오년의 두 글자를 하나씩 풀어 설명합니다.',
-      keywords: ['병화 분석', '오화 분석', '근거'],
-      bullets: [
-        '병(丙): 계수가 만나는 확실하고 약속된 태양 — 안정적 수입, 정당한 보상, 성실의 결실. 단, 너무 강한 빛에 계수의 섬세함이 흐려지기 쉬움',
-        '오(午): 한여름 왕성한 불 — 계수의 이슬을 말리는 자리. 확실한 기회와 보상이 따르나 에너지·체력·감정이 소모됨',
-        '해석 기준: 자평명리의 일간·월령·십신 관계. 격국·용신·조후는 이 버전에서 다루지 않습니다',
-      ],
-      action: '각 항목의 근거를 확인하며 읽어보세요.',
-      watch: '사주는 관계, 건강, 재산, 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산된 사실과 실제 삶을 돌아볼 질문을 이어주는 참고 자료로 활용하세요.',
-      evidence: ['annual.policy', 'annual.boundary.ipchun'],
-      tone: 'natural', review_status: 'approved' },
-  ],
-
-  domains: [
-    { module_id: '계_병_오_mindset', pattern_id: '계_병_오', domain_key: 'mindset', domain_label: '마음가짐', domain_index: 1,
-      points: ['작고 확실한 것 지키기 — 크고 화려한 것을 좇기보다 손에 잡힌 것을 단단히 쥐세요', '수분 보존 — 한여름의 불이 계수의 에너지·감정·체력을 가장 빨리 빼앗습니다', '섬세함 유지 — 바쁘고 확실한 흐름 속에서도 계수 특유의 깊은 눈을 잃지 마세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_병_오_rel', pattern_id: '계_병_오', domain_key: 'relationships', domain_label: '인간관계', domain_index: 2,
-      points: ['신뢰와 안정이 바탕이 되는 인연이 자리 잡는 시기입니다', '확실한 일에 쫓겨 소중한 사람에게 시간을 주지 못하지 마세요', '변함없이 곁을 지켜 주는 사람에게 마음을 쏟으세요', '일에만 에너지를 쓰지 말고 사람에게도 나누세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_병_오_health', pattern_id: '계_병_오', domain_key: 'health', domain_label: '건강', domain_index: 3,
-      points: ['한여름의 불이 계수의 에너지와 수분을 가장 빨리 빼앗습니다 — 무리와 과로를 피하세요', '물을 자주 마시고 수면을 충분히 취하며 신장·비뇨기·심장·혈압을 살피세요', '안정적 흐름 속에서도 우울과 고갈이 조용히 찾아올 수 있습니다', '햇빛 산책과 충분한 휴식이 계수의 생명줄입니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_병_오_career', pattern_id: '계_병_오', domain_key: 'career', domain_label: '학업 · 직업 · 사회활동', domain_index: 4,
-      points: ['섬세함과 성실이 인정받아 안정적 자리와 보상으로 이어지는 시기입니다', '일의 속도보다 지구력과 체력 관리가 먼저입니다', '바쁜 흐름 속에서도 한 걸음 물러서 살피는 시간을 가지세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_병_오_family', pattern_id: '계_병_오', domain_key: 'family', domain_label: '가족', domain_index: 5,
-      points: ['가족과 느리고 안정적인 시간을 가지는 것이 올해의 큰 힘이 됩니다', '바쁘다는 핑계로 가족을 소홀히 하지 마세요', '가족의 신뢰가 곧 계수의 안정의 밑거름입니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_병_오_romance', pattern_id: '계_병_오', domain_key: 'romance', domain_label: '애정운', domain_index: 6,
-      points: ['변함없이 곁을 지켜 주고 섬세함을 알아주는 사람에게 인연이 깊어집니다', '안정과 신뢰가 바탕이 되는 인연이 자리 잡는 시기입니다', '바쁜 흐름에 정작 소중한 사람을 소홀히 하지 마세요', '느리고 깊은 시간이 애정운을 키웁니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_병_오_wealth', pattern_id: '계_병_오', domain_key: 'wealth', domain_label: '재물', domain_index: 7,
-      points: ['안정적이고 약속된 수입과 정당한 보상이 열리는 시기입니다', '들어온 돈은 안전한 곳에 단단히 모아 두세요', '투자와 지출의 한도를 엄격히 정하세요', '안정에 취해 다시 위험에 돌리지 마세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_병_오_fashion', pattern_id: '계_병_오', domain_key: 'fashion', domain_label: '패션', domain_index: 8,
-      points: ['서늘하고 차분한 톤이 한여름의 열기를 가라앉힙니다', '푸른색과 남색이 계수의 기운을 돕습니다 — 붉은색은 줄이세요', '액세서리는 심플하고 서늘한 소재(은, 진주 등)가 유리합니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_병_오_season', pattern_id: '계_병_오', domain_key: 'season', domain_label: '날씨와 계절', domain_index: 9,
-      points: ['봄: 안정의 씨앗이 피어나는 계절 — 한 가지 확실한 일에 뿌리를 내리세요', '여름: 한여름 불이 가장 강한 때 — 수분과 체력 보존이 최우선입니다', '가을: 열기가 식으며 결실이 피어나는 계절 — 수확을 정리하세요', '겨울: 계수가 편안해지며 충전하는 계절 — 내년을 대비하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_병_오_pur', pattern_id: '계_병_오', domain_key: 'purchases', domain_label: '물품 구입', domain_index: 10,
-      points: ['안정적 수입이 들어와도 지출 한도를 엄격히 정하세요', '체력과 건강에 쓰는 돈은 가치 있는 투자입니다', '화려한 겉모습보다 실용성과 내구성을 우선하세요'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_병_오_avoid', pattern_id: '계_병_오', domain_key: 'avoid', domain_label: '피해야 할 기운', domain_index: 11,
-      points: ['안정에 취한 방심 — "괜찮겠지"가 한여름에 무너뜨립니다', '무리한 투자와 과로 — 체력과 자본을 동시에 말립니다', '관계 소홀 — 확실한 일에 쫓겨 소중한 사람을 놓칩니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_병_오_fav', pattern_id: '계_병_오', domain_key: 'favorable', domain_label: '이로운 기운', domain_index: 12,
-      points: ['느리고 깊은 대화, 햇빛 산책, 서늘하고 조용한 공간이 이롭습니다', '맑은 물, 푸른색과 남색, 안정적인 인연이 유리합니다'],
-      closing: null, tone: 'natural', review_status: 'approved' },
-    { module_id: '계_병_오_must', pattern_id: '계_병_오', domain_key: 'must_do', domain_label: '꼭 해야 할 일', domain_index: 13,
-      points: ['안정적 수입을 안전한 곳에 모으고 다시 위험에 돌리지 마세요', '체력과 수분을 최우선으로 관리하세요', '바쁜 흐름 속에서도 섬세함과 깊은 눈을 잃지 마세요'],
-      closing: '이렇게 하시면 2026년은 계수에게 확실한 보상이 안정적 결실로 남는 한 해가 됩니다.', tone: 'natural', review_status: 'approved' },
-  ],
-
-  monthly: [
-    { slot_id: '계_병_오_m1f', pattern_id: '계_병_오', lunar_month: 1, month_pillar: '임인월', half: 'first', guidance: '새해 물이 강해지며 계수에 힘이 붙는 달입니다. 안정의 씨앗을 심으세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m1s', pattern_id: '계_병_오', lunar_month: 1, month_pillar: '임인월', half: 'second', guidance: '물이 나무를 키우며 에너지가 쓰입니다. 한 가지에 집중하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m2f', pattern_id: '계_병_오', lunar_month: 2, month_pillar: '계묘월', half: 'first', guidance: '같은 물이 합류해 편안한 달입니다. 섬세함을 살피세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m2s', pattern_id: '계_병_오', lunar_month: 2, month_pillar: '계묘월', half: 'second', guidance: '감정에 휘둘리지 마세요. 객관적 판단이 필요한 달입니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m3f', pattern_id: '계_병_오', lunar_month: 3, month_pillar: '갑진월', half: 'first', guidance: '축축한 흙이 계수의 고향이 되는 달입니다. 뿌리를 내리세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m3s', pattern_id: '계_병_오', lunar_month: 3, month_pillar: '갑진월', half: 'second', guidance: '안정의 토대가 잡히는 달입니다. 확실한 일 하나를 정하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m4f', pattern_id: '계_병_오', lunar_month: 4, month_pillar: '을사월', half: 'first', guidance: '불의 기운이 피어오릅니다. 보상의 싹이 보이나 서두르지 마세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m4s', pattern_id: '계_병_오', lunar_month: 4, month_pillar: '을사월', half: 'second', guidance: '계수가 마르기 시작합니다. 수분과 휴식을 우선하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m5f', pattern_id: '계_병_오', lunar_month: 5, month_pillar: '병오월', half: 'first', guidance: '한여름 태양이 가장 강한 달입니다. 큰 결정은 미루고 체력을 보존하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m5s', pattern_id: '계_병_오', lunar_month: 5, month_pillar: '병오월', half: 'second', guidance: '계수의 이슬이 가장 많이 마르는 때입니다. 무리를 피하고 햇빛과 물을 가까이 하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m6f', pattern_id: '계_병_오', lunar_month: 6, month_pillar: '정미월', half: 'first', guidance: '열기가 여전합니다. 세밀한 마무리에 집중하며 에너지를 아끼세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m6s', pattern_id: '계_병_오', lunar_month: 6, month_pillar: '정미월', half: 'second', guidance: '우울과 고갈이 조용히 올 수 있습니다. 사람들을 가까이 하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m7f', pattern_id: '계_병_오', lunar_month: 7, month_pillar: '무신월', half: 'first', guidance: '쇠가 물을 보충하며 열기가 식기 시작합니다. 안정을 점검하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m7s', pattern_id: '계_병_오', lunar_month: 7, month_pillar: '무신월', half: 'second', guidance: '규칙과 책임이 따르나 그것이 올해의 수확을 지킵니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m8f', pattern_id: '계_병_오', lunar_month: 8, month_pillar: '기유월', half: 'first', guidance: '섬세한 정리가 힘을 얻는 달입니다. 수입과 인연을 점검하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m8s', pattern_id: '계_병_오', lunar_month: 8, month_pillar: '기유월', half: 'second', guidance: '올해의 노력이 결실로 나타납니다. 정산하고 안정시키세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m9f', pattern_id: '계_병_오', lunar_month: 9, month_pillar: '경술월', half: 'first', guidance: '수확의 계절입니다. 모은 것을 단단히 저장하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m9s', pattern_id: '계_병_오', lunar_month: 9, month_pillar: '경술월', half: 'second', guidance: '쇠가 계수를 돕는 달입니다. 남은 일을 끝맺고 다듬으세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m10f', pattern_id: '계_병_오', lunar_month: 10, month_pillar: '신해월', half: 'first', guidance: '물이 강해지며 계수가 편안해집니다. 충전의 시간을 가지세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m10s', pattern_id: '계_병_오', lunar_month: 10, month_pillar: '신해월', half: 'second', guidance: '쇠와 물이 어우러져 안정되는 달입니다. 내년을 대비하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m11f', pattern_id: '계_병_오', lunar_month: 11, month_pillar: '임자월', half: 'first', guidance: '한겨울 계수가 가장 편안하고 강해지는 달입니다. 힘이 붙는 시기입니다.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m11s', pattern_id: '계_병_오', lunar_month: 11, month_pillar: '임자월', half: 'second', guidance: '햇빛을 쬐며 우울을 경계하세요. 따뜻한 사람들을 가까이 하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m12f', pattern_id: '계_병_오', lunar_month: 12, month_pillar: '계축월', half: 'first', guidance: '한 해를 마무리하며 수입과 자산을 안전하게 정리하세요.', tone: 'natural', review_status: 'approved' },
-    { slot_id: '계_병_오_m12s', pattern_id: '계_병_오', lunar_month: 12, month_pillar: '계축월', half: 'second', guidance: '올해의 안정을 돌아보며 내년의 확실한 씨앗을 준비하세요.', tone: 'natural', review_status: 'approved' },
-  ],
-},
-
-] });
+      "monthly": [
+        {
+          "slot_id": "계_정_미_m1f",
+          "pattern_id": "계_정_미",
+          "lunar_month": 1,
+          "month_pillar": "병인월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m1s",
+          "pattern_id": "계_정_미",
+          "lunar_month": 1,
+          "month_pillar": "병인월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m2f",
+          "pattern_id": "계_정_미",
+          "lunar_month": 2,
+          "month_pillar": "정묘월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m2s",
+          "pattern_id": "계_정_미",
+          "lunar_month": 2,
+          "month_pillar": "정묘월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m3f",
+          "pattern_id": "계_정_미",
+          "lunar_month": 3,
+          "month_pillar": "무진월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m3s",
+          "pattern_id": "계_정_미",
+          "lunar_month": 3,
+          "month_pillar": "무진월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m4f",
+          "pattern_id": "계_정_미",
+          "lunar_month": 4,
+          "month_pillar": "기사월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m4s",
+          "pattern_id": "계_정_미",
+          "lunar_month": 4,
+          "month_pillar": "기사월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m5f",
+          "pattern_id": "계_정_미",
+          "lunar_month": 5,
+          "month_pillar": "경오월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m5s",
+          "pattern_id": "계_정_미",
+          "lunar_month": 5,
+          "month_pillar": "경오월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m6f",
+          "pattern_id": "계_정_미",
+          "lunar_month": 6,
+          "month_pillar": "신미월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m6s",
+          "pattern_id": "계_정_미",
+          "lunar_month": 6,
+          "month_pillar": "신미월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m7f",
+          "pattern_id": "계_정_미",
+          "lunar_month": 7,
+          "month_pillar": "임신월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m7s",
+          "pattern_id": "계_정_미",
+          "lunar_month": 7,
+          "month_pillar": "임신월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m8f",
+          "pattern_id": "계_정_미",
+          "lunar_month": 8,
+          "month_pillar": "계유월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m8s",
+          "pattern_id": "계_정_미",
+          "lunar_month": 8,
+          "month_pillar": "계유월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m9f",
+          "pattern_id": "계_정_미",
+          "lunar_month": 9,
+          "month_pillar": "갑술월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m9s",
+          "pattern_id": "계_정_미",
+          "lunar_month": 9,
+          "month_pillar": "갑술월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m10f",
+          "pattern_id": "계_정_미",
+          "lunar_month": 10,
+          "month_pillar": "을해월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m10s",
+          "pattern_id": "계_정_미",
+          "lunar_month": 10,
+          "month_pillar": "을해월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m11f",
+          "pattern_id": "계_정_미",
+          "lunar_month": 11,
+          "month_pillar": "병자월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m11s",
+          "pattern_id": "계_정_미",
+          "lunar_month": 11,
+          "month_pillar": "병자월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m12f",
+          "pattern_id": "계_정_미",
+          "lunar_month": 12,
+          "month_pillar": "정축월",
+          "half": "first",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        },
+        {
+          "slot_id": "계_정_미_m12s",
+          "pattern_id": "계_정_미",
+          "lunar_month": 12,
+          "month_pillar": "정축월",
+          "half": "second",
+          "guidance": "",
+          "tone": "natural",
+          "review_status": "approved"
+        }
+      ]
+    }
+  ]
+};

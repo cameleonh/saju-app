@@ -34,20 +34,21 @@ const natal = {
   unknownTime: false,
 };
 
-assert.deepEqual(SUPPORTED_TARGET_YEARS, [2024, 2025, 2026]);
+assert.deepEqual(SUPPORTED_TARGET_YEARS, [2024, 2025, 2026, 2027]);
 assert.equal(ANNUAL_POLICY.solarTermSource.id, EPHEMERIS_SOURCE.id);
-assert.equal(Object.keys(EPHEMERIS_FIXTURES).length, 4, 'four fixture years close three target-year ranges');
+assert.equal(Object.keys(EPHEMERIS_FIXTURES).length, 5, 'five fixture years close four target-year ranges');
 assert.deepEqual(getAnnualPillar(1984), { stem: '甲', branch: '子', text: '甲子' });
 assert.deepEqual(getAnnualPillar(2044), { stem: '甲', branch: '子', text: '甲子' });
 assert.equal(getAnnualPillar(2026).text, '丙午');
 assert.equal(tenGodFor('戊', '丙'), '편인');
-assert.throws(() => getIpchunBoundary(2023), /2024 to 2026/);
-assert.throws(() => getIpchunBoundary(2027), /2024 to 2026/);
+assert.throws(() => getIpchunBoundary(2023), /2024 to 2027/);
+assert.throws(() => getIpchunBoundary(2028), /2024 to 2027/);
 
 const boundaryFixtures = [
   [2024, '2024-02-04T17:27:00+09:00', '2025-02-03T23:10:00+09:00'],
   [2025, '2025-02-03T23:10:00+09:00', '2026-02-04T05:02:00+09:00'],
   [2026, '2026-02-04T05:02:00+09:00', '2027-02-04T10:46:00+09:00'],
+  [2027, '2027-02-04T10:46:00+09:00', '2028-02-04T10:32:00+09:00'],
 ];
 for (const [year, start, end] of boundaryFixtures) {
   assert.deepEqual(getIpchunBoundary(year), { start, end });

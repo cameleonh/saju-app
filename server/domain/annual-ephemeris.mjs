@@ -92,6 +92,12 @@ export const EPHEMERIS_FIXTURES = Object.freeze({
     LI_DONG: '2027-11-08T00:39:00+09:00', XIAO_XUE: '2027-11-22T22:16:00+09:00',
     DA_XUE: '2027-12-07T17:38:00+09:00', DONG_ZHI: '2027-12-22T11:42:00+09:00',
   }),
+  // 2028 closing boundaries for 2027 target year support
+  // Source: KASI/KASA Korean annual almanac (소한·입춘 only — minimum closing set)
+  2028: fixture(2028, {
+    XIAO_HAN: '2028-01-05T21:33:00+09:00',
+    LI_CHUN: '2028-02-04T10:32:00+09:00',
+  }),
 });
 
 function hasCompleteRange(year, fixtures) {

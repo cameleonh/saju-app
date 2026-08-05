@@ -145,6 +145,12 @@ export const YEAR_CONTEXTS = Object.freeze({
     branch_meaning: '오(午) — 한여름의 불. 가장 뜨겁고 활동적인 시기',
     label: '병오년 — 한여름 태양이 만물을 뜨겁게 비추는 해',
   },
+  2027: {
+    pillar: '丁未', stem: '丁', branch: '未',
+    stem_meaning: '정(丁) — 촛불·등불의 기운. 섬세함, 집중, 정밀함',
+    branch_meaning: '미(未) — 여름의 마무리, 수확과 저장의 시작, 풍요로운 흙',
+    label: '정미년 — 섬세한 불빛이 풍요로운 대지를 비추는 해',
+  },
 });
 
 // 일간 × 연간 십신 계산 (한자 한 글자씩)
@@ -171,7 +177,7 @@ const BRANCH_HANGUL = { '子': '자', '丑': '축', '寅': '인', '卯': '묘', 
 // 30패턴 (10간 × 3연도) 전체 목록
 export function generatePatternMatrix() {
   const hangulStems = Object.keys(DAY_MASTER_PROFILES).filter((k) => k.length === 1);
-  const years = [2024, 2025, 2026];
+  const years = [2024, 2025, 2026, 2027];
   const matrix = [];
   for (const hangul of hangulStems) {
     const profile = DAY_MASTER_PROFILES[hangul];

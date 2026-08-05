@@ -141,11 +141,11 @@ const store = createReadingStore(db);
 // 11. Full annual pattern coverage — all 31 patterns load completely
 {
   const DAY_MASTERS = ['갑','을','병','정','무','기','경','신','임','계'];
-  const YEAR_BRANCHES_2024_2026 = ['진','사','오'];
+  const YEAR_BRANCHES_2024_2027 = ['진','사','오','미'];
 
   let annualChecked = 0;
   for (const dm of DAY_MASTERS) {
-    for (const yb of YEAR_BRANCHES_2024_2026) {
+    for (const yb of YEAR_BRANCHES_2024_2027) {
       for (const ys of DAY_MASTERS) {
         const pid = `${dm}_${ys}_${yb}`;
         const pattern = store.getPattern(pid);
@@ -163,7 +163,7 @@ const store = createReadingStore(db);
       }
     }
   }
-  assert.ok(annualChecked >= 30, `expected at least 30 annual patterns, found ${annualChecked}`);
+  assert.ok(annualChecked >= 40, `expected at least 40 annual patterns, found ${annualChecked}`);
   ok(`full annual coverage: ${annualChecked} patterns × (8 cards + 13 domains + 24 monthly)`);
 }
 
@@ -196,7 +196,7 @@ const store = createReadingStore(db);
 // 13. review_status integrity — seed values must not be silently overridden
 {
   const DAY_MASTERS = ['갑','을','병','정','무','기','경','신','임','계'];
-  const YEAR_BRANCHES = ['진','사','오'];
+  const YEAR_BRANCHES = ['진','사','오','미'];
 
   for (const dm of DAY_MASTERS) {
     for (const yb of YEAR_BRANCHES) {
