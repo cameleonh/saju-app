@@ -8,11 +8,24 @@ export function buildAnnualRequest(chart, targetYear) {
     if (typeof chart.policy?.[field] !== 'string' || !chart.policy[field]) throw new Error(`chart.policy.${field} is required`);
   }
   const branches = chart.pillars.map(({ branch }) => branch).filter((branch) => branch && branch !== '?');
-  return {
+  const request = {
     targetYear: year,
     natal: { dayStem: chart.pillars[2]?.stem, monthBranch: chart.pillars[1]?.branch, branches, unknownTime: Boolean(chart.input?.unknownTime) },
     chartPolicy: chart.policy || null,
   };
+  if (chart.input && chart.input.date && chart.pillars[0]?.stem && chart.pillars[1]?.stem && chart.pillars[1]?.branch) {
+    request.natal.input = { date: chart.input.date, gender: chart.input.gender || 'unset' };
+    request.daewoon = {
+      date: chart.input.date,
+      time: chart.input.time || (chart.input.unknownTime ? '12:00' : '12:00'),
+      unknownTime: Boolean(chart.input.unknownTime),
+      gender: chart.input.gender || 'female',
+      yearStem: chart.pillars[0].stem,
+      monthStem: chart.pillars[1].stem,
+      monthBranch: chart.pillars[1].branch,
+    };
+  }
+  return request;
 }
 
 export async function requestAnnualReading(chart, targetYear, endpoint = '/v1/annual-readings', fetchImpl = globalThis.fetch) {

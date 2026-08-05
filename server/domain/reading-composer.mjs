@@ -88,11 +88,18 @@ export function extractPersonalizationKey(natal, daewoon, targetYear, annualResu
     relation: relationBetween(yearBranch, nb),
   })).filter((r) => r.relation !== 'none');
 
-  // 대운 정보
-  const currentDaewoon = daewoon?.cycles?.find((c) => {
-    const age = targetYear - Number(natal?.input?.date?.slice(0, 4));
-    return age >= c.startAge && age < c.endAge;
-  });
+  // 대운 정보 — 다음 대운의 startAge로 endAge를 유추
+  const allCycles = daewoon?.cycles || [];
+  const birthYear = natal?.input?.date ? Number(natal.input.date.slice(0, 4)) : null;
+  const targetAge = birthYear ? targetYear - birthYear : null;
+  let currentDaewoon = null;
+  if (targetAge != null && allCycles.length > 0) {
+    currentDaewoon = allCycles.find((c, i) => {
+      const next = allCycles[i + 1];
+      const endAge = next ? next.startAge : c.startAge + 10;
+      return targetAge >= c.startAge && targetAge < endAge;
+    });
+  }
 
   const daewoonTenGod = currentDaewoon?.stem ? tenGodFor(dayStem, currentDaewoon.stem) : null;
 
@@ -111,7 +118,7 @@ export function extractPersonalizationKey(natal, daewoon, targetYear, annualResu
     yearBranchHangul: yearBranch ? BRANCH_HANGUL[yearBranch] : null,
     tenGod,
     branchRelations,
-    daewoonPillar: currentDaewoon?.text || null,
+    daewoonPillar: currentDaewoon?.pillar || currentDaewoon?.text || null,
     daewoonTenGod,
     daewoonStartAge: currentDaewoon?.startAge || null,
     gender: natal?.input?.gender || null,

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA — 리딩 패턴 DB 렌더링 검증</title>
+<style>
+  body { font-family: 'Noto Sans KR', sans-serif; background: #f5f0e8; color: #2a2630; margin: 0; padding: 20px; }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 { font-size: 22px; margin-bottom: 16px; }
+  .qa-section { background: #faf7f2; border: 1px solid #ddd1be; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .qa-section h2 { font-size: 16px; color: #b55f4b; margin-bottom: 12px; }
+  .qa-pass { color: #4a8a6a; font-weight: 700; }
+  .qa-fail { color: #b55f4b; font-weight: 700; }
+  .qa-result { font-size: 14px; color: #6e6670; margin-top: 8px; line-height: 1.7; }
+  pre { background: #ebe3d6; padding: 12px; border-radius: 6px; font-size: 12px; overflow-x: auto; max-height: 300px; }
+  button { padding: 10px 20px; background: #b55f4b; color: white; border: 0; border-radius: 8px; font-size: 15px; cursor: pointer; font-family: inherit; }
+  button:hover { opacity: 0.9; }
+  .card-preview { background: #f5f0e8; border: 1px solid #ddd1be; border-radius: 8px; padding: 16px; margin-bottom: 8px; }
+  .card-preview h3 { font-size: 15px; margin-bottom: 6px; }
+  .card-preview .summary { font-size: 14px; color: #4a4350; line-height: 1.65; margin-bottom: 8px; }
+  .domain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .domain-card { background: #f5f0e8; border: 1px solid #ddd1be; border-radius: 8px; padding: 12px; }
+  .domain-card h4 { font-size: 13px; color: #b55f4b; margin-bottom: 6px; }
+  .domain-card li { font-size: 12px; color: #4a4350; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>리딩 패턴 DB — QA 검증</h1>
+  <p style="color:#6e6670;margin-bottom:20px">서버 <code id="server-url">http://localhost:4180</code>에서 실제 API를 호출하여 렌더링을 검증합니다.</p>
+  <button onclick="runQA()">QA 실행</button>
+  <div id="results"></div>
+</div>
+<script>
+const SERVER = 'http://localhost:4180';
+
+async function runQA() {
+  const results = document.getElementById('results');
+  results.innerHTML = '<p>호출 중...</p>';
+
+  const payload = {
+    targetYear: 2025,
+    chartPolicy: { id: 'qa-test', version: '1.0.0', engine: 'qa', engineVersion: '1.0.0' },
+    natal: { dayStem: '戊', monthBranch: '卯', branches: ['午', '卯', '子', '丑'] },
+    daewoon: { date: '1990-03-24', time: '02:45', gender: 'female', monthStem: '己', monthBranch: '卯', yearStem: '庚' }
+  };
+
+  try {
+    const resp = await fetch(SERVER + '/v1/annual-readings', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
+
+    let html = '';
+
+    // 1. readingSource
+    html += qaSection('1. Reading Source', data.readingSource === 'pattern-db' ? 'pass' : 'fail',
+      `readingSource: ${data.readingSource}`);
+
+    // 2. Cards
+    html += qaSection('2. 카드 8장', (data.cards?.length === 8) ? 'pass' : 'fail',
+      `cards: ${data.cards?.length}장`);
+
+    // 3. Cover card
+    const cover = data.cards?.[0];
+    html += qaSection('3. Cover 카드 내용', cover?.title?.length > 0 ? 'pass' : 'fail',
+      `<strong>${cover?.title}</strong><br><span class="qa-result">${cover?.summary?.slice(0,200)}</span>`);
+
+    // 4. Domains
+    html += qaSection('4. 정밀 항목 13개', (data.domains?.length === 13) ? 'pass' : 'fail',
+      `domains: ${data.domains?.length}개`);
+
+    // 5. Personalization
+    const p = data.personalization;
+    const hasPersonalization = p && p.dayMaster && p.monthBranch;
+    html += qaSection('5. 개인화 메타데이터', hasPersonalization ? 'pass' : 'fail',
+      `dayMaster: ${p?.dayMaster}, monthBranch: ${p?.monthBranch}<br>monthModule: ${p?.monthModule}<br>ageGroup: ${p?.ageGroup || 'N/A'}`);
+
+    // 6. Health domain — 월지 계절 정보
+    const health = data.domains?.find(d => d.domain_key === 'health');
+    const hasSeasonal = health?.points?.some(p => p.includes('계절'));
+    html += qaSection('6. Health — 계절 정보', hasSeasonal ? 'pass' : 'fail',
+      health?.points?.at(-1) || 'N/A');
+
+    // 7. Card previews
+    html += '<div class="qa-section"><h2>카드 미리보기 (앞 3장)</h2>';
+    for (const card of (data.cards || []).slice(0, 3)) {
+      html += `<div class="card-preview"><h3>${card.title}</h3><div class="summary">${card.summary?.slice(0,150)}</div>
+        <div style="font-size:12px;color:#4a8a6a"><strong>해볼 일:</strong> ${card.action?.slice(0,100)}</div></div>`;
+    }
+    html += '</div>';
+
+    // 8. Domain previews
+    html += '<div class="qa-section"><h2>항목 미리보기 (앞 6개)</h2><div class="domain-grid">';
+    for (const domain of (data.domains || []).slice(0, 6)) {
+      html += `<div class="domain-card"><h4>${domain.domain_label}</h4><ul>${domain.points?.slice(0,2).map(p => `<li>${p.slice(0,60)}</li>`).join('')}</ul></div>`;
+    }
+    html += '</div></div>';
+
+    // 9. Monthly flow
+    html += qaSection('7. 월별 흐름', (data.monthlyFlow?.length >= 12) ? 'pass' : 'fail',
+      `monthlyFlow: ${data.monthlyFlow?.length}개`);
+
+    // Raw data
+    html += '<div class="qa-section"><h2>Raw API Response (처음 2000자)</h2><pre>' + JSON.stringify(data, null, 2).slice(0, 2000) + '...</pre></div>';
+
+    results.innerHTML = html;
+  } catch (error) {
+    results.innerHTML = `<div class="qa-section"><h2>❌ 오류</h2><p>${error.message}</p><p>서버가 ${SERVER}에서 실행 중인지 확인하세요.</p></div>`;
+  }
+}
+
+function qaSection(title, status, detail) {
+  const statusHtml = status === 'pass' ? '<span class="qa-pass">✓ PASS</span>' : '<span class="qa-fail">✗ FAIL</span>';
+  return `<div class="qa-section"><h2>${title} ${statusHtml}</h2><div class="qa-result">${detail}</div></div>`;
+}
+</script>
+</body>
+</html>
