@@ -50,6 +50,12 @@ assert.equal(submissionBody.durable, true);
 assert.equal((await fetch(`${url}/index.html`)).status, 200);
 assert.equal((await fetch(`${url}/icon.svg`)).status, 200);
 assert.equal((await fetch(`${url}/manifest.webmanifest`)).status, 200);
+const fontCss = await fetch(`${url}/fonts/noto-sans-kr-5.3.0/400.css`);
+assert.equal(fontCss.status, 200);
+assert.match(fontCss.headers.get('content-type'), /^text\/css/);
+const koreanFont = await fetch(`${url}/fonts/noto-sans-kr-5.3.0/files/noto-sans-kr-korean-400-normal.woff2`);
+assert.equal(koreanFont.status, 200);
+assert.equal(koreanFont.headers.get('content-type'), 'font/woff2');
 
 assert.equal((await fetch(`${url}/%2e%2e/package.json`)).status, 404, 'path traversal via URL-encoded dots is rejected by the public allowlist');
 assert.equal((await fetch(`${url}/..%2fpackage.json`)).status, 404);
@@ -58,6 +64,7 @@ assert.equal((await fetch(`${url}/data/saju.sqlite`)).status, 404, 'SQLite file 
 assert.equal((await fetch(`${url}/.env`)).status, 404);
 assert.equal((await fetch(`${url}/db/migrations/001_initial_contract.sql`)).status, 404);
 assert.equal((await fetch(`${url}/tests/server/http.mjs`)).status, 404);
+assert.equal((await fetch(`${url}/fonts/noto-sans-kr-5.3.0/SOURCE.md`)).status, 404, 'font provenance is tracked in Git but not exposed by the public allowlist');
 
 const oversizedBody = 'x'.repeat(256 * 1024 + 1);
 const oversized = await fetch(`${url}/v1/submissions`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: oversizedBody });

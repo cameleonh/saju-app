@@ -8,6 +8,7 @@
     <meta name="robots" content="index,follow,noai,noimageai" />
     <meta name="cg-canary" content="cg-saju-joseon-8b6c2e41" />
     <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="fonts/noto-sans-kr-5.3.0/400.css" />
     <title>결 | 사주를 읽는 투명한 방법</title>
     <style>
       :root {
@@ -39,7 +40,7 @@
         --container: 1180px;
         --safe-bottom: max(18px, env(safe-area-inset-bottom));
         --font-sans: "Noto Sans KR", "Noto Sans CJK KR", "Apple SD Gothic Neo", "Malgun Gothic", Pretendard, SUIT, "Pretendard Variable", "Nanum Gothic", "NanumSquare", "Droid Sans Fallback", "UnDotum", "UnDinaru", system-ui, sans-serif;
-        --font-serif: "Noto Serif KR", "Noto Serif CJK KR", "AppleMyungjo", "Nanum Myeongjo", Batang, "Nanum Myeongjo", "UnBatang", "Droid Sans Fallback", serif;
+        --font-serif: "Noto Serif KR", "Noto Serif CJK KR", "Noto Sans KR", "AppleMyungjo", "Nanum Myeongjo", Batang, "Nanum Myeongjo", "UnBatang", "Droid Sans Fallback", serif;
       }
 
       *, *::before, *::after { box-sizing: border-box; }
@@ -260,7 +261,7 @@
       .annual-card-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
       .annual-card { min-width: 0; aspect-ratio: 4 / 5; display: flex; flex-direction: column; gap: 12px; padding: clamp(18px, 2.2vw, 28px); overflow: auto; border: 1px solid rgba(177, 135, 52, 0.42); border-radius: 22px; background: linear-gradient(155deg, rgba(255,255,255,0.74), rgba(240,229,204,0.7)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.42); }
       .annual-card:focus, .annual-card:focus-visible { outline: 3px solid var(--gold-500); outline-offset: 3px; box-shadow: 0 0 0 3px var(--gold-500); }
-      .annual-card h3 { font-family: "Noto Serif KR", serif; font-size: clamp(22px, 2.4vw, 29px); line-height: 1.25; }
+      .annual-card h3 { font-family: "Noto Serif KR", "Noto Sans KR", serif; font-size: clamp(22px, 2.4vw, 29px); line-height: 1.25; }
       .annual-card-kicker, .annual-hash { font-size: 12px; color: var(--ink-600); overflow-wrap: anywhere; }
       .annual-card-summary { font-size: 17px; font-weight: 650; color: var(--ink-800); }
       .annual-card ul { margin: 0; padding-left: 20px; display: grid; gap: 7px; }

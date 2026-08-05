@@ -42,14 +42,15 @@ async function readJson(request) {
   catch { throw Object.assign(new Error('request body must be valid JSON'), { statusCode: 400 }); }
 }
 
-const MIME_TYPES = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
+const MIME_TYPES = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
 const PUBLIC_STATIC_FILES = new Set(['index.html', 'privacy.html', 'terms.html', 'service-worker.js', 'manifest.webmanifest', 'icon.svg', 'robots.txt', 'ai.txt', 'copyright.html', 'annual/client.mjs', 'annual/storage.mjs', 'chart/natal-engine.mjs', 'chart/natal-ephemeris-data.mjs', 'chart/daewoon-engine.mjs', 'data/admin-areas.js']);
+const PUBLIC_FONT_FILE = /^fonts\/noto-sans-kr-5\.3\.0\/(?:400\.css|files\/noto-sans-kr-(?:\d{1,3}|korean|latin|latin-ext|cyrillic|vietnamese)-400-normal\.woff2)$/;
 
 async function serveStatic(root, request, response) {
   if (!root || request.method !== 'GET') return false;
   const requested = decodeURIComponent((request.url || '/').split('?')[0]);
   const relative = requested === '/' ? 'index.html' : requested.replace(/^\/+/, '');
-  if (!PUBLIC_STATIC_FILES.has(relative)) return false;
+  if (!PUBLIC_STATIC_FILES.has(relative) && !PUBLIC_FONT_FILE.test(relative)) return false;
   const candidate = path.resolve(root, relative);
   if (candidate !== root && !candidate.startsWith(`${root}${path.sep}`)) return false;
   try {
