@@ -14,7 +14,7 @@ import {
 } from '../../web/result-packaging.mjs';
 import { renderAnnualReading } from '../../annual/client.mjs';
 import { createAnnualReading } from '../../server/domain/annual.mjs';
-import { NATAL_POLICY } from '../../chart/natal-engine.mjs';
+import { NATAL_POLICY, calculateNatalChart } from '../../chart/natal-engine.mjs';
 
 let passed = 0;
 const ok = (label) => { passed++; console.log(`  ✓ ${label}`); };
@@ -167,6 +167,55 @@ const ok = (label) => { passed++; console.log(`  ✓ ${label}`); };
   assert.match(html, /지지 관계\(근거\) ↓/, 'daewoon detail keeps the evidence-first order');
   assert.match(html, /elementCounts: chart\.elementCounts/, 'annual panel receives the chart element counts');
   ok('daewoon panel: packaging wired for current cycle and detail panel');
+}
+
+// 9. 오늘의 기운 패널 — 근거 스트립 → (흐름 노트) → 4절 → 소품·퀘스트·시간대 → 서생 마무리
+{
+  const { buildDailyReading, selectDailyReading, resolveDayPillar } = await import('../../server/domain/daily-reading-selection.mjs');
+  const { renderDailyReading, dailyEvidenceSteps, dailyFlowBadge } = await import('../../web/daily-reading.mjs');
+  const chart = calculateNatalChart({ date: '1990-10-10', time: '14:30', calendar: 'solar', unknownTime: false });
+  const daily = buildDailyReading(chart, '2026-08-17');
+  assert.equal(daily.eligible, true, 'golden natal chart is eligible');
+  assert.equal(daily.day_pillar.text, '癸亥', 'golden day pillar for 2026-08-17');
+  const markup = renderDailyReading(daily);
+  assert.match(markup, /<section class="panel daily-reading" aria-labelledby="daily-reading-title">/);
+  assert.match(markup, /오늘 2026년 8월 17일 계해\(癸亥\)의 결/, 'heading shows the Seoul civil date and today\'s day pillar');
+  assert.match(markup, /evidence-flow/, 'the panel opens with the evidence strip');
+  for (const label of ['오늘의 일진', '일간 대비 십신', '오늘 유입 오행', '원국과의 합·충']) assert.match(markup, new RegExp(label), `evidence step: ${label}`);
+  assert.match(markup, /근거 4단계 펼쳐 보기/, 'evidence detail stays available below the strip');
+  assert.match(markup, /신살\(천을귀인·도화 등\)은 계산 엔진이 없어 포함하지 않습니다/, 'the basis note states the 신살 exclusion');
+  const badge = dailyFlowBadge(daily);
+  assert.ok(badge && badge.tone === 'favorable', '亥+未 삼합(반합) yields the smooth/favorable flow badge');
+  assert.match(markup, /flow-badge tone-favorable/, 'flow note renders as a badge chip');
+  assert.match(markup, /삼합으로 흐르는 결/, 'the trio flow label is used verbatim from the selection');
+  const sectionTitles = [...markup.matchAll(/class="chapter-heading" role="heading" aria-level="3">([^<]+)</g)].map((m) => m[1]);
+  assert.deepEqual(sectionTitles, ['오늘의 결', '일의 흐름', '사람 사이', '몸의 리듬'], 'four sections render in the fixed slot order');
+  assert.equal((markup.match(/class="reading-card daily-section"/g) || []).length, 4, 'sections reuse the reading-card collapsible language');
+  assert.match(markup, /오행 소품 · /, 'prop tip renders');
+  assert.match(markup, /🎯 오늘의 퀘스트/, 'quest chip renders');
+  assert.match(markup, /이어지는 시간 · 인시\(인\)/, 'time note join window (寅 = 亥\'s harmony partner)');
+  assert.match(markup, /마주치는 시간 · 사시\(사\)/, 'time note clash window (巳 = 亥\'s clash partner)');
+  assert.match(markup, /서생의 한 마디/, 'closing renders through the remark block');
+  assert.match(markup, /daily-hash/, 'policy/version footer is present');
+  assert.ok(!/\d+점/.test(markup), 'the daily panel contains no score numerals');
+  assert.equal(renderDailyReading(daily), markup, 'rendering is deterministic');
+  assert.equal(dailyEvidenceSteps(daily).length, 4, 'evidence steps map 1:1');
+  // No-relation day: natal 子 has no 충·합·형·해·원진 with 亥 → flow chip omitted, closing still present
+  const plain = selectDailyReading({ day_master: '무', day_master_element: '토', dominant_element: '토', element_counts: { 목: 0, 화: 0, 토: 3, 금: 1, 수: 1 }, valid_branches: ['子'] }, resolveDayPillar('2026-08-17'));
+  assert.equal(plain.flow_key, 'group:wealth', '戊 vs 癸 → 정재 → wealth group when no branch relation');
+  assert.equal(plain.flow, null, 'flow note is conditional');
+  const plainMarkup = renderDailyReading(plain);
+  assert.doesNotMatch(plainMarkup, /flow-badge/, 'no flow chip on a relation-free day');
+  assert.match(plainMarkup, /서생의 한 마디/, 'closing still renders from the group key');
+  // Edge paths: loading narrative, error notice, null passthrough, ineligible notice
+  assert.match(renderDailyReading(daily, { loading: true }), /loading-narrative/, 'loading reuses the 서생 narrative');
+  assert.match(renderDailyReading(daily, { error: '<b>위험</b>' }), /notice amber daily-reading/, 'errors render the amber notice');
+  assert.ok(/&lt;b&gt;위험&lt;\/b&gt;/.test(renderDailyReading(daily, { error: '<b>위험</b>' })), 'error text is escaped');
+  assert.equal(renderDailyReading(null), '', 'null daily renders nothing');
+  const ineligible = buildDailyReading({}, '2026-08-17');
+  assert.equal(ineligible.eligible, false);
+  assert.match(renderDailyReading(ineligible), /오늘의 기운을 만들 수 없습니다/, 'ineligible readings explain themselves instead of failing silently');
+  ok('daily panel: evidence strip, conditional flow, 4 sections, props, quest, time windows, closing');
 }
 
 console.log(`✓ result-packaging: ${passed} assertions passed`);

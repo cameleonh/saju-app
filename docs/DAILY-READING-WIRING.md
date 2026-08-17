@@ -77,6 +77,14 @@ placeholder.
 
 ## Integration recipe (when index.html is free to edit)
 
+> **Status: WIRED (2026-08-17).** Option A landed: the result view imports
+> `buildDailyReading` from the committed module path (whitelisted in
+> `server/http.mjs` + precached in `service-worker.js` as `saju-app-shell-v22`),
+> renders through `web/daily-reading.mjs`, and recomputes for the current
+> Asia/Seoul civil date on every result render (memoized per chart + date), so
+> saved records always show *today's* reading. The notes below are kept as the
+> original design rationale.
+
 The module is dependency-free ESM (imports only engines + seeds). Options:
 
 **Option A — client-side daily panel (doryeong-style).** After a natal chart is
