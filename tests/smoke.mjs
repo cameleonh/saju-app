@@ -148,10 +148,17 @@ assert.match(html, /fetch\('\/v1\/account', \{ method: 'DELETE' \}\)/, 'account 
 assert.match(html, /aria-live/);
 assert.match(html, /커플 사주/);
 assert.match(html, /입력 권한을 확인한 상대방의 출생정보/);
-assert.match(html, /음력 변환.*날짜·시각.*일시 처리/, 'couple disclosure distinguishes transient conversion from central storage');
+assert.match(html, /음력 변환[^\n]*날짜·시각[^\n]*일시 (처리|사용)/, 'couple/lunar disclosure distinguishes transient conversion from central storage (데이터 안내 + couple form)');
 assert.match(html, /두 사람의 사주풀이 시작하기/);
 assert.match(html, /couple-input-pair/);
-assert.match(html, /consent-list/);
+// P0-D notice slimming — the home screen carries no blocking storage-notice section or required checkbox;
+// a single compact line links to the 데이터 안내 screen where the full disclosure lives
+assert.doesNotMatch(html, /시작 전에 알려드려요/, 'the home screen no longer shows the big storage-notice section');
+assert.doesNotMatch(html, /notice-title/, 'the notice section heading id is gone from the app');
+assert.doesNotMatch(html, /service-consent-toggle/, 'no required home-path consent checkbox remains');
+assert.match(html, /class="storage-note"/, 'the home screen keeps a compact one-line storage note');
+assert.match(html, /이 기기에만 저장돼요\./, 'the compact note states the device-only default');
+assert.match(html, /storage-note[\s\S]{0,220}data-action="details"/, '자세히 in the note opens the 데이터 안내 view');
 assert.match(html, /partnerForm\.authorityVerified = state\.mode === 'couple'/);
 assert.doesNotMatch(html, /form\.get\('partnerAuthority'\)/);
 assert.doesNotMatch(html, /상대방의 동의를 받고 입력합니다/);
@@ -192,7 +199,10 @@ assert.match(html, /state\.screen = 'method'/);
 assert.match(html, /state\.screen = 'data'/);
 assert.match(html, /moveToStage\('input-title'/);
 assert.match(html, /state\.screen === 'result'\) moveToStage\('result-title'\)/);
-assert.match(html, /if \(!state\.serviceConsent\)/);
+// P0-D: birth input entry is no longer gated on a home-screen consent tick; the real
+// consent gates (terms/privacy/14+ and the 19+ cloud gate) still fire at the account moment
+assert.doesNotMatch(html, /if \(!state\.serviceConsent\)/, 'the start flow no longer blocks entry behind the home consent checkbox');
+assert.match(html, /if \(action === 'start'\) \{ enterInputStage\(\); \}/, 'start goes straight to the birth input stage');
 assert.doesNotMatch(html, /!state\.serviceConsent \|\| !state\.training/);
 // Consent gate trigger — signup/account moment, never first visit
 assert.match(html, /open: false, declined: stored\.declined === true/, 'hydration keeps the consent modal closed so a first visit lands on the app');
@@ -224,7 +234,7 @@ assert.match(html, /<link rel="icon" href="icon\.svg" type="image\/svg\+xml" siz
 assert.match(fs.readFileSync(new URL('../robots.txt', import.meta.url), 'utf8'), /GPTBot[\s\S]*Disallow: \//);
 assert.match(fs.readFileSync(new URL('../ai.txt', import.meta.url), 'utf8'), /ClaudeBot[\s\S]*Disallow: \//);
 const serviceWorker = fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
-assert.match(serviceWorker, /saju-app-shell-v24/);
+assert.match(serviceWorker, /saju-app-shell-v25/);
 assert.match(serviceWorker, /fonts\/noto-sans-kr-5\.3\.0/);
 assert.match(serviceWorker, /url\.pathname\.startsWith\('\/auth\/'\)[\s\S]*url\.pathname\.startsWith\('\/v1\/'\)[\s\S]*event\.respondWith\(fetch\(event\.request\)\)/, 'auth callbacks, account APIs, and their URL parameters never enter Cache Storage');
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /annual\/client\.mjs/);
@@ -253,7 +263,7 @@ assert.match(html, /오늘의 운세 · 일운\(日運\)/, 'the daily panel eyeb
 assert.match(html, /function dailyTeaserMarkup\(\)/, 'the intro view assembles a first-screen daily teaser');
 assert.match(html, /class="daily-strip"/, 'the home daily teaser renders as a compact strip');
 assert.doesNotMatch(html, /class="daily-teaser/, 'the old card-style teaser markup is gone (P0-C demotion)');
-assert.match(html, /<\/section>\$\{dailyTeaserMarkup\(\)\}<section class="section" aria-labelledby="notice-title"/, 'the daily strip renders below the hero section, not above it');
+assert.match(html, /<\/section>\$\{dailyTeaserMarkup\(\)\}/, 'the daily strip renders below the hero section, not above it');
 assert.match(html, /data-action="daily-teaser-open"/, 'the teaser opens the full daily reading');
 assert.match(html, /오늘의 운세 보기 /, 'no saved chart keeps a smaller daily CTA on home');
 assert.match(html, /function dailyView\(\)/, 'the standalone daily screen reuses the result-view daily panel renderer');
