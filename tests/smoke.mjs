@@ -186,6 +186,12 @@ assert.match(html, /moveToStage\('input-title'/);
 assert.match(html, /state\.screen === 'result'\) moveToStage\('result-title'\)/);
 assert.match(html, /if \(!state\.serviceConsent\)/);
 assert.doesNotMatch(html, /!state\.serviceConsent \|\| !state\.training/);
+// Consent gate trigger — signup/account moment, never first visit
+assert.match(html, /open: false, declined: stored\.declined === true/, 'hydration keeps the consent modal closed so a first visit lands on the app');
+assert.doesNotMatch(html, /state\.consentGate = \{ open: gate\.open/, 'no code path reopens the blocking consent modal from stored state on load');
+assert.match(html, /pending: 'account-login'/, 'the consent gate opens at the account (signup) attempt and resumes it after consent');
+assert.match(html, /if \(evaluateServiceGate\(stored\)\.open\) \{\s*state\.consentGate = \{ open: true/, 'the 14+ service gate is evaluated inside the account-login entry point');
+assert.doesNotMatch(html, /동의 없이는 서비스를 이용할 수 없어요/, 'the old service-blocking decline screen is gone (local reading stays free)');
 assert.doesNotMatch(html, /제품 개선을 위한 학습 사용 \(선택\)/);
 assert.match(html, /\.mode-card small \{[^}]*font-size: 15px/s);
 assert.match(html, /\.brand-copy small \{[^}]*font-size: 13px/s);
@@ -210,7 +216,7 @@ assert.match(html, /<link rel="icon" href="icon\.svg" type="image\/svg\+xml" siz
 assert.match(fs.readFileSync(new URL('../robots.txt', import.meta.url), 'utf8'), /GPTBot[\s\S]*Disallow: \//);
 assert.match(fs.readFileSync(new URL('../ai.txt', import.meta.url), 'utf8'), /ClaudeBot[\s\S]*Disallow: \//);
 const serviceWorker = fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
-assert.match(serviceWorker, /saju-app-shell-v18/);
+assert.match(serviceWorker, /saju-app-shell-v19/);
 assert.match(serviceWorker, /fonts\/noto-sans-kr-5\.3\.0/);
 assert.match(serviceWorker, /url\.pathname\.startsWith\('\/auth\/'\)[\s\S]*url\.pathname\.startsWith\('\/v1\/'\)[\s\S]*event\.respondWith\(fetch\(event\.request\)\)/, 'auth callbacks, account APIs, and their URL parameters never enter Cache Storage');
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /annual\/client\.mjs/);

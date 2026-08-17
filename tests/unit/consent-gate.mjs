@@ -21,15 +21,16 @@ function memoryStorage(initial = {}) {
   };
 }
 
-// 1. 첫 방문(저장소 비어 있음) → 서비스 게이트 열림, 이용 불가
+// 1. 미동의 상태에서 계정 저장(회원가입) 시도 → 서비스 게이트 열림, 계정 진입 불가
+//    (첫 방문 화면 자체는 열려 있고, 게이트는 이 시도 시점에만 평가된다)
 {
   const storage = memoryStorage();
   const consent = readConsentState(storage);
   const gate = evaluateServiceGate(consent);
-  assert.equal(gate.open, true, 'first visit opens the gate');
-  assert.equal(gate.blocked, true, 'first visit blocks the service');
+  assert.equal(gate.open, true, 'an account attempt without consent opens the gate');
+  assert.equal(gate.blocked, true, 'an account attempt without consent is blocked');
   assert.deepEqual(gate.blockers, ['terms', 'privacy', 'age14']);
-  ok('first visit: gate open with three required blockers');
+  ok('unconsented account attempt: gate open with three required blockers');
 }
 
 // 2. 약관·방침만 동의 → 여전히 차단(age14 미선택)
@@ -142,6 +143,23 @@ function memoryStorage(initial = {}) {
   const saved = persistConsent(null, { terms: true, privacy: true, age14: 'over14' });
   assert.equal(evaluateServiceGate(saved).open, false, 'in-memory evaluation still works without storage');
   ok('no storage available: logic still evaluates safely');
+}
+
+// 12. 회원가입(계정 저장) 시퀀스 — 14+ 게이트 통과 후에도 19+ 클라우드 게이트는 별도로 닫혀 있고,
+//     저장 상태가 바뀌지 않는 한 게이트는 다시 열리지 않는다(시도마다 재동의 없음)
+{
+  const storage = memoryStorage();
+  assert.equal(evaluateServiceGate(readConsentState(storage)).open, true, 'first account attempt hits the 14+ gate');
+  persistConsent(storage, { terms: true, privacy: true, age14: 'over14' });
+  const afterServiceGate = readConsentState(storage);
+  assert.equal(evaluateServiceGate(afterServiceGate).open, false, 'consent passes exactly once per storage state');
+  assert.equal(evaluateServiceGate(readConsentState(storage)).open, false, 'a second account attempt does not reopen the 14+ gate');
+  assert.equal(evaluateCloudGate(afterServiceGate).open, true, 'the cloud 19+ gate is still required after the 14+ gate');
+  persistConsent(storage, { cloud19: 'over19' });
+  const afterCloudGate = readConsentState(storage);
+  assert.equal(evaluateCloudGate(afterCloudGate).open, false, 'the signup chain completes only after both gates');
+  assert.equal(evaluateServiceGate(afterCloudGate).open, false, 'the cloud confirmation leaves the service gate passed');
+  ok('signup sequence: 14+ gate once, then the separate 19+ cloud gate');
 }
 
 console.log(`✓ consent-gate: ${passed} assertions passed`);
