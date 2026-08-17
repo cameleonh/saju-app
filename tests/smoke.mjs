@@ -178,6 +178,14 @@ assert.match(html, /오늘 해볼 일/);
 assert.match(html, /생각해볼 질문/);
 assert.match(html, /data-action="text-size"/);
 assert.match(html, /reading-size-large/);
+// Card-news export and sharing — primary actions on the result toolbar
+assert.match(html, /data-action="card-save"/, 'the result toolbar exposes a card-news PNG download as the primary export');
+assert.match(html, /data-action="card-share"/, 'the result toolbar exposes a share action for the card news');
+assert.match(html, /데이터 내보내기\(JSON\)/, 'the JSON export remains available as a demoted ghost action');
+assert.match(html, /const W = 1080, H = 1350/, 'the natal card-news canvas is a 1080x1350 portrait card');
+assert.match(html, /navigator\.canShare\?\.\(\{ files: \[file\] \}\)/, 'card sharing uses the Web Share API files level when available (Threads on mobile)');
+assert.match(html, /data-action="record-card"/, 'saved records can export a card-news image without reopening the result');
+assert.match(html, /규칙 기반 계산 · 생성형 AI 예측 아님/, 'the card carries the non-AI calculation-policy stamp');
 assert.match(html, /function methodView\(\)/);
 assert.match(html, /function dataView\(\)/);
 assert.match(html, /state\.screen = 'method'/);
@@ -216,7 +224,7 @@ assert.match(html, /<link rel="icon" href="icon\.svg" type="image\/svg\+xml" siz
 assert.match(fs.readFileSync(new URL('../robots.txt', import.meta.url), 'utf8'), /GPTBot[\s\S]*Disallow: \//);
 assert.match(fs.readFileSync(new URL('../ai.txt', import.meta.url), 'utf8'), /ClaudeBot[\s\S]*Disallow: \//);
 const serviceWorker = fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
-assert.match(serviceWorker, /saju-app-shell-v20/);
+assert.match(serviceWorker, /saju-app-shell-v21/);
 assert.match(serviceWorker, /fonts\/noto-sans-kr-5\.3\.0/);
 assert.match(serviceWorker, /url\.pathname\.startsWith\('\/auth\/'\)[\s\S]*url\.pathname\.startsWith\('\/v1\/'\)[\s\S]*event\.respondWith\(fetch\(event\.request\)\)/, 'auth callbacks, account APIs, and their URL parameters never enter Cache Storage');
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /annual\/client\.mjs/);

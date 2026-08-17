@@ -1098,7 +1098,7 @@
             const synced = Boolean(record.serverSubmissionId && record.durable !== false);
             const statusText = record.status === 'remote-delete-failed' ? '계정 삭제 재시도 필요' : synced ? '계정에 암호화 저장됨' : '이 기기에만 저장됨';
             const canWithdraw = Boolean(record.training && modeLabel === '내 사주');
-            return `<article class="record-card" data-record-card="${escapeHtml(record.id)}"><div class="record-card-head"><div><h3>${modeLabel} · ${escapeHtml(formatKoreanDate(date))}</h3><p>${escapeHtml(place)}${record.status === 'remote-delete-failed' ? '<br>서버 기록을 지우지 못했습니다. 연결을 확인한 뒤 다시 삭제해 주세요.' : ''}</p></div><span class="record-badge ${synced ? 'ready' : ''}">${statusText}</span></div><div class="record-actions"><button class="button primary small" data-action="record-open" data-record-id="${escapeHtml(record.id)}">풀이 열기</button><button class="button secondary small" data-action="record-export" data-record-id="${escapeHtml(record.id)}">파일로 내보내기</button>${canWithdraw ? `<button class="button secondary small" data-action="record-withdraw" data-record-id="${escapeHtml(record.id)}">학습 사용 철회</button>` : ''}<button class="button ghost small" data-action="record-delete" data-record-id="${escapeHtml(record.id)}">이 기록 지우기</button></div></article>`;
+            return `<article class="record-card" data-record-card="${escapeHtml(record.id)}"><div class="record-card-head"><div><h3>${modeLabel} · ${escapeHtml(formatKoreanDate(date))}</h3><p>${escapeHtml(place)}${record.status === 'remote-delete-failed' ? '<br>서버 기록을 지우지 못했습니다. 연결을 확인한 뒤 다시 삭제해 주세요.' : ''}</p></div><span class="record-badge ${synced ? 'ready' : ''}">${statusText}</span></div><div class="record-actions"><button class="button primary small" data-action="record-open" data-record-id="${escapeHtml(record.id)}">풀이 열기</button><button class="button secondary small" data-action="record-card" data-record-id="${escapeHtml(record.id)}">카드뉴스 저장</button><button class="button secondary small" data-action="record-export" data-record-id="${escapeHtml(record.id)}">파일로 내보내기</button>${canWithdraw ? `<button class="button secondary small" data-action="record-withdraw" data-record-id="${escapeHtml(record.id)}">학습 사용 철회</button>` : ''}<button class="button ghost small" data-action="record-delete" data-record-id="${escapeHtml(record.id)}">이 기록 지우기</button></div></article>`;
           }).join('')}</div>`;
         }
 
@@ -1129,7 +1129,7 @@
           const reading = readingMarkup(chart.reading);
           const messages = state.messages.map((message) => `<div class="bubble ${message.role === 'user' ? 'user' : ''}">${escapeHtml(message.text)}</div>`).join('');
           const sheet = (label, input, data) => `<section class="aperture chart-aperture" aria-label="${label} 명식"><div class="aperture-top"><div><span class="pair-label ${label === '상대' ? 'partner' : ''}">${label} 명식</span><h2 class="aperture-title">${formatKoreanDate(input.date)}</h2></div><span class="aperture-meta mono">${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(data.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(input.place)} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${input.unknownTime ? '시각 미상' : escapeHtml(input.time)}</dd></div></dl></section>`;
-          return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">두 명식 확인</div><h1 id="result-title">두 사람의 명식을 나란히 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button secondary small" data-action="export">${icon('download')} 내보내기</button></div></div><div class="result-layout"><div class="result-main"><div class="relationship-note"><strong>${relationshipLabel(chart.relationshipType)} · 비교는 판정이 아니라 관찰입니다</strong><p>두 사람의 차이를 우열이나 점수로 만들지 않고, 대화할 장면을 찾는 참고 자료로 보여드려요.</p></div><div class="couple-chart-pair">${sheet('내', chart.input, chart.self)}${sheet('상대', chart.partnerInput, chart.partner)}</div>${chart.warnings.length ? warningMarkup(chart.warnings) : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 검토된 계산 경계에서 충분히 떨어져 있습니다.</p></div>'}<section class="panel reading-report"><div class="section-heading"><div><div class="eyebrow">근거를 따라 비교하기</div><h2>두 명식의 결을 따라 읽기</h2></div><p>각 장을 펼치고 근거를 확인하세요.</p></div>${reading}</section>${CHAT_CARD_ENABLED ? `<section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>관계 질문을 구체적으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 두 분이 자주 부딪히는 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="관계의 장면 질문하기" placeholder="예: 서로 다른 속도를 어떻게 관찰할까요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section>` : ''}</div><aside class="result-side"><section class="panel"><div class="side-title"><h3>두 명식 오행 합산</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 두 사람의 원본 입력은 서로 다른 주체로 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 커플 비교는 관계 결과를 확정하지 않습니다.</div>` : ''}</section></aside></div></section>`);
+          return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">두 명식 확인</div><h1 id="result-title">두 사람의 명식을 나란히 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button primary small" data-action="card-save">${icon('download')} 카드뉴스 저장</button><button class="button secondary small" data-action="card-share">공유하기 ${icon('arrow')}</button><button class="button ghost small" data-action="export">데이터 내보내기(JSON)</button></div></div><div class="result-layout"><div class="result-main"><div class="relationship-note"><strong>${relationshipLabel(chart.relationshipType)} · 비교는 판정이 아니라 관찰입니다</strong><p>두 사람의 차이를 우열이나 점수로 만들지 않고, 대화할 장면을 찾는 참고 자료로 보여드려요.</p></div><div class="couple-chart-pair">${sheet('내', chart.input, chart.self)}${sheet('상대', chart.partnerInput, chart.partner)}</div>${chart.warnings.length ? warningMarkup(chart.warnings) : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 검토된 계산 경계에서 충분히 떨어져 있습니다.</p></div>'}<section class="panel reading-report"><div class="section-heading"><div><div class="eyebrow">근거를 따라 비교하기</div><h2>두 명식의 결을 따라 읽기</h2></div><p>각 장을 펼치고 근거를 확인하세요.</p></div>${reading}</section>${CHAT_CARD_ENABLED ? `<section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>관계 질문을 구체적으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 두 분이 자주 부딪히는 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="관계의 장면 질문하기" placeholder="예: 서로 다른 속도를 어떻게 관찰할까요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section>` : ''}</div><aside class="result-side"><section class="panel"><div class="side-title"><h3>두 명식 오행 합산</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 두 사람의 원본 입력은 서로 다른 주체로 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 커플 비교는 관계 결과를 확정하지 않습니다.</div>` : ''}</section></aside></div></section>`);
         }
 
         function resultView() {
@@ -1153,7 +1153,7 @@
           const daewoonPackaging = currentDaewoonIndex >= 0 ? buildDaewoonPackaging(currentDaewoonIndex) : null;
           const daewoonPackMarkup = daewoonPackaging ? `<div class="daewoon-pack">${badgeMarkup(daewoonPackaging.badge, `현재 대운 ${daewoonPackaging.cycle.pillar}`)}${questMarkup(daewoonPackaging.quest)}${remarkMarkup(daewoonPackaging.remark, '현재 대운')}${luckyPropsMarkup(daewoonPackaging.lucky)}</div>` : '';
           const daewoonMarkup = chart.daewoon ? `<section class="panel" aria-labelledby="daewoon-heading"><div class="section-heading"><div><div class="eyebrow">대운 (大運)</div><h2 id="daewoon-heading">10년 주기 운의 흐름</h2></div><span class="tiny mono">${chart.daewoon.policy.id}</span></div><p class="muted" style="margin-bottom:16px;font-size:13px">${chart.daewoon.direction === 'forward' ? '순행' : '역행'} · 시작 나이 ${chart.daewoon.startAge}세 · ${chart.daewoon.boundaryTerm} 기준 · 사이클을 눌러 상세 풀이를 보세요</p><div class="daewoon-timeline" role="tablist">${chart.daewoon.cycles.map((c, ci) => { const isCurrent = ci === currentDaewoonIndex; const tone = daewoonCycleData?.cycleAnalysis?.[ci]?.toneSummary || ''; return `<button class="daewoon-cycle${isCurrent ? ' current' : ''}" role="tab" data-action="daewoon-select" data-cycle="${ci}" aria-selected="${isCurrent ? 'true' : 'false'}"><div class="daewoon-pillar">${c.pillar}</div><div class="daewoon-age">${c.startAge}세</div><div class="daewoon-year">${c.startYear}년~</div>${isCurrent ? '<span class="daewoon-now">현재</span>' : ''}</button>`; }).join('')}</div>${daewoonPackMarkup}<div class="daewoon-detail" id="daewoon-detail-panel" role="tabpanel" aria-hidden="true"></div><p class="muted" style="margin-top:12px;font-size:12px">대운의 방향과 시작 나이는 ${chart.daewoon.policy.id} 정책으로 계산합니다. 각 사이클의 십신 기반 풀이와 지지 충·합 분석을 제공합니다. 흐름 배지는 정성 표현이며 점수가 아닙니다.</p></section>` : '';
-          return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">명식과 연운 확인</div><h1 id="result-title">계산 사실과 연운 카드의 근거를 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button secondary small" data-action="export">${icon('download')} 내보내기</button></div></div><div class="result-layout"><div class="result-main"><section class="aperture chart-aperture" aria-labelledby="chart-summary"><div class="aperture-top"><div><div class="eyebrow">계산한 명식</div><h2 id="chart-summary" class="aperture-title">${formatKoreanDate(chart.input.date)}의 네 기둥</h2></div><span class="aperture-meta mono">${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(chart.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(chart.input.place)} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${chart.input.unknownTime ? '시각 미상' : escapeHtml(chart.input.time)}</dd></div></dl></section>${chart.warnings.length ? warningMarkup(chart.warnings) : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 검토된 계산 경계에서 충분히 떨어져 있습니다. 계산 정책은 언제든 다시 열어볼 수 있어요.</p></div>'}${daewoonMarkup}${annualMarkup}<section class="panel reading-report"><div class="section-heading"><div><div class="eyebrow">근거를 따라 읽기</div><h2>명식의 결을 따라 읽기</h2></div><p>각 장을 펼치고 근거를 확인하세요.</p></div>${reading}</section>${CHAT_CARD_ENABLED ? `<section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>궁금한 장면을 질문으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 궁금한 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="생각을 정리할 질문 입력" placeholder="예: 이직 전에 확인할 조건은 무엇인가요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section>` : ''}</div><aside class="result-side"><section class="panel"><div class="side-title"><h3>오행 분포</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 원본 입력과 계산용 값은 분리해 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 연운은 별도 정책과 프로필 버전으로 계산하며 격국·용신·조후를 포함하지 않습니다.</div>` : ''}</section></aside></div></section>`);
+          return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">명식과 연운 확인</div><h1 id="result-title">계산 사실과 연운 카드의 근거를 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button primary small" data-action="card-save">${icon('download')} 카드뉴스 저장</button><button class="button secondary small" data-action="card-share">공유하기 ${icon('arrow')}</button><button class="button ghost small" data-action="export">데이터 내보내기(JSON)</button></div></div><div class="result-layout"><div class="result-main"><section class="aperture chart-aperture" aria-labelledby="chart-summary"><div class="aperture-top"><div><div class="eyebrow">계산한 명식</div><h2 id="chart-summary" class="aperture-title">${formatKoreanDate(chart.input.date)}의 네 기둥</h2></div><span class="aperture-meta mono">${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(chart.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(chart.input.place)} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${chart.input.unknownTime ? '시각 미상' : escapeHtml(chart.input.time)}</dd></div></dl></section>${chart.warnings.length ? warningMarkup(chart.warnings) : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 검토된 계산 경계에서 충분히 떨어져 있습니다. 계산 정책은 언제든 다시 열어볼 수 있어요.</p></div>'}${daewoonMarkup}${annualMarkup}<section class="panel reading-report"><div class="section-heading"><div><div class="eyebrow">근거를 따라 읽기</div><h2>명식의 결을 따라 읽기</h2></div><p>각 장을 펼치고 근거를 확인하세요.</p></div>${reading}</section>${CHAT_CARD_ENABLED ? `<section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>궁금한 장면을 질문으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 궁금한 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="생각을 정리할 질문 입력" placeholder="예: 이직 전에 확인할 조건은 무엇인가요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section>` : ''}</div><aside class="result-side"><section class="panel"><div class="side-title"><h3>오행 분포</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 원본 입력과 계산용 값은 분리해 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 연운은 별도 정책과 프로필 버전으로 계산하며 격국·용신·조후를 포함하지 않습니다.</div>` : ''}</section></aside></div></section>`);
         }
 
         function consentGateMarkup() {
@@ -1462,10 +1462,13 @@
           if (action === 'annual-print') window.print();
           if (action === 'annual-card-png' && state.annual) downloadAnnualCardPng(state.annual, state.annualCardIndex);
           if (action === 'copy') copyChart();
+          if (action === 'card-save') downloadNatalCardPng();
+          if (action === 'card-share') shareNatalCard();
           if (action === 'export') exportChart();
           if (action === 'records-refresh') openDataStage();
           if (action === 'records-clear') clearAllRecords();
           if (action === 'record-open') openSavedRecord(event.currentTarget.dataset.recordId);
+          if (action === 'record-card') saveRecordCardPng(event.currentTarget.dataset.recordId);
           if (action === 'record-export') exportSavedRecord(event.currentTarget.dataset.recordId);
           if (action === 'record-delete') deleteSavedRecord(event.currentTarget.dataset.recordId);
           if (action === 'record-withdraw') withdrawTrainingUse(event.currentTarget.dataset.recordId);
@@ -1870,6 +1873,164 @@
             setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
             showToast('카드 이미지를 다운로드했어요');
           }, 'image/png');
+        }
+        // ── 명식 카드뉴스(공유용 PNG) — 1080×1350 세로 카드. 연운 카드 PNG의 캔버스 파이프라인을 재사용한다.
+        function downloadBlob(blob, filename) {
+          const link = document.createElement('a');
+          const objectUrl = URL.createObjectURL(blob);
+          link.href = objectUrl;
+          link.download = filename;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
+        }
+        const CARD_ELEMENT_COLORS = { 목: '#718d82', 화: '#b55f4b', 토: '#b48b4e', 금: '#829096', 수: '#8589ae' };
+        function drawCardPillarRow(ctx, pillars, x, y, maxWidth, boxHeight, glyphSize) {
+          const gap = 18;
+          const boxWidth = (maxWidth - gap * (pillars.length - 1)) / pillars.length;
+          ctx.textAlign = 'center';
+          pillars.forEach((pillar, index) => {
+            const boxX = x + index * (boxWidth + gap);
+            const centerX = boxX + boxWidth / 2;
+            ctx.fillStyle = 'rgba(177,135,52,0.10)';
+            roundRect(ctx, boxX, y, boxWidth, boxHeight, 14); ctx.fill();
+            ctx.strokeStyle = 'rgba(177,135,52,0.30)'; ctx.lineWidth = 1.5;
+            roundRect(ctx, boxX, y, boxWidth, boxHeight, 14); ctx.stroke();
+            ctx.fillStyle = '#8a7548'; ctx.font = '700 22px "Noto Sans KR", sans-serif';
+            ctx.fillText(pillar.label || '', centerX, y + 36);
+            ctx.fillStyle = '#1a1a1a'; ctx.font = `700 ${glyphSize}px "Noto Serif KR", serif`;
+            ctx.fillText(pillar.text || '', centerX, y + 36 + glyphSize + 20);
+            ctx.fillStyle = '#b55f4b'; ctx.font = '700 21px "Noto Sans KR", sans-serif';
+            ctx.fillText(pillar.element ? `${pillar.element} · ${pillar.branchElement}` : '계산 제한', centerX, y + boxHeight - (pillar.tenGod ? 48 : 26));
+            if (pillar.tenGod) { ctx.fillStyle = '#51495a'; ctx.font = '600 19px "Noto Sans KR", sans-serif'; ctx.fillText(pillar.tenGod, centerX, y + boxHeight - 22); }
+          });
+          ctx.textAlign = 'left';
+          return y + boxHeight;
+        }
+        function drawCardElementBar(ctx, elementCounts, x, y, maxWidth) {
+          const counts = ['목', '화', '토', '금', '수'].map((key) => [key, Number(elementCounts?.[key] || 0)]);
+          const total = counts.reduce((sum, [, value]) => sum + value, 0) || 1;
+          const barTop = y + 16;
+          ctx.fillStyle = '#8a7548'; ctx.font = '700 24px "Noto Sans KR", sans-serif';
+          ctx.fillText('오행 분포', x, y);
+          let segmentX = x;
+          counts.forEach(([key, value]) => {
+            const segmentWidth = (value / total) * maxWidth;
+            if (value > 0) {
+              ctx.fillStyle = CARD_ELEMENT_COLORS[key];
+              ctx.fillRect(segmentX, barTop, segmentWidth, 40);
+              ctx.fillStyle = '#fffaf0'; ctx.font = '700 20px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
+              ctx.fillText(String(value), segmentX + segmentWidth / 2, barTop + 27);
+              ctx.textAlign = 'left';
+            }
+            segmentX += segmentWidth;
+          });
+          ctx.strokeStyle = 'rgba(177,135,52,0.42)'; ctx.lineWidth = 2;
+          ctx.strokeRect(x, barTop, maxWidth, 40);
+          ctx.fillStyle = '#726b70'; ctx.font = '600 20px "Noto Sans KR", sans-serif';
+          ctx.fillText(counts.map(([key, value]) => `${key} ${value}`).join(' · '), x, barTop + 74);
+          return barTop + 74;
+        }
+        async function buildNatalCardCanvas(chart = state.chart) {
+          if (!chart) return null;
+          try { await document.fonts?.ready; } catch {}
+          const W = 1080, H = 1350;
+          const canvas = document.createElement('canvas');
+          canvas.width = W; canvas.height = H;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return null;
+          const grad = ctx.createLinearGradient(0, 0, W, H);
+          grad.addColorStop(0, '#fffaef'); grad.addColorStop(1, '#f0e5cc');
+          ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+          ctx.strokeStyle = 'rgba(177,135,52,0.42)'; ctx.lineWidth = 3;
+          ctx.strokeRect(28, 28, W - 56, H - 56);
+          ctx.fillStyle = 'rgba(177,135,52,0.10)'; ctx.fillRect(28, 28, W - 56, 6);
+          const x = 84, maxWidth = W - 168;
+          const couple = chart.mode === 'couple';
+          let y = 108;
+          ctx.fillStyle = '#8a7548'; ctx.font = '800 22px "Noto Sans KR", sans-serif';
+          ctx.fillText('결 · 달빛 명식 작업대', x, y);
+          y += 62;
+          ctx.fillStyle = '#1a1a1a'; ctx.font = '700 56px "Noto Serif KR", serif';
+          y = drawCanvasTextBlock(ctx, couple ? '두 사람의 명식 비교' : `${formatKoreanDate(chart.input?.date)}의 명식`, { x, y, maxWidth, lineHeight: 72, maxLines: 2 });
+          ctx.fillStyle = '#726b70'; ctx.font = '600 24px "Noto Sans KR", sans-serif';
+          if (couple) ctx.fillText(`${relationshipLabel(chart.relationshipType)} · 비교는 판정이 아니라 관찰입니다`, x, y + 8);
+          else ctx.fillText(`${chart.input?.place || ''} 출생 · ${chart.input?.unknownTime ? '출생 시각 미상' : `${chart.input?.time || ''} 생`}`, x, y + 8);
+          if (!couple) {
+            y = drawCardPillarRow(ctx, chart.pillars || [], x, y + 70, maxWidth, 300, 84);
+            y = drawCardElementBar(ctx, chart.elementCounts, x, y + 70, maxWidth);
+          } else {
+            ctx.fillStyle = '#8589ae'; ctx.font = '800 24px "Noto Sans KR", sans-serif';
+            ctx.fillText(`내 · ${formatKoreanDate(chart.input?.date)}`, x, y + 64);
+            y = drawCardPillarRow(ctx, chart.self?.pillars || [], x, y + 84, maxWidth, 200, 56);
+            ctx.fillStyle = '#b55f4b'; ctx.font = '800 24px "Noto Sans KR", sans-serif';
+            ctx.fillText(`상대 · ${formatKoreanDate(chart.partnerInput?.date)}`, x, y + 56);
+            y = drawCardPillarRow(ctx, chart.partner?.pillars || [], x, y + 76, maxWidth, 200, 56);
+            y = drawCardElementBar(ctx, chart.elementCounts, x, y + 46, maxWidth);
+          }
+          const narrative = chart.reading?.[0]?.text || '';
+          const narrativeBoxHeight = couple ? 150 : 200;
+          ctx.fillStyle = 'rgba(33,89,73,0.08)';
+          roundRect(ctx, x, y + 46, maxWidth, narrativeBoxHeight, 12); ctx.fill();
+          ctx.fillStyle = '#21594a'; ctx.font = '700 22px "Noto Sans KR", sans-serif';
+          ctx.fillText(couple ? '관계 관찰 노트' : '한눈에 보기', x + 24, y + 46 + 38);
+          ctx.fillStyle = '#3a3a3a'; ctx.font = '400 26px "Noto Sans KR", sans-serif';
+          drawCanvasTextBlock(ctx, narrative, { x: x + 24, y: y + 46 + 84, maxWidth: maxWidth - 48, lineHeight: 36, maxLines: couple ? 2 : 3 });
+          y += 46 + narrativeBoxHeight + 44;
+          ctx.fillStyle = 'rgba(177,135,52,0.14)';
+          roundRect(ctx, x, y, maxWidth, 96, 12); ctx.fill();
+          ctx.fillStyle = '#6b5d3f'; ctx.font = '700 22px "Noto Sans KR", sans-serif';
+          ctx.fillText(`계산 정책 ${chart.policy?.id || ''} v${chart.policy?.version || ''}`, x + 24, y + 36);
+          ctx.fillStyle = '#726b70'; ctx.font = '600 19px "Noto Sans KR", sans-serif';
+          ctx.fillText('규칙 기반 계산 · 생성형 AI 예측 아님 · 점수 아님 · 참고 자료', x + 24, y + 68);
+          ctx.fillStyle = '#9b8f88'; ctx.font = '400 16px "Noto Sans KR", sans-serif';
+          ctx.fillText('saju.blog · 결(달빛 명식 작업대) · 카드뉴스', x, H - 52);
+          return canvas;
+        }
+        async function natalCardBlob(chart = state.chart) {
+          const canvas = await buildNatalCardCanvas(chart);
+          if (!canvas) return null;
+          return await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+        }
+        function natalCardFilename(chart = state.chart) {
+          const prefix = chart?.mode === 'couple' ? 'couple' : 'natal';
+          const date = String(chart?.input?.date || 'record').replaceAll('-', '');
+          return `saju-card-news-${prefix}-${date}.png`;
+        }
+        function natalCardShareText(chart = state.chart) {
+          if (!chart) return '명식 카드뉴스 · 결(사주)';
+          const base = chart.mode === 'couple' ? `두 사람의 명식 비교 카드 (${relationshipLabel(chart.relationshipType)})` : `${formatKoreanDate(chart.input?.date)} 명식 카드`;
+          return `${base} · 결(사주) — 규칙 기반 계산, 생성형 AI 예측 아님`;
+        }
+        async function downloadNatalCardPng() {
+          const blob = await natalCardBlob();
+          if (!blob) return showToast('이 브라우저에서는 이미지를 만들 수 없어요');
+          downloadBlob(blob, natalCardFilename());
+          showToast('카드뉴스 이미지를 저장했어요');
+        }
+        async function shareNatalCard() {
+          const blob = await natalCardBlob();
+          if (!blob) return showToast('이 브라우저에서는 이미지를 만들 수 없어요');
+          const file = new File([blob], natalCardFilename(), { type: 'image/png' });
+          const text = natalCardShareText();
+          if (navigator.canShare?.({ files: [file] })) {
+            try { await navigator.share({ files: [file], title: '결 · 명식 카드뉴스', text }); }
+            catch { /* 사용자가 공유 시트를 닫은 경우 — 그대로 종료 */ }
+            return;
+          }
+          // 데스크톱 폴백: PNG 저장 + 공유 문구 복사(스레드 등 카드뉴스 채널에 직접 첨부)
+          downloadBlob(blob, natalCardFilename());
+          try { await navigator.clipboard?.writeText(text); showToast('카드뉴스를 저장하고 공유 문구를 복사했어요. 스레드 등에 첨부해 공유해 주세요'); }
+          catch { showToast('카드뉴스를 저장했어요. 스레드 등에 첨부해 공유해 주세요'); }
+        }
+        async function saveRecordCardPng(id) {
+          let record = await getStoredRecord(id) || state.records.find((item) => item.id === id);
+          try { record = await materializeCloudRecord(record); }
+          catch { showToast('계정 기록을 불러오지 못했습니다'); return; }
+          if (!record?.chart) { showToast('이 기록에는 카드를 만들 풀이가 없습니다'); return; }
+          const blob = await natalCardBlob(record.chart);
+          if (!blob) return showToast('이 브라우저에서는 이미지를 만들 수 없어요');
+          downloadBlob(blob, natalCardFilename(record.chart));
+          showToast('카드뉴스 이미지를 저장했어요');
         }
         function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
         function canvasTextLines(ctx, text, maxWidth, maxLines) {
