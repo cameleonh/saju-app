@@ -190,7 +190,7 @@ assert.match(html, /<link rel="icon" href="icon\.svg" type="image\/svg\+xml" siz
 assert.match(fs.readFileSync(new URL('../robots.txt', import.meta.url), 'utf8'), /GPTBot[\s\S]*Disallow: \//);
 assert.match(fs.readFileSync(new URL('../ai.txt', import.meta.url), 'utf8'), /ClaudeBot[\s\S]*Disallow: \//);
 const serviceWorker = fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
-assert.match(serviceWorker, /saju-app-shell-v14/);
+assert.match(serviceWorker, /saju-app-shell-v15/);
 assert.match(serviceWorker, /fonts\/noto-sans-kr-5\.3\.0/);
 assert.match(serviceWorker, /url\.pathname\.startsWith\('\/auth\/'\)[\s\S]*url\.pathname\.startsWith\('\/v1\/'\)[\s\S]*event\.respondWith\(fetch\(event\.request\)\)/, 'auth callbacks, account APIs, and their URL parameters never enter Cache Storage');
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /annual\/client\.mjs/);

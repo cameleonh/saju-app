@@ -206,6 +206,29 @@
       .consent-list .consent-toggle input { width: 22px; height: 22px; flex: 0 0 22px; }
       .consent-list .consent-toggle:focus-within { border-color: var(--moon-500); box-shadow: 0 0 0 3px rgba(204, 172, 91, 0.2); }
 
+      .gate-overlay { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 20px; background: rgba(10, 11, 24, 0.86); backdrop-filter: blur(6px); }
+      .gate-dialog { width: min(580px, 100%); max-height: calc(100vh - 48px); overflow: auto; padding: clamp(24px, 4vw, 34px); color: var(--ink-950); background: var(--paper-50); border: 1px solid var(--paper-300); border-radius: var(--radius-panel); box-shadow: var(--shadow); }
+      .gate-dialog, .gate-dialog button, .gate-dialog input { --ink-950: #302c3a; --ink-800: #51495a; --ink-600: #726b70; --ink-400: #9b8f88; }
+      .gate-dialog header { margin-bottom: 18px; }
+      .gate-dialog h2 { margin-top: 10px; font-size: 24px; letter-spacing: -0.03em; }
+      .gate-dialog .gate-lead { margin-top: 8px; color: var(--ink-600); font-size: 15px; line-height: 1.7; }
+      .gate-list { display: grid; gap: 12px; }
+      .gate-item { display: flex; align-items: start; gap: 11px; padding: 14px; background: rgba(255, 255, 255, 0.5); border: 1px solid var(--paper-300); border-radius: 12px; }
+      .gate-item > input, .gate-item label > input { width: 20px; height: 20px; flex: 0 0 20px; margin-top: 2px; accent-color: #302c3a; }
+      .gate-item span { display: grid; gap: 4px; color: var(--ink-800); font-size: 15px; line-height: 1.6; }
+      .gate-item strong { color: var(--ink-950); }
+      .gate-item a { color: #6b4f9a; font-size: 14px; font-weight: 700; text-decoration: underline; }
+      .gate-item.gate-age { flex-direction: column; gap: 9px; margin: 0; padding: 14px; border: 1px solid var(--paper-300); border-radius: 12px; background: rgba(255, 255, 255, 0.5); }
+      .gate-item.gate-age legend { color: var(--ink-950); font-size: 15px; font-weight: 800; padding: 0; }
+      .gate-item.gate-age label { display: flex; align-items: center; gap: 9px; color: var(--ink-800); font-size: 15px; }
+      .gate-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+      .gate-actions .button.primary:disabled { background: var(--paper-300); color: #726b70; box-shadow: none; }
+      .gate-actions .button.ghost { color: var(--ink-600); }
+      .gate-note { margin-top: 14px; color: var(--ink-400); font-size: 13px; line-height: 1.6; }
+      .gate-blocked { text-align: center; }
+      .gate-blocked .gate-blocked-icon { width: 52px; height: 52px; margin: 0 auto 14px; display: grid; place-items: center; color: var(--vermilion-600); background: var(--vermilion-100); border-radius: 50%; }
+      .gate-blocked .gate-blocked-icon svg { width: 26px; height: 26px; }
+
       .flow-header { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
       .flow-step { color: var(--ink-600); font-size: 15px; font-weight: 800; }
       .step-track { display: flex; align-items: center; gap: 8px; }
@@ -273,12 +296,32 @@
       .annual-card-action p, .annual-card-watch p { margin: 4px 0 0; }
       .annual-card .evidence-row { margin-top: auto; }
       .daewoon-timeline { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
-      .daewoon-cycle { flex: 0 0 auto; min-width: 72px; padding: 12px 10px; border: 1px solid var(--paper-300); border-radius: 10px; background: var(--paper-50); text-align: center; position: relative; }
+      .daewoon-cycle { flex: 0 0 auto; min-width: 72px; padding: 12px 10px; border: 1px solid var(--paper-300); border-radius: 10px; background: var(--paper-50); text-align: center; position: relative; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+      .daewoon-cycle:hover { border-color: var(--jade-500); box-shadow: 0 2px 8px rgba(33,89,73,0.12); }
+      .daewoon-cycle.selected { border-color: var(--jade-600); background: rgba(33, 89, 73, 0.08); box-shadow: 0 2px 12px rgba(33,89,73,0.16); }
       .daewoon-cycle.current { border-color: var(--jade-600); background: rgba(33, 89, 73, 0.08); }
       .daewoon-pillar { font-family: var(--font-serif); font-size: 22px; font-weight: 600; color: var(--ink-950); }
       .daewoon-age { font-size: 13px; font-weight: 600; color: var(--ink-800); margin-top: 4px; }
       .daewoon-year { font-size: 11px; color: var(--ink-600); }
       .daewoon-now { display: inline-block; margin-top: 4px; font-size: 10px; font-weight: 700; color: var(--jade-700); text-transform: uppercase; letter-spacing: 0.05em; }
+      .daewoon-detail { margin-top: 16px; padding: 18px; border: 1px solid var(--paper-300); border-radius: 14px; background: rgba(255,255,255,.42); display: none; }
+      .daewoon-detail.active { display: block; }
+      .daewoon-detail-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 14px; margin-bottom: 14px; }
+      .daewoon-detail-head h3 { font-size: 20px; font-weight: 700; color: var(--ink-950); }
+      .daewoon-detail-head .daewoon-tag { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 8px; background: var(--jade-100, rgba(33,89,73,0.1)); color: var(--jade-700); }
+      .daewoon-detail-tone { font-size: 14px; font-weight: 600; color: var(--ink-800); margin-bottom: 12px; }
+      .daewoon-domains-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+      .daewoon-domain-card { padding: 12px; border: 1px solid var(--paper-300); border-radius: 10px; background: rgba(255,255,255,.42); page-break-inside: avoid; }
+      .daewoon-domain-card h4 { font-size: 14px; font-weight: 700; color: var(--ink-900); margin-bottom: 6px; }
+      .daewoon-domain-card ol { padding-left: 20px; font-size: 13px; line-height: 1.5; color: var(--ink-800); }
+      .daewoon-domain-card ol li { margin-bottom: 3px; }
+      .daewoon-domain-card .domain-closing { font-size: 12px; color: var(--ink-600); font-style: italic; margin-top: 6px; }
+      .daewoon-interactions { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px; }
+      .daewoon-interaction-chip { font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 600; }
+      .daewoon-interaction-chip.clash { background: rgba(194,65,12,0.1); color: #c2410c; }
+      .daewoon-interaction-chip.harmony { background: rgba(33,89,73,0.1); color: var(--jade-700); }
+      .daewoon-interaction-chip.punishment { background: rgba(116,66,200,0.1); color: #7442c8; }
+      .daewoon-interaction-chip.harm { background: rgba(161,98,7,0.1); color: #a16207; }
       .annual-fact { margin-top: 16px; }
       .annual-document-view, .monthly-flow { margin-top: 16px; border-top: 1px solid var(--paper-300); padding-top: 14px; }
       .annual-document-view summary, .monthly-flow summary { cursor: pointer; font-weight: 750; }
@@ -442,8 +485,11 @@
     <script type="module">
       import { annualSubmissionFields, privacySafeAnnualExport, renderAnnualReading, requestAnnualReading } from './annual/client.mjs';
       import { createAnnualStorage } from './annual/storage.mjs';
+      import { readConsentState, persistConsent, evaluateServiceGate, evaluateCloudGate } from './web/consent-gate.mjs';
       import { calculateNatalChart } from './chart/natal-engine.mjs';
       import { calculateDaewoon } from './chart/daewoon-engine.mjs';
+      import { analyzeDaewoonCycles } from './chart/daewoon-branch-analysis.mjs';
+      import { getDaewoonDomains, buildDaewoonCycleDomains } from './server/domain/daewoon-domains.mjs';
       (() => {
         const STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
         const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
@@ -527,6 +573,8 @@
           screen: 'intro',
           mode: 'single',
           serviceConsent: false,
+          consentGate: { open: true, declined: false, terms: false, privacy: false, age14: null },
+          cloudGate: { open: false, age19: null },
           training: false,
           account: { authenticated: false, loading: true, available: false },
           detailNotice: false,
@@ -1029,14 +1077,42 @@
           const messages = state.messages.map((message) => `<div class="bubble ${message.role === 'user' ? 'user' : ''}">${escapeHtml(message.text)}</div>`).join('');
           const annualMarkup = renderAnnualReading(state.annual, { activeIndex: state.annualCardIndex, activeFact: state.annualFact, error: state.annualError });
           const currentAge = chart.input.date ? new Date().getFullYear() - Number(chart.input.date.split('-')[0]) : 0;
-          const daewoonMarkup = chart.daewoon ? `<section class="panel" aria-labelledby="daewoon-heading"><div class="section-heading"><div><div class="eyebrow">대운 (大運)</div><h2 id="daewoon-heading">10년 주기 운의 흐름</h2></div><span class="tiny mono">${chart.daewoon.policy.id}</span></div><p class="muted" style="margin-bottom:16px;font-size:13px">${chart.daewoon.direction === 'forward' ? '순행' : '역행'} · 시작 나이 ${chart.daewoon.startAge}세 · ${chart.daewoon.boundaryTerm} 기준</p><div class="daewoon-timeline">${chart.daewoon.cycles.map((c) => { const isCurrent = c === chart.daewoon.cycles.find((cc, i) => { const next = chart.daewoon.cycles[i + 1]; return currentAge >= cc.startAge && (!next || currentAge < next.startAge); }); return `<div class="daewoon-cycle${isCurrent ? ' current' : ''}"><div class="daewoon-pillar">${c.pillar}</div><div class="daewoon-age">${c.startAge}세</div><div class="daewoon-year">${c.startYear}년~</div>${isCurrent ? '<span class="daewoon-now">현재</span>' : ''}</div>`; }).join('')}</div><p class="muted" style="margin-top:12px;font-size:12px">대운의 방향과 시작 나이는 ${chart.daewoon.policy.id} 정책으로 계산합니다. 의미론적 해석(용신·격국·신강신약)은 지원하지 않습니다.</p></section>` : '';
+          const daewoonCycleData = chart.daewoon ? (() => {
+            const natalBranches = chart.pillars.map(p => p.branch).filter(b => b && b !== '?');
+            const dayStem = chart.pillars[2]?.stem;
+            const cycleDomains = buildDaewoonCycleDomains(chart.daewoon.cycles, dayStem);
+            const cycleAnalysis = analyzeDaewoonCycles(chart.daewoon.cycles, natalBranches, ELEMENTS[dayStem]);
+            return { cycleDomains, cycleAnalysis };
+          })() : null;
+
+          const daewoonMarkup = chart.daewoon ? `<section class="panel" aria-labelledby="daewoon-heading"><div class="section-heading"><div><div class="eyebrow">대운 (大運)</div><h2 id="daewoon-heading">10년 주기 운의 흐름</h2></div><span class="tiny mono">${chart.daewoon.policy.id}</span></div><p class="muted" style="margin-bottom:16px;font-size:13px">${chart.daewoon.direction === 'forward' ? '순행' : '역행'} · 시작 나이 ${chart.daewoon.startAge}세 · ${chart.daewoon.boundaryTerm} 기준 · 사이클을 눌러 상세 풀이를 보세요</p><div class="daewoon-timeline" role="tablist">${chart.daewoon.cycles.map((c, ci) => { const isCurrent = c === chart.daewoon.cycles.find((cc, i) => { const next = chart.daewoon.cycles[i + 1]; return currentAge >= cc.startAge && (!next || currentAge < next.startAge); }); const tone = daewoonCycleData?.cycleAnalysis?.[ci]?.toneSummary || ''; return `<button class="daewoon-cycle${isCurrent ? ' current' : ''}" role="tab" data-action="daewoon-select" data-cycle="${ci}" aria-selected="${isCurrent ? 'true' : 'false'}"><div class="daewoon-pillar">${c.pillar}</div><div class="daewoon-age">${c.startAge}세</div><div class="daewoon-year">${c.startYear}년~</div>${isCurrent ? '<span class="daewoon-now">현재</span>' : ''}</button>`; }).join('')}</div><div class="daewoon-detail" id="daewoon-detail-panel" role="tabpanel" aria-hidden="true"></div><p class="muted" style="margin-top:12px;font-size:12px">대운의 방향과 시작 나이는 ${chart.daewoon.policy.id} 정책으로 계산합니다. 각 사이클의 십신 기반 풀이와 지지 충·합 분석을 제공합니다.</p></section>` : '';
           return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">명식과 연운 확인</div><h1 id="result-title">계산 사실과 연운 카드의 근거를 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button secondary small" data-action="export">${icon('download')} 내보내기</button></div></div><div class="result-layout"><div class="result-main"><section class="aperture chart-aperture" aria-labelledby="chart-summary"><div class="aperture-top"><div><div class="eyebrow">계산한 명식</div><h2 id="chart-summary" class="aperture-title">${formatKoreanDate(chart.input.date)}의 네 기둥</h2></div><span class="aperture-meta mono">${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(chart.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(chart.input.place)} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${chart.input.unknownTime ? '시각 미상' : escapeHtml(chart.input.time)}</dd></div></dl></section>${chart.warnings.length ? warningMarkup(chart.warnings) : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 검토된 계산 경계에서 충분히 떨어져 있습니다. 계산 정책은 언제든 다시 열어볼 수 있어요.</p></div>'}${daewoonMarkup}${annualMarkup}<section class="panel reading-report"><div class="section-heading"><div><div class="eyebrow">근거를 따라 읽기</div><h2>명식의 결을 따라 읽기</h2></div><p>각 장을 펼치고 근거를 확인하세요.</p></div>${reading}</section><section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>궁금한 장면을 질문으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 궁금한 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="생각을 정리할 질문 입력" placeholder="예: 이직 전에 확인할 조건은 무엇인가요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section></div><aside class="result-side"><section class="panel"><div class="side-title"><h3>오행 분포</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 원본 입력과 계산용 값은 분리해 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 연운은 별도 정책과 프로필 버전으로 계산하며 격국·용신·조후를 포함하지 않습니다.</div>` : ''}</section></aside></div></section>`);
+        }
+
+        function consentGateMarkup() {
+          if (!state.consentGate.open) return '';
+          if (state.consentGate.declined) {
+            return `<div class="gate-overlay"><section class="gate-dialog gate-blocked" role="dialog" aria-modal="true" aria-labelledby="gate-blocked-title"><div class="gate-blocked-icon">${icon('info')}</div><h2 id="gate-blocked-title" tabindex="-1">동의 없이는 서비스를 이용할 수 없어요</h2><p class="gate-lead" style="margin-inline:auto">필수 항목에 동의하지 않으면 사주 풀이를 만들 수 없습니다. 이용을 원하시면 처음 화면으로 돌아가 동의를 완료해 주세요. 동의 기록은 이 기기에만 저장됩니다.</p><div class="gate-actions" style="justify-content:center"><button class="button secondary" data-action="gate-back">처음 화면으로 돌아가기</button></div></section></div>`;
+          }
+          const gate = state.consentGate;
+          const ready = gate.terms === true && gate.privacy === true && gate.age14 === 'over14';
+          return `<div class="gate-overlay"><section class="gate-dialog" role="dialog" aria-modal="true" aria-labelledby="gate-title"><header><div class="eyebrow">처음 이용하시네요</div><h2 id="gate-title" tabindex="-1">시작하기 전에 동의가 필요해요</h2><p class="gate-lead">이 서비스는 세 가지 필수 항목에 모두 동의한 분만 이용할 수 있습니다. 전문을 새 탭에서 확인한 뒤 동의해 주세요.</p></header><div class="gate-list"><label class="gate-item"><input type="checkbox" data-gate-field="terms" ${gate.terms ? 'checked' : ''}><span><strong>[필수] 이용약관 동의</strong><a href="/terms.html" target="_blank" rel="noopener">이용약관 전문보기</a></span></label><label class="gate-item"><input type="checkbox" data-gate-field="privacy" ${gate.privacy ? 'checked' : ''}><span><strong>[필수] 개인정보 처리방침 동의</strong><a href="/privacy.html" target="_blank" rel="noopener">개인정보 처리방침 전문보기</a></span></label><fieldset class="gate-item gate-age"><legend>[필수] 만 14세 이상 확인</legend><label><input type="radio" name="gate-age14" value="over14" ${gate.age14 === 'over14' ? 'checked' : ''}>만 14세 이상입니다</label><label><input type="radio" name="gate-age14" value="under14" ${gate.age14 === 'under14' ? 'checked' : ''}>만 14세 미만입니다</label></fieldset></div>${gate.age14 === 'under14' ? '<div class="error" role="alert" style="margin-top:14px">만 14세 미만은 이 서비스를 이용할 수 없습니다. 보호자와 함께 이용약관을 다시 확인해 주세요.</div>' : ''}<div class="gate-actions"><button class="button primary" data-action="gate-confirm" ${ready ? '' : 'disabled'}>동의하고 시작하기 ${icon('arrow')}</button><button class="button ghost" data-action="gate-decline">이용하지 않기</button></div><p class="gate-note">동의 상태와 시각은 이 기기(브라우저 저장소)에만 저장되고 서버로 전송되지 않습니다. 계정 저장(클라우드)은 별도로 만 19세 이상 확인 후 이용할 수 있습니다.</p></section></div>`;
+        }
+
+        function cloudGateMarkup() {
+          if (!state.cloudGate.open) return '';
+          const underAge = state.cloudGate.age19 === 'under19';
+          return `<div class="gate-overlay"><section class="gate-dialog" role="dialog" aria-modal="true" aria-labelledby="cloud-gate-title"><header><div class="eyebrow">계정 저장 안내</div><h2 id="cloud-gate-title" tabindex="-1">클라우드 저장은 만 19세 이상만 사용할 수 있어요</h2><p class="gate-lead">명식을 계정 저장소에 암호화해 저장하려면 만 19세 이상 본인 확인이 필요합니다. 확인 기록은 이 기기에만 저장됩니다.</p></header><fieldset class="gate-item gate-age"><legend>[필수] 만 19세 이상 확인</legend><label><input type="radio" name="cloud-age19" value="over19" ${state.cloudGate.age19 === 'over19' ? 'checked' : ''}>만 19세 이상입니다</label><label><input type="radio" name="cloud-age19" value="under19" ${underAge ? 'checked' : ''}>만 19세 미만입니다</label></fieldset>${underAge ? '<div class="error" role="alert" style="margin-top:14px">만 19세 미만은 계정 저장을 사용할 수 없습니다. 이 기기에만 저장되는 풀이는 계속 이용할 수 있어요.</div>' : ''}<div class="gate-actions"><button class="button primary" data-action="cloud-gate-confirm" ${state.cloudGate.age19 === 'over19' ? '' : 'disabled'}>만 19세 이상, 로그인 계속 ${icon('arrow')}</button><button class="button ghost" data-action="cloud-gate-cancel">취소하고 돌아가기</button></div><p class="gate-note">동의하지 않으면 로그인 없이 이 기기에서만 풀이가 저장됩니다.</p></section></div>`;
         }
 
         function render() {
           const views = { intro: introView, input: inputView, result: resultView, method: methodView, data: dataView };
           const content = (views[state.screen] || introView)();
-          document.getElementById('app').innerHTML = content;
+          document.getElementById('app').innerHTML = `${content}${consentGateMarkup()}${cloudGateMarkup()}`;
+          if (state.consentGate.open || state.cloudGate.open) {
+            const dialogTitle = document.querySelector('.gate-dialog [id]');
+            dialogTitle?.focus();
+          }
           enhanceConsentAndCoupleInput();
           enhanceCalendarFields();
           enhanceBirthPlaceFields();
@@ -1136,6 +1212,9 @@
           document.getElementById('same-person')?.addEventListener('change', (event) => { state.form.samePerson = event.target.checked; });
           document.getElementById('birth-form')?.addEventListener('submit', onBirthSubmit);
           document.getElementById('chat-form')?.addEventListener('submit', onChatSubmit);
+          document.querySelectorAll('[data-gate-field]').forEach((element) => element.addEventListener('change', (event) => { state.consentGate[event.currentTarget.dataset.gateField] = event.target.checked; state.consentGate.declined = false; render(); });
+          document.querySelectorAll('input[name="gate-age14"]').forEach((element) => element.addEventListener('change', (event) => { state.consentGate.age14 = event.target.value; render(); });
+          document.querySelectorAll('input[name="cloud-age19"]').forEach((element) => element.addEventListener('change', (event) => { state.cloudGate.age19 = event.target.value; render(); });
         }
 
         function moveToStage(id) {
@@ -1216,6 +1295,30 @@
           showToast(response.status === 202 ? '저장 데이터는 삭제됐고 인증 계정 삭제를 마무리하고 있습니다.' : '계정과 저장 기록을 삭제했습니다.');
         }
 
+        function renderDaewoonDetail(cycleIndex, panel) {
+          if (!panel || !state.chart?.daewoon) return;
+          const cycle = state.chart.daewoon.cycles[cycleIndex];
+          if (!cycle) return;
+          const natalBranches = state.chart.pillars.map(p => p.branch).filter(b => b && b !== '?');
+          const dayStem = state.chart.pillars[2]?.stem;
+          const cycleDomains = buildDaewoonCycleDomains(state.chart.daewoon.cycles, dayStem);
+          const cycleAnalysis = analyzeDaewoonCycles(state.chart.daewoon.cycles, natalBranches, ELEMENTS[dayStem]);
+          const cd = cycleDomains?.[cycleIndex];
+          const ca = cycleAnalysis?.[cycleIndex];
+          if (!cd && !ca) { panel.classList.remove('active'); panel.setAttribute('aria-hidden', 'true'); return; }
+          const domainsHtml = (cd?.domains || []).map((d) => {
+            const points = (d.points || []).map((p) => `<li>${escapeHtml(p)}</li>`).join('');
+            return `<div class="daewoon-domain-card"><h4>${escapeHtml(d.domain_label)}</h4>${points ? `<ol>${points}</ol>` : ''}${d.closing ? `<p class="domain-closing">${escapeHtml(d.closing)}</p>` : ''}</div>`;
+          }).join('');
+          const interactionsHtml = (ca?.branchAnalysis || []).flatMap((ba) => (ba.interactions || []).map((i) => {
+            const cls = i.type === 'clash' ? 'clash' : (i.type.startsWith('punishment') ? 'punishment' : (i.type === 'harm' || i.type === 'resentment') ? 'harm' : 'harmony');
+            return `<span class="daewoon-interaction-chip ${cls}">${escapeHtml(ba.position)}: ${escapeHtml(i.name)}</span>`;
+          })).join('');
+          panel.innerHTML = `<div class="daewoon-detail-head"><h3>${escapeHtml(cycle.pillar)} · ${cycle.startAge}세~ (${cycle.startYear}년~)</h3>${cd?.tenGod ? `<span class="daewoon-tag">${escapeHtml(cd.tenGod)} · 10년 주기</span>` : ''}</div>${ca?.toneSummary ? `<p class="daewoon-detail-tone">${escapeHtml(ca.toneSummary)}</p>` : ''}${interactionsHtml ? `<div class="daewoon-interactions">${interactionsHtml}</div>` : ''}${domainsHtml ? `<div class="daewoon-domains-grid">${domainsHtml}</div>` : '<p class="muted">이 사이클의 풀이 데이터를 준비 중입니다.</p>'}`;
+          panel.classList.add('active');
+          panel.setAttribute('aria-hidden', 'false');
+        }
+
         function onAction(event) {
           event.preventDefault();
           const action = event.currentTarget.dataset.action;
@@ -1230,6 +1333,7 @@
           if (action === 'text-size') { state.largeText = !state.largeText; render(); }
           if (action === 'evidence') { state.activeFact = state.activeFact === event.currentTarget.dataset.fact ? '' : event.currentTarget.dataset.fact; render(); }
           if (action === 'annual-evidence') { state.annualFact = state.annualFact === event.currentTarget.dataset.fact ? '' : event.currentTarget.dataset.fact; render(); }
+          if (action === 'daewoon-select') { const ci = Number(event.currentTarget.dataset.cycle); const panel = document.getElementById('daewoon-detail-panel'); document.querySelectorAll('.daewoon-cycle').forEach((el) => { el.classList.remove('selected'); el.setAttribute('aria-selected', 'false'); }); event.currentTarget.classList.add('selected'); event.currentTarget.setAttribute('aria-selected', 'true'); renderDaewoonDetail(ci, panel); }
           if (action === 'annual-prev') { state.annualCardIndex = Math.max(0, state.annualCardIndex - 1); render(); document.querySelector(`[data-annual-card="${state.annualCardIndex}"]`)?.focus({ preventScroll: true }); }
           if (action === 'annual-next') { state.annualCardIndex = Math.min((state.annual?.cards.length || 1) - 1, state.annualCardIndex + 1); render(); document.querySelector(`[data-annual-card="${state.annualCardIndex}"]`)?.focus({ preventScroll: true }); }
           if (action === 'annual-export' && state.annual) downloadRecord(privacySafeAnnualExport(state.annual), `saju-annual-${state.annual.targetYear}.json`);
@@ -1243,7 +1347,32 @@
           if (action === 'record-export') exportSavedRecord(event.currentTarget.dataset.recordId);
           if (action === 'record-delete') deleteSavedRecord(event.currentTarget.dataset.recordId);
           if (action === 'record-withdraw') withdrawTrainingUse(event.currentTarget.dataset.recordId);
-          if (action === 'account-login') window.location.assign('/auth/login');
+          if (action === 'account-login') {
+            if (evaluateCloudGate(readConsentState(globalThis.window?.localStorage)).open) { state.cloudGate = { open: true, age19: null }; render(); return; }
+            window.location.assign('/auth/login');
+          }
+          if (action === 'cloud-gate-confirm') {
+            if (state.cloudGate.age19 !== 'over19') return;
+            persistConsent(globalThis.window?.localStorage, { cloud19: 'over19' });
+            state.cloudGate = { open: false, age19: 'over19' };
+            window.location.assign('/auth/login');
+          }
+          if (action === 'cloud-gate-cancel') { state.cloudGate.open = false; render(); }
+          if (action === 'gate-confirm') {
+            const gate = state.consentGate;
+            if (!(gate.terms === true && gate.privacy === true && gate.age14 === 'over14')) return;
+            persistConsent(globalThis.window?.localStorage, { terms: true, privacy: true, age14: 'over14', declined: false });
+            state.consentGate = { open: false, declined: false, terms: true, privacy: true, age14: 'over14' };
+            state.serviceConsent = true;
+            render();
+            moveToStage('page-title');
+          }
+          if (action === 'gate-decline') {
+            persistConsent(globalThis.window?.localStorage, { declined: true });
+            state.consentGate.declined = true;
+            render();
+          }
+          if (action === 'gate-back') { state.consentGate.declined = false; render(); }
           if (action === 'account-logout') logoutAccount();
           if (action === 'account-delete') deleteAccount();
         }
@@ -1651,8 +1780,19 @@
           return chipY + 44;
         }
 
+        function hydrateConsentFromDevice() {
+          try {
+            const stored = readConsentState(window.localStorage);
+            const gate = evaluateServiceGate(stored);
+            state.consentGate = { open: gate.open, declined: stored.declined === true, terms: stored.terms === true, privacy: stored.privacy === true, age14: stored.age14 };
+            state.cloudGate = { open: false, age19: stored.cloud19 };
+            if (!gate.open) state.serviceConsent = true;
+          } catch { /* 저장소 접근 불가 시 첫 방문 게이트 유지 */ }
+        }
+
         if (new URLSearchParams(window.location.search).has('demo')) { const demoInput = { ...state.form, place: '서울특별시 종로구 청운효자동', placeCode: '1111051500' }; state.chart = calculateChart(demoInput); state.screen = 'result'; state.saveState = 'outbox'; state.openReadings = ['single-0']; }
         if ('serviceWorker' in navigator && window.location.protocol !== 'file:') navigator.serviceWorker.register('service-worker.js').catch(() => {});
+        hydrateConsentFromDevice();
         render();
         syncAccount().finally(render);
       })();
