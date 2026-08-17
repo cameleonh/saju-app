@@ -6,6 +6,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { calculateNatalChart } from '../chart/natal-engine.mjs';
 import { calculateDaewoon } from '../chart/daewoon-engine.mjs';
+import { buildNatalChapters, extractNatalFeatures } from '../server/domain/natal-chapter-selection.mjs';
+import { natalReadingItems } from '../web/natal-reading.mjs';
 
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const annualClient = fs.readFileSync(new URL('../annual/client.mjs', import.meta.url), 'utf8');
@@ -73,7 +75,7 @@ assert.match(adminAreaSource, /Effective date: 2026-07-20/);
 assert.match(adminAreaSource, /KIKcd_H and KIKcd_B/);
 assert.deepEqual(JSON.parse(JSON.stringify(catalogSandbox.tenGodMap)), [['甲', '편관'], ['乙', '정관'], ['丙', '편인'], ['丁', '정인'], ['戊', '비견'], ['己', '겁재'], ['庚', '식신'], ['辛', '상관'], ['壬', '편재'], ['癸', '정재']], 'ten-god relation covers all five element relations and both polarities');
 const evaluate = (input) => {
-  const sandbox = { calculateNatalChart, calculateDaewoon };
+  const sandbox = { calculateNatalChart, calculateDaewoon, extractNatalFeatures, buildNatalChapters, natalReadingItems };
   vm.runInNewContext(`${engineSource}; globalThis.result = calculateChart(${JSON.stringify(input)});`, sandbox);
   return sandbox.result;
 };
@@ -85,11 +87,15 @@ assert.equal(golden.policy.version, '1.0.0');
 assert.equal(golden.policy.engine, 'gyeol-natal-core');
 assert.equal(golden.policy.engineVersion, '1.0.0');
 assert.ok(golden.facts.every((fact) => fact.id && fact.value), 'facts have stable identifiers and values');
-assert.equal(golden.reading.length, 8, 'single reading includes eight evidence-grounded chapters');
+assert.equal(golden.reading.length, 11, 'single reading renders the approved natal chapters for the sample chart (draft variants fail closed)');
 assert.ok(golden.reading.every((item) => item.detail && item.practice && item.questions?.length >= 2), 'single reading includes detail, practice, and prompts');
-assert.match(golden.reading[0].text, /토가 4개/);
-assert.match(golden.reading[0].detail, /^토는 /);
-assert.match(golden.reading[1].text, /己는 겁재/);
+assert.deepEqual(golden.reading.map((item) => item.chapter_id), ['overview', 'day_master_image', 'seasonal_root', 'ten_god_structure', 'element_balance', 'life_hints', 'hour_rhythm', 'missing_element', 'dominant_skew', 'branch_harmony', 'closing'], 'sample chart selects its approved chapters in domain order');
+assert.match(golden.reading[0].text, /무\(토\)/);
+assert.match(golden.reading[0].detail, /토가 4자/);
+assert.equal(golden.reading.find((item) => item.chapter_id === 'ten_god_structure').matched, '편인');
+assert.equal(golden.reading.find((item) => item.chapter_id === 'missing_element').matched, '목');
+assert.equal(golden.reading.find((item) => item.chapter_id === 'branch_harmony').matched, '오미');
+assert.ok(golden.natalChapters?.chapter_count === golden.reading.length, 'the selection result is attached to the chart');
 assert.equal(golden.pillars[0].tenGod, '식신');
 assert.deepEqual(Array.from(golden.pillars[2].hiddenStems), ['庚', '壬', '戊']);
 assert.ok(golden.facts.some((fact) => fact.id === 'ten-god.visible'));
@@ -123,7 +129,7 @@ assert.match(serviceUnit, /EnvironmentFile=-\/etc\/saju-app\.env/, 'managed stor
 assert.match(serviceUnit, /ReadWritePaths=\/var\/lib\/saju-app\/runtime/, 'systemd grants writes only to the runtime boundary');
 
 const couple = (() => {
-  const sandbox = { calculateNatalChart, calculateDaewoon };
+  const sandbox = { calculateNatalChart, calculateDaewoon, extractNatalFeatures, buildNatalChapters, natalReadingItems };
   vm.runInNewContext(`${engineSource}; globalThis.result = calculateCoupleChart(${JSON.stringify({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar' })}, ${JSON.stringify({ date: '1992-02-14', time: '09:00', unknownTime: false, place: '서울', calendar: 'solar' })}, 'dating');`, sandbox);
   return sandbox.result;
 })();
@@ -176,8 +182,9 @@ assert.match(html, /검색 결과에서 출생지를 골라 주세요/);
 assert.match(html, /검색 결과가 많아 먼저 20곳을 보여드려요/);
 assert.match(html, /placeResolution\.status === 'ambiguous'/);
 assert.match(html, /reading-report/);
-assert.match(html, /십신의 겉흐름/);
-assert.match(html, /지장간의 안쪽 흐름/);
+assert.match(html, /import \{ buildNatalChapters, extractNatalFeatures \} from '\.\/server\/domain\/natal-chapter-selection\.mjs'/, 'the result view imports the natal chapter selection');
+assert.match(html, /import \{ natalReadingItems \} from '\.\/web\/natal-reading\.mjs'/, 'the result view imports the approved-chapter reading mapper');
+assert.match(html, /natalReadingItems\(natalChapters, \{ factIds: new Set\(facts\.map/, 'the reading maps selected chapters with evidence wired to existing facts');
 assert.match(html, /reading-practice/);
 assert.match(html, /한눈에 보기/);
 assert.match(html, /쉽게 풀어보면/);
@@ -234,7 +241,7 @@ assert.match(html, /<link rel="icon" href="icon\.svg" type="image\/svg\+xml" siz
 assert.match(fs.readFileSync(new URL('../robots.txt', import.meta.url), 'utf8'), /GPTBot[\s\S]*Disallow: \//);
 assert.match(fs.readFileSync(new URL('../ai.txt', import.meta.url), 'utf8'), /ClaudeBot[\s\S]*Disallow: \//);
 const serviceWorker = fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
-assert.match(serviceWorker, /saju-app-shell-v25/);
+assert.match(serviceWorker, /saju-app-shell-v26/);
 assert.match(serviceWorker, /fonts\/noto-sans-kr-5\.3\.0/);
 assert.match(serviceWorker, /url\.pathname\.startsWith\('\/auth\/'\)[\s\S]*url\.pathname\.startsWith\('\/v1\/'\)[\s\S]*event\.respondWith\(fetch\(event\.request\)\)/, 'auth callbacks, account APIs, and their URL parameters never enter Cache Storage');
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /annual\/client\.mjs/);

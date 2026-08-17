@@ -574,6 +574,8 @@
       import { badgeMarkup, buildQuest, flowBadge, luckyElementProps, luckyPropsMarkup, questMarkup, remarkMarkup, saeseongRemark } from './web/result-packaging.mjs';
       import { renderDailyReading } from './web/daily-reading.mjs';
       import { buildDailyReading } from './server/domain/daily-reading-selection.mjs';
+      import { buildNatalChapters, extractNatalFeatures } from './server/domain/natal-chapter-selection.mjs';
+      import { natalReadingItems } from './web/natal-reading.mjs';
       import { calculateNatalChart, formatSeoulInstant } from './chart/natal-engine.mjs';
       import { calculateDaewoon } from './chart/daewoon-engine.mjs';
       import { analyzeDaewoonCycles } from './chart/daewoon-branch-analysis.mjs';
@@ -897,82 +899,32 @@
             const sensitivity = core.boundaryFlags.sensitivity;
             facts.push({ id: 'boundary.solar-term', label: `${sensitivity.term.key} 경계 비교`, value: `${sensitivity.before.yearPillar}·${sensitivity.before.monthPillar} → ${sensitivity.after.yearPillar}·${sensitivity.after.monthPillar}`, detail: `${sensitivity.term.instant} 직전과 경계 시각부터의 년주·월주를 나란히 보여줍니다. 현재 입력에는 시작 시각을 포함하는 뒤쪽 규칙을 적용했습니다.` });
           }
-          const dominant = sortedElements[0][0];
-          const dominantGuide = ELEMENT_GUIDE[dominant];
-          const dayGuide = ELEMENT_GUIDE[dayPillar.element];
-          const missing = Object.entries(elementCounts).filter(([, count]) => count === 0).map(([key]) => key);
-          const balanceTarget = missing.length ? `적게 나타난 기운(${missing.join('·')})${objectParticle(missing[0])}` : '각 기운을';
-          const visibleTenGods = pillars.filter((item) => item.tenGod && item.tenGod !== '일원');
-          const primaryTenGod = monthPillar.tenGod;
-          const primaryTenGodGuide = TEN_GOD_GUIDE[primaryTenGod];
-          const hiddenSummary = hiddenStemSummary(pillars);
-          const reading = [
-            {
-              title: '전체 흐름', kind: '내 명식',
-              text: `당신의 중심 기운은 ${dayPillar.stem}(${dayPillar.element})입니다. 다섯 기운 가운데 ${dominant}${subjectParticle(dominant)} ${sortedElements[0][1]}개로 가장 많이 보입니다.`,
-              detail: `${dominant}${topicParticle(dominant)} ${dominantGuide.image}을 뜻합니다. ${dominantGuide.strength}. 다만 ${dominantGuide.watch}. 사주 한 항목만으로 성격이나 앞날을 정할 수는 없습니다.`,
-              practice: dominantGuide.practice,
-              questions: [`최근에 ${dominant}의 장점을 잘 쓴 때는 언제였나요?`, '그때 조금 천천히 해도 괜찮았던 부분은 무엇인가요?'],
-              evidence: ['day.element', 'balance.dominant'],
-            },
-            {
-              title: '십신의 겉흐름', kind: '역할과 관계',
-              text: `일간 ${dayPillar.stem}${objectParticle(dayPillar.stem)} 기준으로 보면 ${visibleTenGods.map((item) => `${item.label} ${item.stem}${topicParticle(item.stem)} ${item.tenGod}`).join(', ')}입니다.`,
-              detail: `그중 월주의 ${primaryTenGod}${topicParticle(primaryTenGod)} ${primaryTenGodGuide}${objectParticle(primaryTenGodGuide)} 보여주는 이름입니다. 십신은 사람을 한 가지 성격으로 나누는 표가 아닙니다. 어떤 자리에서 어떤 역할을 자주 맡는지 살펴보는 기준에 가깝습니다.`,
-              practice: `이번 주에 ${primaryTenGod}의 설명과 비슷했던 장면 하나를 적어보세요. 설명보다 실제 행동이 어땠는지를 먼저 써보면 좋습니다.`,
-              questions: ['남이 맡긴 역할과 내가 고른 역할은 어떻게 다른가요?', '요즘 가장 힘을 많이 쓰는 일이나 관계는 무엇인가요?'],
-              evidence: ['ten-god.visible', 'day.element'],
-            },
-            {
-              title: '지장간의 안쪽 흐름', kind: '숨은 기운',
-              text: `지장간은 겉으로 보이는 지지 안에 어떤 천간이 들어 있는지 보는 항목입니다. 이 명식의 지장간을 계산하면 ${hiddenSummary}입니다.`,
-              detail: '겉으로 바로 보이는 반응과 속으로 오래 붙잡고 있는 생각이 다를 수 있다는 뜻으로 읽습니다. 이 화면은 지장간 목록과 십신 관계까지만 보여줍니다. 용신이나 격국까지 계산한 결과는 아닙니다.',
-              practice: '쉽게 결정한 것처럼 보였지만 속으로 오래 고민했던 일을 하나 떠올려보세요. 그때 무엇을 지키고 싶었는지 적어보면 좋습니다.',
-              questions: ['겉으로 보인 반응 뒤에 어떤 생각이 남아 있었나요?', '말하지 않았지만 선택에 영향을 준 기준은 무엇인가요?'],
-              evidence: ['hidden-stems', 'day.element'],
-            },
-            {
-              title: '관계와 대화', kind: '사람 사이',
-              text: `년주 ${yearPillar.text}${connectiveParticle(yearPillar.text)} 월주 ${monthPillar.text}${topicParticle(monthPillar.text)} 사람을 대할 때 무엇을 먼저 살피는지 생각해보게 합니다. 말의 내용뿐 아니라 서로 답하는 속도도 함께 보세요.`,
-              detail: '내 생각을 곧바로 설득하기보다 “나는 지금 이 점이 걱정돼”라고 먼저 말하면 오해가 줄어듭니다. 상대가 늦게 답할 때도 거절이라고 단정하지 말고 생각할 시간이 필요한지 물어보세요.',
-              practice: '대화가 꼬였던 일을 하나 고르세요. 있었던 사실, 내가 붙인 뜻, 다음에 할 부탁을 한 문장씩 나눠 적어보세요.',
-              questions: ['상대에게 설명하기 전에 내가 지키고 싶은 것은 무엇인가요?', '상대에게 필요한 시간을 어떻게 물어볼 수 있을까요?'],
-              evidence: ['year.pillar', 'month.pillar'],
-            },
-            {
-              title: '일과 몰입', kind: '일하는 방식',
-              text: `일주 ${dayPillar.text}의 ${dayPillar.element} 기운은 어떤 조건에서 집중이 잘 이어지는지 살펴보는 데 쓸 수 있습니다.`,
-              detail: `${dayGuide.strength}. 다만 ${dayGuide.watch}. 일을 25~40분 정도로 나누고, 시작하기 전에 어디까지 하면 끝인지 작게 정해보세요. 중간에 쉬어갈 시점도 미리 잡아두면 좋습니다.`,
-              practice: '오늘 집중이 잘됐던 시간의 시작 조건, 방해한 것, 끝낸 기준을 한 줄씩 적어보세요.',
-              questions: ['집중이 시작되기 전에 늘 갖춰지는 환경은 무엇인가요?', '오늘 끝냈다고 말할 수 있는 가장 작은 결과는 무엇인가요?'],
-              evidence: ['day.pillar'],
-            },
-            {
-              title: '생활 리듬', kind: input.unknownTime ? '시각 정보 없음' : '하루의 리듬',
-              text: input.unknownTime ? '출생 시각을 모르기 때문에 시주와 생활 리듬은 해석하지 않았습니다. 모르는 시간을 짐작해서 채우지 않습니다.' : `시주 ${hourPillar.text}${topicParticle(hourPillar.text)} 하루 뒤쪽의 생활 리듬을 돌아보는 참고값입니다. 집중이 잘되는 때와 쉬어야 하는 때가 언제인지 실제 생활과 비교해보세요.`,
-              detail: input.unknownTime ? '나중에 출생 시각을 확인하면 시주만 다시 계산할 수 있습니다. 그전에는 일주일 동안 잠든 시각과 집중이 잘된 시각을 적는 편이 더 도움이 됩니다.' : '시주를 정해진 시간표로 받아들일 필요는 없습니다. 내게 맞는 마감 시간과 쉬는 방법을 찾는 가설로만 써보세요.',
-              practice: input.unknownTime ? '7일 동안 잠든 시각, 집중이 잘된 시각, 피로가 시작된 시각만 적어보세요.' : '일주일 동안 집중이 잘된 시간과 쉬고 싶었던 시간을 나눠 적어보세요.',
-              questions: ['내가 충분히 쉬었다고 느끼는 신호는 무엇인가요?', '오늘 꼭 지켜두고 싶은 시간은 언제인가요?'],
-              evidence: input.unknownTime ? ['input.unknown-time'] : ['year.pillar', 'day.pillar'],
-            },
-            {
-              title: '오행 균형', kind: '다섯 기운',
-              text: `현재 오행 분포는 ${sortedElements.map(([key, count]) => `${key} ${count}`).join(' · ')}입니다. 가장 많은 기운을 더 키우기보다, 적게 보이는 기운을 생활에서 어떻게 써볼지 생각해보세요.`,
-              detail: missing.length ? `${missing.join('·')} 기운이 없다는 말은 이 계산에서 해당 글자가 겉에 보이지 않는다는 뜻입니다. 부족한 사람이라는 뜻은 아닙니다. 지금 필요한 행동을 하나 골라 작게 해보는 편이 좋습니다.` : '다섯 기운이 모두 한 번 이상 보입니다. 이것만으로 완벽하게 균형 잡혔다고 보지는 않습니다. 상황마다 어떤 기운이 먼저 나오는지 살펴보세요.',
-              practice: missing.length ? `${balanceTarget} 떠올릴 수 있는 작은 행동 하나를 정해 이번 주에 한 번 해보세요.` : '같은 일을 목·화·토·금·수의 다섯 관점으로 바꿔 말해보고 가장 편한 관점을 골라보세요.',
-              questions: ['요즘 생활에서 자꾸 미루는 일은 무엇인가요?', '그 일을 10분만 해본다면 무엇부터 시작할 수 있을까요?'],
-              evidence: ['balance.dominant', 'input.policy'],
-            },
-            {
-              title: '다음 질문', kind: '읽기를 마치며',
-              text: '이 결과는 정해진 미래를 말하지 않습니다. 전통적인 기호를 빌려 지금의 생활을 천천히 돌아보는 참고 자료입니다.',
-              detail: '설명과 실제 경험이 다르면 해석을 억지로 맞출 필요가 없습니다. 맞지 않는 부분을 표시해두면 다음에는 더 좋은 질문을 만들 수 있습니다.',
-              practice: '이번 주에 자주 되풀이되는 일을 하나 고르세요. 사실 하나, 느낌 하나, 다음 행동 하나만 적어보세요.',
-              questions: ['이 설명과 내 실제 경험이 다른 부분은 어디인가요?', '다음에 꼭 확인하고 싶은 생활 장면은 무엇인가요?'],
-              evidence: ['input.policy'],
-            },
-          ];
-          return { ...core, input, pillars, facts, elementCounts, sortedElements, warnings, reading, daewoon, createdAt: new Date().toISOString() };
+          // 명식 읽기 — 승인된 챕터만 렌더 (docs/NATAL-CHAPTER-WIRING.md).
+          // 선택이 실패하면 패널을 숨긴다(빈 결과, 깨진 결과가 아니라).
+          const natalFeatures = extractNatalFeatures(core);
+          let natalChapters = null;
+          try { natalChapters = buildNatalChapters(core); } catch (error) { natalChapters = null; }
+          const BRANCH_CHAR_BY_HANGUL = { 자: '子', 축: '丑', 인: '寅', 묘: '卯', 진: '辰', 사: '巳', 오: '午', 미: '未', 신: '申', 유: '酉', 술: '戌', 해: '亥' };
+          const TRIAD_MEMBERS = { 수국: '신자진', 목국: '해묘미', 화국: '인오술', 금국: '사유축' };
+          const pillarsWithBranches = (hangulKey) => hangulKey.split('').map((hangul) => BRANCH_CHAR_BY_HANGUL[hangul]).filter(Boolean).map((char) => pillars.find((item) => item.branch === char)).filter(Boolean);
+          const branchPairText = (spots) => spots.map((item) => `${item.label} ${HANJA_READING[item.branch]}(${item.branch})`).join(' · ');
+          if (input.unknownTime) {
+            facts.push({ id: 'input.unknown-time', label: '입력 상태', value: '시각 미상', detail: '출생 시각을 모르는 입력입니다. 시주는 계산하지 않고 나머지 세 기둥으로 명식을 읽습니다.' });
+          }
+          if (natalFeatures?.natal_clash_key) {
+            const spots = pillarsWithBranches(natalFeatures.natal_clash_key);
+            if (spots.length === 2) facts.push({ id: 'natal.clash', label: '원국의 충', value: `${natalFeatures.natal_clash_key} 충(沖)`, detail: `원국에서 ${branchPairText(spots)}이 충을 이룹니다. 흔들림이 아니라 움직이는 문으로 읽는 자리입니다.` });
+          }
+          if (natalFeatures?.natal_harmony_key) {
+            const spots = pillarsWithBranches(natalFeatures.natal_harmony_key);
+            if (spots.length === 2) facts.push({ id: 'natal.harmony', label: '원국의 육합', value: `${natalFeatures.natal_harmony_key} 육합(六合)`, detail: `원국에서 ${branchPairText(spots)}이 육합을 이룹니다. 서로 붙드는 인연의 결로 읽는 자리입니다.` });
+          }
+          if (natalFeatures?.natal_triad_key) {
+            const spots = pillarsWithBranches(TRIAD_MEMBERS[natalFeatures.natal_triad_key] || '');
+            if (spots.length === 3) facts.push({ id: 'natal.triad', label: '원국의 삼합', value: `${natalFeatures.natal_triad_key} 삼합(三合)`, detail: `원국에서 ${branchPairText(spots)}이 한 방향의 국을 이룹니다. 깊이 흐르는 물줄의 결로 읽는 자리입니다.` });
+          }
+          const reading = natalReadingItems(natalChapters, { factIds: new Set(facts.map((fact) => fact.id)) });
+          return { ...core, input, pillars, facts, elementCounts, sortedElements, warnings, reading, natalChapters, daewoon, createdAt: new Date().toISOString() };
         }
 
         function relationshipLabel(value) { return ({ 'getting-to-know': '알아가는 사이', dating: '현재 연인', partner: '배우자·동반자' })[value] || '관계'; }
@@ -1224,6 +1176,10 @@
           const max = Math.max(...Object.values(chart.elementCounts), 1);
           const bars = Object.entries(chart.elementCounts).map(([key, value]) => `<div><div class="bar-head"><span>${ELEMENT_LABELS[key]}</span><strong class="mono">${value}</strong></div><div class="bar-track"><div class="bar-fill ${({목:'wood',화:'fire',토:'earth',금:'metal',수:'water'})[key]}" style="width:${Math.max(8, (value / max) * 100)}%"></div></div></div>`).join('');
           const reading = readingMarkup(chart.reading);
+          // 패널 존재 가드: 승인 챕터가 없으면(선택 실패·모두 초안) 명식 읽기 패널을 통째로 숨긴다.
+          const readingPanel = Array.isArray(chart.reading) && chart.reading.length
+            ? `<section class="panel reading-report"><div class="section-heading"><div><div class="eyebrow">근거를 따라 읽기</div><h2>명식의 결을 따라 읽기</h2></div><p>승인된 ${chart.reading.length}개 장을 펼쳐 근거를 확인하세요.</p></div>${reading}</section>`
+            : '';
           const messages = state.messages.map((message) => `<div class="bubble ${message.role === 'user' ? 'user' : ''}">${escapeHtml(message.text)}</div>`).join('');
           const annualMarkup = renderAnnualReading(state.annual, { activeIndex: state.annualCardIndex, activeFact: state.annualFact, error: state.annualError, loading: state.calcLoading, elementCounts: chart.elementCounts });
           const currentAge = chart.input.date ? new Date().getFullYear() - Number(chart.input.date.split('-')[0]) : 0;
@@ -1241,7 +1197,7 @@
           const daewoonMarkup = chart.daewoon ? `<section class="panel" aria-labelledby="daewoon-heading"><div class="section-heading"><div><div class="eyebrow">대운 (大運)</div><h2 id="daewoon-heading">10년 주기 운의 흐름</h2></div><span class="tiny mono">${chart.daewoon.policy.id}</span></div><p class="muted" style="margin-bottom:16px;font-size:13px">${chart.daewoon.direction === 'forward' ? '순행' : '역행'} · 시작 나이 ${chart.daewoon.startAge}세 · ${chart.daewoon.boundaryTerm} 기준 · 사이클을 눌러 상세 풀이를 보세요</p><div class="daewoon-timeline" role="tablist">${chart.daewoon.cycles.map((c, ci) => { const isCurrent = ci === currentDaewoonIndex; const tone = daewoonCycleData?.cycleAnalysis?.[ci]?.toneSummary || ''; return `<button class="daewoon-cycle${isCurrent ? ' current' : ''}" role="tab" data-action="daewoon-select" data-cycle="${ci}" aria-selected="${isCurrent ? 'true' : 'false'}"><div class="daewoon-pillar">${c.pillar}</div><div class="daewoon-age">${c.startAge}세</div><div class="daewoon-year">${c.startYear}년~</div>${isCurrent ? '<span class="daewoon-now">현재</span>' : ''}</button>`; }).join('')}</div>${daewoonPackMarkup}<div class="daewoon-detail" id="daewoon-detail-panel" role="tabpanel" aria-hidden="true"></div><p class="muted" style="margin-top:12px;font-size:12px">대운의 방향과 시작 나이는 ${chart.daewoon.policy.id} 정책으로 계산합니다. 각 사이클의 십신 기반 풀이와 지지 충·합 분석을 제공합니다. 흐름 배지는 정성 표현이며 점수가 아닙니다.</p></section>` : '';
           const sampleBanner = state.sample ? `<div class="notice amber sample-banner" role="note" aria-label="샘플 명식 안내"><h3>샘플 명식입니다</h3><p>1990년 10월 10일 14:30 · 서울 출생의 고정 예시 결과예요. 실제 내 명식이 아니며 이 기기의 기록함에 저장되지 않습니다.</p><div class="notice-actions"><button class="button primary small" data-action="edit">내 출생 정보 입력하기 ${icon('arrow')}</button><button class="button ghost small" data-action="nav-home">시작 화면으로 ${icon('back')}</button></div></div>` : '';
           const placeDefaultedNote = chart.input?.sourceInput?.placeDefaulted ? ' · 기본값(서울)' : '';
-          return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">명식과 연운 확인</div><h1 id="result-title">계산 사실과 연운 카드의 근거를 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button primary small" data-action="card-save">${icon('download')} 카드뉴스 저장</button><button class="button secondary small" data-action="card-share">공유하기 ${icon('arrow')}</button><button class="button ghost small" data-action="export">데이터 내보내기(JSON)</button></div></div>${sampleBanner}<div class="result-layout"><div class="result-main"><section class="aperture chart-aperture" aria-labelledby="chart-summary"><div class="aperture-top"><div><div class="eyebrow">계산한 명식</div><h2 id="chart-summary" class="aperture-title">${formatKoreanDate(chart.input.date)}의 네 기둥</h2></div><span class="aperture-meta mono">${state.sample ? '샘플 명식 · ' : ''}${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(chart.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(chart.input.place)}${placeDefaultedNote} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${chart.input.unknownTime ? '시각 미상' : escapeHtml(chart.input.time)}</dd></div></dl></section>${chart.warnings.length ? warningMarkup(chart.warnings) : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 검토된 계산 경계에서 충분히 떨어져 있습니다. 계산 정책은 언제든 다시 열어볼 수 있어요.</p></div>'}${daewoonMarkup}${annualMarkup}<section class="panel reading-report"><div class="section-heading"><div><div class="eyebrow">근거를 따라 읽기</div><h2>명식의 결을 따라 읽기</h2></div><p>각 장을 펼치고 근거를 확인하세요.</p></div>${reading}</section>${CHAT_CARD_ENABLED ? `<section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>궁금한 장면을 질문으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 궁금한 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="생각을 정리할 질문 입력" placeholder="예: 이직 전에 확인할 조건은 무엇인가요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section>` : ''}<p class="daily-strip daily-strip-cta" aria-label="오늘의 운세 바로가기"><span class="daily-strip-label">오늘의 운세</span><button class="button ghost small" data-action="daily-from-result">오늘의 운세 보기 ${icon('arrow')}</button></p></div><aside class="result-side"><section class="panel"><div class="side-title"><h3>오행 분포</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 원본 입력과 계산용 값은 분리해 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 연운은 별도 정책과 프로필 버전으로 계산하며 격국·용신·조후를 포함하지 않습니다.</div>` : ''}</section></aside></div></section>`);
+          return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">명식과 연운 확인</div><h1 id="result-title">계산 사실과 연운 카드의 근거를 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button primary small" data-action="card-save">${icon('download')} 카드뉴스 저장</button><button class="button secondary small" data-action="card-share">공유하기 ${icon('arrow')}</button><button class="button ghost small" data-action="export">데이터 내보내기(JSON)</button></div></div>${sampleBanner}<div class="result-layout"><div class="result-main"><section class="aperture chart-aperture" aria-labelledby="chart-summary"><div class="aperture-top"><div><div class="eyebrow">계산한 명식</div><h2 id="chart-summary" class="aperture-title">${formatKoreanDate(chart.input.date)}의 네 기둥</h2></div><span class="aperture-meta mono">${state.sample ? '샘플 명식 · ' : ''}${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(chart.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(chart.input.place)}${placeDefaultedNote} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${chart.input.unknownTime ? '시각 미상' : escapeHtml(chart.input.time)}</dd></div></dl></section>${chart.warnings.length ? warningMarkup(chart.warnings) : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 검토된 계산 경계에서 충분히 떨어져 있습니다. 계산 정책은 언제든 다시 열어볼 수 있어요.</p></div>'}${daewoonMarkup}${annualMarkup}${readingPanel}${CHAT_CARD_ENABLED ? `<section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>궁금한 장면을 질문으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 궁금한 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="생각을 정리할 질문 입력" placeholder="예: 이직 전에 확인할 조건은 무엇인가요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section>` : ''}<p class="daily-strip daily-strip-cta" aria-label="오늘의 운세 바로가기"><span class="daily-strip-label">오늘의 운세</span><button class="button ghost small" data-action="daily-from-result">오늘의 운세 보기 ${icon('arrow')}</button></p></div><aside class="result-side"><section class="panel"><div class="side-title"><h3>오행 분포</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 원본 입력과 계산용 값은 분리해 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 연운은 별도 정책과 프로필 버전으로 계산하며 격국·용신·조후를 포함하지 않습니다.</div>` : ''}</section></aside></div></section>`);
         }
 
         function consentGateMarkup() {

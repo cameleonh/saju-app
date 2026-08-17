@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { calculateNatalChart } from '../../chart/natal-engine.mjs';
 import { calculateDaewoon } from '../../chart/daewoon-engine.mjs';
+import { buildNatalChapters, extractNatalFeatures } from '../../server/domain/natal-chapter-selection.mjs';
+import { natalReadingItems } from '../../web/natal-reading.mjs';
 
 // P0-2 — first-experience shortening: required core (생년월일 + 출생 시각(모름 포함)) with
 // 출생지·성별·본인확인 collapsed behind "나중에 입력", plus the intro "샘플로 보기" sample mode.
@@ -33,7 +35,7 @@ assert.ok(engineStart >= 0, 'engine constants are present');
 assert.ok(engineEnd > engineStart, 'engine boundary is present');
 const engineSource = html.slice(engineStart, engineEnd);
 
-const sandbox = { calculateNatalChart, calculateDaewoon };
+const sandbox = { calculateNatalChart, calculateDaewoon, extractNatalFeatures, buildNatalChapters, natalReadingItems };
 vm.runInNewContext(adminAreaSource, sandbox);
 vm.runInNewContext(`${engineSource};
   globalThis.defaultPlace = resolveBirthPlace(DEFAULT_BIRTH_PLACE);
