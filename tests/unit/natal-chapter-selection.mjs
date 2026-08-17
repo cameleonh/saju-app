@@ -48,7 +48,6 @@ for (const chapter of NATAL_CHAPTERS) {
   assert.ok(Array.isArray(chapter.evidence), `${label} has evidence array`);
   assert.ok(VALID_TONES.has(chapter.tone), `${label} tone is known`);
   assert.ok(VALID_REVIEW.has(chapter.review_status), `${label} review_status is known`);
-  assert.equal(chapter.review_status, 'draft', `${label} is draft until operator review`);
 
   const contents = chapter.variant_key ? Object.entries(chapter.variants) : [['base', chapter.base]];
   if (chapter.variant_key) {
@@ -63,6 +62,11 @@ for (const chapter of NATAL_CHAPTERS) {
       assert.equal(typeof content[field], 'string', `${label}/${key} has ${field}`);
       assert.ok(content[field].length > 10, `${label}/${key} ${field} is substantive`);
     }
+    // Effective status: variant-level status when present, else the chapter default.
+    // Every module must carry one — Round 1 operator review flipped 58/80 to
+    // 'approved'; the 22 uncovered rare-conditional variants stay 'draft'.
+    assert.ok(content.review_status === undefined || VALID_REVIEW.has(content.review_status), `${label}/${key} variant review_status is known`);
+    assert.ok(VALID_REVIEW.has(content.review_status || chapter.review_status), `${label}/${key} carries an effective review_status`);
     if (chapter.variant_key) {
       assert.ok(VARIANT_DOMAINS[chapter.variant_key].has(key), `${label} variant key ${key} is a valid ${chapter.variant_key} value`);
     }
@@ -92,13 +96,18 @@ assert.equal(f1990.natal_harmony_key, '오미'); // 午 year branch · 未 hour 
 assert.equal(f1990.natal_triad_key, null);
 assert.equal(f1990.boundary_sensitive, false);
 
-// --- Selection: deterministic, feature-conditional ---
+// --- Selection: deterministic, feature-conditional, review-gated ---
+// 신(辛) day master is still Round-2 draft → day_master_image and life_hints
+// fail closed; the chart keeps the 7 approved chapters (fewer, never broken).
 const sel1990 = selectNatalChapters(f1990);
 assert.equal(sel1990.chapter_count, sel1990.chapters.length);
 assert.deepEqual(sel1990.chapters.map((c) => c.chapter_id), [
-  'overview', 'day_master_image', 'seasonal_root', 'ten_god_structure', 'element_balance',
-  'life_hints', 'hour_rhythm', 'branch_harmony', 'closing',
-], '1990 chart selects exactly the expected chapters in domain order');
+  'overview', 'seasonal_root', 'ten_god_structure', 'element_balance',
+  'hour_rhythm', 'branch_harmony', 'closing',
+], '1990 chart selects exactly the approved chapters in domain order');
+assert.ok(sel1990.chapters.every((c) => c.review_status === 'approved'), 'only approved chapters render');
+assert.ok(!sel1990.chapters.some((c) => c.chapter_id === 'day_master_image'), 'draft day-master image fails closed');
+assert.ok(!sel1990.chapters.some((c) => c.chapter_id === 'life_hints'), 'draft life-hints variant fails closed');
 const selAgain = selectNatalChapters(extractNatalFeatures(calculateNatalChart(birth())));
 assert.deepEqual(selAgain, sel1990, 'selection is deterministic across recomputation');
 
@@ -122,17 +131,31 @@ assert.ok(!idsUnknown.includes('hour_rhythm'), 'unknown-time chart omits the hou
 assert.equal(selUnknown.chapters.find((c) => c.chapter_id === 'day_master_image').matched, '계');
 assert.equal(selUnknown.chapters.find((c) => c.chapter_id === 'missing_element').matched, '화');
 
-// --- Clash + repeated ten-god features (2000-11-20 23:30 → 庚辰 丁亥 壬午 庚子) ---
+// --- Review gate, positive path (2000-11-20 23:30 → 庚辰 丁亥 壬午 庚子) ---
 const chart2000 = calculateNatalChart(birth({ date: '2000-11-20', time: '23:30' }));
+const f2000 = extractNatalFeatures(chart2000);
+assert.equal(f2000.natal_clash_key, '자오'); // Round-2 draft pair
+assert.equal(f2000.repeated_ten_god, '편인'); // Round-2 draft variant
 const sel2000 = buildNatalChapters(chart2000);
 const ids2000 = sel2000.chapters.map((c) => c.chapter_id);
-assert.ok(ids2000.includes('branch_clash'), 'clash chart includes clash chapter');
-assert.equal(sel2000.chapters.find((c) => c.chapter_id === 'branch_clash').matched, '자오');
-assert.ok(ids2000.includes('repeated_ten_god'), 'repeated-ten-god chart includes repetition chapter');
-assert.equal(sel2000.chapters.find((c) => c.chapter_id === 'repeated_ten_god').matched, '편인'); // 庚 year + 庚 hour vs 壬 day
+assert.ok(!ids2000.includes('branch_clash'), 'draft clash variant (자오) fails closed');
+assert.ok(!ids2000.includes('repeated_ten_god'), 'draft repeated ten-god variant (편인) fails closed');
 assert.ok(ids2000.includes('missing_element'), 'chart missing 목 includes missing-element chapter');
+assert.equal(sel2000.chapters.find((c) => c.chapter_id === 'missing_element').matched, '목');
+assert.ok(ids2000.includes('day_master_image'), '임 day master is approved and renders');
 assert.ok(!ids2000.includes('branch_harmony'), 'no harmony chapter without harmony');
 assert.ok(!ids2000.includes('dominant_skew'), 'dominant_count 3 does not trigger skew chapter');
+assert.ok(!ids2000.includes('ten_god_structure'), 'draft month-stem variant (정재) fails closed');
+
+// --- Review gate, positive path (1986-08-10 11:30 → 丙 day master, 인신 clash, 화국 triad) ---
+const chart1986 = calculateNatalChart(birth({ date: '1986-08-10', time: '11:30' }));
+const sel1986 = buildNatalChapters(chart1986);
+assert.ok(sel1986.chapters.some((c) => c.chapter_id === 'day_master_image' && c.matched === '병'), 'approved 병 day master renders');
+assert.ok(sel1986.chapters.some((c) => c.chapter_id === 'branch_clash' && c.matched === '인신'), 'approved 인신 clash renders');
+assert.ok(sel1986.chapters.some((c) => c.chapter_id === 'three_harmony' && c.matched === '화국'), 'approved 화국 triad renders');
+assert.ok(sel1986.chapters.some((c) => c.chapter_id === 'repeated_ten_god' && c.matched === '비견'), 'approved repeated 비견 renders');
+assert.ok(sel1986.chapters.some((c) => c.chapter_id === 'dominant_skew' && c.matched === '화'), 'approved dominant 화 skew renders');
+assert.ok(sel1986.chapters.some((c) => c.chapter_id === 'missing_element' && c.matched === '수'), 'approved missing 수 renders');
 
 // --- Real dominant-skew chart (1993-08-17 05:00 → 癸酉 庚申 庚午 己卯: 금 4) ---
 const chart1993 = calculateNatalChart(birth({ date: '1993-08-17', time: '05:00' }));
@@ -155,32 +178,46 @@ const chartNotBoundary = calculateNatalChart(birth({ date: '1985-02-04', time: '
 assert.equal(extractNatalFeatures(chartNotBoundary).boundary_sensitive, false);
 assert.equal(buildNatalChapters(chartNotBoundary).chapters.some((c) => c.chapter_id === 'boundary_sensitive'), false, 'non-sensitive chart omits boundary chapter');
 
-// --- All 10 day masters produce a variant ---
+// --- All 10 day masters resolve a variant; only approved ones render ---
+// Round 1 approved: 갑 병 정 무 경 임 계 · Round 2 draft: 을 기 신 (fail closed)
 const STEM_BY_HANGUL = { 갑: '甲', 을: '乙', 병: '丙', 정: '丁', 무: '戊', 기: '己', 경: '庚', 신: '辛', 임: '壬', 계: '癸' };
+const APPROVED_DAY_MASTERS = new Set(['갑', '병', '정', '무', '경', '임', '계']);
 for (const hangul of DAY_MASTERS) {
   const synthetic = { pillars: [{ stem: '甲', branch: '子' }, { stem: '甲', branch: '子' }, { stem: STEM_BY_HANGUL[hangul], branch: '子' }, { stem: '乙', branch: '丑' }] };
   const features = extractNatalFeatures(synthetic);
   assert.equal(features.day_master, hangul);
   const selected = selectNatalChapters(features);
   const dm = selected.chapters.find((c) => c.chapter_id === 'day_master_image');
-  assert.equal(dm.matched, hangul, `${hangul} day master resolves its variant`);
+  if (APPROVED_DAY_MASTERS.has(hangul)) {
+    assert.equal(dm.matched, hangul, `${hangul} day master resolves and renders its variant`);
+  } else {
+    assert.equal(dm, undefined, `${hangul} day master is draft and fails closed`);
+    assert.ok(!selected.chapters.some((c) => c.chapter_id === 'life_hints'), `${hangul} life-hints variant is draft and fails closed`);
+  }
 }
 
-// --- Synthetic triad chart (申子辰 수국) ---
-const triadChart = { pillars: [
+// --- Synthetic triad charts: 화국 renders, 수국 fails closed (Round 2) ---
+const triadChartFire = { pillars: [
+  { stem: '丙', branch: '寅' }, { stem: '甲', branch: '午' }, { stem: '丙', branch: '戌' }, { stem: '丁', branch: '卯' },
+] };
+const selTriadFire = buildNatalChapters(triadChartFire);
+assert.ok(selTriadFire.chapters.some((c) => c.chapter_id === 'three_harmony' && c.matched === '화국'), '인오술 triad fires the approved three-harmony chapter');
+const triadChartDraft = { pillars: [
   { stem: '壬', branch: '申' }, { stem: '壬', branch: '子' }, { stem: '壬', branch: '辰' }, { stem: '丁', branch: '巳' },
 ] };
-const selTriad = buildNatalChapters(triadChart);
-assert.ok(selTriad.chapters.some((c) => c.chapter_id === 'three_harmony' && c.matched === '수국'), '신자진 triad fires three-harmony chapter');
+const selTriadDraft = buildNatalChapters(triadChartDraft);
+assert.ok(!selTriadDraft.chapters.some((c) => c.chapter_id === 'three_harmony'), '신자진 triad is draft and fails closed');
 
 // --- Guard rails ---
 assert.deepEqual(selectNatalChapters(null).chapters, [], 'null features yield no chapters');
-assert.deepEqual(selectNatalChapters({}).chapters, [], 'featureless input yields no chapters');
+assert.deepEqual(selectNatalChapters({}).chapters, [], 'featureless input yield no chapters');
 assert.equal(buildNatalChapters({ pillars: [{ stem: '?', branch: '?' }] }).chapter_count, 0, 'invalid day stem yields no chapters');
 assert.equal(buildNatalChapters(null).chapter_count, 0, 'null chart yields no chapters');
 
-// --- Chapter count bounds: 7 always-on + up to 9 conditional ---
-const counts = [sel1990, selUnknown, sel2000, sel1993, selBoundary, selTriad].map((s) => s.chapter_count);
-for (const count of counts) assert.ok(count >= 7 && count <= 16, `chapter count stays within 7..16 (got ${count})`);
+// --- Chapter count bounds: 5 static always-on + up to 9 conditional + 2 variant-gated ---
+// The review gate can drop draft variant chapters (day_master_image, life_hints),
+// so the floor is the 5 variant-less always-on chapters, never a broken render.
+const counts = [sel1990, selUnknown, sel2000, sel1986, sel1993, selBoundary, selTriadFire, selTriadDraft].map((s) => s.chapter_count);
+for (const count of counts) assert.ok(count >= 5 && count <= 16, `chapter count stays within 5..16 (got ${count})`);
 
 console.log('✓ natal-chapter-selection: schema + selection assertions passed');

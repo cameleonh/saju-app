@@ -187,6 +187,11 @@ function interpolate(template, features) {
 /**
  * Select the ordered, feature-conditional natal chapter list.
  * Deterministic: identical features always yield identical output.
+ *
+ * Review gate: a module renders only when its effective review_status is
+ * 'approved' — the variant-level status when present, else the chapter-level
+ * default. Draft modules (pending operator review) simply don't fire, so a
+ * chart can fail closed to fewer chapters but never to broken output.
  */
 export function selectNatalChapters(features) {
   if (!features || !features.day_master) return { version: NATAL_CHAPTER_SELECTION_VERSION, data_version: NATAL_CHAPTER_VERSION, day_master: null, chapter_count: 0, chapters: [] };
@@ -205,6 +210,7 @@ export function selectNatalChapters(features) {
       matched = variantKey;
     }
     if (!content) continue;
+    if ((content.review_status || chapter.review_status) !== 'approved') continue;
 
     chapters.push({
       chapter_id: chapter.chapter_id,
@@ -218,7 +224,7 @@ export function selectNatalChapters(features) {
       evidence: chapter.evidence,
       matched,
       tone: chapter.tone,
-      review_status: chapter.review_status,
+      review_status: 'approved',
     });
   }
 

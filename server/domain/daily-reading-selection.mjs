@@ -179,12 +179,14 @@ function selectPropTip(features, dayPillar) {
     }
   }
   const prop = DAILY_ELEMENT_PROPS[element];
+  const why = DAILY_PROP_WHY[rule];
   return {
     rule,
     element,
     items: prop ? prop.items.slice() : [],
     color_note: prop ? prop.color_note : null,
-    why: interpolate(DAILY_PROP_WHY[rule], { element, dominant_element: features?.dominant_element }),
+    why: interpolate(why?.text || '', { element, dominant_element: features?.dominant_element }),
+    review_status: prop?.review_status === 'approved' && why?.review_status === 'approved' ? 'approved' : 'draft',
   };
 }
 
@@ -345,7 +347,7 @@ export function selectDailyReading(features, dayPillar) {
       evidence: slot.evidence,
       matched: variantKey,
       tone: slot.tone,
-      review_status: slot.review_status,
+      review_status: variant.review_status || slot.review_status,
     });
   }
   sections.sort((a, b) => a.slot_index - b.slot_index);
@@ -379,9 +381,9 @@ export function selectDailyReading(features, dayPillar) {
     evidence,
     flow,
     sections,
-    prop_tip: { ...propTip, review_status: 'draft' },
+    prop_tip: { ...propTip },
     quest: questVariant
-      ? { label: DAILY_QUEST_SLOT.label, text: interpolate(questVariant, context), matched: tenGod, review_status: 'draft' }
+      ? { label: DAILY_QUEST_SLOT.label, text: interpolate(questVariant.text, context), matched: tenGod, review_status: questVariant.review_status || 'draft' }
       : null,
     time_note: timeVariant
       ? {
@@ -389,12 +391,12 @@ export function selectDailyReading(features, dayPillar) {
           day_branch_hangul: dayPillar.branch_hangul,
           join_window: joinWindow ? { branch: joinWindow.branch, hangul: joinWindow.hangul, label: joinWindow.label, start: joinWindow.start, end: joinWindow.end } : null,
           clash_window: clashWindow ? { branch: clashWindow.branch, hangul: clashWindow.hangul, label: clashWindow.label, start: clashWindow.start, end: clashWindow.end } : null,
-          text: interpolate(timeVariant, context),
-          review_status: 'draft',
+          text: interpolate(timeVariant.text, context),
+          review_status: timeVariant.review_status || 'draft',
         }
       : null,
     closing: closingVariant
-      ? { label: DAILY_CLOSING_SLOT.label, character: DAILY_CLOSING_SLOT.character, matched_flow: flowKey, text: interpolate(closingVariant, context), review_status: 'draft' }
+      ? { label: DAILY_CLOSING_SLOT.label, character: DAILY_CLOSING_SLOT.character, matched_flow: flowKey, text: interpolate(closingVariant.text, context), review_status: closingVariant.review_status || 'draft' }
       : null,
     policy: DAILY_READING_POLICY,
     unsupported_states: [

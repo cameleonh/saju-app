@@ -62,13 +62,16 @@ for (const slot of DAILY_SECTION_SLOTS) {
   assert.ok(Number.isInteger(slot.slot_index), `${label} has integer slot_index`);
   assert.ok(slot.tone && VALID_TONES.has(slot.tone), `${label} tone is known`);
   assert.ok(VALID_REVIEW.has(slot.review_status), `${label} review_status is known`);
-  assert.equal(slot.review_status, 'draft', `${label} is draft until operator review`);
   assert.ok(Array.isArray(slot.evidence) && slot.evidence.length > 0, `${label} has evidence array`);
   const domain = slot.variant_key === 'ten_god' ? TEN_GODS : ELEMENTS;
   assert.ok(slot.variant_key === 'ten_god' || slot.variant_key === 'day_branch_element', `${label} variant_key is a known axis`);
   for (const [key, variant] of Object.entries(slot.variants)) {
     moduleCount += 1;
     assert.ok(domain.has(key), `${label}/${key} is a valid ${slot.variant_key} value`);
+    // Effective status: variant-level status when present, else the slot default —
+    // every module must carry one (Round 1 operator review flipped 69/90 to approved).
+    assert.ok(variant.review_status === undefined || VALID_REVIEW.has(variant.review_status), `${label}/${key} variant review_status is known`);
+    assert.ok(VALID_REVIEW.has(variant.review_status || slot.review_status), `${label}/${key} carries an effective review_status`);
     assertPolicyClean(`${label}/${key}`, variant.lead, variant.detail, variant.practice);
   }
 }
@@ -76,11 +79,13 @@ assert.deepEqual(seenSections, new Set(['mood', 'work', 'relations', 'energy']),
 
 for (const [key, note] of Object.entries(DAILY_FLOW_NOTES.clash)) {
   assert.ok(CLASH_KEYS.has(key), `flow clash key ${key} is canonical`);
+  assert.ok(VALID_REVIEW.has(note.review_status), `flow/clash/${key} review_status is known`);
   assertPolicyClean(`flow/clash/${key}`, note.text);
   moduleCount += 1;
 }
 for (const [key, note] of Object.entries(DAILY_FLOW_NOTES.harmony)) {
   assert.ok(key === 'trio' || HARMONY_KEYS.has(key), `flow harmony key ${key} is canonical`);
+  assert.ok(VALID_REVIEW.has(note.review_status), `flow/harmony/${key} review_status is known`);
   assertPolicyClean(`flow/harmony/${key}`, note.text);
   moduleCount += 1;
 }
@@ -93,30 +98,38 @@ for (const [element, prop] of Object.entries(DAILY_ELEMENT_PROPS)) {
   assert.ok(ELEMENTS.has(element), `prop element ${element} is valid`);
   assert.ok(Array.isArray(prop.items) && prop.items.length === 2 && prop.items.every((item) => item.length > 2), `${element} prop carries two items`);
   assert.equal(typeof prop.color_note, 'string', `${element} prop has color note`);
+  assert.ok(VALID_REVIEW.has(prop.review_status), `prop/${element} review_status is known`);
   moduleCount += 1;
 }
 assert.equal(Object.keys(DAILY_PROP_WHY).length, 3, '3 prop why rules (missing/bridge/stem)');
-assert.ok(DAILY_PROP_WHY.missing.includes('{element}') && DAILY_PROP_WHY.bridge.includes('{element}') && DAILY_PROP_WHY.stem.includes('{element}'));
-assert.ok(DAILY_PROP_WHY.bridge.includes('{dominant_element}'));
+for (const why of Object.values(DAILY_PROP_WHY)) {
+  assert.ok(VALID_REVIEW.has(why.review_status), 'prop why review_status is known');
+  moduleCount += 1;
+}
+assert.ok(DAILY_PROP_WHY.missing.text.includes('{element}') && DAILY_PROP_WHY.bridge.text.includes('{element}') && DAILY_PROP_WHY.stem.text.includes('{element}'));
+assert.ok(DAILY_PROP_WHY.bridge.text.includes('{dominant_element}'));
 
-for (const [key, text] of Object.entries(DAILY_QUEST_SLOT.variants)) {
+for (const [key, variant] of Object.entries(DAILY_QUEST_SLOT.variants)) {
   assert.ok(TEN_GODS.has(key), `quest key ${key} is a valid ten god`);
-  assertPolicyClean(`quest/${key}`, text);
+  assert.ok(VALID_REVIEW.has(variant.review_status), `quest/${key} review_status is known`);
+  assertPolicyClean(`quest/${key}`, variant.text);
   moduleCount += 1;
 }
 
-for (const [key, text] of Object.entries(DAILY_TIME_NOTE_SLOT.variants)) {
+for (const [key, variant] of Object.entries(DAILY_TIME_NOTE_SLOT.variants)) {
   assert.ok(BRANCH_HANGUL_KEYS.has(key), `time-note key ${key} is a valid branch`);
-  assertPolicyClean(`time/${key}`, text);
-  const ranges = text.match(/\d{2}:\d{2}–\d{2}:\d{2}/g);
+  assert.ok(VALID_REVIEW.has(variant.review_status), `time/${key} review_status is known`);
+  assertPolicyClean(`time/${key}`, variant.text);
+  const ranges = variant.text.match(/\d{2}:\d{2}–\d{2}:\d{2}/g);
   assert.ok(ranges && ranges.length === 2, `time/${key} names both 육합 and 충 windows`);
   moduleCount += 1;
 }
 
-for (const [key, text] of Object.entries(DAILY_CLOSING_SLOT.variants)) {
+for (const [key, variant] of Object.entries(DAILY_CLOSING_SLOT.variants)) {
   assert.ok(FLOW_KEYS.has(key), `closing key ${key} is a known flow key`);
-  assertPolicyClean(`closing/${key}`, text);
-  assert.ok(/[니라]\.$/.test(text), `closing/${key} keeps the 서생 반말 ending`);
+  assert.ok(VALID_REVIEW.has(variant.review_status), `closing/${key} review_status is known`);
+  assertPolicyClean(`closing/${key}`, variant.text);
+  assert.ok(/[니라]\.$/.test(variant.text), `closing/${key} keeps the 서생 반말 ending`);
   moduleCount += 1;
 }
 assert.equal(Object.keys(DAILY_CLOSING_SLOT.variants).length, 10, 'closing covers all 10 flow keys');

@@ -3,8 +3,13 @@
 // Structure: 근거 스트립(computed) → 흐름 노트 → 4 sections (오늘의 결 · 일의 흐름 ·
 // 사람 사이 · 몸의 리듬) → 오행 소품 tip → 오늘의 퀘스트 → 시간대 노트 → 서생의 한 마디.
 // Same seed conventions as natal-chapters.mjs: module text + tone + review_status.
-// All prose is newly written for the 서생 (scholar) voice → review_status: 'draft'
-// until operator review approves. No grading words, no scores, no luck levels —
+// review_status lives on the module — the variant object when the slot has
+// variants — with the slot-level value as the fallback default. Round 1
+// operator review (2026-08-17 render pack) approved 69/90 modules; the 21
+// uncovered variants (energy 화·금, most flow pairs, props 금, 8 time branches,
+// closing unknown) stay 'draft' until Round 2 (see
+// %TEMP%\saju-review-pack\COVERAGE.md).
+// No grading words, no scores, no luck levels —
 // 흐름/결/톤 language only (product principle). Placeholders {key} are resolved by
 // server/domain/daily-reading-selection.mjs against the daily reading context.
 // Selection axes use ONLY engine-derived facts: day pillar (KR-CIVIL natal engine),
@@ -74,7 +79,7 @@ export const DAILY_SECTION_SLOTS = Object.freeze([
       practice: '오늘 배우거나 받은 것 가운데 하나를 제 말로 한 줄 요약해 적어 보세요.',
     },
   },
-  tone: 'natural', review_status: 'draft',
+  tone: 'natural', review_status: 'approved', // Round 1 — all 10 ten-god variants reviewed
 },
 
 {
@@ -133,7 +138,7 @@ export const DAILY_SECTION_SLOTS = Object.freeze([
       practice: '오늘 배운 것을 세 문장 안으로 요약해 제 것으로 만드세요.',
     },
   },
-  tone: 'natural', review_status: 'draft',
+  tone: 'natural', review_status: 'approved', // Round 1 — all 10 ten-god variants reviewed
 },
 
 {
@@ -192,7 +197,7 @@ export const DAILY_SECTION_SLOTS = Object.freeze([
       practice: '오늘 도움받은 사람에게 감사 인사를 구체적으로 전하세요.',
     },
   },
-  tone: 'natural', review_status: 'draft',
+  tone: 'natural', review_status: 'approved', // Round 1 — all 10 ten-god variants reviewed
 },
 
 {
@@ -204,29 +209,34 @@ export const DAILY_SECTION_SLOTS = Object.freeze([
       lead: '뻗는 기운의 날 — 아침이 가장 씩씩합니다.',
       detail: '오늘 일지 {day_branch_hangul}({day_branch_char})에서 목(木) 기운이 흐릅니다. 근육과 힘줄을 쓰기 좋은 날이니 아침과 오전에 몸 쓰는 일을 배치하세요. 오래 앉아 있으면 기운이 뭉치니, 자주 일어나 허리와 어깨를 풀어 주시지요.',
       practice: '아침에 몸 풀기 다섯 분, 저녁에는 쓴 만큼 풀어 주세요.',
+      review_status: 'approved', // Round 1
     },
     '화': {
       lead: '타오르는 기운의 날 — 열과 물을 함께 챙기세요.',
       detail: '오늘 일지 {day_branch_hangul}({day_branch_char})에서 화(火) 기운이 흐릅니다. 낮동안 열이 올라 활동적이지만 눈과 입이 마르기 쉽습니다. 찾은 것보다 미지근한 물을 곁에 두고, 저녁에는 열을 내리는 시간을 가지시지요.',
       practice: '물을 자주 마시고, 저녁에는 온기를 내려 몸을 편히 쉬게 하세요.',
+      review_status: 'draft', // Round 2
     },
     '토': {
       lead: '중심이 잡히는 기운의 날 — 식사 리듬이 곧 리듬입니다.',
       detail: '오늘 일지 {day_branch_hangul}({day_branch_char})에서 토(土) 기운이 흐릅니다. 위장과 소화가 하루의 중심이니, 밥시간을 지키는 것이 가장 잘 맞는 보양입니다. 과식보다 정해진 양, 간식보다 따뜻한 한 끼가 몸을 편하게 합니다.',
       practice: '세 끼 중 한 끼라도 제시간에 앉아서 드세요.',
+      review_status: 'approved', // Round 1
     },
     '금': {
       lead: '정리되는 기운의 날 — 호흡이 곧 리듬입니다.',
       detail: '오늘 일지 {day_branch_hangul}({day_branch_char})에서 금(金) 기운이 흐릅니다. 호흡기와 피부가 하루의 결을 정하니, 먼지와 건조를 조심하고 고른 호흡을 붙이세요. 저녁의 정돈된 마무리가 내일 아침을 가볍게 합니다.',
       practice: '하루 한 번, 들숨과 날숨을 각각 네 번 세어 보세요.',
+      review_status: 'draft', // Round 2
     },
     '수': {
       lead: '깊이 흐르는 기운의 날 — 잠이 가장 좋은 약입니다.',
       detail: '오늘 일지 {day_branch_hangul}({day_branch_char})에서 수(水) 기운이 흐릅니다. 콩팥과 수분, 잠이 하루의 축이니 밤을 새기보다 일찍 눕는 하루가 알맞습니다. 몸이 차게 두지 말고 따뜻한 물로 하루를 닫으시지요.',
       practice: '오늘은 평소보다 삼십 분 일찍 잠자리에 들어 보세요.',
+      review_status: 'approved', // Round 1
     },
   },
-  tone: 'natural', review_status: 'draft',
+  tone: 'natural', review_status: 'draft', // default — variant-level Round 1/2 statuses above
 },
 
 ]);
@@ -239,81 +249,96 @@ export const DAILY_FLOW_NOTES = Object.freeze({
     '자오': {
       label: '충이 열리는 결',
       text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국 {clash_positions}의 {clash_partner_hangul}({clash_partner_char})지와 충(沖)을 이룹니다. 물과 불이 마주 하는 결이라 감정과 속도의 진폭이 커기 쉬우니, 뜨거워진 안건은 식을 때까지 붙들어 두시지요.',
+      review_status: 'draft', // Round 2
     },
     '축미': {
       label: '충이 열리는 결',
       text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국 {clash_positions}의 {clash_partner_hangul}({clash_partner_char})지와 충(沖)을 이룹니다. 두 흙이 서로 미는 결이라 고집과 고집이 맞서기 쉬우니, 누가 맞느냐보다 무엇이 남느냐를 적어 보시지요.',
+      review_status: 'draft', // Round 2
     },
     '인신': {
       label: '충이 열리는 결',
       text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국 {clash_positions}의 {clash_partner_hangul}({clash_partner_char})지와 충(沖)을 이룹니다. 시작과 정리가 함께 몰리는 결이니, 새 일을 연다면 정리할 일도 하나 함께 정해 두시지요.',
+      review_status: 'draft', // Round 2
     },
     '묘유': {
       label: '충이 열리는 결',
       text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국 {clash_positions}의 {clash_partner_hangul}({clash_partner_char})지와 충(沖)을 이룹니다. 부드러운 것과 날 선 것이 스치는 결이라 말과 감정이 스치기 쉬우니, 예민한 대화는 낮 시간으로 옮기시지요.',
+      review_status: 'draft', // Round 2
     },
     '진술': {
       label: '충이 열리는 결',
       text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국 {clash_positions}의 {clash_partner_hangul}({clash_partner_char})지와 충(沖)을 이룹니다. 쌓아 둔 것이 흔들리는 결이니, 중요한 기록과 약속은 한 번 더 확인하시지요.',
+      review_status: 'draft', // Round 2
     },
     '사해': {
       label: '충이 열리는 결',
       text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국 {clash_positions}의 {clash_partner_hangul}({clash_partner_char})지와 충(沖)을 이룹니다. 계획과 현실이 엇갈리기 쉬운 결이니, 일정에는 여유를 한 뼘 남겨 두시지요.',
+      review_status: 'approved', // Round 1
     },
   }),
   harmony: Object.freeze({
     '자축': {
       label: '합이 이어지는 결',
       text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국 {harmony_positions}의 {harmony_partner_hangul}({harmony_partner_char})지와 육합(六合)을 이룹니다. 물과 흙이 어우러지듯 차분히 이어지는 결이니, 미뤄 둔 대화를 꺼내기 알맞습니다.',
+      review_status: 'approved', // Round 1
     },
     '인해': {
       label: '합이 이어지는 결',
       text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국 {harmony_positions}의 {harmony_partner_hangul}({harmony_partner_char})지와 육합(六合)을 이룹니다. 나무에 물을 대듯 배움이 인연을 데려오는 결이니, 물어보고 싶었던 것을 묻기 좋습니다.',
+      review_status: 'approved', // Round 1
     },
     '묘술': {
       label: '합이 이어지는 결',
       text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국 {harmony_positions}의 {harmony_partner_hangul}({harmony_partner_char})지와 육합(六合)을 이룹니다. 정원의 나무와 담이 어우러지듯 맡은 자리가 편안해지는 결이니, 오래 묵힌 관계를 가꾸기 알맞습니다.',
+      review_status: 'draft', // Round 2
     },
     '진유': {
       label: '합이 이어지는 결',
       text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국 {harmony_positions}의 {harmony_partner_hangul}({harmony_partner_char})지와 육합(六合)을 이룹니다. 흙 속 쇠를 제련하듯 다듬을수록 매끈해지는 결이니, 마무리와 매무새에 공을 들이기 좋습니다.',
+      review_status: 'draft', // Round 2
     },
     '사신': {
       label: '합이 이어지는 결',
       text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국 {harmony_positions}의 {harmony_partner_hangul}({harmony_partner_char})지와 육합(六合)을 이룹니다. 불에 쇠를 담금질하듯 서로의 쓸모가 맞물리는 결이니, 함께 하는 일과 거래가 잘 맞물립니다.',
+      review_status: 'draft', // Round 2
     },
     '오미': {
       label: '합이 이어지는 결',
       text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국 {harmony_positions}의 {harmony_partner_hangul}({harmony_partner_char})지와 육합(六合)을 이룹니다. 한낮과 이른 오후가 나란히 앉듯 정이 잘 통하는 결이니, 함께 하는 식사가 인연을 묶어 줍니다.',
+      review_status: 'draft', // Round 2
     },
     'trio': {
       label: '삼합으로 흐르는 결',
       text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국 {harmony_positions}의 지지와 삼합({trio_name})을 이룹니다. 한 방향으로 깊이 흐르는 결이니, 그 국(局)의 기운인 {trio_element}에 맞는 일을 오늘 안에 하나 골라 두시지요.',
+      review_status: 'approved', // Round 1
     },
   }),
   both: Object.freeze({
     label: '충과 합이 함께 열리는 결',
     text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국과 충(沖)과 합(合)을 함께 이룹니다. 흐름이 엇갈리는 결이니, 잡히는 일부터 붙들고 놓을 일은 이름을 적어 두시지요.',
+    review_status: 'approved', // Round 1
   }),
   friction: Object.freeze({
     label: '잔금이 가는 결',
     text: '오늘 일지 {day_branch_hangul}({day_branch_char}) — 원국과 {friction_list} 관계를 이룹니다. 큰 부딪힘은 아니어도 잔금이 가는 결이니, 예의와 매무새를 단단히 하시지요.',
+    review_status: 'approved', // Round 1
   }),
 });
 
 // ── 오행 소품 (고정 표 — 결정론. 점수·효능 보장 없이 '곁에 두고 살펴보는' 소품) ──
 export const DAILY_ELEMENT_PROPS = Object.freeze({
-  '목': Object.freeze({ items: Object.freeze(['푸른 잎의 화분 한 분', '나무결 살린 펜']), color_note: '청록' }),
-  '화': Object.freeze({ items: Object.freeze(['촛불 한 자루', '따뜻한 독서등']), color_note: '붉은 기' }),
-  '토': Object.freeze({ items: Object.freeze(['도자기 컵', '흙색 깔개']), color_note: '황토' }),
-  '금': Object.freeze({ items: Object.freeze(['금속 문방소품', '흰 꽃 한 송이']), color_note: '흰 기' }),
-  '수': Object.freeze({ items: Object.freeze(['맑은 유리 물병', '짙은 남색 필통']), color_note: '짙은 남색' }),
+  '목': Object.freeze({ items: Object.freeze(['푸른 잎의 화분 한 분', '나무결 살린 펜']), color_note: '청록', review_status: 'approved' }), // Round 1
+  '화': Object.freeze({ items: Object.freeze(['촛불 한 자루', '따뜻한 독서등']), color_note: '붉은 기', review_status: 'approved' }), // Round 1
+  '토': Object.freeze({ items: Object.freeze(['도자기 컵', '흙색 깔개']), color_note: '황토', review_status: 'approved' }), // Round 1
+  '금': Object.freeze({ items: Object.freeze(['금속 문방소품', '흰 꽃 한 송이']), color_note: '흰 기', review_status: 'draft' }), // Round 2
+  '수': Object.freeze({ items: Object.freeze(['맑은 유리 물병', '짙은 남색 필통']), color_note: '짙은 남색', review_status: 'approved' }), // Round 1
 });
 
 export const DAILY_PROP_WHY = Object.freeze({
-  missing: '오늘 드러난 기운 가운데 명식에 드러나지 않았던 {element} 기운을 곁에 두고 하루의 균형을 살펴보기 위한 소품입니다',
-  bridge: '명식의 중심인 {dominant_element} 기운이 생해 주는 {element} 기운을 곁에 두고 흐름을 살펴보기 위한 소품입니다',
-  stem: '오늘 천간의 {element} 기운을 그대로 곁에 두고 하루의 결을 가늠해 보기 위한 소품입니다',
+  missing: { text: '오늘 드러난 기운 가운데 명식에 드러나지 않았던 {element} 기운을 곁에 두고 하루의 균형을 살펴보기 위한 소품입니다', review_status: 'approved' }, // Round 1
+  bridge: { text: '명식의 중심인 {dominant_element} 기운이 생해 주는 {element} 기운을 곁에 두고 흐름을 살펴보기 위한 소품입니다', review_status: 'approved' }, // Round 1
+  stem: { text: '오늘 천간의 {element} 기운을 그대로 곁에 두고 하루의 결을 가늠해 보기 위한 소품입니다', review_status: 'approved' }, // Round 1
 });
 
 // ── 오늘의 퀘스트 (ten-god별 행동 문장 — 사실의 재조합) ────────────────────
@@ -322,16 +347,16 @@ export const DAILY_QUEST_SLOT = Object.freeze({
   variant_key: 'ten_god',
   evidence: ['daily.dayPillar', 'daily.tenGodToDayMaster', 'daily.branchElement'],
   variants: Object.freeze({
-    '비견': '결정을 미뤄 둔 일 하나를 오늘 내 판단으로 점찍고, 첫 행동까지 옮겨 보기.',
-    '겁재': '오늘의 씀씀이와 나눌 것을 한 줄로 적어 두기.',
-    '식신': '아홉 할에서 멈춰 둔 일 하나를 끝까지 끝내기.',
-    '상관': '지적하고 싶은 것 하나를 제안의 문장으로 고쳐 말해 보기.',
-    '편재': '오늘 새로 연 문 하나에 이름과 다음 약속 남기기.',
-    '정재': '밀린 정리·정산·답장 가운데 하나를 오늘 안에 끝내기.',
-    '편관': '가장 무거운 일부터 스물다섯 분 붙들어 보기.',
-    '정관': '서류·보고·신청 하나를 오전에 끝내기.',
-    '편인': '고민을 종이에 펼쳐 적고 한 단락으로 좁히기.',
-    '정인': '오늘 배운 것을 세 문장으로 요약해 적기.',
+    '비견': { text: '결정을 미뤄 둔 일 하나를 오늘 내 판단으로 점찍고, 첫 행동까지 옮겨 보기.', review_status: 'approved' }, // Round 1
+    '겁재': { text: '오늘의 씀씀이와 나눌 것을 한 줄로 적어 두기.', review_status: 'approved' }, // Round 1
+    '식신': { text: '아홉 할에서 멈춰 둔 일 하나를 끝까지 끝내기.', review_status: 'approved' }, // Round 1
+    '상관': { text: '지적하고 싶은 것 하나를 제안의 문장으로 고쳐 말해 보기.', review_status: 'approved' }, // Round 1
+    '편재': { text: '오늘 새로 연 문 하나에 이름과 다음 약속 남기기.', review_status: 'approved' }, // Round 1
+    '정재': { text: '밀린 정리·정산·답장 가운데 하나를 오늘 안에 끝내기.', review_status: 'approved' }, // Round 1
+    '편관': { text: '가장 무거운 일부터 스물다섯 분 붙들어 보기.', review_status: 'approved' }, // Round 1
+    '정관': { text: '서류·보고·신청 하나를 오전에 끝내기.', review_status: 'approved' }, // Round 1
+    '편인': { text: '고민을 종이에 펼쳐 적고 한 단락으로 좁히기.', review_status: 'approved' }, // Round 1
+    '정인': { text: '오늘 배운 것을 세 문장으로 요약해 적기.', review_status: 'approved' }, // Round 1
   }),
 });
 
@@ -343,18 +368,18 @@ export const DAILY_TIME_NOTE_SLOT = Object.freeze({
   variant_key: 'day_branch_hangul',
   evidence: ['daily.dayPillar.branch', 'daily.hourWindows'],
   variants: Object.freeze({
-    '자': '오늘 일지 자(子)의 짝은 축(丑) — 축시(01:00–02:59)에 인연과 일이 이어지기 쉬우니 붙들어 둘 이야기를 그 시간에 나누세요. 마주치는 결은 오시(11:00–12:59) — 오(午)와 충하니 이 시간의 큰 결정은 하루 뒤로 미뤄도 좋습니다.',
-    '축': '오늘 일지 축(丑)의 짝은 자(子) — 자시(23:00–00:59)에 마음이 고요히 이어지니 하루를 정리하며 닫기 좋습니다. 마주치는 결은 미시(13:00–14:59) — 미(未)와 충하니 오후의 약속은 여유를 두어 여기세요.',
-    '인': '오늘 일지 인(寅)의 짝은 해(亥) — 해시(21:00–22:59)에 배움과 대화가 깊어지니 물어보고 싶은 것을 그 시간에 꺼내세요. 마주치는 결은 신시(15:00–16:59) — 신(申)과 충하니 늦은 오후의 결정은 가볍게 시작하세요.',
-    '묘': '오늘 일지 묘(卯)의 짝은 술(戌) — 술시(19:00–20:59)에 정이 편안히 이어지니 함께하는 저녁이 인연을 묶습니다. 마주치는 결은 유시(17:00–18:59) — 유(酉)와 충하니 해 질 무렵의 날 선 대화는 다음으로 미루세요.',
-    '진': '오늘 일지 진(辰)의 짝은 유(酉) — 유시(17:00–18:59)에 다듬고 매무새 짜는 일이 잘 되니 마무리할 일을 그 시간에 두세요. 마주치는 결은 술시(19:00–20:59) — 술(戌)과 충하니 저녁의 큰 약속은 이른 시간으로 옮기시지요.',
-    '사': '오늘 일지 사(巳)의 짝은 신(申) — 신시(15:00–16:59)에 서로의 쓸모가 맞물리니 함께 하는 일을 그 시간에 붙이세요. 마주치는 결은 해시(21:00–22:59) — 해(亥)와 충하니 밤의 결정은 낮의 판단에 비추어 보세요.',
-    '오': '오늘 일지 오(午)의 짝은 미(未) — 미시(13:00–14:59)에 정이 잘 통하니 식사와 대화를 그 시간에 나누세요. 마주치는 결은 자시(23:00–00:59) — 자(子)와 충하니 늦은 밤의 서두름은 하루를 거슬러 봅니다.',
-    '미': '오늘 일지 미(未)의 짝은 오(午) — 오시(11:00–12:59)에 활기가 이어지니 만남과 협의를 낮에 두세요. 마주치는 결은 축시(01:00–02:59) — 축(丑)과 충하니 새벽의 생각은 적어 두고 아침에 판단하시지요.',
-    '신': '오늘 일지 신(申)의 짝은 사(巳) — 사시(09:00–10:59)에 일이 맞물려 잘 풀리니 협의와 거래를 오전에 두세요. 마주치는 결은 인시(03:00–04:59) — 인(寅)과 충하니 동트기 전의 결심은 몸이 깬 뒤에 점검하시지요.',
-    '유': '오늘 일지 유(酉)의 짝은 진(辰) — 진시(07:00–08:59)에 차분히 다듬는 기운이 들어오니 아침 정리와 준비가 잘 됩니다. 마주치는 결은 묘시(05:00–06:59) — 묘(卯)와 충하니 이른 아침의 서두름은 한 호흡 늦추세요.',
-    '술': '오늘 일지 술(戌)의 짝은 묘(卯) — 묘시(05:00–06:59)에 부드러운 기운이 문을 여니 아침 인사와 약속 확인이 잘 풀립니다. 마주치는 결은 진시(07:00–08:59) — 진(辰)과 충하니 출근길의 결정은 여유를 두고 하시지요.',
-    '해': '오늘 일지 해(亥)의 짝은 인(寅) — 인시(03:00–04:59)에 씨앗 심는 기운이 오르니 새로 시작할 일의 첫 줄을 그 시간에 적어 보세요. 마주치는 결은 사시(09:00–10:59) — 사(巳)와 충하니 오전의 안건은 점심 무렵 다시 훑으시지요.',
+    '자': { text: '오늘 일지 자(子)의 짝은 축(丑) — 축시(01:00–02:59)에 인연과 일이 이어지기 쉬우니 붙들어 둘 이야기를 그 시간에 나누세요. 마주치는 결은 오시(11:00–12:59) — 오(午)와 충하니 이 시간의 큰 결정은 하루 뒤로 미뤄도 좋습니다.', review_status: 'approved' }, // Round 1
+    '축': { text: '오늘 일지 축(丑)의 짝은 자(子) — 자시(23:00–00:59)에 마음이 고요히 이어지니 하루를 정리하며 닫기 좋습니다. 마주치는 결은 미시(13:00–14:59) — 미(未)와 충하니 오후의 약속은 여유를 두어 여기세요.', review_status: 'approved' }, // Round 1
+    '인': { text: '오늘 일지 인(寅)의 짝은 해(亥) — 해시(21:00–22:59)에 배움과 대화가 깊어지니 물어보고 싶은 것을 그 시간에 꺼내세요. 마주치는 결은 신시(15:00–16:59) — 신(申)과 충하니 늦은 오후의 결정은 가볍게 시작하세요.', review_status: 'approved' }, // Round 1
+    '묘': { text: '오늘 일지 묘(卯)의 짝은 술(戌) — 술시(19:00–20:59)에 정이 편안히 이어지니 함께하는 저녁이 인연을 묶습니다. 마주치는 결은 유시(17:00–18:59) — 유(酉)와 충하니 해 질 무렵의 날 선 대화는 다음으로 미루세요.', review_status: 'draft' }, // Round 2
+    '진': { text: '오늘 일지 진(辰)의 짝은 유(酉) — 유시(17:00–18:59)에 다듬고 매무새 짜는 일이 잘 되니 마무리할 일을 그 시간에 두세요. 마주치는 결은 술시(19:00–20:59) — 술(戌)과 충하니 저녁의 큰 약속은 이른 시간으로 옮기시지요.', review_status: 'draft' }, // Round 2
+    '사': { text: '오늘 일지 사(巳)의 짝은 신(申) — 신시(15:00–16:59)에 서로의 쓸모가 맞물리니 함께 하는 일을 그 시간에 붙이세요. 마주치는 결은 해시(21:00–22:59) — 해(亥)와 충하니 밤의 결정은 낮의 판단에 비추어 보세요.', review_status: 'draft' }, // Round 2
+    '오': { text: '오늘 일지 오(午)의 짝은 미(未) — 미시(13:00–14:59)에 정이 잘 통하니 식사와 대화를 그 시간에 나누세요. 마주치는 결은 자시(23:00–00:59) — 자(子)와 충하니 늦은 밤의 서두름은 하루를 거슬러 봅니다.', review_status: 'draft' }, // Round 2
+    '미': { text: '오늘 일지 미(未)의 짝은 오(午) — 오시(11:00–12:59)에 활기가 이어지니 만남과 협의를 낮에 두세요. 마주치는 결은 축시(01:00–02:59) — 축(丑)과 충하니 새벽의 생각은 적어 두고 아침에 판단하시지요.', review_status: 'draft' }, // Round 2
+    '신': { text: '오늘 일지 신(申)의 짝은 사(巳) — 사시(09:00–10:59)에 일이 맞물려 잘 풀리니 협의와 거래를 오전에 두세요. 마주치는 결은 인시(03:00–04:59) — 인(寅)과 충하니 동트기 전의 결심은 몸이 깬 뒤에 점검하시지요.', review_status: 'draft' }, // Round 2
+    '유': { text: '오늘 일지 유(酉)의 짝은 진(辰) — 진시(07:00–08:59)에 차분히 다듬는 기운이 들어오니 아침 정리와 준비가 잘 됩니다. 마주치는 결은 묘시(05:00–06:59) — 묘(卯)와 충하니 이른 아침의 서두름은 한 호흡 늦추세요.', review_status: 'draft' }, // Round 2
+    '술': { text: '오늘 일지 술(戌)의 짝은 묘(卯) — 묘시(05:00–06:59)에 부드러운 기운이 문을 여니 아침 인사와 약속 확인이 잘 풀립니다. 마주치는 결은 진시(07:00–08:59) — 진(辰)과 충하니 출근길의 결정은 여유를 두고 하시지요.', review_status: 'draft' }, // Round 2
+    '해': { text: '오늘 일지 해(亥)의 짝은 인(寅) — 인시(03:00–04:59)에 씨앗 심는 기운이 오르니 새로 시작할 일의 첫 줄을 그 시간에 적어 보세요. 마주치는 결은 사시(09:00–10:59) — 사(巳)와 충하니 오전의 안건은 점심 무렵 다시 훑으시지요.', review_status: 'approved' }, // Round 1
   }),
 });
 
@@ -366,15 +391,15 @@ export const DAILY_CLOSING_SLOT = Object.freeze({
   variant_key: 'flow_key',
   evidence: ['daily.dayPillar', 'daily.branchRelationsToNatal', 'daily.tenGodToDayMaster'],
   variants: Object.freeze({
-    'rough': '{day_master}일간이 오늘 {day_pillar_text} 일진의 길에서 부딪히는 기운을 만났음이니. 바람 부는 날에는 돛을 반만 걸고 노를 저어 가는 것이 도리니라.',
-    'smooth': '{day_master}일간이 오늘 {day_pillar_text} 일진과 손을 잡았음이니. 묵혀 둔 씨앗 하나를 오늘 밭에 심어 보니라.',
-    'mixed': '{day_master}일간이 오늘 {day_pillar_text} 일진에서 엇갈리는 기운을 지나감이니. 붙들 것과 놓을 것을 이름을 적어 가르는 것이 오늘의 공부니라.',
-    'friction': '{day_master}일간이 오늘 {day_pillar_text} 일진에서 잔금 가는 기운을 만났음이니. 큰 붓질보다 매무새를 다시는 날로 삼으니라.',
-    'group:resource': '{day_master}일간에게 오늘 드러난 {day_pillar_text} 일진이 배움의 물을 대어 줌이니. 받은 것을 붓끝으로 옮겨 적어 두니라.',
-    'group:expression': '{day_master}일간에게 오늘 드러난 {day_pillar_text} 일진이 붓끝을 가볍게 함이니. 만들고 싶던 것을 말보다 먼저 손대어 보니라.',
-    'group:wealth': '{day_master}일간에게 오늘 드러난 {day_pillar_text} 일진이 다스릴 일을 늘려 줌이니. 장부를 가늠하고 씀씀이를 미리 적어 두니라.',
-    'group:power': '{day_master}일간에게 오늘 드러난 {day_pillar_text} 일진이 책임의 짐을 얹힘이니. 이름 걸은 일부터 수습해 나아가니라.',
-    'group:self': '{day_master}일간에게 오늘 드러난 {day_pillar_text} 일진이 제 목소리를 키워 줌이니. 뜻은 크게 세우되 말은 아껴 두니라.',
-    'unknown': '{day_master}일간이 오늘 {day_pillar_text} 일진의 자리를 천천히 읽어 가니라. 억지로 뜻을 붙이지 않는 것이 이 서생의 버릇이니라.',
+    'rough': { text: '{day_master}일간이 오늘 {day_pillar_text} 일진의 길에서 부딪히는 기운을 만났음이니. 바람 부는 날에는 돛을 반만 걸고 노를 저어 가는 것이 도리니라.', review_status: 'approved' }, // Round 1
+    'smooth': { text: '{day_master}일간이 오늘 {day_pillar_text} 일진과 손을 잡았음이니. 묵혀 둔 씨앗 하나를 오늘 밭에 심어 보니라.', review_status: 'approved' }, // Round 1
+    'mixed': { text: '{day_master}일간이 오늘 {day_pillar_text} 일진에서 엇갈리는 기운을 지나감이니. 붙들 것과 놓을 것을 이름을 적어 가르는 것이 오늘의 공부니라.', review_status: 'approved' }, // Round 1
+    'friction': { text: '{day_master}일간이 오늘 {day_pillar_text} 일진에서 잔금 가는 기운을 만났음이니. 큰 붓질보다 매무새를 다시는 날로 삼으니라.', review_status: 'approved' }, // Round 1
+    'group:resource': { text: '{day_master}일간에게 오늘 드러난 {day_pillar_text} 일진이 배움의 물을 대어 줌이니. 받은 것을 붓끝으로 옮겨 적어 두니라.', review_status: 'approved' }, // Round 1
+    'group:expression': { text: '{day_master}일간에게 오늘 드러난 {day_pillar_text} 일진이 붓끝을 가볍게 함이니. 만들고 싶던 것을 말보다 먼저 손대어 보니라.', review_status: 'approved' }, // Round 1
+    'group:wealth': { text: '{day_master}일간에게 오늘 드러난 {day_pillar_text} 일진이 다스릴 일을 늘려 줌이니. 장부를 가늠하고 씀씀이를 미리 적어 두니라.', review_status: 'approved' }, // Round 1
+    'group:power': { text: '{day_master}일간에게 오늘 드러난 {day_pillar_text} 일진이 책임의 짐을 얹힘이니. 이름 걸은 일부터 수습해 나아가니라.', review_status: 'approved' }, // Round 1
+    'group:self': { text: '{day_master}일간에게 오늘 드러난 {day_pillar_text} 일진이 제 목소리를 키워 줌이니. 뜻은 크게 세우되 말은 아껴 두니라.', review_status: 'approved' }, // Round 1
+    'unknown': { text: '{day_master}일간이 오늘 {day_pillar_text} 일진의 자리를 천천히 읽어 가니라. 억지로 뜻을 붙이지 않는 것이 이 서생의 버릇이니라.', review_status: 'draft' }, // Round 2
   }),
 });
