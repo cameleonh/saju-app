@@ -229,6 +229,32 @@
       .gate-blocked .gate-blocked-icon { width: 52px; height: 52px; margin: 0 auto 14px; display: grid; place-items: center; color: var(--vermilion-600); background: var(--vermilion-100); border-radius: 50%; }
       .gate-blocked .gate-blocked-icon svg { width: 26px; height: 26px; }
 
+      .ln-overlay { position: fixed; inset: 0; z-index: 38; display: grid; place-items: center; padding: 20px; background: rgba(10, 11, 24, 0.92); backdrop-filter: blur(5px); }
+      .loading-narrative { display: grid; justify-items: center; gap: 14px; text-align: center; }
+      .ln-panel-body { padding: 34px 18px; }
+      .ln-overlay-body { color: var(--ink-950); }
+      .ln-overlay-body .ln-line { color: var(--ink-950); font-family: var(--font-serif); font-size: 19px; letter-spacing: -0.02em; }
+      .ln-overlay-body .ln-label { color: var(--ink-600); font-size: 14px; }
+      .ln-overlay-body .ln-character { color: var(--ink-400); }
+      .ln-panel-body .ln-line { color: var(--ink-800); font-family: var(--font-serif); font-size: 17px; letter-spacing: -0.02em; }
+      .ln-panel-body .ln-label { color: var(--ink-600); font-size: 14px; }
+      .ln-panel-body .ln-character { color: var(--ink-400); }
+      .ln-scene { width: 150px; height: auto; }
+      .ln-moon { fill: var(--moon-300); transform-origin: 96px 34px; animation: ln-moon-glow 2.8s ease-in-out infinite; }
+      .ln-star { fill: var(--gold-500); animation: ln-twinkle 2.2s ease-in-out infinite; }
+      .ln-star-b { animation-delay: 0.7s; }
+      .ln-star-c { animation-delay: 1.3s; }
+      .ln-ink { fill: none; stroke: var(--gold-500); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 130; stroke-dashoffset: 130; animation: ln-ink-trace 2.6s ease-in-out infinite; }
+      .ln-ink-2 { animation-delay: 0.6s; opacity: 0.66; }
+      .ln-dots { display: flex; gap: 7px; }
+      .ln-dot { width: 7px; height: 7px; background: rgba(245, 229, 180, 0.32); border-radius: 50%; transition: background 240ms ease, transform 240ms ease; }
+      .ln-panel-body .ln-dot { background: rgba(48, 44, 58, 0.18); }
+      .ln-dot.active { background: var(--moon-300); transform: scale(1.25); }
+      .ln-panel-body .ln-dot.active { background: var(--gold-500); }
+      @keyframes ln-moon-glow { 0%, 100% { opacity: 0.86; } 50% { opacity: 1; } }
+      @keyframes ln-twinkle { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+      @keyframes ln-ink-trace { 0% { stroke-dashoffset: 130; } 55% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -130; } }
+
       .flow-header { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
       .flow-step { color: var(--ink-600); font-size: 15px; font-weight: 800; }
       .step-track { display: flex; align-items: center; gap: 8px; }
@@ -486,6 +512,7 @@
       import { annualSubmissionFields, privacySafeAnnualExport, renderAnnualReading, requestAnnualReading } from './annual/client.mjs';
       import { createAnnualStorage } from './annual/storage.mjs';
       import { readConsentState, persistConsent, evaluateServiceGate, evaluateCloudGate } from './web/consent-gate.mjs';
+      import { loadingNarrativeMarkup, LOADING_LINE_INTERVAL_MS } from './web/loading-narrative.mjs';
       import { calculateNatalChart } from './chart/natal-engine.mjs';
       import { calculateDaewoon } from './chart/daewoon-engine.mjs';
       import { analyzeDaewoonCycles } from './chart/daewoon-branch-analysis.mjs';
@@ -600,6 +627,8 @@
           openReadings: [],
           largeText: false,
           messages: [],
+          calcLoading: false,
+          loadingLineIndex: 0,
         };
 
         const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
@@ -1075,7 +1104,7 @@
           const bars = Object.entries(chart.elementCounts).map(([key, value]) => `<div><div class="bar-head"><span>${ELEMENT_LABELS[key]}</span><strong class="mono">${value}</strong></div><div class="bar-track"><div class="bar-fill ${({목:'wood',화:'fire',토:'earth',금:'metal',수:'water'})[key]}" style="width:${Math.max(8, (value / max) * 100)}%"></div></div></div>`).join('');
           const reading = readingMarkup(chart.reading);
           const messages = state.messages.map((message) => `<div class="bubble ${message.role === 'user' ? 'user' : ''}">${escapeHtml(message.text)}</div>`).join('');
-          const annualMarkup = renderAnnualReading(state.annual, { activeIndex: state.annualCardIndex, activeFact: state.annualFact, error: state.annualError });
+          const annualMarkup = renderAnnualReading(state.annual, { activeIndex: state.annualCardIndex, activeFact: state.annualFact, error: state.annualError, loading: state.calcLoading });
           const currentAge = chart.input.date ? new Date().getFullYear() - Number(chart.input.date.split('-')[0]) : 0;
           const daewoonCycleData = chart.daewoon ? (() => {
             const natalBranches = chart.pillars.map(p => p.branch).filter(b => b && b !== '?');
@@ -1105,10 +1134,32 @@
           return `<div class="gate-overlay"><section class="gate-dialog" role="dialog" aria-modal="true" aria-labelledby="cloud-gate-title"><header><div class="eyebrow">계정 저장 안내</div><h2 id="cloud-gate-title" tabindex="-1">클라우드 저장은 만 19세 이상만 사용할 수 있어요</h2><p class="gate-lead">명식을 계정 저장소에 암호화해 저장하려면 만 19세 이상 본인 확인이 필요합니다. 확인 기록은 이 기기에만 저장됩니다.</p></header><fieldset class="gate-item gate-age"><legend>[필수] 만 19세 이상 확인</legend><label><input type="radio" name="cloud-age19" value="over19" ${state.cloudGate.age19 === 'over19' ? 'checked' : ''}>만 19세 이상입니다</label><label><input type="radio" name="cloud-age19" value="under19" ${underAge ? 'checked' : ''}>만 19세 미만입니다</label></fieldset>${underAge ? '<div class="error" role="alert" style="margin-top:14px">만 19세 미만은 계정 저장을 사용할 수 없습니다. 이 기기에만 저장되는 풀이는 계속 이용할 수 있어요.</div>' : ''}<div class="gate-actions"><button class="button primary" data-action="cloud-gate-confirm" ${state.cloudGate.age19 === 'over19' ? '' : 'disabled'}>만 19세 이상, 로그인 계속 ${icon('arrow')}</button><button class="button ghost" data-action="cloud-gate-cancel">취소하고 돌아가기</button></div><p class="gate-note">동의하지 않으면 로그인 없이 이 기기에서만 풀이가 저장됩니다.</p></section></div>`;
         }
 
+        let loadingTimer = null;
+        function beginCalculationLoading() {
+          state.calcLoading = true;
+          state.loadingLineIndex = 0;
+          render();
+          window.clearInterval(loadingTimer);
+          loadingTimer = window.setInterval(() => {
+            if (!state.calcLoading) { window.clearInterval(loadingTimer); loadingTimer = null; return; }
+            state.loadingLineIndex += 1;
+            render();
+          }, LOADING_LINE_INTERVAL_MS);
+        }
+        function endCalculationLoading() {
+          state.calcLoading = false;
+          window.clearInterval(loadingTimer);
+          loadingTimer = null;
+        }
+        function loadingOverlayMarkup() {
+          if (!state.calcLoading) return '';
+          return `<div class="ln-overlay">${loadingNarrativeMarkup({ lineIndex: state.loadingLineIndex, variant: 'overlay', label: '입력하신 출생 정보로 입춘 경계와 카드 근거를 계산합니다' })}</div>`;
+        }
+
         function render() {
           const views = { intro: introView, input: inputView, result: resultView, method: methodView, data: dataView };
           const content = (views[state.screen] || introView)();
-          document.getElementById('app').innerHTML = `${content}${consentGateMarkup()}${cloudGateMarkup()}`;
+          document.getElementById('app').innerHTML = `${content}${consentGateMarkup()}${cloudGateMarkup()}${loadingOverlayMarkup()}`;
           if (state.consentGate.open || state.cloudGate.open) {
             const dialogTitle = document.querySelector('.gate-dialog [id]');
             dialogTitle?.focus();
@@ -1413,7 +1464,12 @@
             } else {
               state.chart = calculateChart(self.calculation);
               state.targetYear = Number(form.get('targetYear'));
-              state.annual = await requestAnnualReading(state.chart, state.targetYear);
+              beginCalculationLoading();
+              try {
+                state.annual = await requestAnnualReading(state.chart, state.targetYear);
+              } finally {
+                endCalculationLoading();
+              }
             }
           } catch (error) {
             state.error = error.message;
@@ -1790,7 +1846,7 @@
           } catch { /* 저장소 접근 불가 시 첫 방문 게이트 유지 */ }
         }
 
-        if (new URLSearchParams(window.location.search).has('demo')) { const demoInput = { ...state.form, place: '서울특별시 종로구 청운효자동', placeCode: '1111051500' }; state.chart = calculateChart(demoInput); state.screen = 'result'; state.saveState = 'outbox'; state.openReadings = ['single-0']; }
+        if (new URLSearchParams(window.location.search).has('demo')) { const demoParams = new URLSearchParams(window.location.search); const demoInput = { ...state.form, place: '서울특별시 종로구 청운효자동', placeCode: '1111051500' }; state.chart = calculateChart(demoInput); state.screen = 'result'; state.saveState = 'outbox'; state.openReadings = ['single-0']; if (demoParams.get('demo') === 'loading') state.calcLoading = true; }
         if ('serviceWorker' in navigator && window.location.protocol !== 'file:') navigator.serviceWorker.register('service-worker.js').catch(() => {});
         hydrateConsentFromDevice();
         render();

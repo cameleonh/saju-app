@@ -1,3 +1,5 @@
+import { loadingNarrativeMarkup } from '../web/loading-narrative.mjs';
+
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
 
 export function buildAnnualRequest(chart, targetYear) {
@@ -80,7 +82,7 @@ function domainMarkup(domain) {
 }
 
 export function renderAnnualReading(annual, { activeIndex = 0, activeFact = '', loading = false, error = '' } = {}) {
-  if (loading) return '<section class="panel annual-reading" aria-live="polite"><p>연운의 입춘 경계와 카드 근거를 계산하고 있습니다.</p></section>';
+  if (loading) return `<section class="panel annual-reading" aria-live="polite">${loadingNarrativeMarkup({ lineIndex: 0, variant: 'panel', label: '연운의 입춘 경계와 카드 근거를 계산하고 있습니다.' })}</section>`;
   if (error) return `<section class="notice amber annual-reading" role="alert"><h2>연운 카드를 만들지 못했습니다</h2><p>${escapeHtml(error)}</p></section>`;
   if (!annual) return '';
   const index = Math.max(0, Math.min(Number(activeIndex) || 0, annual.cards.length - 1));

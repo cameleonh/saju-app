@@ -8,7 +8,7 @@
     "generate:natal-ephemeris": "node scripts/generate-natal-ephemeris.mjs",
     "test:postgres": "node tests/integration/postgres.mjs",
     "deletions:finalize": "node scripts/finalize-deletions.mjs",
-    "test": "node tests/natal.mjs && node tests/annual.mjs && node tests/smoke.mjs && node tests/lifecycle.mjs && node tests/unit/purpose.mjs && node tests/unit/calendar.mjs && node tests/unit/submission.mjs && node tests/unit/daewoon.mjs && node tests/unit/daewoon-branch-analysis.mjs && node tests/unit/daewoon-domains.mjs && node tests/unit/consent-gate.mjs && node tests/unit/cloud-policy.mjs && node tests/unit/kms-vault.mjs && node tests/unit/runtime-config.mjs && node tests/unit/deployment.mjs && node tests/unit/readings.mjs && node tests/server/ingestion.mjs && node tests/server/http-edge.mjs && node tests/server/auth-boundary.mjs && node tests/server/cognito-auth.mjs"
+    "test": "node tests/natal.mjs && node tests/annual.mjs && node tests/smoke.mjs && node tests/lifecycle.mjs && node tests/unit/purpose.mjs && node tests/unit/calendar.mjs && node tests/unit/submission.mjs && node tests/unit/daewoon.mjs && node tests/unit/daewoon-branch-analysis.mjs && node tests/unit/daewoon-domains.mjs && node tests/unit/consent-gate.mjs && node tests/unit/loading-narrative.mjs && node tests/unit/cloud-policy.mjs && node tests/unit/kms-vault.mjs && node tests/unit/runtime-config.mjs && node tests/unit/deployment.mjs && node tests/unit/readings.mjs && node tests/server/ingestion.mjs && node tests/server/http-edge.mjs && node tests/server/auth-boundary.mjs && node tests/server/cognito-auth.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "3.1103.0",
