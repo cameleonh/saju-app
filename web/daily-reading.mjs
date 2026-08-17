@@ -1,5 +1,5 @@
 // web/daily-reading.mjs
-// 오늘의 기운(daily reading) 패널 — 명식 결과 화면(단일 모드)용 렌더러.
+// 오늘의 운세(daily reading) 패널 — 명식 결과 화면(단일 모드)용 렌더러.
 // server/domain/daily-reading-selection.mjs가 고른 결정론 결과를 조립해 보여주기만 한다(새 문장 만들지 않음).
 // 점수·등급 표현은 붙이지 않는다(제품 원칙). 서생 반말은 마무리 문구에만 있다(선택 로직이 보장).
 // 순수 모듈: DOM 의존 없음 — index.html(명식 결과 뷰)이 부르고, 연운 패널(annual/client.mjs)과 같은 포장 언어를 쓴다.
@@ -64,7 +64,7 @@ function dailyTimeMarkup(timeNote) {
 }
 
 /**
- * 오늘의 기운 패널 전체 마크업.
+ * 오늘의 운세 패널 전체 마크업.
  * @param {object|null} daily buildDailyReading() 결과(eligible=false면 안내 카드)
  * @param {object} [options]
  * @param {boolean} [options.loading] 계산 대기 중이면 서생 로딩 연출을 보여준다(연운 패널과 같은 처리)
@@ -72,15 +72,15 @@ function dailyTimeMarkup(timeNote) {
  */
 export function renderDailyReading(daily, { loading = false, error = '' } = {}) {
   if (loading) return `<section class="panel daily-reading" aria-live="polite">${loadingNarrativeMarkup({ lineIndex: 0, variant: 'panel', label: '오늘의 일진과 명식의 관계를 계산하고 있습니다.' })}</section>`;
-  if (error) return `<section class="notice amber daily-reading" role="alert"><h2>오늘의 기운을 만들지 못했습니다</h2><p>${escapeHtml(error)}</p></section>`;
+  if (error) return `<section class="notice amber daily-reading" role="alert"><h2>오늘의 운세를 만들지 못했습니다</h2><p>${escapeHtml(error)}</p></section>`;
   if (!daily) return '';
   if (daily.eligible === false) {
-    return `<section class="panel daily-reading" aria-labelledby="daily-reading-title"><div class="section-heading"><div><div class="eyebrow">오늘의 기운 · 일운(日運)</div><h2 id="daily-reading-title">오늘의 기운을 만들 수 없습니다</h2></div></div><p class="annual-basis">${escapeHtml(daily.reason || '명식 정보가 부족해 오늘의 풀이를 만들지 못했습니다.')}</p></section>`;
+    return `<section class="panel daily-reading" aria-labelledby="daily-reading-title"><div class="section-heading"><div><div class="eyebrow">오늘의 운세 · 일운(日運)</div><h2 id="daily-reading-title">오늘의 운세를 만들 수 없습니다</h2></div></div><p class="annual-basis">${escapeHtml(daily.reason || '명식 정보가 부족해 오늘의 풀이를 만들지 못했습니다.')}</p></section>`;
   }
   const dayPillar = daily.day_pillar || {};
   const headingDate = formatKoreanDate(daily.date);
   const pillarReading = dayPillar.stem_hangul && dayPillar.branch_hangul ? `${dayPillar.stem_hangul}${dayPillar.branch_hangul}(${dayPillar.text || ''})` : '';
   const flowBadgeChip = dailyFlowBadge(daily);
   const sections = (Array.isArray(daily.sections) ? daily.sections : []).map(dailySectionMarkup).join('');
-  return `<section class="panel daily-reading" aria-labelledby="daily-reading-title"><div class="section-heading daily-heading"><div><div class="eyebrow">오늘의 기운 · 일운(日運)</div><h2 id="daily-reading-title">${headingDate ? `오늘 ${headingDate}` : '오늘'}${pillarReading ? ` ${pillarReading}의 결` : '의 결'}</h2></div><p>한국 법정시 자정 기준 일진 · 매일 새로 계산</p></div><p class="annual-basis">해석 기준: 오늘 일진의 십신·유입 오행·원국과의 합충. 신살(천을귀인·도화 등)은 계산 엔진이 없어 포함하지 않습니다. 흐름 표현은 정성 서술이며 점수가 아닙니다.</p>${evidenceFlowMarkup(dailyEvidenceSteps(daily), '흐름 노트와 네 가지 결로 이어집니다')}${dailyEvidenceDetailMarkup(daily)}${flowBadgeChip ? badgeMarkup(flowBadgeChip, '오늘의 흐름') : ''}<div class="daily-sections">${sections}</div><div class="daewoon-pack daily-pack">${daily.prop_tip ? dailyPropMarkup(daily.prop_tip) : ''}${daily.quest ? questMarkup(daily.quest) : ''}${dailyTimeMarkup(daily.time_note)}</div>${daily.closing ? remarkMarkup(daily.closing, '오늘의 기운') : ''}<p class="daily-hash mono">${escapeHtml(daily.policy?.id || 'saju-daily-v1')}@${escapeHtml(daily.policy?.version || '')} · daily-seeds@${escapeHtml(daily.data_version || '')}</p></section>`;
+  return `<section class="panel daily-reading" aria-labelledby="daily-reading-title"><div class="section-heading daily-heading"><div><div class="eyebrow">오늘의 운세 · 일운(日運)</div><h2 id="daily-reading-title">${headingDate ? `오늘 ${headingDate}` : '오늘'}${pillarReading ? ` ${pillarReading}의 결` : '의 결'}</h2></div><p>한국 법정시 자정 기준 일진 · 매일 새로 계산</p></div><p class="annual-basis">해석 기준: 오늘 일진의 십신·유입 오행·원국과의 합충. 신살(천을귀인·도화 등)은 계산 엔진이 없어 포함하지 않습니다. 흐름 표현은 정성 서술이며 점수가 아닙니다.</p>${evidenceFlowMarkup(dailyEvidenceSteps(daily), '흐름 노트와 네 가지 결로 이어집니다')}${dailyEvidenceDetailMarkup(daily)}${flowBadgeChip ? badgeMarkup(flowBadgeChip, '오늘의 흐름') : ''}<div class="daily-sections">${sections}</div><div class="daewoon-pack daily-pack">${daily.prop_tip ? dailyPropMarkup(daily.prop_tip) : ''}${daily.quest ? questMarkup(daily.quest) : ''}${dailyTimeMarkup(daily.time_note)}</div>${daily.closing ? remarkMarkup(daily.closing, '오늘의 운세') : ''}<p class="daily-hash mono">${escapeHtml(daily.policy?.id || 'saju-daily-v1')}@${escapeHtml(daily.policy?.version || '')} · daily-seeds@${escapeHtml(daily.data_version || '')}</p></section>`;
 }

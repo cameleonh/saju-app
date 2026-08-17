@@ -169,7 +169,7 @@ const ok = (label) => { passed++; console.log(`  ✓ ${label}`); };
   ok('daewoon panel: packaging wired for current cycle and detail panel');
 }
 
-// 9. 오늘의 기운 패널 — 근거 스트립 → (흐름 노트) → 4절 → 소품·퀘스트·시간대 → 서생 마무리
+// 9. 오늘의 운세 패널 — 근거 스트립 → (흐름 노트) → 4절 → 소품·퀘스트·시간대 → 서생 마무리
 {
   const { buildDailyReading, selectDailyReading, resolveDayPillar } = await import('../../server/domain/daily-reading-selection.mjs');
   const { renderDailyReading, dailyEvidenceSteps, dailyFlowBadge } = await import('../../web/daily-reading.mjs');
@@ -179,6 +179,8 @@ const ok = (label) => { passed++; console.log(`  ✓ ${label}`); };
   assert.equal(daily.day_pillar.text, '癸亥', 'golden day pillar for 2026-08-17');
   const markup = renderDailyReading(daily);
   assert.match(markup, /<section class="panel daily-reading" aria-labelledby="daily-reading-title">/);
+  assert.match(markup, /오늘의 운세 · 일운\(日運\)/, 'user-facing vocabulary is 오늘의 운세 (P0-1 rename)');
+  assert.doesNotMatch(markup, /오늘의 기운/, 'the renamed panel carries no 기운 copy');
   assert.match(markup, /오늘 2026년 8월 17일 계해\(癸亥\)의 결/, 'heading shows the Seoul civil date and today\'s day pillar');
   assert.match(markup, /evidence-flow/, 'the panel opens with the evidence strip');
   for (const label of ['오늘의 일진', '일간 대비 십신', '오늘 유입 오행', '원국과의 합·충']) assert.match(markup, new RegExp(label), `evidence step: ${label}`);
@@ -196,6 +198,7 @@ const ok = (label) => { passed++; console.log(`  ✓ ${label}`); };
   assert.match(markup, /이어지는 시간 · 인시\(인\)/, 'time note join window (寅 = 亥\'s harmony partner)');
   assert.match(markup, /마주치는 시간 · 사시\(사\)/, 'time note clash window (巳 = 亥\'s clash partner)');
   assert.match(markup, /서생의 한 마디/, 'closing renders through the remark block');
+  assert.match(markup, /서생의 한 마디<\/strong><em>오늘의 운세<\/em>/, 'the closing remark labels its context with the renamed vocabulary');
   assert.match(markup, /daily-hash/, 'policy/version footer is present');
   assert.ok(!/\d+점/.test(markup), 'the daily panel contains no score numerals');
   assert.equal(renderDailyReading(daily), markup, 'rendering is deterministic');
@@ -210,11 +213,12 @@ const ok = (label) => { passed++; console.log(`  ✓ ${label}`); };
   // Edge paths: loading narrative, error notice, null passthrough, ineligible notice
   assert.match(renderDailyReading(daily, { loading: true }), /loading-narrative/, 'loading reuses the 서생 narrative');
   assert.match(renderDailyReading(daily, { error: '<b>위험</b>' }), /notice amber daily-reading/, 'errors render the amber notice');
+  assert.match(renderDailyReading(daily, { error: '<b>위험</b>' }), /오늘의 운세를 만들지 못했습니다/, 'the error heading uses the renamed vocabulary');
   assert.ok(/&lt;b&gt;위험&lt;\/b&gt;/.test(renderDailyReading(daily, { error: '<b>위험</b>' })), 'error text is escaped');
   assert.equal(renderDailyReading(null), '', 'null daily renders nothing');
   const ineligible = buildDailyReading({}, '2026-08-17');
   assert.equal(ineligible.eligible, false);
-  assert.match(renderDailyReading(ineligible), /오늘의 기운을 만들 수 없습니다/, 'ineligible readings explain themselves instead of failing silently');
+  assert.match(renderDailyReading(ineligible), /오늘의 운세를 만들 수 없습니다/, 'ineligible readings explain themselves instead of failing silently');
   ok('daily panel: evidence strip, conditional flow, 4 sections, props, quest, time windows, closing');
 }
 

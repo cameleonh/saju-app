@@ -224,7 +224,7 @@ assert.match(html, /<link rel="icon" href="icon\.svg" type="image\/svg\+xml" siz
 assert.match(fs.readFileSync(new URL('../robots.txt', import.meta.url), 'utf8'), /GPTBot[\s\S]*Disallow: \//);
 assert.match(fs.readFileSync(new URL('../ai.txt', import.meta.url), 'utf8'), /ClaudeBot[\s\S]*Disallow: \//);
 const serviceWorker = fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
-assert.match(serviceWorker, /saju-app-shell-v22/);
+assert.match(serviceWorker, /saju-app-shell-v23/);
 assert.match(serviceWorker, /fonts\/noto-sans-kr-5\.3\.0/);
 assert.match(serviceWorker, /url\.pathname\.startsWith\('\/auth\/'\)[\s\S]*url\.pathname\.startsWith\('\/v1\/'\)[\s\S]*event\.respondWith\(fetch\(event\.request\)\)/, 'auth callbacks, account APIs, and their URL parameters never enter Cache Storage');
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /annual\/client\.mjs/);
@@ -232,7 +232,7 @@ assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), '
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /chart\/natal-engine\.mjs/);
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /chart\/natal-ephemeris-data\.mjs/);
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /chart\/daewoon-engine\.mjs/);
-// Daily reading panel (오늘의 기운) — deterministic client-side panel on the single result view
+// Daily reading panel (오늘의 운세) — deterministic client-side panel on the single result view
 assert.match(html, /import \{ renderDailyReading \} from '\.\/web\/daily-reading\.mjs'/, 'the result view imports the daily panel renderer');
 assert.match(html, /import \{ buildDailyReading \} from '\.\/server\/domain\/daily-reading-selection\.mjs'/, 'the daily selection module is imported from its committed path');
 assert.match(html, /function ensureDailyReading\(\)/, 'the result view recomputes the daily reading instead of pinning it to the saved date');
@@ -242,6 +242,20 @@ assert.match(serviceWorker, /web\/daily-reading\.mjs/, 'the SW precaches the dai
 assert.match(serviceWorker, /daily-reading-selection\.mjs/);
 assert.match(serviceWorker, /seeds\/daily-readings\.mjs/);
 assert.match(serviceWorker, /seeds\/natal-chapters\.mjs/);
+// P0-1 copy rename — user-facing vocabulary is "오늘의 운세" (search-standard doryeong wording); internal identifiers stay
+assert.doesNotMatch(html, /오늘의 기운/, 'index.html carries no 오늘의 기운 copy (user-facing vocabulary is 오늘의 운세)');
+assert.doesNotMatch(fs.readFileSync(new URL('../web/daily-reading.mjs', import.meta.url), 'utf8'), /오늘의 기운/, 'the daily renderer carries no 오늘의 기운 copy');
+assert.match(html, /오늘의 운세 · 일운\(日運\)/, 'the daily panel eyebrow uses the 오늘의 운세 vocabulary');
+// P0-1 first-screen daily entry — teaser for saved-chart browsers, small CTA otherwise (offline, client-side)
+assert.match(html, /function dailyTeaserMarkup\(\)/, 'the intro view assembles a first-screen daily teaser');
+assert.match(html, /오늘의 운세 자세히 보기/, 'a saved chart shows the prominent today teaser action');
+assert.match(html, /data-action="daily-teaser-open"/, 'the teaser opens the full daily reading');
+assert.match(html, /오늘의 운세 보기 /, 'no saved chart keeps a smaller daily CTA on home');
+assert.match(html, /function dailyView\(\)/, 'the standalone daily screen reuses the result-view daily panel renderer');
+assert.match(html, /state\.screen = 'daily'/, 'the teaser routes to the dedicated daily screen');
+assert.match(html, /function refreshDailyTeaser\(\)/, 'record changes refresh the home teaser');
+assert.match(html, /record\?\.chart && !record\.remoteOnly/, 'cloud-only records are not treated as offline teaser charts');
+assert.match(html, /annualStorage\.listRecords\(\)\.then\(\(records\) => \{/, 'boot loads local records so the first screen fills offline');
 assert.match(html, /requestAnnualReading/);
 assert.match(html, /annualSubmissionFields/);
 assert.match(html, /name="targetYear"/);
