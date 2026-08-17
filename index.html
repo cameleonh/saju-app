@@ -1857,6 +1857,7 @@
           state.mode = record.mode || record.chart.mode || 'single';
           state.training = Boolean(record.training);
           state.serviceConsent = true;
+          state.sample = false;
           state.messages = Array.isArray(record.messages) ? record.messages : [];
           state.openReadings = [`${state.mode}-0`];
           state.saveState = record.durable && record.serverSubmissionId ? 'saved' : 'outbox';
@@ -2118,6 +2119,11 @@
           ctx.fillText('규칙 기반 계산 · 생성형 AI 예측 아님 · 점수 아님 · 참고 자료', x + 24, y + 68);
           ctx.fillStyle = '#9b8f88'; ctx.font = '400 16px "Noto Sans KR", sans-serif';
           ctx.fillText('saju.blog · 결(달빛 명식 작업대) · 카드뉴스', x, H - 52);
+          if (chart.input?.sourceInput?.sample) {
+            ctx.fillStyle = 'rgba(155,143,136,0.9)'; ctx.font = '500 15px "Noto Sans KR", sans-serif';
+            const sampleLabel = '샘플 명식 · 실제 출생 정보 아님';
+            ctx.fillText(sampleLabel, x + maxWidth - ctx.measureText(sampleLabel).width, H - 52);
+          }
           return canvas;
         }
         async function natalCardBlob(chart = state.chart) {
