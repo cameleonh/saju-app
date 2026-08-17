@@ -51,6 +51,7 @@ assert.equal((await fetch(`${staticUrl}/chart/natal-engine.mjs`)).status, 200);
 assert.equal((await fetch(`${staticUrl}/chart/daewoon-engine.mjs`)).status, 200);
 assert.equal((await fetch(`${staticUrl}/web/consent-gate.mjs`)).status, 200, 'the consent-gate module is a public static asset');
 assert.equal((await fetch(`${staticUrl}/web/loading-narrative.mjs`)).status, 200, 'the loading-narrative module is a public static asset');
+assert.equal((await fetch(`${staticUrl}/web/result-packaging.mjs`)).status, 200, 'the result-packaging module is a public static asset');
 assert.equal((await fetch(`${staticUrl}/chart/daewoon-branch-analysis.mjs`)).status, 200, 'the daewoon branch analysis module is a public static asset for the client result view');
 assert.equal((await fetch(`${staticUrl}/server/domain/daewoon-domains.mjs`)).status, 200, 'the pure-content daewoon domain DB is a public static asset for the client result view');
 assert.equal((await fetch(`${staticUrl}/package.json`)).status, 404, 'package metadata is not a public static asset');

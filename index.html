@@ -255,6 +255,37 @@
       @keyframes ln-twinkle { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
       @keyframes ln-ink-trace { 0% { stroke-dashoffset: 130; } 55% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -130; } }
 
+      .evidence-flow { margin: 4px 0 16px; padding: 14px 16px; list-style: none; background: var(--paper-100); border: 1px dashed var(--paper-300); border-radius: var(--radius-card); display: grid; gap: 8px; }
+      .evidence-flow .ef-step { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+      .evidence-flow .ef-step > span { color: #726b70; font-size: 13px; font-weight: 700; }
+      .evidence-flow .ef-step > strong { color: #302c3a; font-size: 15px; text-align: right; overflow-wrap: anywhere; }
+      .evidence-flow .ef-arrow { text-align: center; color: var(--gold-500); font-size: 15px; line-height: 1; }
+      .evidence-flow .ef-final > strong { color: #6b5d3f; }
+      .flow-badge { display: grid; gap: 3px; margin: 0 0 16px; padding: 14px 16px; border-radius: var(--radius-card); border: 1px solid #c9d7ec; background: var(--sky-100); }
+      .flow-badge strong { color: #302c3a; font-size: 17px; }
+      .flow-badge span { color: #51495a; font-size: 14px; line-height: 1.6; }
+      .flow-badge em { font-style: normal; color: #9b8f88; }
+      .flow-badge.tone-caution { border-color: #ead8ae; background: var(--amber-100); }
+      .flow-badge.tone-favorable { border-color: #c8dfd8; background: var(--jade-100); }
+      .pack-row { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 12px; margin-bottom: 16px; }
+      .pack-row .flow-badge { margin: 0; }
+      .quest-chip { display: grid; gap: 5px; align-content: start; padding: 14px 16px; background: var(--paper-50); border: 1px solid var(--paper-300); border-left: 4px solid var(--gold-500); border-radius: var(--radius-card); }
+      .quest-chip strong { color: #302c3a; font-size: 15px; }
+      .quest-chip p { margin: 0; color: #51495a; font-size: 15px; line-height: 1.65; }
+      .saeseong-remark { display: flex; gap: 14px; margin: 16px 0; padding: 18px; background: var(--paper-50); border: 1px solid var(--paper-300); border-radius: var(--radius-card); }
+      .saeseong-remark .remark-seal { flex: 0 0 auto; width: 40px; height: 40px; display: grid; place-items: center; color: #fffaf0; background: var(--vermilion-600); border-radius: 8px; font-family: var(--font-serif); font-size: 19px; }
+      .saeseong-remark > div { display: grid; gap: 4px; min-width: 0; }
+      .saeseong-remark strong { color: #302c3a; font-size: 15px; }
+      .saeseong-remark em { font-style: normal; color: #9b8f88; font-size: 12px; }
+      .saeseong-remark p { margin: 2px 0 0; color: #3f3a45; font-family: var(--font-serif); font-size: 16.5px; line-height: 1.75; }
+      .lucky-props { display: grid; gap: 4px; margin-bottom: 16px; padding: 14px 16px; background: rgba(133, 137, 174, 0.12); border: 1px solid #c9d7ec; border-radius: var(--radius-card); }
+      .lucky-props strong { color: #302c3a; font-size: 15px; }
+      .lucky-props p { margin: 0; color: #51495a; font-size: 15px; }
+      .daewoon-pack { margin-top: 14px; display: grid; gap: 12px; }
+      .daewoon-pack .flow-badge, .daewoon-pack .saeseong-remark, .daewoon-pack .quest-chip, .daewoon-pack .lucky-props { margin: 0; }
+      .reading-domain-card .domain-number { margin-right: 8px; color: var(--gold-500); font-family: var(--font-serif); font-size: 14px; letter-spacing: 0.06em; }
+      @media (max-width: 720px) { .pack-row { grid-template-columns: minmax(0, 1fr); } .saeseong-remark { flex-direction: column; } }
+
       .flow-header { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
       .flow-step { color: var(--ink-600); font-size: 15px; font-weight: 800; }
       .step-track { display: flex; align-items: center; gap: 8px; }
@@ -513,6 +544,7 @@
       import { createAnnualStorage } from './annual/storage.mjs';
       import { readConsentState, persistConsent, evaluateServiceGate, evaluateCloudGate } from './web/consent-gate.mjs';
       import { loadingNarrativeMarkup, LOADING_LINE_INTERVAL_MS } from './web/loading-narrative.mjs';
+      import { badgeMarkup, buildQuest, flowBadge, luckyElementProps, luckyPropsMarkup, questMarkup, remarkMarkup, saeseongRemark } from './web/result-packaging.mjs';
       import { calculateNatalChart } from './chart/natal-engine.mjs';
       import { calculateDaewoon } from './chart/daewoon-engine.mjs';
       import { analyzeDaewoonCycles } from './chart/daewoon-branch-analysis.mjs';
@@ -1104,7 +1136,7 @@
           const bars = Object.entries(chart.elementCounts).map(([key, value]) => `<div><div class="bar-head"><span>${ELEMENT_LABELS[key]}</span><strong class="mono">${value}</strong></div><div class="bar-track"><div class="bar-fill ${({목:'wood',화:'fire',토:'earth',금:'metal',수:'water'})[key]}" style="width:${Math.max(8, (value / max) * 100)}%"></div></div></div>`).join('');
           const reading = readingMarkup(chart.reading);
           const messages = state.messages.map((message) => `<div class="bubble ${message.role === 'user' ? 'user' : ''}">${escapeHtml(message.text)}</div>`).join('');
-          const annualMarkup = renderAnnualReading(state.annual, { activeIndex: state.annualCardIndex, activeFact: state.annualFact, error: state.annualError, loading: state.calcLoading });
+          const annualMarkup = renderAnnualReading(state.annual, { activeIndex: state.annualCardIndex, activeFact: state.annualFact, error: state.annualError, loading: state.calcLoading, elementCounts: chart.elementCounts });
           const currentAge = chart.input.date ? new Date().getFullYear() - Number(chart.input.date.split('-')[0]) : 0;
           const daewoonCycleData = chart.daewoon ? (() => {
             const natalBranches = chart.pillars.map(p => p.branch).filter(b => b && b !== '?');
@@ -1114,7 +1146,10 @@
             return { cycleDomains, cycleAnalysis };
           })() : null;
 
-          const daewoonMarkup = chart.daewoon ? `<section class="panel" aria-labelledby="daewoon-heading"><div class="section-heading"><div><div class="eyebrow">대운 (大運)</div><h2 id="daewoon-heading">10년 주기 운의 흐름</h2></div><span class="tiny mono">${chart.daewoon.policy.id}</span></div><p class="muted" style="margin-bottom:16px;font-size:13px">${chart.daewoon.direction === 'forward' ? '순행' : '역행'} · 시작 나이 ${chart.daewoon.startAge}세 · ${chart.daewoon.boundaryTerm} 기준 · 사이클을 눌러 상세 풀이를 보세요</p><div class="daewoon-timeline" role="tablist">${chart.daewoon.cycles.map((c, ci) => { const isCurrent = c === chart.daewoon.cycles.find((cc, i) => { const next = chart.daewoon.cycles[i + 1]; return currentAge >= cc.startAge && (!next || currentAge < next.startAge); }); const tone = daewoonCycleData?.cycleAnalysis?.[ci]?.toneSummary || ''; return `<button class="daewoon-cycle${isCurrent ? ' current' : ''}" role="tab" data-action="daewoon-select" data-cycle="${ci}" aria-selected="${isCurrent ? 'true' : 'false'}"><div class="daewoon-pillar">${c.pillar}</div><div class="daewoon-age">${c.startAge}세</div><div class="daewoon-year">${c.startYear}년~</div>${isCurrent ? '<span class="daewoon-now">현재</span>' : ''}</button>`; }).join('')}</div><div class="daewoon-detail" id="daewoon-detail-panel" role="tabpanel" aria-hidden="true"></div><p class="muted" style="margin-top:12px;font-size:12px">대운의 방향과 시작 나이는 ${chart.daewoon.policy.id} 정책으로 계산합니다. 각 사이클의 십신 기반 풀이와 지지 충·합 분석을 제공합니다.</p></section>` : '';
+          const currentDaewoonIndex = chart.daewoon ? chart.daewoon.cycles.findIndex((cc, i) => { const next = chart.daewoon.cycles[i + 1]; return currentAge >= cc.startAge && (!next || currentAge < next.startAge); }) : -1;
+          const daewoonPackaging = currentDaewoonIndex >= 0 ? buildDaewoonPackaging(currentDaewoonIndex) : null;
+          const daewoonPackMarkup = daewoonPackaging ? `<div class="daewoon-pack">${badgeMarkup(daewoonPackaging.badge, `현재 대운 ${daewoonPackaging.cycle.pillar}`)}${questMarkup(daewoonPackaging.quest)}${remarkMarkup(daewoonPackaging.remark, '현재 대운')}${luckyPropsMarkup(daewoonPackaging.lucky)}</div>` : '';
+          const daewoonMarkup = chart.daewoon ? `<section class="panel" aria-labelledby="daewoon-heading"><div class="section-heading"><div><div class="eyebrow">대운 (大運)</div><h2 id="daewoon-heading">10년 주기 운의 흐름</h2></div><span class="tiny mono">${chart.daewoon.policy.id}</span></div><p class="muted" style="margin-bottom:16px;font-size:13px">${chart.daewoon.direction === 'forward' ? '순행' : '역행'} · 시작 나이 ${chart.daewoon.startAge}세 · ${chart.daewoon.boundaryTerm} 기준 · 사이클을 눌러 상세 풀이를 보세요</p><div class="daewoon-timeline" role="tablist">${chart.daewoon.cycles.map((c, ci) => { const isCurrent = ci === currentDaewoonIndex; const tone = daewoonCycleData?.cycleAnalysis?.[ci]?.toneSummary || ''; return `<button class="daewoon-cycle${isCurrent ? ' current' : ''}" role="tab" data-action="daewoon-select" data-cycle="${ci}" aria-selected="${isCurrent ? 'true' : 'false'}"><div class="daewoon-pillar">${c.pillar}</div><div class="daewoon-age">${c.startAge}세</div><div class="daewoon-year">${c.startYear}년~</div>${isCurrent ? '<span class="daewoon-now">현재</span>' : ''}</button>`; }).join('')}</div>${daewoonPackMarkup}<div class="daewoon-detail" id="daewoon-detail-panel" role="tabpanel" aria-hidden="true"></div><p class="muted" style="margin-top:12px;font-size:12px">대운의 방향과 시작 나이는 ${chart.daewoon.policy.id} 정책으로 계산합니다. 각 사이클의 십신 기반 풀이와 지지 충·합 분석을 제공합니다. 흐름 배지는 정성 표현이며 점수가 아닙니다.</p></section>` : '';
           return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">명식과 연운 확인</div><h1 id="result-title">계산 사실과 연운 카드의 근거를 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button secondary small" data-action="export">${icon('download')} 내보내기</button></div></div><div class="result-layout"><div class="result-main"><section class="aperture chart-aperture" aria-labelledby="chart-summary"><div class="aperture-top"><div><div class="eyebrow">계산한 명식</div><h2 id="chart-summary" class="aperture-title">${formatKoreanDate(chart.input.date)}의 네 기둥</h2></div><span class="aperture-meta mono">${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(chart.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(chart.input.place)} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${chart.input.unknownTime ? '시각 미상' : escapeHtml(chart.input.time)}</dd></div></dl></section>${chart.warnings.length ? warningMarkup(chart.warnings) : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 검토된 계산 경계에서 충분히 떨어져 있습니다. 계산 정책은 언제든 다시 열어볼 수 있어요.</p></div>'}${daewoonMarkup}${annualMarkup}<section class="panel reading-report"><div class="section-heading"><div><div class="eyebrow">근거를 따라 읽기</div><h2>명식의 결을 따라 읽기</h2></div><p>각 장을 펼치고 근거를 확인하세요.</p></div>${reading}</section><section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>궁금한 장면을 질문으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 궁금한 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="생각을 정리할 질문 입력" placeholder="예: 이직 전에 확인할 조건은 무엇인가요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section></div><aside class="result-side"><section class="panel"><div class="side-title"><h3>오행 분포</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 원본 입력과 계산용 값은 분리해 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 연운은 별도 정책과 프로필 버전으로 계산하며 격국·용신·조후를 포함하지 않습니다.</div>` : ''}</section></aside></div></section>`);
         }
 
@@ -1263,9 +1298,9 @@
           document.getElementById('same-person')?.addEventListener('change', (event) => { state.form.samePerson = event.target.checked; });
           document.getElementById('birth-form')?.addEventListener('submit', onBirthSubmit);
           document.getElementById('chat-form')?.addEventListener('submit', onChatSubmit);
-          document.querySelectorAll('[data-gate-field]').forEach((element) => element.addEventListener('change', (event) => { state.consentGate[event.currentTarget.dataset.gateField] = event.target.checked; state.consentGate.declined = false; render(); });
-          document.querySelectorAll('input[name="gate-age14"]').forEach((element) => element.addEventListener('change', (event) => { state.consentGate.age14 = event.target.value; render(); });
-          document.querySelectorAll('input[name="cloud-age19"]').forEach((element) => element.addEventListener('change', (event) => { state.cloudGate.age19 = event.target.value; render(); });
+          document.querySelectorAll('[data-gate-field]').forEach((element) => element.addEventListener('change', (event) => { state.consentGate[event.currentTarget.dataset.gateField] = event.target.checked; state.consentGate.declined = false; render(); }));
+          document.querySelectorAll('input[name="gate-age14"]').forEach((element) => element.addEventListener('change', (event) => { state.consentGate.age14 = event.target.value; render(); }));
+          document.querySelectorAll('input[name="cloud-age19"]').forEach((element) => element.addEventListener('change', (event) => { state.cloudGate.age19 = event.target.value; render(); }));
         }
 
         function moveToStage(id) {
@@ -1346,6 +1381,27 @@
           showToast(response.status === 202 ? '저장 데이터는 삭제됐고 인증 계정 삭제를 마무리하고 있습니다.' : '계정과 저장 기록을 삭제했습니다.');
         }
 
+        // 대운 포장 — 현재/선택 사이클의 배지·한 마디·퀘스트·소품(모두 결정론 조합, 점수 없음)
+        function buildDaewoonPackaging(cycleIndex) {
+          const chart = state.chart;
+          if (!chart?.daewoon) return null;
+          const cycle = chart.daewoon.cycles[cycleIndex];
+          if (!cycle) return null;
+          const natalBranches = chart.pillars.map((p) => p.branch).filter((b) => b && b !== '?');
+          const dayStem = chart.pillars[2]?.stem;
+          const cycleDomains = buildDaewoonCycleDomains(chart.daewoon.cycles, dayStem);
+          const cycleAnalysis = analyzeDaewoonCycles(chart.daewoon.cycles, natalBranches, ELEMENTS[dayStem]);
+          const cd = cycleDomains?.[cycleIndex];
+          const ca = cycleAnalysis?.[cycleIndex];
+          if (!cd && !ca) return null;
+          const relations = (ca?.branchAnalysis || []).flatMap((ba) => (ba.interactions || []).map((i) => ({ relation: i.type === 'clash' ? 'clash' : (String(i.type).includes('harmony') ? 'harmony' : 'other') })));
+          const badge = flowBadge({ tenGod: cd?.tenGod, relations });
+          const remark = saeseongRemark({ dayStem, badge, period: { kind: 'daewoon', label: `${cycle.pillar} 대운` } });
+          const quest = buildQuest({ candidates: [(cd?.domains || []).find((d) => d.domain_key === 'must_do')?.points?.[0], (cd?.domains || []).find((d) => d.domain_key === 'must_do')?.points?.[1]] });
+          const lucky = chart.elementCounts ? luckyElementProps(chart.elementCounts) : null;
+          return { badge, remark, quest, lucky, cycle, interactions: ca?.branchAnalysis || [] };
+        }
+
         function renderDaewoonDetail(cycleIndex, panel) {
           if (!panel || !state.chart?.daewoon) return;
           const cycle = state.chart.daewoon.cycles[cycleIndex];
@@ -1365,7 +1421,9 @@
             const cls = i.type === 'clash' ? 'clash' : (i.type.startsWith('punishment') ? 'punishment' : (i.type === 'harm' || i.type === 'resentment') ? 'harm' : 'harmony');
             return `<span class="daewoon-interaction-chip ${cls}">${escapeHtml(ba.position)}: ${escapeHtml(i.name)}</span>`;
           })).join('');
-          panel.innerHTML = `<div class="daewoon-detail-head"><h3>${escapeHtml(cycle.pillar)} · ${cycle.startAge}세~ (${cycle.startYear}년~)</h3>${cd?.tenGod ? `<span class="daewoon-tag">${escapeHtml(cd.tenGod)} · 10년 주기</span>` : ''}</div>${ca?.toneSummary ? `<p class="daewoon-detail-tone">${escapeHtml(ca.toneSummary)}</p>` : ''}${interactionsHtml ? `<div class="daewoon-interactions">${interactionsHtml}</div>` : ''}${domainsHtml ? `<div class="daewoon-domains-grid">${domainsHtml}</div>` : '<p class="muted">이 사이클의 풀이 데이터를 준비 중입니다.</p>'}`;
+          const pack = buildDaewoonPackaging(cycleIndex);
+          const packHtml = pack ? `<div class="daewoon-pack">${badgeMarkup(pack.badge, `${cycle.pillar} 대운 흐름`)}${questMarkup(pack.quest)}${remarkMarkup(pack.remark, `${cycle.pillar} 대운`)}</div>` : '';
+          panel.innerHTML = `<div class="daewoon-detail-head"><h3>${escapeHtml(cycle.pillar)} · ${cycle.startAge}세~ (${cycle.startYear}년~)</h3>${cd?.tenGod ? `<span class="daewoon-tag">${escapeHtml(cd.tenGod)} · 10년 주기</span>` : ''}</div>${ca?.toneSummary ? `<p class="daewoon-detail-tone">${escapeHtml(ca.toneSummary)}</p>` : ''}${interactionsHtml ? `<p class="tiny" style="margin:6px 0 2px">지지 관계(근거) ↓ 아래 풀이로 이어집니다</p><div class="daewoon-interactions">${interactionsHtml}</div>` : ''}${domainsHtml ? `<div class="daewoon-domains-grid">${domainsHtml}</div>` : '<p class="muted">이 사이클의 풀이 데이터를 준비 중입니다.</p>'}${packHtml}`;
           panel.classList.add('active');
           panel.setAttribute('aria-hidden', 'false');
         }
@@ -1846,7 +1904,7 @@
           } catch { /* 저장소 접근 불가 시 첫 방문 게이트 유지 */ }
         }
 
-        if (new URLSearchParams(window.location.search).has('demo')) { const demoParams = new URLSearchParams(window.location.search); const demoInput = { ...state.form, place: '서울특별시 종로구 청운효자동', placeCode: '1111051500' }; state.chart = calculateChart(demoInput); state.screen = 'result'; state.saveState = 'outbox'; state.openReadings = ['single-0']; if (demoParams.get('demo') === 'loading') state.calcLoading = true; }
+        if (new URLSearchParams(window.location.search).has('demo')) { const demoParams = new URLSearchParams(window.location.search); const demoInput = { ...state.form, place: '서울특별시 종로구 청운효자동', placeCode: '1111051500' }; state.chart = calculateChart(demoInput); state.screen = 'result'; state.saveState = 'outbox'; state.openReadings = ['single-0']; if (demoParams.get('demo') === 'loading') state.calcLoading = true; else requestAnnualReading(state.chart, state.targetYear).then((annual) => { state.annual = annual; render(); }).catch(() => {}); }
         if ('serviceWorker' in navigator && window.location.protocol !== 'file:') navigator.serviceWorker.register('service-worker.js').catch(() => {});
         hydrateConsentFromDevice();
         render();

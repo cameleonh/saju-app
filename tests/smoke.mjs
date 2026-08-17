@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
+import { spawnSync } from 'node:child_process';
+import os from 'node:os';
+import path from 'node:path';
 import { calculateNatalChart } from '../chart/natal-engine.mjs';
 import { calculateDaewoon } from '../chart/daewoon-engine.mjs';
 
@@ -11,6 +14,23 @@ const adminAreaSource = fs.readFileSync(new URL('../data/admin-areas.js', import
 const apacheSslConfig = fs.readFileSync(new URL('../deploy/apache/saju.blog-le-ssl.conf', import.meta.url), 'utf8');
 const deployUpdater = fs.readFileSync(new URL('../deploy/bin/update-saju-app.sh', import.meta.url), 'utf8');
 const serviceUnit = fs.readFileSync(new URL('../deploy/systemd/saju-app.service', import.meta.url), 'utf8');
+
+// The full inline module script must parse — string assertions on the HTML
+// cannot catch syntax errors that blank the whole app (#app stays empty).
+{
+  const inlineModuleScript = /<script type="module">([\s\S]*?)<\/script>/.exec(html)?.[1];
+  assert.ok(inlineModuleScript, 'the app ships an inline module script');
+  const probeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'saju-syntax-'));
+  const probeFile = path.join(probeDir, 'inline-check.mjs');
+  fs.writeFileSync(probeFile, inlineModuleScript);
+  try {
+    const syntaxCheck = spawnSync(process.execPath, ['--check', probeFile], { encoding: 'utf8' });
+    assert.equal(syntaxCheck.status, 0, `inline module script must parse as ESM: ${syntaxCheck.stderr}`);
+  } finally {
+    fs.rmSync(probeDir, { recursive: true, force: true });
+  }
+}
+
 const engineStart = html.indexOf('const STEMS');
 const engineEnd = html.indexOf('function getFact');
 assert.ok(engineStart >= 0, 'engine constants are present');
@@ -190,7 +210,7 @@ assert.match(html, /<link rel="icon" href="icon\.svg" type="image\/svg\+xml" siz
 assert.match(fs.readFileSync(new URL('../robots.txt', import.meta.url), 'utf8'), /GPTBot[\s\S]*Disallow: \//);
 assert.match(fs.readFileSync(new URL('../ai.txt', import.meta.url), 'utf8'), /ClaudeBot[\s\S]*Disallow: \//);
 const serviceWorker = fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
-assert.match(serviceWorker, /saju-app-shell-v16/);
+assert.match(serviceWorker, /saju-app-shell-v18/);
 assert.match(serviceWorker, /fonts\/noto-sans-kr-5\.3\.0/);
 assert.match(serviceWorker, /url\.pathname\.startsWith\('\/auth\/'\)[\s\S]*url\.pathname\.startsWith\('\/v1\/'\)[\s\S]*event\.respondWith\(fetch\(event\.request\)\)/, 'auth callbacks, account APIs, and their URL parameters never enter Cache Storage');
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /annual\/client\.mjs/);
