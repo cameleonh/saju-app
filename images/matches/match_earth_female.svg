@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#e6bf7b" stop-opacity="0.28"/>
+      <stop offset="60%" stop-color="#b48b4e" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#292215" stop-opacity="0.95"/>
+    </radialGradient>
+    <linearGradient id="auraGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e6bf7b" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#b48b4e" stop-opacity="0.1"/>
+    </linearGradient>
+    <filter id="inkGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Circle & Frame -->
+  <rect width="500" height="500" rx="36" fill="#292215"/>
+  <rect width="492" height="492" x="4" y="4" rx="32" fill="url(#bgGrad)" stroke="#b48b4e" stroke-width="1.5" stroke-opacity="0.4"/>
+
+  <!-- Celestial Ring / Moon Aura -->
+  <circle cx="250" cy="230" r="160" fill="none" stroke="#b48b4e" stroke-width="1" stroke-dasharray="4 6" opacity="0.45"/>
+  <circle cx="250" cy="230" r="145" fill="url(#auraGrad)" opacity="0.3"/>
+
+  <!-- Element Symbol Seal (Top Right) -->
+  <g transform="translate(400, 36)">
+    <rect width="64" height="64" rx="14" fill="#b48b4e" opacity="0.85"/>
+    <text x="32" y="44" fill="#ffffff" font-family="'Noto Serif KR', serif" font-size="28" font-weight="700" text-anchor="middle">土</text>
+  </g>
+
+  <!-- Silhouette Figure & Facial Structure -->
+  <!-- Shoulders & Upper Body -->
+  <path d="M 120 480 C 120 380, 180 340, 250 340 C 320 340, 380 380, 380 480 Z" fill="#202235" opacity="0.9"/>
+  <path d="M 170 480 L 250 365 L 330 480 Z" fill="#b48b4e" opacity="0.25"/>
+
+  <!-- Neck -->
+  <path d="M 220 270 L 220 345 L 280 345 L 280 270 Z" fill="#ecdcc4"/>
+
+  <!-- Face Contour -->
+  <path d="M 175 190 C 175 285, 210 320, 250 320 C 290 320, 325 285, 325 190 C 325 130, 290 120, 250 120 C 210 120, 175 130, 175 190 Z" fill="#f7ece0"/>
+
+  <!-- Hair Silhouette -->
+  <path d="M 120 200 C 120 110, 180 85, 250 85 C 320 85, 380 110, 380 200 C 380 320, 370 390, 370 430 C 340 370, 340 220, 250 220 C 160 220, 160 370, 130 430 Z" fill="#161521"/>
+
+  <!-- Eyes & Facial Features (Aesthetic Minimalist Lines) -->
+  <g stroke="#3a3238" stroke-width="2.5" stroke-linecap="round" fill="none">
+    <!-- Left Eye & Brow -->
+    <path d="M 205 182 Q 220 176 232 184"/>
+    <path d="M 202 168 Q 218 162 234 170" stroke-width="2" opacity="0.6"/>
+
+    <!-- Right Eye & Brow -->
+    <path d="M 268 184 Q 280 176 295 182"/>
+    <path d="M 266 170 Q 282 162 298 168" stroke-width="2" opacity="0.6"/>
+
+    <!-- Nose Bridge & Tip -->
+    <path d="M 250 188 L 248 232 Q 250 236 254 234" stroke-width="1.8" opacity="0.55"/>
+
+    <!-- Lips (Subtle Coral Tint) -->
+    <path d="M 234 265 Q 250 272 266 265" stroke="#b48b4e" stroke-width="2.8"/>
+  </g>
+
+  <!-- Element Aesthetic Decor -->
+  <circle cx="250" cy="70" r="15" fill="#e6bf7b" opacity="0.5"/>
+
+  <!-- Bottom Label Overlay Badge -->
+  <g transform="translate(50, 420)">
+    <rect width="400" height="52" rx="16" fill="rgba(20, 22, 42, 0.85)" stroke="#b48b4e" stroke-width="1.2"/>
+    <text x="200" y="32" fill="#f5eee2" font-family="'Noto Sans KR', sans-serif" font-size="16" font-weight="700" text-anchor="middle">여성 · 토(土)의 인연</text>
+  </g>
+</svg>

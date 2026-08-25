@@ -7,6 +7,7 @@ import { convertLunarToSolar } from './domain/calendar.mjs';
 import { createAnnualReading } from './domain/annual.mjs';
 import { evaluateCloudPersistence } from './domain/cloud-policy.mjs';
 import { NATAL_POLICY, calculateNatalChart } from '../chart/natal-engine.mjs';
+import { buildComparison, calculateSystem, listPolicies, normalizeBirthProfile, resolveEligibility, SYSTEM_IDS } from './domain/astrology-comparison.mjs';
 
 const MAX_BODY_BYTES = 256 * 1024;
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -20,6 +21,7 @@ const SECURITY_HEADERS = {
   'permissions-policy': 'camera=(), microphone=(), geolocation=()',
 };
 const NATAL_POLICY_REF = Object.freeze({ id: NATAL_POLICY.id, version: NATAL_POLICY.version, engine: NATAL_POLICY.engine, engineVersion: NATAL_POLICY.engineVersion });
+const ASTROLOGY_PREFIXES = ['/api/v1/astrology', '/v1/astrology'];
 
 function sendJson(response, status, payload) {
   response.writeHead(status, { ...SECURITY_HEADERS, 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
@@ -43,14 +45,15 @@ async function readJson(request) {
 }
 
 const MIME_TYPES = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
-const PUBLIC_STATIC_FILES = new Set(['index.html', 'privacy.html', 'terms.html', 'service-worker.js', 'manifest.webmanifest', 'icon.svg', 'robots.txt', 'ai.txt', 'copyright.html', 'annual/client.mjs', 'annual/storage.mjs', 'chart/natal-engine.mjs', 'chart/natal-ephemeris-data.mjs', 'chart/daewoon-engine.mjs', 'data/admin-areas.js']);
+const PUBLIC_STATIC_FILES = new Set(['index.html', 'privacy.html', 'terms.html', 'service-worker.js', 'manifest.webmanifest', 'icon.svg', 'robots.txt', 'ai.txt', 'copyright.html', 'annual/client.mjs', 'annual/storage.mjs', 'chart/natal-engine.mjs', 'chart/natal-ephemeris-data.mjs', 'chart/daewoon-engine.mjs', 'chart/daewoon-branch-analysis.mjs', 'chart/destined-match.mjs', 'chart/mahabote-engine.mjs', 'chart/horasat-engine.mjs', 'chart/tu-vi-engine.mjs', 'data/admin-areas.js', 'web/consent-gate.mjs', 'web/loading-narrative.mjs', 'web/result-packaging.mjs', 'web/daily-reading.mjs', 'web/natal-reading.mjs', 'web/destined-match.mjs', 'web/multi-system-comparison.mjs', 'server/domain/daewoon-domains.mjs', 'server/domain/daily-reading-selection.mjs', 'server/domain/natal-chapter-selection.mjs', 'server/storage/seeds/daily-readings.mjs', 'server/storage/seeds/natal-chapters.mjs']);
 const PUBLIC_FONT_FILE = /^fonts\/noto-sans-kr-5\.3\.0\/(?:400\.css|files\/noto-sans-kr-(?:\d{1,3}|korean|latin|latin-ext|cyrillic|vietnamese)-400-normal\.woff2)$/;
+const PUBLIC_IMAGE_FILE = /^images\/matches\/match_[a-z]+_(?:male|female)\.svg$/;
 
 async function serveStatic(root, request, response) {
   if (!root || request.method !== 'GET') return false;
   const requested = decodeURIComponent((request.url || '/').split('?')[0]);
   const relative = requested === '/' ? 'index.html' : requested.replace(/^\/+/, '');
-  if (!PUBLIC_STATIC_FILES.has(relative) && !PUBLIC_FONT_FILE.test(relative)) return false;
+  if (!PUBLIC_STATIC_FILES.has(relative) && !PUBLIC_FONT_FILE.test(relative) && !PUBLIC_IMAGE_FILE.test(relative)) return false;
   const candidate = path.resolve(root, relative);
   if (candidate !== root && !candidate.startsWith(`${root}${path.sep}`)) return false;
   try {
@@ -105,7 +108,8 @@ export function createIngestionServer({ staticRoot = null, storage = null, auth 
       }
       const submissionResource = /^\/v1\/submissions\/([A-Za-z0-9_-]{1,120})$/.exec(pathname);
       const withdrawalResource = /^\/v1\/submissions\/([A-Za-z0-9_-]{1,120})\/training-withdrawal$/.exec(pathname);
-      const mutationRoute = (request.method === 'POST' && (pathname === '/v1/submissions' || pathname === '/v1/calendar/convert' || pathname === '/v1/natal-charts' || pathname === '/v1/annual-readings' || Boolean(withdrawalResource)))
+      const astrologyMutation = request.method === 'POST' && ASTROLOGY_PREFIXES.some((prefix) => pathname.startsWith(`${prefix}/`));
+      const mutationRoute = (request.method === 'POST' && (pathname === '/v1/submissions' || pathname === '/v1/calendar/convert' || pathname === '/v1/natal-charts' || pathname === '/v1/annual-readings' || Boolean(withdrawalResource) || astrologyMutation))
         || (request.method === 'DELETE' && Boolean(submissionResource));
       if (mutationRoute && !allowRequest(request)) {
         response.setHeader('retry-after', '60');
@@ -133,6 +137,43 @@ export function createIngestionServer({ staticRoot = null, storage = null, auth 
         const input = await readJson(request);
         try { return sendJson(response, 200, calculateNatalChart(input)); }
         catch (error) { return sendJson(response, 422, { error: 'natal_chart_rejected', message: error.message, calculationPolicy: NATAL_POLICY_REF }); }
+      }
+      const astrologyPath = ASTROLOGY_PREFIXES.map((prefix) => pathname.startsWith(`${prefix}/`) ? pathname.slice(prefix.length) : null).find(Boolean);
+      if (astrologyPath === '/policies' && request.method === 'GET') return sendJson(response, 200, { schemaVersion: 'policy-registry.v1', systems: listPolicies() });
+      if (astrologyPath === '/profile/normalize' && request.method === 'POST') {
+        const input = await readJson(request);
+        try { return sendJson(response, 200, normalizeBirthProfile(input.profile || input)); }
+        catch (error) { return sendJson(response, 422, { error: 'invalid_input', status: 'invalid_input', message: error.message }); }
+      }
+      if (astrologyPath === '/eligibility' && request.method === 'POST') {
+        const input = await readJson(request);
+        try {
+          const profile = normalizeBirthProfile(input.profile || input);
+          const systemIds = Array.isArray(input.requestedSystems) && input.requestedSystems.length ? input.requestedSystems : SYSTEM_IDS;
+          return sendJson(response, 200, { schemaVersion: 'eligibility-response.v1', profile, eligibilities: systemIds.map((systemId) => resolveEligibility(profile, systemId)) });
+        } catch (error) { return sendJson(response, 422, { error: 'invalid_input', status: 'invalid_input', message: error.message }); }
+      }
+      if ((astrologyPath === '/calculation' || astrologyPath === '/calculate') && request.method === 'POST') {
+        const input = await readJson(request);
+        try {
+          const profile = input.profile?.schemaVersion === 'birth-profile.v2' ? input.profile : normalizeBirthProfile(input.profile || input);
+          const systemId = input.systemId;
+          if (!SYSTEM_IDS.includes(systemId)) return sendJson(response, 422, { error: 'invalid_input', status: 'invalid_input', message: 'systemId is not registered' });
+          const calculation = calculateSystem(profile, systemId);
+          return sendJson(response, 200, { schemaVersion: 'calculation-response.v1', systemId, eligibility: calculation.eligibility, result: calculation.result });
+        } catch (error) { return sendJson(response, 422, { error: 'invalid_input', status: 'invalid_input', message: error.message }); }
+      }
+      if ((astrologyPath === '/comparison' || astrologyPath === '/compare') && request.method === 'POST') {
+        const input = await readJson(request);
+        try {
+          const requestedSystems = Array.isArray(input.requestedSystems) && input.requestedSystems.length ? input.requestedSystems : SYSTEM_IDS;
+          let results = Array.isArray(input.results) ? input.results : [];
+          if (results.length === 0 && input.profile) {
+            const profile = input.profile.schemaVersion === 'birth-profile.v2' ? input.profile : normalizeBirthProfile(input.profile);
+            results = requestedSystems.map((systemId) => calculateSystem(profile, systemId).result).filter(Boolean);
+          }
+          return sendJson(response, 200, buildComparison({ requestedSystems, results }));
+        } catch (error) { return sendJson(response, 422, { error: error.code || 'comparison_rejected', message: error.message }); }
       }
       if (request.method === 'POST' && pathname === '/v1/annual-readings') {
         const input = await readJson(request);

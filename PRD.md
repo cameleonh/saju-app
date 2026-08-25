@@ -1,23 +1,24 @@
-# Product Requirements Document: Saju App
+# Product Requirements Document: Four Traditions Astrology Comparison
 
 | Field | Value |
 |---|---|
-| Working title | Saju App |
-| Status | Draft v0.3 — verified prototype contract |
-| Date | 2026-08-02 |
-| Product shape | Korean-first responsive web app/PWA; mobile-first UX with full desktop web support |
-| Initial release | Personal Saju and couple Saju chart with evidence-grounded reading |
-| Primary market | Korean-speaking adults with Korean birth records |
+| Working title | Saju App (final expansion name undecided) |
+| Status | Draft v0.4 — four-tradition implementation contract |
+| Date | 2026-08-23 |
+| Product shape | Korean-first responsive web app/PWA; one birth profile, four independent traditions, one evidence-bound comparison |
+| Implemented baseline | Personal/couple Saju with deterministic natal, annual, and daewoon calculation |
+| Expansion target | Korean Saju, Thai Horasat, Vietnamese Tử Vi, and Myanmar Mahabote for one person |
+| Primary market | Korean-speaking adults who want to inspect and compare Asian astrology traditions |
 
 ## Executive Summary
 
-Saju App helps a user calculate and understand a Saju chart without hiding the calculation method or presenting interpretive prose as deterministic truth. The verified prototype combines a versioned deterministic chart engine, traceable interpretation rules, and an in-app rule-based question helper. A separately consented generative-AI conversation layer is a future capability, not a current feature. One responsive web codebase supports phone browsers, an installable PWA experience, tablets, and desktop browsers; installation is optional.
+Saju App helps a user enter one birth profile and inspect four distinct interpretive systems without hiding calculation methods or presenting prose as deterministic truth. The implemented Saju baseline combines a versioned deterministic chart engine, traceable interpretation rules, and an in-app rule-based question helper. The expansion adds Thai Horasat, Vietnamese Tử Vi, and Myanmar Mahabote as separately versioned engines, then projects their supported interpretations into a bounded comparison layer. A generative model may word an already validated claim later, but it never calculates a chart, invents a missing system, or decides that one tradition is more correct.
 
-The first release focuses on Korean Saju only, with two explicit modes: **내 사주** for one person and **커플 사주** for a potential or current partner. Couple mode keeps the two subjects separate and includes partner-input authority in the required start-stage service disclosure without repeating another checkbox in the birth form. It describes differences without compatibility scores or deterministic relationship claims. Ziwei Doushu, Western natal astrology, professional practitioner tools, and fear-based paid remedies are excluded. Chart calculation remains deterministic in the browser. The prototype stores records in browser IndexedDB and the local development server's SQLite database; managed central storage, identity, encryption key management, and cross-device sync remain production work. Service storage is required for this flow, while first-party product-learning use is optional and independently revocable. Third-party AI processing and human review are not enabled.
+The target expansion has one primary mode: **네 전통 비교** for a single subject. Existing **내 사주** and **커플 사주** remain available as the implemented baseline, but two-person × four-tradition compatibility is not part of the expansion P0. The comparison presents three evidence-bound groups: themes at least two systems support in the same direction, themes the systems frame differently, and themes unique to one system. It never creates an accuracy, fate, compatibility, or consensus score. Missing input produces an explicit unavailable state instead of guessed values. Each system keeps its own native fact model, policy, source-data version, method disclosure, and detail view.
 
-The product's main differentiator is **traceable trust**: every interpretation must point back to chart facts, and births near a solar-term, day, or hour boundary must be visibly marked as sensitive instead of silently returning one absolute answer.
+The product's main differentiator is **traceable comparison**: every interpretation points back to system-native facts; every cross-system claim points back to the contributing interpretations; and a disagreement remains visible rather than being flattened into one universal answer. Births near a calendar, time, place, solar-term, star-placement, or weekday boundary are visibly marked according to the applicable policy.
 
-## Verified Product Snapshot — 2026-08-04
+## Implemented Saju Baseline Snapshot — 2026-08-04
 
 - Mobile-first responsive PWA with separate personal and couple flows; wide couple input places self left and partner right, while narrow screens stack them in that order.
 - Required service-storage acknowledgement and an initially unselected, optional product-learning choice. Declining learning use does not reduce chart or reading quality.
@@ -27,34 +28,42 @@ The product's main differentiator is **traceable trust**: every interpretation m
 - One stable browser record per calculation with reopen, JSON export, deletion, clear-all, optional-training withdrawal, IndexedDB outbox, and durable local SQLite submission storage.
 - Submission-level local development delete and training-withdrawal endpoints. Account ownership, production subject-level authorization, managed PostgreSQL/KMS, retention jobs, and model-lineage execution are not implemented.
 
+The snapshot above describes the existing Saju runtime. Horasat, Tử Vi, Mahabote, the shared eligibility flow, and the cross-system comparison are documentation targets only as of 2026-08-23. Their implementation and release gates are defined in `docs/MULTI-ASTROLOGY-COMPARISON-SPEC.md` and `docs/CALCULATION-POLICY-REGISTRY.md`.
+
 ## Problem Statement
 
-People who are curious about Saju usually face one or more of these problems:
+People who are curious about Asian astrology usually face one or more of these problems:
 
 - Different services return different pillars without explaining why.
+- Each tradition lives in a separate service, so users repeatedly enter sensitive birth data and then compare prose by memory.
+- Similar words such as career, relationships, or timing can hide fundamentally different calculation objects and schools.
 - Calculation conventions such as solar-term timing, time zone, solar-time correction, day boundary, and leap month are hidden.
 - Long readings contain generic prose that cannot be traced to the user's chart.
 - AI chat may invent pillars or change its interpretation between messages.
 - Birth date, time, place, and sensitive questions may be retained or sent to third parties without a clear explanation.
 - Services may use categorical predictions or fear to sell additional products.
 
-The user needs a chart they can inspect, a reading they can understand, and a clear distinction between calculated facts, interpretive tradition, and generated language.
+The user needs four charts they can inspect independently, a comparison they can understand, and a clear distinction between calculated facts, tradition-specific interpretation, cross-system synthesis, and generated language.
 
 ## Solution
 
 Saju App will provide:
 
-1. A guided birth-input flow supporting solar and lunar dates, leap months, unknown birth time, and the traditional sex parameter used by some daewoon methods.
-2. A deterministic and versioned calculation result that records the time policy, data source, engine version, and any boundary sensitivity.
-3. A couple flow that captures relationship state (`getting-to-know`, `dating`, `partner`), separates self and partner birth inputs, and requires explicit partner authority in the start-stage service disclosure before comparison or storage without repeating the checkbox in the birth form.
-4. A responsive chart showing four pillars, ten gods, hidden stems, five-element distribution, major relations, and daewoon when enough input is available, optimized first for mobile and expanded deliberately for desktop. Couple inputs and results place self on the left and partner on the right on wide screens, then stack in the same order on narrower screens. Shared elements and distribution gaps remain observation prompts, not a score.
-5. A concise reading of five to eight sections, with evidence chips linking each material statement to structured chart facts.
-6. A rule-based question helper constrained to calculated facts and non-directive safety copy; optional external-AI conversation may be added later behind a separate just-in-time consent boundary.
-7. Versioned browser records and a local SQLite ingestion adapter with purpose-specific receipts, export, deletion, and training-withdrawal controls. Managed encrypted central profiles and cross-device sync remain the production target.
+1. A progressive birth-profile flow that captures common data once, asks only for fields needed by the selected systems, and previews which systems are eligible before calculation.
+2. Four deterministic, versioned calculation boundaries: implemented Korean Saju plus release-gated Thai Horasat, Vietnamese Tử Vi, and Myanmar Mahabote.
+3. One immutable result per system, each recording its own policy, engine, source-data, schema, time/calendar treatment, warnings, and native facts.
+4. A responsive comparison that groups evidence-backed themes into **공통으로 보는 점**, **다르게 보는 점**, and **이 체계만 보는 점**, with direct links to each contributing system result.
+5. A full detail view for every completed system. Saju retains its pillars and cycles; the other systems receive their own native chart structures instead of being reshaped into Saju columns.
+6. Explicit partial and unavailable states. Unknown time, missing location, unsupported dates, or a draft policy never cause guessed output.
+7. Existing single/couple Saju records and privacy controls remain intact. Four-system records are additive, versioned aggregates; optional account sync remains fail-closed behind its existing legal and security gates.
+8. A rule-based question helper constrained to fixed facts and comparison claims; any later external-AI wording requires a separate just-in-time processing boundary and output validation.
 
 ## Product Principles
 
 - **Calculation before narration:** an LLM never calculates pillars or silently changes chart facts.
+- **Parallel traditions, not one merged doctrine:** each system retains its own inputs, facts, school decisions, and detail result.
+- **Unavailable is valid:** insufficient input or an unapproved policy produces an explicit unavailable state, never an inferred chart.
+- **Comparison is a trace, not a vote:** agreement means multiple supported claims share a domain, theme, and direction; it does not mean scientific truth or majority accuracy.
 - **Methods are visible:** the result names the calculation policy and relevant boundary rules.
 - **Evidence before confidence:** interpretations show their supporting facts and avoid false precision.
 - **Sensitivity is a result:** near-boundary inputs trigger an explanation and alternative-case comparison where appropriate.
@@ -73,9 +82,9 @@ A Korean-speaking adult who knows their birth information, wants an understandab
 
 A user who already knows their chart and wants to inspect calculation conventions, compare boundary-sensitive results, and verify why a reading was produced.
 
-### Not targeted in the MVP
+### Not targeted in the expansion P0
 
-Professional practitioners managing clients, API customers, schools requiring their own proprietary rules, and users seeking Western astrology or Ziwei Doushu.
+Professional practitioners managing clients, API customers, schools requiring their own proprietary rules, users seeking Western astrology, and users seeking two-person compatibility across all four traditions.
 
 ## Jobs to Be Done
 
@@ -84,12 +93,16 @@ Professional practitioners managing clients, API customers, schools requiring th
 - When my birth is close to a boundary, explain the uncertainty instead of hiding it.
 - When I ask a follow-up question, answer from my fixed chart without inventing new facts.
 - When I provide sensitive birth data, let me understand and control where it is stored or transmitted.
+- When I enter my birth information once, tell me which of the four traditions can be calculated without asking me to guess missing fields.
+- When traditions agree, differ, or discuss a unique theme, let me open the exact system claims and native facts behind the comparison.
+- When a tradition is unavailable, tell me the missing input or release gate instead of silently omitting it.
 
 ## Goals and Success Metrics
 
 ### Product goals
 
 - Establish user trust through transparent and reproducible chart calculation.
+- Make four distinct traditions comparable without erasing their differences or ranking their truth.
 - Make Saju concepts understandable without flattening them into generic personality copy.
 - Provide useful reflection without presenting tradition or model output as scientific certainty.
 - Improve the product from centrally retained inputs, outputs, and feedback without hiding training use or weakening user rights.
@@ -99,6 +112,10 @@ Professional practitioners managing clients, API customers, schools requiring th
 | Metric | Target |
 |---|---|
 | Valid birth-input to chart completion rate | At least 85% |
+| Eligible-system calculation completion rate | At least 95% per active system, excluding declared unsupported inputs |
+| Comparison claims with valid contributing system-claim references | 100% |
+| Comparison claims that include fewer than two independent systems in the common/different groups | 0 occurrences |
+| Draft or blocked policies exposed as completed results | 0 occurrences |
 | Calculation golden-fixture pass rate | 100% for all launch fixtures |
 | Boundary sensitivity detection pass rate | 100% for all defined boundary fixtures |
 | Material interpretation claims carrying at least one evidence link | 100% |
@@ -115,35 +132,37 @@ Engagement and retention are secondary during the first beta. They must not be i
 
 ## MVP Scope
 
-### P0: Required for launch
+### P0: Required for the four-tradition public launch
 
-- Responsive Korean web app supporting mobile, tablet, and desktop browsers, optionally installable as a PWA.
-- Feature parity between the mobile browser, installed PWA, and desktop web experience.
-- Solar and lunar birth-date input, including explicit leap-month selection.
-- Birth time with an “unknown” option.
-- Searchable selection from the current official Korean administrative and legal 동·읍·면·리 catalog, persisted with its 10-digit area code and handled in `Asia/Seoul` civil time.
-- Optional traditional binary sex parameter, with an explanation of why it affects some daewoon methods.
-- Four pillars and core structured chart facts.
-- Calculation-method and source panel.
-- Boundary-sensitivity warning and alternative result when the selected policy can produce a material change.
-- Five to eight evidence-grounded reading sections written in plain Korean, with a 17px minimum reading size and a user-controlled 19px large-text mode.
-- Versioned central profile, submission, result, reading, conversation, and feedback storage with encryption and deletion workflows.
-- Versioned IndexedDB cache and purpose-receipt-bound offline submission outbox.
-- Required service-storage notice plus a separately recorded, optional model-training choice. Human review and third-party AI processing are disabled; either capability requires its own just-in-time disclosure and choice before use.
-- Start-stage data-subject and authority declaration when a user enters another person's birth information; do not repeat the same control inside the birth form.
-- Structured chart copy/export.
-- Rule-based follow-up question helper constrained to the chart-fact contract and non-directive language.
-- Safety notices, data-use disclosure, and report feedback.
+- Responsive Korean web/PWA behavior from 360 px mobile through wide desktop, with the existing Saju flows preserved.
+- A canonical birth profile containing original calendar input, normalized civil date/time, time-knowledge state, place label, latitude/longitude, IANA time zone, traditional sex parameter, and provenance for every normalization step.
+- Progressive input that asks common fields once, exposes why a system needs each additional field, and shows `ready`, `partial`, `needs-input`, `unsupported`, or `policy-blocked` before calculation.
+- An active, deterministic, versioned policy and independently reviewed fixture suite for each publicly completed system. `KR-CIVIL-1.0` is the only currently implemented policy; the other policies remain blocked until the registry gates pass.
+- One immutable result envelope per system with native chart facts, warnings, interpretation claims, calculation fingerprint, policy/engine/source/schema versions, and sensitivity metadata.
+- A comparison result built only from completed, validated system claims. At least two contributing systems are required for a common or different theme; unique themes remain labeled with their single source.
+- Comparison domains fixed to identity, work, resources, relationships, wellbeing, and timing for P0. A domain can be unavailable without blocking other domains.
+- Mobile comparison cards and a desktop master-detail layout with direct navigation to each native chart and evidence item.
+- A method drawer that distinguishes calculation fact, traditional interpretation, cross-system synthesis, and optional generated wording.
+- Privacy-safe share output that omits exact birth date, time, coordinates, profile name, record identifier, and unsupported claims by default.
+- Versioned IndexedDB records and JSON export for the aggregate profile, per-system results, and comparison result. Existing account persistence remains disabled unless its separate launch gates pass.
+- Safety notices, non-fatalistic language, data-use disclosure, accessible error/retry states, and per-system report feedback.
+
+### Existing Saju baseline that must not regress
+
+- Solar/lunar input, leap-month handling, unknown time, Korean place search, four pillars, daewoon, annual reading, couple mode, evidence chips, rule-based follow-up, local records, export, and deletion.
+- `KR-CIVIL-1.0`, `KR-ANNUAL-IPCHUN-1.1`, and `KR-DAEWOON-1.0` remain versioned independently of the new registry entries.
+- Existing couple and under-19 privacy restrictions remain intact. A four-tradition single-person record does not silently loosen them.
 
 ### P1: After launch validation
 
 - PDF and image export.
 - Approved pseudonymization, labeling, dataset snapshot, lineage, and model-run registry pipeline.
-- International birthplace and IANA time-zone support.
+- Saved profiles and optional account sync after the existing legal/security launch gates pass.
 - Additional documented calculation-policy presets.
 - Annual and monthly cycle views.
 - Advanced history filters, dataset-use visibility, and deletion-status tracking.
-- A comparison view for two profiles.
+- A two-person × four-tradition relationship view, separately scoped and consented.
+- Daily/weekly reflective check-ins derived from active policies, with notification consent and no alarming urgency.
 - Optional external-AI conversation only after provider, payload, retention, safety, and separate-consent gates are approved.
 
 ### P2: Future consideration
@@ -152,7 +171,7 @@ Engagement and retention are secondary during the first beta. They must not be i
 - Public calculation API.
 - Native iOS and Android shells.
 - Additional languages.
-- Ziwei Doushu or Western natal chart modules.
+- Western natal chart, tarot, numerology, naming, or practitioner-marketplace modules.
 
 ## User Stories
 
@@ -201,18 +220,47 @@ Engagement and retention are secondary during the first beta. They must not be i
 43. As a user correcting an error, I want the correction to invalidate affected training eligibility, so that known bad data is not reused.
 44. As a person entering someone else's birth information, I want the authority requirement explained, so that third-party data is not silently treated as mine.
 45. As a user withdrawing training permission, I want future datasets blocked immediately and affected model runs identified, so that the product can explain what happens next.
+46. As a first-time comparison user, I want to enter my profile once and see which systems are ready before I submit, so that I do not discover missing fields after a long wait.
+47. As a user with an unknown birth time, I want Mahabote or any other eligible result to complete while time-dependent systems remain clearly unavailable, so that I am not forced to guess.
+48. As a user, I want each system to keep its native chart and terminology, so that the comparison does not disguise one tradition as another.
+49. As a comparison reader, I want common, different, and unique themes separated, so that disagreement is useful instead of confusing.
+50. As a skeptical reader, I want every comparison sentence to open the contributing system claims and facts, so that I can audit the synthesis.
+51. As a returning user, I want old results to retain their original system-policy fingerprints after an engine update, so that history is not silently rewritten.
+52. As a user sharing a result, I want a compact card that excludes my exact birth data by default, so that I can share an insight without sharing the profile.
+53. As a user, I want a blocked or unsupported system to show a specific reason and next action, so that an empty card is not mistaken for a failed prediction.
 
 ## Functional Requirements
 
+### Four-system orchestration and eligibility
+
+- The system registry must use stable IDs: `saju`, `horasat`, `tu-vi`, and `mahabote`. Display names and translations must not be used as storage keys.
+- Each registry entry must declare policy status, required and optional inputs, supported range, engine/schema versions, source-data dependencies, unknown-time behavior, and native detail route.
+- Eligibility must be derived before engine invocation and must not depend on narrative generation. The result is one of `ready`, `partial`, `needs-input`, `unsupported`, or `policy-blocked`, with a machine-readable reason code and Korean recovery copy.
+- Calculation orchestration must run eligible systems independently. One system failure must not erase successful results from another system.
+- `policy-blocked` systems must never call an engine or display a synthetic chart. A product demo may show a clearly labeled static explanation only, never a personalized result.
+- The aggregate record must retain the original profile, normalized profile, per-system eligibility decisions, per-system immutable results, and an independently versioned comparison result.
+
+### Cross-system comparison
+
+- Every system interpretation claim must declare `systemId`, `domain`, `theme`, `stance`, plain-language summary, and valid native fact references.
+- P0 stance values are `supports`, `cautions`, `mixed`, `neutral`, and `unavailable`. They describe how an interpretation frames a theme, not a probability or confidence in fate.
+- A common theme requires at least two independent completed systems with the same domain, normalized theme, and compatible stance.
+- A different theme requires at least two independent completed systems with the same domain/theme and opposing or materially mixed stances.
+- A strict unique theme belongs to one system only after every requested comparable system has completed. If another requested system is blocked, failed, cancelled, or stale, the item is `partial-unique` and must be labeled `현재 계산된 체계에서만 보인 점`, not as a universal unique finding or system victory.
+- The comparison engine must reject missing fact references, duplicate contributions from the same system, stale result fingerprints, and claims from inactive policies.
+- The UI must show contributor count and system labels, but it must not show a consensus percentage, accuracy score, winner, ranking, compatibility score, or weighted truth claim.
+- When fewer than two systems complete, the comparison is unavailable while the completed native result remains readable.
+- The normative schemas, reason codes, route contracts, state transitions, and examples are defined in `docs/MULTI-ASTROLOGY-COMPARISON-SPEC.md`.
+
 ### Birth input and normalization
 
-- The app must accept solar or lunar dates from 1900-01-01 through the current date for the MVP.
+- The shared profile may accept any date that at least one active policy supports. Eligibility must evaluate the supported range per system; it must not reuse Saju's `1900-01-01..2100-12-31` range as a silent global rule.
 - Lunar input must require an explicit regular/leap-month choice when both are possible.
 - The app must preserve the original user input separately from normalized calculation values.
 - The app must not infer a missing birth time.
 - The app must explain the purpose of the traditional sex parameter and allow the user to omit it.
 - The app must reject impossible dates and unsupported ranges before calculation.
-- Korean birthplace selection must resolve a full current official administrative or legal locality name, its 10-digit area code, and `Asia/Seoul`. A unique short locality such as `문현동` may resolve automatically; ambiguous short names must require a city/district choice.
+- Korean birthplace selection must continue to resolve a full current official administrative or legal locality name, its 10-digit area code, coordinates, and `Asia/Seoul`. International input requires a display label, latitude, longitude, IANA time zone, and source provenance; ambiguous names must require a place choice.
 - The result must keep routine storage, training, external-AI, and engine-version diagnostics out of the reading surface while retaining record deletion and calculation-source access.
 - Before the first central submission, the app must display the service-storage categories, purpose, retention, processor, rights, and consequence of declining.
 - A submission must identify whether the account user is the data subject or is entering another person's information.
@@ -220,24 +268,24 @@ Engagement and retention are secondary during the first beta. They must not be i
 
 ### Calculation result
 
-- One deterministic calculation call must produce the full chart result from normalized input plus a calculation-policy identifier.
-- Every result must contain engine version, policy version, source-data version, normalized instant, and warnings.
-- The chart must include the four pillars, ten-god relationships, hidden stems, five-element counts or weights, and supported stem/branch relations.
-- Daewoon must be omitted or marked incomplete when required inputs are unavailable.
+- One orchestration request may invoke several engines, but each engine call must independently produce one complete native result from normalized input plus exactly one active calculation-policy identifier.
+- Every result must contain `systemId`, engine version, policy version, source-data version, result-schema version, input fingerprint, normalized inputs actually consumed, warnings, and native fact identifiers.
+- The Saju result continues to include four pillars, supported ten-god relationships, hidden stems, five-element distribution, relations, and eligible cycles. Horasat, Tử Vi, and Mahabote must use their own policy-approved native structures defined by their result schemas.
+- A required-input-dependent field or section must be omitted or marked unavailable when inputs are missing; a different system's result must not be used as a substitute.
 - Unsupported or disputed derived concepts must not be represented as universally correct. If added, their rule set and school must be named.
 - Recalculating identical input under identical versions must produce byte-equivalent structured facts.
 
 ### Boundary sensitivity
 
-- The engine must detect proximity to solar-term, civil-day, and hour-branch boundaries relevant to the active policy.
+- Each engine must detect the calendar, time, place, day, star-placement, weekday, and other sensitivity boundaries declared by its active policy. Saju's solar-term and hour-branch boundaries remain one system-specific case.
 - The UI must identify which output fields can change and why.
 - When a nearby alternative produces a different chart, the user must be able to compare the changed fields without creating a second profile.
 - The product must never hide a known boundary condition behind a generic confidence score.
 
 ### Reading
 
-- The initial report must contain five to eight sections selected from overall pattern, temperament, strengths, work, relationships, resources, wellbeing habits, and current cycles.
-- Each material sentence must reference at least one immutable chart-fact identifier.
+- Each native system report must contain a compact overview plus policy-approved sections selected from identity, work, resources, relationships, wellbeing, and timing. Native chart explanation may use additional system-specific sections.
+- Each material sentence must reference at least one immutable fact identifier from the same system result.
 - A user must be able to open an evidence chip and see the underlying fact in plain language.
 - The renderer must distinguish calculated fact, traditional interpretation, product synthesis, and user-facing reflection.
 - Time-dependent and daewoon-dependent sections must be suppressed or qualified when inputs are missing.
@@ -268,7 +316,7 @@ Engagement and retention are secondary during the first beta. They must not be i
 
 ### Profiles and export
 
-- PostgreSQL is the canonical profile/submission history; IndexedDB is a cache and offline outbox.
+- IndexedDB is the canonical guest/local profile history. The governed PostgreSQL account path is optional, feature-gated, and must remain `local-only` until the separate legal/security launch gates pass.
 - Stored profiles must include original input, calculation versions, source authorization/consent evidence, data-subject relationship, and processing state.
 - Deleting a profile must remove local data immediately and start an idempotent server deletion workflow covering derived content, processors, datasets, and model-impact review.
 - Structured export must separate chart facts from optional narrative content.
@@ -276,7 +324,9 @@ Engagement and retention are secondary during the first beta. They must not be i
 
 ## Calculation Policy Requirements
 
-The MVP uses `KR-CIVIL-1.0`, a named Korean legal civil-time policy with no hidden longitude correction. The locked conventions and source evidence are recorded in `docs/NATAL-CALCULATION-POLICY.md`.
+The implemented Saju baseline uses `KR-CIVIL-1.0`, a named Korean legal civil-time policy with no hidden longitude correction. The locked conventions and source evidence are recorded in `docs/NATAL-CALCULATION-POLICY.md`.
+
+The expansion uses `docs/CALCULATION-POLICY-REGISTRY.md` as the only activation registry. A Horasat, Tử Vi, or Mahabote entry remains `draft` or `blocked` until its calculation school, inputs, transformations, source/license provenance, independent expected-value fixtures, boundary tests, and qualified review are approved. A live third-party result may be a comparison fixture or UX reference, but it cannot be the sole calculation oracle.
 
 The policy registry must make these choices explicit:
 
@@ -294,16 +344,16 @@ The UI must show the active policy in user-readable language. Marketing must not
 
 ## Implementation Decisions
 
-- The product will have three strict layers: deterministic chart calculation, deterministic interpretation facts/rules, and optional generative narration.
+- The product will have five strict layers: shared input normalization, independent deterministic system engines, system-native interpretation facts/rules, deterministic cross-system comparison, and optional generative wording.
 - The calculation core will be framework-independent and executable in both the browser and a test runner.
 - The natal web interface calls its calculation core locally. The annual slice uses the same-origin deterministic `/v1/annual-readings` adapter so the pinned ephemeris implementation and content hash remain centralized; cached saved results and client rendering remain available offline.
-- A single high-level calculation contract will accept normalized birth input plus a policy identifier and return one versioned chart result.
+- A high-level orchestrator accepts a normalized profile plus requested system IDs, derives eligibility, invokes only active eligible policies, and returns independent versioned result envelopes without merging native facts.
 - Structured chart facts will have stable identifiers so the report, AI output, feedback, and regression tests can reference the same evidence.
 - Source calendar or ephemeris data must carry provenance, license, version, covered range, and generation method. An undocumented CSV cannot be a production source.
 - AI access will pass through a server-side narration gateway so provider credentials, consent enforcement, payload minimization, safety checks, and retention controls remain centralized.
 - The narration gateway will reject responses that mutate immutable chart facts or omit required evidence references.
 - IndexedDB will provide a versioned cache and purpose-receipt-bound submission outbox. `localStorage` will not hold birth profiles, content, authorization evidence, or tokens.
-- Managed PostgreSQL, with Supabase as the default candidate, will be the canonical operational store for encrypted birth input, normalized input, chart results, readings, conversations, feedback, purpose authorization/consent, processing lineage, and deletion state.
+- The implemented governed account path uses PostgreSQL behind an explicit fail-closed feature boundary. Local IndexedDB remains sufficient for the guest comparison experience; enabling account persistence does not change calculation semantics.
 - Restricted PII/content will be envelope-encrypted in a vault schema separated from operational metadata and browser access.
 - Model training will use purpose-specific pseudonymized dataset snapshots in encrypted object storage, never a direct query, replica, backup, log, or ad hoc export from production.
 - Dataset membership and model-run junctions will preserve source-to-model lineage and withdrawal impact analysis.
@@ -320,8 +370,9 @@ DDD is used where business invariants are difficult and consequential. It is not
 | Bounded context | Owns | Boundary rule |
 |---|---|---|
 | Identity and Profile | Account, data subject, profile metadata, authority relationship | Cannot decrypt birth content or decide training eligibility |
-| Chart Calculation | Normalized birth, calculation policy, chart result, chart fact, boundary sensitivity | Pure deterministic domain; cannot call an LLM or depend on UI/database frameworks |
-| Interpretation | Rule-set version, reading block, evidence link, uncertainty marker | Can reference immutable chart facts but cannot mutate them |
+| Chart Calculation | System registry, normalized profile projection, calculation policy, native system result, native fact, boundary sensitivity | Pure deterministic engines; cannot call an LLM or depend on UI/database frameworks |
+| Interpretation | System-specific rule-set version, native reading block, evidence link, uncertainty marker | Can reference immutable facts from the same system but cannot mutate them |
+| Comparison | Normalized domain/theme taxonomy, system claim, comparison group, contributing evidence | Cannot calculate native facts, rank systems, or accept claims without valid immutable references |
 | Consultation | Conversation, AI request/response, prompt/model version, safety outcome | Must use the fixed chart-fact contract and pass through consent/policy gates |
 | Privacy and Governance | Consent, purpose, retention, processing event, deletion workflow, privileged audit | Authoritative for whether processing is allowed; does not own model quality labels |
 | Learning and Model Governance | Feedback, review label, dataset snapshot/member, model run and artifact decision | Can read only approved projections; never reads the production PII vault directly |
@@ -334,13 +385,13 @@ The product uses three storage boundaries:
 
 | Boundary | Technology | Stores | Must not store |
 |---|---|---|---|
-| User device | IndexedDB | Cache, result copy, purpose-authorization receipt, offline submission outbox, settings | Server credentials or unregistered training exports |
+| User device | IndexedDB | Canonical guest profile, eligibility decisions, independent system results, comparison result, purpose receipt, optional sync outbox, settings | Server credentials or unregistered training exports |
 | Operational server | Managed PostgreSQL | Encrypted birth records, results, readings, conversations, feedback, purpose authorization/consent, processing, deletion, and dataset/model metadata | Plaintext secrets or browser-readable vault data |
 | Training storage | Encrypted object storage | Approved pseudonymized immutable dataset snapshots and manifests | Account identity or unregistered raw database exports |
 
-The chart engine, calculation policy, and ephemeris assets remain versioned application artifacts and run locally. During an outage, a calculation may complete and enter a visible `pending sync` state; the central submission must succeed before the record is considered durably stored.
+Calculation engines, policies, lookup tables, and ephemeris assets remain versioned application artifacts. A local calculation is a durable local record once its IndexedDB transaction commits. If account sync is enabled later, local and remote persistence states are shown separately and a failed sync does not invalidate a completed deterministic result.
 
-Supabase is the recommended initial provider because it supplies portable PostgreSQL, Auth integration, Row Level Security, and managed backup options. The schema must remain standard PostgreSQL so the application can move providers.
+The optional account schema remains standard PostgreSQL and must preserve existing encryption, RLS, ownership, restore, deletion, and fail-closed controls. Provider selection is operational and must not leak into the domain result contracts.
 
 Stored operational data is not automatically training data. Eligibility is re-evaluated when a dataset is built using current purpose consent, data-subject authority, age/minor rules, correction/deletion state, PII and safety screening, quality status, and model objective.
 
@@ -352,9 +403,15 @@ The product will maintain these conceptual records:
 
 - **Birth Input:** original calendar type, date, time or unknown flag, place identifier, time-zone identifier, optional coordinates, and optional traditional sex parameter.
 - **Normalized Birth:** resolved civil time, UTC instant when available, conversion metadata, and validation warnings.
+- **System Registry Entry:** stable system ID, display metadata, policy status, required inputs, supported range, detail route, and active policy reference.
+- **Eligibility Decision:** profile fingerprint, system ID, state, missing fields, reason codes, policy status, and evaluation version.
 - **Calculation Policy:** stable identifier, version, named conventions, and source-data versions.
-- **Chart Result:** pillars, derived facts, cycle data, sensitivity findings, engine version, policy version, and creation timestamp.
-- **Chart Fact:** stable fact identifier, category, structured value, dependencies, and provenance.
+- **System Result:** immutable system-native chart, facts, sensitivity findings, interpretation claims, engine/policy/source/schema versions, calculation fingerprint, and creation timestamp.
+- **Native Fact:** system-scoped stable fact identifier, category, structured value, dependencies, and provenance.
+- **System Claim:** domain, normalized theme, stance, system-native summary, evidence fact identifiers, and interpretation rule version.
+- **Comparison Result:** source result fingerprints, taxonomy/comparison versions, common/different/unique groups, rejected-claim diagnostics, and creation timestamp.
+- **Comparison Item:** group, domain, theme, neutral summary, contributing system claim references, and unavailable-system context.
+- **Chart Result / Chart Fact:** retained aliases for the existing Saju result contract during migration; new cross-system code must use the system-scoped records above.
 - **Annual Reading:** target year, Ipchun range and boundary flags, natal chart engine/policy provenance, annual policy/ephemeris source, interpretation profile/rule-set versions, annual and monthly facts, eight cards, separate monthly flow, claim trace, suppressed/unsupported states, and content hash. It extends rather than overwrites a natal chart result and round-trips as one complete versioned object.
 - **Reading Block:** section, text, supporting fact identifiers, content source, and uncertainty markers.
 - **Purpose Authorization:** purpose, disclosure version, lawful basis, consent decision when applicable, scope, state, and timestamp.
@@ -370,11 +427,11 @@ The product will maintain these conceptual records:
 - **Dataset Member:** lineage link between a source record, consent receipt, transformed row, and snapshot.
 - **Model Run:** reproducible training execution tied to exact datasets and code/config versions.
 
-Raw birth data and AI free text are prohibited from analytics records.
+Raw birth data, coordinates, native chart strings, comparison prose, and AI free text are prohibited from analytics records.
 
 ## Safety and Trust Requirements
 
-- The service must state that Saju is a traditional interpretive practice and not a scientific prediction or substitute for professional advice.
+- The service must state that Saju, Horasat, Tử Vi, and Mahabote are traditional interpretive practices, not scientific predictions or substitutes for professional advice.
 - Language must be conditional, reflective, and agency-preserving.
 - The app must not predict death dates, severe illness, crime, divorce, bankruptcy, infertility, or guaranteed success.
 - Health, finance, legal, and mental-health questions must receive a bounded response and an appropriate professional-help reminder when risk is present.
@@ -420,6 +477,13 @@ The highest and primary seam is the external calculation behavior: normalized bi
 
 ### Required test groups
 
+- Registry tests proving only `active` policies can execute and draft/blocked policies return stable reason codes.
+- Eligibility matrix tests for exact time, unknown time, missing coordinates, calendar variants, sex-parameter omission, unsupported ranges, and Wednesday time distinctions where an approved Mahabote policy requires them.
+- Independent golden and boundary fixture suites for every active system. Cross-library agreement or matching `horasat.kr` alone is not sufficient expected-value evidence.
+- Orchestration tests proving one engine error does not discard other completed results and retries do not duplicate immutable result envelopes.
+- Comparison tests for same theme/same stance, same theme/opposing stance, mixed stance, unique theme, unavailable systems, duplicate contributors, invalid evidence IDs, stale fingerprints, and fewer than two completed systems.
+- Contract tests proving a common/different item has at least two distinct contributing system IDs and every contribution resolves to a native fact chain.
+- Negative tests proving no score, percentage, winner, ranking, or generated substitute appears in structured output or rendered comparison states.
 - Authoritative golden fixtures for ordinary dates.
 - All 12 policy-changing `jie` term boundaries at minus one minute, exact boundary, and plus one minute; the complete 24-term authoritative fixture set remains source-versioned and integrity-checked for the annual engine.
 - Every enabled annual target's Ipchun at minus one minute, exact boundary, and plus one minute, plus the next-year Xiaohan-to-Ipchun closing month.
@@ -456,9 +520,9 @@ The highest and primary seam is the external calculation behavior: normalized bi
 
 ## Analytics Events
 
-Allowed events include onboarding viewed, input validation failed by category, chart completed, method panel opened, boundary warning viewed, evidence chip opened, AI consent accepted or declined, AI response rated, profile saved, and profile deleted.
+Allowed events include onboarding viewed, system explainer opened, eligibility evaluated, missing-field prompt viewed, system calculation started/completed/failed by system ID and coarse reason, comparison completed, comparison group opened, native detail opened, method panel opened, evidence chip opened, privacy-safe share invoked, AI consent accepted or declined, profile saved, and profile deleted.
 
-Events may contain only coarse product state such as calendar type, unknown-time flag, boundary-warning flag, engine version, and policy version. They must not contain exact dates, exact times, places, coordinates, names, free text, chart strings, or device-local profile identifiers.
+Events may contain only coarse product state such as requested/eligible/completed system IDs, calendar type, unknown-time flag, boundary-warning flag, engine version, policy version, comparison group, and coarse failure category. They must not contain exact dates, exact times, places, coordinates, names, free text, native chart strings, comparison prose, or device-local profile identifiers.
 
 ## Acceptance Criteria
 
@@ -483,15 +547,25 @@ The MVP is accepted only when all of the following are true:
 17. Interpretation-training snapshots contain zero direct identifiers and zero exact birth fields in the launch inspection set.
 18. Withdrawal immediately blocks future export and identifies all affected snapshots and model runs.
 19. Data entered about another person or a minor cannot enter training without the approved authority/guardian path.
+20. One profile submission produces an eligibility state and reason code for all four registered systems before calculation begins.
+21. No draft or blocked policy can produce a personalized completed result through UI, API, cached record, import, or retry.
+22. Every eligible active engine passes its own independent ordinary and boundary fixture suite and returns a schema-valid immutable result envelope.
+23. One engine failure leaves other successful native results readable and makes retry scope explicit.
+24. Every common or different comparison item references at least two distinct completed systems; every contribution resolves through a system claim to native facts in the same immutable result.
+25. Fewer than two completed systems yields no comparison result and does not hide the available native result.
+26. No comparison screen, export, API response, share image, or analytics event contains an accuracy, fate, consensus, compatibility, or confidence score.
+27. Unknown time and missing place/coordinate fixtures produce the documented per-system eligibility states without inferred inputs.
+28. A shared result excludes exact birth date, time, coordinates, profile label, and record ID by default.
+29. The complete mobile and desktop journey in `docs/MULTI-ASTROLOGY-COMPARISON-SPEC.md` passes manual matching-surface QA with four completed systems, partial eligibility, one engine error, and all-policy-blocked states.
 
 ## Out of Scope
 
-- Ziwei Doushu, Western natal astrology, tarot, naming, compatibility matching, and daily fortune notifications.
+- Western natal astrology, tarot, numerology, naming, practitioner matching, and fear-based remedies.
+- Two-person × four-tradition compatibility, social feeds, public birth profiles, and daily notification loops in expansion P0.
 - A marketplace for practitioners, talismans, rituals, or paid fear-based remedies.
 - Medical, legal, financial, fertility, or mental-health diagnosis.
 - A promise of scientific validity or universally correct Saju interpretation.
-- Multiple calculation schools at initial launch, beyond the one explicitly documented MVP policy.
-- Overseas birthplace and historical global time-zone support in P0.
+- Multiple simultaneous schools within one tradition at initial expansion launch; P0 activates one explicitly named policy per system.
 - Social feeds, public profile sharing, and user-generated public readings.
 - Native mobile applications, subscriptions, and payment processing.
 - Copying Orrery's AGPL source or calendar data with unresolved provenance into a closed-source product.
@@ -501,10 +575,13 @@ The MVP is accepted only when all of the following are true:
 ## Dependencies and Launch-Blocking Decisions
 
 - Seek an additional qualified-domain review before introducing daewoon, apparent-solar-time, or school-specific calculation variants; `KR-CIVIL-1.0` deliberately excludes them.
+- Name a qualified reviewer and approve an explicit calculation-school decision record for Horasat, Tử Vi, and Mahabote separately.
+- Acquire or create independently reviewable expected-value fixtures and boundary cases for each new policy; product screenshots and agreement between consumer apps are secondary evidence only.
+- Resolve source-code and table-data licenses before copying any implementation or lookup table. Product flows and visual grammar may be referenced without copying assets or proprietary calculation data.
 - Add another official fixture range before claiming authoritative solar-term validation outside 2024–2027.
 - Decide whether the product will remain closed source; this determines which external code can be reused.
 - Select an AI provider and confirm payload retention, regional processing, and deletion terms before enabling chat.
-- Accept Supabase or another managed PostgreSQL provider and approve its region, backup tier, RLS/grant model, and restore-test procedure before persistent server features launch.
+- Keep the existing governed PostgreSQL/KMS/Cognito account path fail-closed until its named operator, legal, security, region, retention, RLS/grant, and restore-test gates pass.
 - Approve the purpose-specific service storage, external AI, human review, and model-training notices after Korean privacy counsel review.
 - Approve retention, minors, third-party data, cross-border transfer, withdrawal, deletion, dataset, and model-impact policies.
 - Select encrypted object storage, KMS ownership, pseudonymization pipeline, and isolated review/training environment.
@@ -515,42 +592,35 @@ The MVP is accepted only when all of the following are true:
 
 ## Delivery Milestones
 
-### Milestone 0: Domain and evidence lock
+### Milestone 0: Registry, source, and oracle lock
 
-- Calculation policy decision record approved.
-- Data provenance and license recorded.
-- Golden fixtures independently reviewed.
-- Core result and chart-fact contracts frozen for MVP.
+- Stable system IDs, shared profile schema, eligibility states, native result envelope, comparison-claim schema, and error codes frozen.
+- Horasat, Tử Vi, and Mahabote each have a named policy decision owner, approved school/conventions, source/license manifest, independent expected-value fixtures, and boundary-test plan.
+- No draft policy is callable from production or demo personalization routes.
 
-### Milestone 1: Deterministic chart
+### Milestone 1: Shared profile and orchestration shell
 
-- Birth input and normalization complete.
-- Calculation core passes the full golden suite.
-- Boundary sensitivity implemented.
-- Method panel and structured chart available with responsive mobile and desktop layouts.
-- Central encrypted submission, purpose authorization, processing lineage, IndexedDB outbox, and deletion request implemented.
+- Existing Saju regression suite stays green while the shared normalized profile and system registry are introduced.
+- Progressive input, eligibility preview, independent task states, partial success, retry, cancellation, and IndexedDB aggregate migration are implemented.
+- Method disclosure and policy-blocked screens work on mobile and desktop without pretending that the new engines exist.
 
-### Milestone 2: Evidence-grounded reading
+### Milestone 2: Native engines and detail views
 
-- Interpretation fact rules versioned.
-- Five to eight reading sections rendered.
-- Every material claim linked to chart facts.
-- Unknown-time and missing-parameter behavior verified.
-- Versioned reading output, user ratings, structured corrections, and label-quality states stored.
+- Each new engine is implemented behind its registry status and activated one at a time only after its own oracle suite passes.
+- Each system has immutable native facts, evidence-linked interpretation claims, sensitivity states, method panel, export contract, and responsive native detail view.
+- Failure or rollback of one system does not mutate Saju or another system's saved result.
 
-### Milestone 3: Governed profiles and optional AI
+### Milestone 3: Evidence-bound comparison
 
-- Central profiles plus offline cache/outbox complete.
-- Service-storage disclosure/lawful-basis receipt plus separate external-AI, training, and human-review permission controls implemented.
-- AI grounding, encrypted content, safety, retention, correction, withdrawal, and deletion gates pass.
+- Domain/theme taxonomy, deterministic grouping, rejected-claim diagnostics, provenance drawer, and common/different/unique views are implemented.
+- Schema, unit, integration, property, and rendered-state tests prove every comparison item resolves to immutable system evidence and contains no scoring or ranking.
+- Privacy-safe sharing and JSON export pass forbidden-field scans.
 
-### Milestone 4: Closed beta
+### Milestone 4: Closed beta and public gate
 
-- Mobile, tablet, desktop, accessibility, privacy, and security validation complete.
-- Boundary-sensitive users included in usability testing.
-- Calculation and interpretation feedback triaged by version.
-- Pseudonymized dataset snapshot, membership lineage, dataset review, and model-impact tracing verified.
-- Launch acceptance criteria satisfied with fresh evidence.
+- Four-complete, partial-input, one-engine-failure, stale-policy, imported-old-record, and all-blocked journeys pass matching-surface QA at representative mobile/tablet/desktop widths.
+- Domain reviewers sign the active policy decisions; accessibility, privacy, performance, security, provenance, rollback, and content-safety gates pass with fresh evidence.
+- The existing account-storage legal/security launch gate remains independent; the four-system local experience must not silently enable cloud persistence.
 
 ## Risks and Mitigations
 
@@ -566,7 +636,11 @@ The MVP is accepted only when all of the following are true:
 | Unreviewed AI output reused as truth | Model degradation and repeated errors | Treat AI output as weak data; require quality labels, reviewer gates, and isolated evaluation sets |
 | Withdrawal after model training | User-rights and operational risk | Dataset membership, model lineage, future exclusion, documented retraining/unlearning decision process |
 | Fatalistic product language | Psychological harm and deceptive monetization | Uniform safety policy for templates and AI; manual rubric review |
-| Scope expansion into multiple traditions | Delayed and untestable MVP | Korean Saju only until the core and trust model are validated |
+| False equivalence across traditions | Misleading comparison and loss of domain meaning | Preserve native facts; compare only normalized interpretation claims with visible contributors |
+| Unverified new calculation rules | Personalized but incorrect charts | Keep policies blocked until source, license, expert decision, independent oracle, and boundary gates pass |
+| Partial input silently filled | Fabricated certainty and irreproducible results | Per-system eligibility reasons; never infer time/place/sex/calendar state |
+| Comparison becomes a popularity vote | Users mistake agreement for truth | No scores, weights, winners, percentages, or truth language; retain disagreements |
+| Four engines overwhelm the first result | High abandonment | Progressive input, eligibility preview, fast comparison overview, then opt-in native detail |
 
 ## Open Product Questions
 
@@ -580,6 +654,10 @@ These questions do not block the PRD draft but must be answered before public la
 - Are guest submissions permitted, and what authority/guardian flow applies to third-party and minor data?
 - What is the first training objective: interpretation fine-tuning, preference ranking, safety classification, or calculation-quality analysis?
 - What evidence threshold is required before adding sinsal, yongsin, gyeokguk, or compatibility features?
+- Which named school and source hierarchy will the first active Horasat, Tử Vi, and Mahabote policy use?
+- Who signs each new policy decision and independently reviews expected-value fixtures?
+- Which Korean product name communicates comparison without implying that four traditions are scientifically equivalent?
+- Is the free value the complete comparison overview, with paid products limited to deeper native reports and time-cycle content rather than withheld method evidence?
 
 ## Reference Basis
 
@@ -597,9 +675,15 @@ This PRD was informed by a fresh review of:
 - [Korean Personal Information Protection Act, Article 28-2](https://law.go.kr/LSW/lsInfoP.do?lsiSeq=270351)
 - [PIPC Generative AI Personal Data Processing Guide](https://www.pipc.go.kr/np/cop/bbs/selectBoardArticle.do?bbsId=BS217&mCode=G010030000&nttId=11439)
 - [PIPC AI Privacy Risk Management Model](https://www.pipc.go.kr/np/cop/bbs/selectBoardArticle.do?bbsId=BS217&mCode=G010030000&nttId=11014)
+- [Horasat live reference](https://horasat.kr/) — product and interaction reference only, not a calculation oracle
+- [Co–Star App Store](https://apps.apple.com/us/app/co-star-personalized-astrology/id1264782561) — personalized result, social comparison, daily return, and paid depth reference
+- [CHANI App Store](https://apps.apple.com/us/app/chani-your-astrology-guide/id1532791252) — accessible explanation, reflective routine, audio/content-depth reference
+- [Finch App Store](https://apps.apple.com/us/app/finch-self-care-pet/id1528595748) — adjacent-category quick check-in and gentle return-loop reference
+- [포스텔러 Google Play](https://play.google.com/store/apps/details?hl=ko&id=com.un7qi3.forceteller) — Korean multi-content catalog and onboarding-loop reference
+- [점신 Google Play](https://play.google.com/store/apps/details?hl=ko&id=handasoft.mobile.divination) — Korean daily report and relationship-record reference
 
 The detailed engine review is stored in `docs/reference-review.md`; the central storage design is in `docs/DATA-ARCHITECTURE.md`; training-use rules are in `docs/TRAINING-DATA-POLICY.md`.
 
 ## Definition of Done
 
-This PRD phase is complete when the document is reviewed, the launch-blocking calculation-policy decisions have named owners, and the next implementation plan can map each P0 requirement to a testable delivery item without inventing additional product behavior.
+This PRD documentation phase is complete when the product, design, data, comparison, and policy-registry documents use the same system IDs, states, contracts, and release gates; every P0 requirement maps to a screen/API/schema/test item; and no implementation work needs to invent product behavior. Runtime completion is a later milestone and requires all three new calculation policies, engines, fixtures, comparison behavior, accessibility, privacy, and matching-surface QA to pass.

@@ -4,6 +4,8 @@
 
 import { derivePatternId } from '../storage/readings.mjs';
 import { enrichDomain, getElementTheory, getTenGodActions } from './reading-enrichment.mjs';
+import { analyzeDaewoonBranch, analyzeDaewoonCycles } from '../../chart/daewoon-branch-analysis.mjs';
+import { getDaewoonDomains } from './daewoon-domains.mjs';
 
 const STEM_HANGUL = { '甲': '갑', '乙': '을', '丙': '병', '丁': '정', '戊': '무', '己': '기', '庚': '경', '辛': '신', '壬': '임', '癸': '계' };
 const BRANCH_HANGUL = { '子': '자', '丑': '축', '寅': '인', '卯': '묘', '辰': '진', '巳': '사', '午': '오', '未': '미', '申': '신', '酉': '유', '戌': '술', '亥': '해' };
@@ -104,6 +106,23 @@ export function extractPersonalizationKey(natal, daewoon, targetYear, annualResu
 
   const daewoonTenGod = currentDaewoon?.stem ? tenGodFor(dayStem, currentDaewoon.stem) : null;
 
+  // 대운 지지 분석 (충·합·형·해 + 오행 생극)
+  const dayMasterElement = ELEMENTS[dayStem];
+  let daewoonBranchAnalysis = null;
+  let daewoonAllCycles = null;
+  if (currentDaewoon?.branch && natalBranches.length > 0) {
+    daewoonBranchAnalysis = analyzeDaewoonBranch(currentDaewoon.branch, natalBranches, dayMasterElement);
+  }
+  if (allCycles.length > 0 && natalBranches.length > 0) {
+    daewoonAllCycles = analyzeDaewoonCycles(allCycles, natalBranches, dayMasterElement);
+  }
+
+  // 대운×연운 교차 분석
+  let daewoonAnnualCross = null;
+  if (daewoonTenGod && tenGod) {
+    daewoonAnnualCross = buildDaewoonAnnualCross(daewoonTenGod, tenGod);
+  }
+
   return {
     dayStem,
     dayMasterHangul,
@@ -120,13 +139,73 @@ export function extractPersonalizationKey(natal, daewoon, targetYear, annualResu
     tenGod,
     branchRelations,
     daewoonPillar: currentDaewoon?.pillar || currentDaewoon?.text || null,
+    daewoonBranch: currentDaewoon?.branch || null,
     daewoonTenGod,
     daewoonStartAge: currentDaewoon?.startAge || null,
+    daewoonBranchAnalysis,
+    daewoonAllCycles,
+    daewoonAnnualCross,
     gender: natal?.input?.gender || null,
     birthYear: natal?.input?.date ? Number(natal.input.date.slice(0, 4)) : null,
     targetYear,
     age: natal?.input?.date ? targetYear - Number(natal.input.date.slice(0, 4)) : null,
   };
+}
+
+/**
+ * 대운×연운 교차 분석
+ * 현재 대운의 십신과 연운의 십신이 어떤 시너지/긴장을 만드는지 분석
+ */
+function buildDaewoonAnnualCross(daewoonTenGod, annualTenGod) {
+  const SYNERGY = {
+    // 같은 십신이 겹침 — 기운 강화
+    same: '대운과 연운이 같은 기운 — 테마가 강하게 강조됩니다. 좋든 싫든 이 주제가 올해의 중심입니다.',
+    // 생(生) 관계 — 지원과 성장
+    generating: '대운이 연운을 돕는 구조 — 대운의 10년 테마가 올해 결실을 맺기 좋습니다.',
+    // 극(剋) 관계 — 긴장과 충돌
+    controlling: '대운과 연운이 충돌하는 구조 — 10년 방향과 올해의 기운이 다릅니다. 속도를 줄이고 점검하세요.',
+  };
+
+  // 십신 그룹 분류
+  const RESOURCE = new Set(['정인', '편인']); // 인성
+  const EXPRESSION = new Set(['식신', '상관']); // 식상
+  const WEALTH = new Set(['정재', '편재']); // 재성
+  const POWER = new Set(['정관', '편관']); // 관성
+  const SELF = new Set(['비견', '겁재']); // 비겁
+
+  // 생(生) 흐름: 인성 → 비겁 → 식상 → 재성 → 관성 → 인성
+  const FLOWS = [
+    { from: RESOURCE, to: SELF },
+    { from: SELF, to: EXPRESSION },
+    { from: EXPRESSION, to: WEALTH },
+    { from: WEALTH, to: POWER },
+    { from: POWER, to: RESOURCE },
+  ];
+
+  if (daewoonTenGod === annualTenGod) {
+    return { type: 'same', daewoonTenGod, annualTenGod, effect: SYNERGY.same };
+  }
+
+  const dGroup = [RESOURCE, EXPRESSION, WEALTH, POWER, SELF].find((g) => g.has(daewoonTenGod));
+  const aGroup = [RESOURCE, EXPRESSION, WEALTH, POWER, SELF].find((g) => g.has(annualTenGod));
+
+  if (!dGroup || !aGroup) return null;
+
+  if (dGroup === aGroup) {
+    return { type: 'same', daewoonTenGod, annualTenGod, effect: '대운과 연운이 같은 에너지 그룹 — 주제가 강조됩니다.' };
+  }
+
+  // 생(生) 관계 확인
+  const isGenerating = FLOWS.some((f) => f.from === dGroup && f.to === aGroup);
+  const isControlling = FLOWS.some((f) => f.from === aGroup && f.to === dGroup);
+
+  if (isGenerating) {
+    return { type: 'generating', daewoonTenGod, annualTenGod, effect: SYNERGY.generating };
+  }
+  if (isControlling) {
+    return { type: 'controlling', daewoonTenGod, annualTenGod, effect: SYNERGY.controlling };
+  }
+  return { type: 'neutral', daewoonTenGod, annualTenGod, effect: '대운과 연운이 다른 에너지 영역 — 균형을 잡는 시기입니다.' };
 }
 
 /**
@@ -303,10 +382,38 @@ export function composePersonalizedReading(baseReading, pKey, readingStore) {
       }
     }
 
-    // career에 대운 정보 추가
-    if (domain.domain_key === 'career' && daewoonModule) {
-      domainCopy.points.push(`현재 대운(${daewoonModule.daewoonPillar}): ${daewoonModule.theme}`);
-      domainCopy.points.push(`대운 집중 분야: ${daewoonModule.focus}`);
+    // 대운 13도메인 풀이 주입 — 대운 십신에 맞춘 10년 주기 풀이
+    // (career 도메인도 getDaewoonDomains에서 별도 풀이가 제공되므로 별도 주입 불필요)
+    if (pKey.daewoonTenGod) {
+      const daewoonDomainModules = getDaewoonDomains(pKey.daewoonTenGod);
+      const dwDomain = daewoonDomainModules.find(m => m.domain_key === domain.domain_key);
+      if (dwDomain?.points?.length > 0) {
+        // 대운 풀이는 10년 주기 조언임을 명시
+        const labeledPoints = dwDomain.points.map((p) => p.startsWith('[대운]') ? p : `[대운] ${p}`);
+        domainCopy.points.push(...labeledPoints);
+        if (dwDomain.closing) domainCopy.closing = `[대운] ${dwDomain.closing}`;
+      }
+    }
+
+    // 대운 지지 분석 결과 주입
+    if (pKey.daewoonBranchAnalysis && pKey.daewoonBranchAnalysis.length > 0) {
+      const branchEffects = pKey.daewoonBranchAnalysis
+        .flatMap((a) => a.interactions || [])
+        .filter((i) => i.severity === 'strong' || i.severity === 'strong-positive' || i.severity === 'negative');
+      if (branchEffects.length > 0) {
+        const topEffect = branchEffects[0];
+        if (domain.domain_key === 'relationships' && (topEffect.type === 'clash' || topEffect.type === 'punishment-full' || topEffect.type === 'punishment-partial')) {
+          domainCopy.points.push(`대운 지지 ${topEffect.name}: ${topEffect.effect}`);
+        }
+        if (domain.domain_key === 'favorable' && (topEffect.type === 'six-harmony' || topEffect.type === 'three-harmony' || topEffect.type === 'three-harmony-partial')) {
+          domainCopy.points.push(`대운 지지 ${topEffect.name}: ${topEffect.effect}`);
+        }
+      }
+    }
+
+    // 대운×연운 교차 분석 주입
+    if (pKey.daewoonAnnualCross && domain.domain_key === 'must_do') {
+      domainCopy.points.push(`대운×연운 교차: ${pKey.daewoonAnnualCross.effect}`);
     }
 
     // mindset에 연령대 정보 추가
@@ -328,15 +435,21 @@ export function composePersonalizedReading(baseReading, pKey, readingStore) {
   });
 
   // 개인화 메타데이터
+  const daewoonBranchSummary = pKey.daewoonAllCycles?.find((c) => c.cycleIndex === pKey.daewoonAllCycles?.findIndex((cc) => cc.branch === pKey.daewoonBranch))?.toneSummary || null;
+
   const personalization = {
     dayMaster: `${pKey.dayMasterHangul}(${pKey.dayStem})`,
     monthBranch: pKey.monthBranchHangul ? `${pKey.monthBranchHangul}(${pKey.monthBranch})` : null,
     monthModule: monthModule?.theme || null,
     daewoon: daewoonModule ? `${daewoonModule.daewoonPillar}(${daewoonModule.daewoonTenGod})` : null,
     daewoonTheme: daewoonModule?.theme || null,
+    daewoonBranch: pKey.daewoonBranch ? `${BRANCH_HANGUL[pKey.daewoonBranch] || ''}(${pKey.daewoonBranch})` : null,
+    daewoonBranchTone: daewoonBranchSummary,
+    daewoonAnnualCross: pKey.daewoonAnnualCross ? { type: pKey.daewoonAnnualCross.type, effect: pKey.daewoonAnnualCross.effect } : null,
+    daewoonCycleAnalysis: pKey.daewoonAllCycles || null,
     interactions: interactionMods.map((m) => ({ type: m.type, branch: m.branch })),
     ageGroup: personalTone.ageGroup,
-    personalizationVersion: '1.0.0',
+    personalizationVersion: '2.0.0',
   };
 
   return {

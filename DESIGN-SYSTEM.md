@@ -1,12 +1,12 @@
-# Saju App Design System
+# Saju App Four-Tradition Design System
 
-Status: verified implementation baseline v0.3, aligned with `DESIGN.md`
+Status: v0.4 documentation contract. Existing Saju components are the verified implementation baseline; four-tradition components are specified but not implemented.
 
 ## Direction
 
-The interface is a 조선의 저녁 달빛 명식대: deep indigo sky, warm hanji calculation sheets, a low moon, roofline silhouettes, muted ink, and moon-gold actions. It should feel like a quiet evening 만세력 desk rather than an AI dashboard.
+The interface is **아시아 네 밤하늘이 한 책상에 모이는 명식대**: deep indigo sky, warm hanji calculation sheets, a low moon, roofline silhouettes, muted ink, and moon-gold actions. It should feel like one quiet library of four traditions rather than an AI dashboard or fortune-content mall.
 
-Signature: a small orbit mark and an airy calculation sheet that keeps the four pillars, birthplace/time treatment, method policy, and evidence links visible in one glance.
+Signature: four original geometric marks share one orbit above an airy comparison sheet. Each native result keeps profile/time treatment, method policy, sensitivity, and evidence links inspectable without implying that the four systems calculate the same object.
 
 ## Tokens
 
@@ -29,13 +29,22 @@ Signature: a small orbit mark and an airy calculation sheet that keeps the four 
 --sky-100: #e6e3ee;
 --gold-500: #d3ad5c;
 --moon-300: #f5e5b4;
+--system-saju: var(--vermilion-600);
+--system-horasat: var(--gold-500);
+--system-tu-vi: var(--jade-600);
+--system-mahabote: var(--sky-600);
+--state-ready: var(--jade-600);
+--state-partial: var(--amber-600);
+--state-needs-input: var(--vermilion-600);
+--state-unsupported: var(--ink-400);
+--state-policy-blocked: var(--ink-600);
 --shadow: 0 18px 42px rgba(6, 8, 22, 0.28);
 --radius-panel: 16px;
 --radius-card: 10px;
 --radius-control: 8px;
 ```
 
-The base is an indigo evening sky with warm hanji sheets. Moon-gold is the single action accent. Cinnabar, jade, amber, and blue-gray are reserved for chart states; the moon, stars, and roofline are the only atmospheric decoration.
+The base is an indigo evening sky with warm hanji sheets. Moon-gold is the single action accent. The four system aliases identify provenance, not truth or quality. Eligibility state always combines color with a glyph, label, border/pattern, and accessible text. The moon, stars, roofline, and original system marks are the only atmospheric decoration.
 
 ## Typography
 
@@ -52,10 +61,11 @@ The base is an indigo evening sky with warm hanji sheets. Moon-gold is the singl
 ## Layout
 
 - Container max width: 1180px with 20px mobile and 32px desktop gutters.
-- Mobile-first breakpoints: 640px, 900px, 1180px.
-- Primary app layout: two-column product stage on desktop, single flow on mobile.
+- Mobile-first breakpoints: 640px, 900px, 1180px. A component may switch to master-detail at 1000px only when its container query proves the reading column remains at least 640px.
+- Primary app layout: single reading flow on mobile; comparison index + reading sheet on desktop; optional evidence drawer on wide desktop.
 - Sticky mobile action bar uses safe-area padding and three context actions.
 - Minimum touch target: 44px.
+- Comparison reading measure: 58ch maximum for prose. Native dense charts may use the full available sheet width and their own responsive overflow contract.
 
 ## Components
 
@@ -70,6 +80,17 @@ The base is an indigo evening sky with warm hanji sheets. Moon-gold is the singl
 - `notice`: flat semantic tint with a 3px left accent bar. No gradient fills.
 - `consent-list`: full-width consent cards stacked vertically with a 12px gap. Each label is one click target, uses a 22px checkbox, and exposes a visible focus-within ring.
 - `mode-card`: paired choice for `내 사주` and `커플 사주`; the latter uses two orbit dots, never a “match” meter.
+- `four-tradition-hero`: one dominant personalized artifact with an original four-mark orbit, a short product promise, primary CTA `한 번 입력하고 네 전통으로 보기`, method disclosure link, and no competing catalog grid above it.
+- `system-mark`: glyph + Korean label + optional native-language label. It always exposes the system ID to assistive technology and never relies on accent color alone.
+- `eligibility-list`: four fixed-order rows (`saju`, `horasat`, `tu-vi`, `mahabote`) showing one of `ready`, `partial`, `needs-input`, `unsupported`, or `policy-blocked`, plus reason and one recovery action. Rows are list items, not selectable cards unless the user can actually change selection.
+- `system-requirement`: inline field disclosure with system marks, `왜 필요한가요?` help, and the consequences of leaving the value unknown. It never opens after calculation as a surprise blocker.
+- `system-progress-rail`: per-system queued/calculating/complete/unavailable/failed/stale status with text and `aria-live` summary. Completed rows remain stable while another system retries.
+- `comparison-hero`: one sentence of neutral synthesis, completed-system count stated as context rather than a percentage, boundary/missing-input note, and links to method and all native results.
+- `comparison-section`: continuous report section for `common`, `different`, or `unique`; an empty group uses explanatory copy rather than disappearing.
+- `comparison-item`: domain, normalized theme, neutral summary, two or more contributor marks for common/different (one for unique), and an evidence seal. It has no gauge, rank, score, or colored verdict background.
+- `system-detail-index`: mobile tabs/list or desktop side index that changes the native volume while retaining the current comparison context. Tab semantics are used only when all panels are present; route navigation uses links and `aria-current`.
+- `method-drawer`: source, policy, engine, schema, input treatment, sensitivity, and limitation disclosure. On mobile it is a modal drawer with focus trap/return; on desktop it may be an adjacent panel.
+- `share-sheet`: privacy preview with included/excluded fields, theme selection, 720×1080 or responsive image preview, copy/download actions, and a safe default that omits exact profile data.
 - `couple-input-pair`: self on the left and partner on the right from 1000px; the same sections stack in that order below 1000px with no duplicated authority control.
 - `couple-chart-pair`: two chart sheets side by side above 900px and stacked below 640px.
 - `relationship-note`: a sky-tinted explanation of the current relationship state and the non-deterministic comparison boundary.
@@ -81,6 +102,14 @@ The base is an indigo evening sky with warm hanji sheets. Moon-gold is the singl
 ## Interaction rules
 
 - One primary action per screen section.
+- System order is always Saju → Horasat → Tử Vi → Mahabote across input, progress, results, records, exports, and method panels. Completion order never re-sorts the list.
+- Eligibility is shown before the primary calculation action. Unknown time or missing place remains an explicit value; the UI never recommends a guessed value to unlock more systems.
+- Per-system loading is independently announced. Partial success opens the comparison or native results that are valid and offers scoped retry only for failed systems.
+- `policy-blocked` uses the copy `계산 정책 검증 중` and links to a plain-language reason. It must not use skeleton charts, demo personal text, or disabled controls that imply a transient network wait.
+- Common/different groups require at least two distinct system marks. Unique items require one mark and the label `이 체계에서만 다뤄요`; none uses victory, accuracy, or consensus language.
+- Evidence inspection follows `comparison item → system claim → native fact → method/source`. Back navigation and focus return to the originating evidence seal.
+- Comparison domain navigation uses buttons or links with visible selected state and a complete non-tab reading fallback for print, large text, and assistive technologies.
+- Share preview defaults to no exact birth data and requires a deliberate secondary opt-in before any additional profile field can be included. Coordinates and internal IDs are never shareable.
 - Consent is explicit. The service-storage acknowledgement is required before birth input. Product-improvement learning starts unchecked, is optional, and does not change the deterministic chart or reading when declined.
 - Couple mode includes the partner-authority statement in the start-stage service-storage disclosure. The birth form does not repeat that checkbox, while self and partner subjects and purpose receipts remain separate at the ingestion boundary.
 - Couple comparison surfaces shared elements and distribution gaps as question prompts; it never emits a compatibility score or guaranteed relationship outcome.
@@ -99,9 +128,15 @@ The base is an indigo evening sky with warm hanji sheets. Moon-gold is the singl
 - Every form control has a visible label.
 - Focus is visible with a 3px vermilion outline and offset.
 - Status announcements use `aria-live`.
-- Color is never the only encoding for chart facts.
+- Color is never the only encoding for chart facts, system identity, eligibility, comparison group, or task state.
+- The four-mark orbit has a text alternative naming all four traditions; decorative duplicates are `aria-hidden`.
+- System progress announces a summarized status change once and does not create four competing live regions.
+- Master-detail layouts preserve DOM reading order: overview, status, comparison, then native detail/evidence.
+- Native Tử Vi/Horasat/Mahabote diagrams require an accessible table or ordered textual equivalent defined with the approved result schema before release.
 - Korean labels are tested at 320px, 390px, 768px, 1024px, and 1440px.
 
-## Data boundary in the prototype
+## Data boundary
 
-The prototype uses IndexedDB for the device record cache and purpose-receipt-bound outbox. The combined local server durably stores accepted submissions in `data/saju.sqlite` and supports submission-level deletion and optional-training withdrawal. This is development durability only: no production PostgreSQL, KMS, account identity, subject-level authorization, retention job, or cross-device synchronization is connected.
+The default product remains local-first: IndexedDB stores the guest profile, eligibility decisions, independent system results, comparison result, and any optional sync outbox. Existing development and governed account adapters remain separate from the reading surface, and production account storage stays fail-closed until its launch sign-off is complete. The four-tradition documentation update adds no storage implementation.
+
+UI state must distinguish `local saved`, `sync pending`, `sync failed`, and `account saved` without changing calculation validity. A record can contain completed and unavailable systems. Deleting the aggregate removes local profile, eligibility, native results, comparison, and share previews transactionally; account deletion remains a separately confirmed server workflow when that capability is enabled.

@@ -6,9 +6,15 @@ Policy: `KR-CIVIL-1.0@1.0.0`
 
 Engine: `gyeol-natal-core@1.0.0`
 
+System ID: `saju`
+
+Registry status: active and implemented; see `CALCULATION-POLICY-REGISTRY.md`
+
 ## Scope
 
 This policy calculates the four natal pillars for normalized solar dates from `1900-01-01` through `2100-12-31`. The browser and server import the same framework-independent module. The browser calculates locally and offline; the submission adapter recalculates the pillars and rejects tampered or stale-policy results.
+
+This remains the only active personal calculation policy in the four-tradition registry as of 2026-08-23. Horasat, Tử Vi, and Mahabote use separate system IDs, input projections, native result schemas, sources, and oracle gates. Their future activation must not change, wrap, or silently reinterpret `KR-CIVIL-1.0` output; a cross-system comparison references this policy's immutable result fingerprint.
 
 Lunar input is converted to a normalized solar input by the separately versioned `lunar-javascript@1.7.7` adapter. The original lunar input, leap-month flag, conversion provenance, and normalized value remain distinct.
 

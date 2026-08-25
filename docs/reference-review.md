@@ -1,7 +1,38 @@
-# Saju App Reference Review
+# Saju App Product and Calculation Reference Review
 
-Date: 2026-08-01  
-Scope: product behavior, calculation architecture, verification quality, and reuse risk for four references.
+Original calculation review: 2026-08-01
+
+Product-reference update: 2026-08-23
+
+Scope: product behavior, current market patterns, calculation architecture, verification quality, and reuse risk.
+
+## 2026-08-23 product-reference update
+
+The product direction now extends the verified Saju baseline toward one-profile comparison of Korean Saju, Thai Horasat, Vietnamese Tử Vi, and Myanmar Mahabote. This changes the product scope, not the calculation-evidence standard: a consumer app, live result, screenshot, or agreement among implementations is not an authoritative oracle.
+
+### Current market signals inspected on 2026-08-23
+
+Store counts and ranks are point-in-time signals and will drift. They show that the interaction pattern has distribution and repeat-use evidence; they do not prove calculation correctness, user outcomes, or scientific validity.
+
+| Reference | Current visible signal | Pattern worth adapting | Explicit rejection |
+|---|---|---|---|
+| [Horasat](https://horasat.kr/) | Live Korean web service exposes Thai astrology, Tử Vi, and Mahabote input/results | Korean terminology, separate native result entry points, free first result and deeper-report ladder | Do not treat the service as the sole formula/table oracle or copy its screens/assets |
+| [Co–Star](https://apps.apple.com/us/app/co-star-personalized-astrology/id1264782561) | App Store showed 4.8/206K ratings and Editors’ Choice; listing describes daily readings, chart learning, friend comparison, Q&A, and relationship depth | One dominant personalized artifact, dense chart inspection, comparison after the first result, paid depth | No deterministic compatibility score, monochrome clone, or paywall before method evidence |
+| [CHANI](https://apps.apple.com/us/app/chani-your-astrology-guide/id1532791252) | App Store showed 4.9/57K ratings and Editors’ Choice; listing describes daily/weekly guidance, chart explanation, audio, rituals, journaling, transits, and annual depth | Beginner-to-expert disclosure, reflective cadence, recurring value beyond one static report | Do not copy content/artwork or mix an ongoing feed into the P0 comparison result |
+| [Finch](https://apps.apple.com/us/app/finch-self-care-pet/id1528595748) | App Store showed 4.9/743K ratings and Editors’ Choice | Quick check-in, one manageable action, gentle return loop, visible progress | No pet clone, coercive streak, reward pressure, or wellness-efficacy implication |
+| [포스텔러](https://play.google.com/store/apps/details?hl=ko&id=com.un7qi3.forceteller) | Google Play showed 4.5, about 20.1K reviews, 1M+ downloads, an August 2026 update, multiple divination categories, and a seven-day welcome quest | Korean onboarding, searchable content taxonomy, free value followed by paid depth | Avoid catalog overload, scores as truth, ad-density, and a seven-day loop before core value |
+| [점신](https://play.google.com/store/apps/details?hl=ko&id=handasoft.mobile.divination) | Google Play showed 4.4, about 99.8K reviews, 5M+ downloads, daily reports, saved relationship views, and expert consultation | Daily report hierarchy and clear relationship-record affordance as later references | Avoid ad/reward clutter, fear-based goods, and mixing consultation commerce into calculation evidence |
+
+### Adopted product grammar
+
+1. One birth profile and one dominant CTA before content browsing.
+2. Eligibility preview before calculation; incomplete input is explained instead of guessed.
+3. A fast personalized comparison overview, then progressively deeper native charts.
+4. Comparison and sharing appear after the user has received the first useful result.
+5. Recurring reflection and paid depth are P1; calculation method, evidence, limitations, privacy, and the comparison overview remain free.
+6. Retention comes from a useful saved artifact and gentle reflection, not fatalistic alerts, scores, ad gates, or artificial urgency.
+
+The screen, component, state, and contract decisions derived from these references are in `../DESIGN.md`, `../DESIGN-SYSTEM.md`, and `MULTI-ASTROLOGY-COMPARISON-SPEC.md`.
 
 ## Executive decision
 
@@ -182,7 +213,9 @@ The LLM must never calculate pillars. It should receive only structured, engine-
 - Longitude extremes and dates where solar correction crosses a civil date.
 - Cross-implementation fixtures are useful only as secondary evidence; authoritative expected values must be independently sourced.
 
-## MVP recommendation
+## Historical MVP recommendation (superseded for product scope)
+
+The following 2026-08-01 recommendation explains why the existing implementation started with Saju. It remains valid as the history of the verified baseline, but it no longer defines the target product scope. The 2026-08-23 direction adds three traditions only through the source/oracle gates in `CALCULATION-POLICY-REGISTRY.md`; it does not weaken this section's evidence standard.
 
 Start Korean-first and Saju-only instead of shipping Saju, Ziwei, and natal astrology simultaneously.
 

@@ -1,8 +1,13 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
+import { spawnSync } from 'node:child_process';
+import os from 'node:os';
+import path from 'node:path';
 import { calculateNatalChart } from '../chart/natal-engine.mjs';
 import { calculateDaewoon } from '../chart/daewoon-engine.mjs';
+import { buildNatalChapters, extractNatalFeatures } from '../server/domain/natal-chapter-selection.mjs';
+import { natalReadingItems } from '../web/natal-reading.mjs';
 
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const annualClient = fs.readFileSync(new URL('../annual/client.mjs', import.meta.url), 'utf8');
@@ -11,6 +16,23 @@ const adminAreaSource = fs.readFileSync(new URL('../data/admin-areas.js', import
 const apacheSslConfig = fs.readFileSync(new URL('../deploy/apache/saju.blog-le-ssl.conf', import.meta.url), 'utf8');
 const deployUpdater = fs.readFileSync(new URL('../deploy/bin/update-saju-app.sh', import.meta.url), 'utf8');
 const serviceUnit = fs.readFileSync(new URL('../deploy/systemd/saju-app.service', import.meta.url), 'utf8');
+
+// The full inline module script must parse — string assertions on the HTML
+// cannot catch syntax errors that blank the whole app (#app stays empty).
+{
+  const inlineModuleScript = /<script type="module">([\s\S]*?)<\/script>/.exec(html)?.[1];
+  assert.ok(inlineModuleScript, 'the app ships an inline module script');
+  const probeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'saju-syntax-'));
+  const probeFile = path.join(probeDir, 'inline-check.mjs');
+  fs.writeFileSync(probeFile, inlineModuleScript);
+  try {
+    const syntaxCheck = spawnSync(process.execPath, ['--check', probeFile], { encoding: 'utf8' });
+    assert.equal(syntaxCheck.status, 0, `inline module script must parse as ESM: ${syntaxCheck.stderr}`);
+  } finally {
+    fs.rmSync(probeDir, { recursive: true, force: true });
+  }
+}
+
 const engineStart = html.indexOf('const STEMS');
 const engineEnd = html.indexOf('function getFact');
 assert.ok(engineStart >= 0, 'engine constants are present');
@@ -53,7 +75,7 @@ assert.match(adminAreaSource, /Effective date: 2026-07-20/);
 assert.match(adminAreaSource, /KIKcd_H and KIKcd_B/);
 assert.deepEqual(JSON.parse(JSON.stringify(catalogSandbox.tenGodMap)), [['甲', '편관'], ['乙', '정관'], ['丙', '편인'], ['丁', '정인'], ['戊', '비견'], ['己', '겁재'], ['庚', '식신'], ['辛', '상관'], ['壬', '편재'], ['癸', '정재']], 'ten-god relation covers all five element relations and both polarities');
 const evaluate = (input) => {
-  const sandbox = { calculateNatalChart, calculateDaewoon };
+  const sandbox = { calculateNatalChart, calculateDaewoon, extractNatalFeatures, buildNatalChapters, natalReadingItems };
   vm.runInNewContext(`${engineSource}; globalThis.result = calculateChart(${JSON.stringify(input)});`, sandbox);
   return sandbox.result;
 };
@@ -65,11 +87,15 @@ assert.equal(golden.policy.version, '1.0.0');
 assert.equal(golden.policy.engine, 'gyeol-natal-core');
 assert.equal(golden.policy.engineVersion, '1.0.0');
 assert.ok(golden.facts.every((fact) => fact.id && fact.value), 'facts have stable identifiers and values');
-assert.equal(golden.reading.length, 8, 'single reading includes eight evidence-grounded chapters');
+assert.equal(golden.reading.length, 11, 'single reading renders the approved natal chapters for the sample chart (draft variants fail closed)');
 assert.ok(golden.reading.every((item) => item.detail && item.practice && item.questions?.length >= 2), 'single reading includes detail, practice, and prompts');
-assert.match(golden.reading[0].text, /토가 4개/);
-assert.match(golden.reading[0].detail, /^토는 /);
-assert.match(golden.reading[1].text, /己는 겁재/);
+assert.deepEqual(golden.reading.map((item) => item.chapter_id), ['overview', 'day_master_image', 'seasonal_root', 'ten_god_structure', 'element_balance', 'life_hints', 'hour_rhythm', 'missing_element', 'dominant_skew', 'branch_harmony', 'closing'], 'sample chart selects its approved chapters in domain order');
+assert.match(golden.reading[0].text, /무\(토\)/);
+assert.match(golden.reading[0].detail, /토가 4자/);
+assert.equal(golden.reading.find((item) => item.chapter_id === 'ten_god_structure').matched, '편인');
+assert.equal(golden.reading.find((item) => item.chapter_id === 'missing_element').matched, '목');
+assert.equal(golden.reading.find((item) => item.chapter_id === 'branch_harmony').matched, '오미');
+assert.ok(golden.natalChapters?.chapter_count === golden.reading.length, 'the selection result is attached to the chart');
 assert.equal(golden.pillars[0].tenGod, '식신');
 assert.deepEqual(Array.from(golden.pillars[2].hiddenStems), ['庚', '壬', '戊']);
 assert.ok(golden.facts.some((fact) => fact.id === 'ten-god.visible'));
@@ -103,7 +129,7 @@ assert.match(serviceUnit, /EnvironmentFile=-\/etc\/saju-app\.env/, 'managed stor
 assert.match(serviceUnit, /ReadWritePaths=\/var\/lib\/saju-app\/runtime/, 'systemd grants writes only to the runtime boundary');
 
 const couple = (() => {
-  const sandbox = { calculateNatalChart, calculateDaewoon };
+  const sandbox = { calculateNatalChart, calculateDaewoon, extractNatalFeatures, buildNatalChapters, natalReadingItems };
   vm.runInNewContext(`${engineSource}; globalThis.result = calculateCoupleChart(${JSON.stringify({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar' })}, ${JSON.stringify({ date: '1992-02-14', time: '09:00', unknownTime: false, place: '서울', calendar: 'solar' })}, 'dating');`, sandbox);
   return sandbox.result;
 })();
@@ -128,10 +154,17 @@ assert.match(html, /fetch\('\/v1\/account', \{ method: 'DELETE' \}\)/, 'account 
 assert.match(html, /aria-live/);
 assert.match(html, /커플 사주/);
 assert.match(html, /입력 권한을 확인한 상대방의 출생정보/);
-assert.match(html, /음력 변환.*날짜·시각.*일시 처리/, 'couple disclosure distinguishes transient conversion from central storage');
+assert.match(html, /음력 변환[^\n]*날짜·시각[^\n]*일시 (처리|사용)/, 'couple/lunar disclosure distinguishes transient conversion from central storage (데이터 안내 + couple form)');
 assert.match(html, /두 사람의 사주풀이 시작하기/);
 assert.match(html, /couple-input-pair/);
-assert.match(html, /consent-list/);
+// P0-D notice slimming — the home screen carries no blocking storage-notice section or required checkbox;
+// a single compact line links to the 데이터 안내 screen where the full disclosure lives
+assert.doesNotMatch(html, /시작 전에 알려드려요/, 'the home screen no longer shows the big storage-notice section');
+assert.doesNotMatch(html, /notice-title/, 'the notice section heading id is gone from the app');
+assert.doesNotMatch(html, /service-consent-toggle/, 'no required home-path consent checkbox remains');
+assert.match(html, /class="storage-note"/, 'the home screen keeps a compact one-line storage note');
+assert.match(html, /이 기기에만 저장돼요\./, 'the compact note states the device-only default');
+assert.match(html, /storage-note[\s\S]{0,220}data-action="details"/, '자세히 in the note opens the 데이터 안내 view');
 assert.match(html, /partnerForm\.authorityVerified = state\.mode === 'couple'/);
 assert.doesNotMatch(html, /form\.get\('partnerAuthority'\)/);
 assert.doesNotMatch(html, /상대방의 동의를 받고 입력합니다/);
@@ -149,8 +182,9 @@ assert.match(html, /검색 결과에서 출생지를 골라 주세요/);
 assert.match(html, /검색 결과가 많아 먼저 20곳을 보여드려요/);
 assert.match(html, /placeResolution\.status === 'ambiguous'/);
 assert.match(html, /reading-report/);
-assert.match(html, /십신의 겉흐름/);
-assert.match(html, /지장간의 안쪽 흐름/);
+assert.match(html, /import \{ buildNatalChapters, extractNatalFeatures \} from '\.\/server\/domain\/natal-chapter-selection\.mjs'/, 'the result view imports the natal chapter selection');
+assert.match(html, /import \{ natalReadingItems \} from '\.\/web\/natal-reading\.mjs'/, 'the result view imports the approved-chapter reading mapper');
+assert.match(html, /natalReadingItems\(natalChapters, \{ factIds: new Set\(facts\.map/, 'the reading maps selected chapters with evidence wired to existing facts');
 assert.match(html, /reading-practice/);
 assert.match(html, /한눈에 보기/);
 assert.match(html, /쉽게 풀어보면/);
@@ -158,14 +192,31 @@ assert.match(html, /오늘 해볼 일/);
 assert.match(html, /생각해볼 질문/);
 assert.match(html, /data-action="text-size"/);
 assert.match(html, /reading-size-large/);
+// Card-news export and sharing — primary actions on the result toolbar
+assert.match(html, /data-action="card-save"/, 'the result toolbar exposes a card-news PNG download as the primary export');
+assert.match(html, /data-action="card-share"/, 'the result toolbar exposes a share action for the card news');
+assert.match(html, /데이터 내보내기\(JSON\)/, 'the JSON export remains available as a demoted ghost action');
+assert.match(html, /const W = 1080, H = 1350/, 'the natal card-news canvas is a 1080x1350 portrait card');
+assert.match(html, /navigator\.canShare\?\.\(\{ files: \[file\] \}\)/, 'card sharing uses the Web Share API files level when available (Threads on mobile)');
+assert.match(html, /data-action="record-card"/, 'saved records can export a card-news image without reopening the result');
+assert.match(html, /규칙 기반 계산 · 생성형 AI 예측 아님/, 'the card carries the non-AI calculation-policy stamp');
 assert.match(html, /function methodView\(\)/);
 assert.match(html, /function dataView\(\)/);
 assert.match(html, /state\.screen = 'method'/);
 assert.match(html, /state\.screen = 'data'/);
 assert.match(html, /moveToStage\('input-title'/);
 assert.match(html, /state\.screen === 'result'\) moveToStage\('result-title'\)/);
-assert.match(html, /if \(!state\.serviceConsent\)/);
+// P0-D: birth input entry is no longer gated on a home-screen consent tick; the real
+// consent gates (terms/privacy/14+ and the 19+ cloud gate) still fire at the account moment
+assert.doesNotMatch(html, /if \(!state\.serviceConsent\)/, 'the start flow no longer blocks entry behind the home consent checkbox');
+assert.match(html, /if \(action === 'start'\) \{ enterInputStage\(\); \}/, 'start goes straight to the birth input stage');
 assert.doesNotMatch(html, /!state\.serviceConsent \|\| !state\.training/);
+// Consent gate trigger — signup/account moment, never first visit
+assert.match(html, /open: false, declined: stored\.declined === true/, 'hydration keeps the consent modal closed so a first visit lands on the app');
+assert.doesNotMatch(html, /state\.consentGate = \{ open: gate\.open/, 'no code path reopens the blocking consent modal from stored state on load');
+assert.match(html, /pending: 'account-login'/, 'the consent gate opens at the account (signup) attempt and resumes it after consent');
+assert.match(html, /if \(evaluateServiceGate\(stored\)\.open\) \{\s*state\.consentGate = \{ open: true/, 'the 14+ service gate is evaluated inside the account-login entry point');
+assert.doesNotMatch(html, /동의 없이는 서비스를 이용할 수 없어요/, 'the old service-blocking decline screen is gone (local reading stays free)');
 assert.doesNotMatch(html, /제품 개선을 위한 학습 사용 \(선택\)/);
 assert.match(html, /\.mode-card small \{[^}]*font-size: 15px/s);
 assert.match(html, /\.brand-copy small \{[^}]*font-size: 13px/s);
@@ -190,7 +241,7 @@ assert.match(html, /<link rel="icon" href="icon\.svg" type="image\/svg\+xml" siz
 assert.match(fs.readFileSync(new URL('../robots.txt', import.meta.url), 'utf8'), /GPTBot[\s\S]*Disallow: \//);
 assert.match(fs.readFileSync(new URL('../ai.txt', import.meta.url), 'utf8'), /ClaudeBot[\s\S]*Disallow: \//);
 const serviceWorker = fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
-assert.match(serviceWorker, /saju-app-shell-v14/);
+assert.match(serviceWorker, /saju-app-shell-v26/);
 assert.match(serviceWorker, /fonts\/noto-sans-kr-5\.3\.0/);
 assert.match(serviceWorker, /url\.pathname\.startsWith\('\/auth\/'\)[\s\S]*url\.pathname\.startsWith\('\/v1\/'\)[\s\S]*event\.respondWith\(fetch\(event\.request\)\)/, 'auth callbacks, account APIs, and their URL parameters never enter Cache Storage');
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /annual\/client\.mjs/);
@@ -198,6 +249,35 @@ assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), '
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /chart\/natal-engine\.mjs/);
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /chart\/natal-ephemeris-data\.mjs/);
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /chart\/daewoon-engine\.mjs/);
+// Daily reading (오늘의 운세) — deterministic client-side panel on its own standalone screen (P0-C: not in the natal result view)
+assert.match(html, /import \{ renderDailyReading \} from '\.\/web\/daily-reading\.mjs'/, 'the app imports the daily panel renderer for the standalone screen');
+assert.match(html, /import \{ buildDailyReading \} from '\.\/server\/domain\/daily-reading-selection\.mjs'/, 'the daily selection module is imported from its committed path');
+assert.match(html, /function ensureDailyReading\(\)/, 'the daily screen recomputes the daily reading instead of pinning it to the saved date');
+assert.match(html, /formatSeoulInstant\(Math\.floor\(Date\.now\(\) \/ 60000\)\)/, 'today comes from the engine Seoul timezone snapshot, not UTC');
+assert.match(html, /\$\{daewoonMarkup\}\$\{annualMarkup\}/, '대운 → 연운 zoom-in order in the natal result flow');
+assert.doesNotMatch(html, /dailyMarkup/, 'the natal result view no longer renders the daily panel (P0-C: daily stays standalone and does not invade the main reading)');
+assert.match(html, /data-action="daily-from-result"/, 'the natal result view keeps only a tiny footer link to the daily screen');
+assert.match(serviceWorker, /web\/daily-reading\.mjs/, 'the SW precaches the daily panel renderer');
+assert.match(serviceWorker, /daily-reading-selection\.mjs/);
+assert.match(serviceWorker, /seeds\/daily-readings\.mjs/);
+assert.match(serviceWorker, /seeds\/natal-chapters\.mjs/);
+// P0-1 copy rename — user-facing vocabulary is "오늘의 운세" (search-standard doryeong wording); internal identifiers stay
+assert.doesNotMatch(html, /오늘의 기운/, 'index.html carries no 오늘의 기운 copy (user-facing vocabulary is 오늘의 운세)');
+assert.doesNotMatch(fs.readFileSync(new URL('../web/daily-reading.mjs', import.meta.url), 'utf8'), /오늘의 기운/, 'the daily renderer carries no 오늘의 기운 copy');
+assert.match(html, /오늘의 운세 · 일운\(日運\)/, 'the daily panel eyebrow uses the 오늘의 운세 vocabulary');
+// P0-1 first-screen daily entry — teaser for saved-chart browsers, one-line CTA otherwise (offline, client-side)
+// P0-C demotion: the teaser is a compact single-line strip placed BELOW the hero, subordinate to the 명식 mode-picker
+assert.match(html, /function dailyTeaserMarkup\(\)/, 'the intro view assembles a first-screen daily teaser');
+assert.match(html, /class="daily-strip"/, 'the home daily teaser renders as a compact strip');
+assert.doesNotMatch(html, /class="daily-teaser/, 'the old card-style teaser markup is gone (P0-C demotion)');
+assert.match(html, /<\/section>\$\{dailyTeaserMarkup\(\)\}/, 'the daily strip renders below the hero section, not above it');
+assert.match(html, /data-action="daily-teaser-open"/, 'the teaser opens the full daily reading');
+assert.match(html, /오늘의 운세 보기 /, 'no saved chart keeps a smaller daily CTA on home');
+assert.match(html, /function dailyView\(\)/, 'the standalone daily screen reuses the result-view daily panel renderer');
+assert.match(html, /state\.screen = 'daily'/, 'the teaser routes to the dedicated daily screen');
+assert.match(html, /function refreshDailyTeaser\(\)/, 'record changes refresh the home teaser');
+assert.match(html, /record\?\.chart && !record\.remoteOnly/, 'cloud-only records are not treated as offline teaser charts');
+assert.match(html, /annualStorage\.listRecords\(\)\.then\(\(records\) => \{/, 'boot loads local records so the first screen fills offline');
 assert.match(html, /requestAnnualReading/);
 assert.match(html, /annualSubmissionFields/);
 assert.match(html, /name="targetYear"/);

@@ -5,6 +5,8 @@ import { createAnnualReading } from '../server/domain/annual.mjs';
 import { createAnnualStorage } from '../annual/storage.mjs';
 import { calculateNatalChart } from '../chart/natal-engine.mjs';
 import { calculateDaewoon } from '../chart/daewoon-engine.mjs';
+import { buildNatalChapters, extractNatalFeatures } from '../server/domain/natal-chapter-selection.mjs';
+import { natalReadingItems } from '../web/natal-reading.mjs';
 
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const adminAreaSource = fs.readFileSync(new URL('../data/admin-areas.js', import.meta.url), 'utf8');
@@ -28,7 +30,12 @@ assert.match(html, /window\.confirm\('이 저장 기록을 지울까요/);
 assert.match(html, /window\.confirm\('이 기기의 모든 저장 기록을 지울까요/);
 assert.doesNotMatch(html, /id: 'latest'/);
 assert.match(html, /function buildReflectionAnswer\(/);
-assert.match(html, /규칙 기반 질문 정리/);
+assert.match(html, /const CHAT_CARD_ENABLED = false/, 'the rule-based Q&A card is disabled pending a backing API');
+const chatCardSections = html.match(/<section class="panel chat-card">/g) || [];
+const gatedChatCardSections = html.match(/CHAT_CARD_ENABLED \? `<section class="panel chat-card">/g) || [];
+assert.equal(chatCardSections.length, 2, 'both result views keep the Q&A card markup in source for future API work');
+assert.equal(gatedChatCardSections.length, chatCardSections.length, 'every Q&A card section renders only behind the disabled feature flag');
+assert.match(html, /document\.getElementById\('chat-form'\)\?\.addEventListener/, 'the chat form binding no-ops while the section is absent');
 assert.doesNotMatch(html, /Optional consultation|차트 상담/);
 assert.doesNotMatch(html, /async function openDb\(\)/, 'IndexedDB mechanics live in the storage adapter');
 
@@ -41,7 +48,7 @@ assert.doesNotMatch(html.slice(chatStart, chatEnd), /persistRecord\(\)/, 'guidan
 const engineStart = html.indexOf('const STEMS');
 const engineEnd = html.indexOf('function getFact');
 assert.ok(engineStart >= 0 && engineEnd > engineStart, 'guidance engine boundary is present');
-const sandbox = { calculateNatalChart, calculateDaewoon };
+const sandbox = { calculateNatalChart, calculateDaewoon, extractNatalFeatures, buildNatalChapters, natalReadingItems };
 vm.runInNewContext(adminAreaSource, sandbox);
 vm.runInNewContext(`${html.slice(engineStart, engineEnd)};
   globalThis.workAnswer = buildReflectionAnswer('올해 이직해도 될까요?', calculateChart({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true }));

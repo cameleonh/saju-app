@@ -56,6 +56,15 @@ assert.match(fontCss.headers.get('content-type'), /^text\/css/);
 const koreanFont = await fetch(`${url}/fonts/noto-sans-kr-5.3.0/files/noto-sans-kr-korean-400-normal.woff2`);
 assert.equal(koreanFont.status, 200);
 assert.equal(koreanFont.headers.get('content-type'), 'font/woff2');
+const matchSvg = await fetch(`${url}/images/matches/match_wood_female.svg`);
+assert.equal(matchSvg.status, 200);
+assert.equal(matchSvg.headers.get('content-type'), 'image/svg+xml');
+const matchModule = await fetch(`${url}/web/destined-match.mjs`);
+assert.equal(matchModule.status, 200);
+assert.equal((await fetch(`${url}/chart/mahabote-engine.mjs`)).status, 200);
+assert.equal((await fetch(`${url}/chart/horasat-engine.mjs`)).status, 200);
+assert.equal((await fetch(`${url}/chart/tu-vi-engine.mjs`)).status, 200);
+assert.equal((await fetch(`${url}/web/multi-system-comparison.mjs`)).status, 200);
 
 assert.equal((await fetch(`${url}/%2e%2e/package.json`)).status, 404, 'path traversal via URL-encoded dots is rejected by the public allowlist');
 assert.equal((await fetch(`${url}/..%2fpackage.json`)).status, 404);

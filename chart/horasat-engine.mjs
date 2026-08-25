@@ -1,0 +1,173 @@
+// chart/horasat-engine.mjs
+// 태국 전통 점성학 호라삿(Horasat / โหราศาสตร์) 계산 엔진.
+// 샴 왕국(Siam) 고유의 베다-불교 융합 점성술 체계에 기반하여
+// 황도 12 라시(Rasi)와 8대 탄생 요일별 수호불(Buddha Posture), 수호 색상 및 행성 기운을 계산합니다.
+
+export const HORASAT_POLICY = Object.freeze({
+  id: 'TH-HORASAT-1.0',
+  version: '1.0.0',
+  name: '태국 호라삿 12라시 및 8대 탄생 요일 점성학',
+  source: 'Traditional Siamese Horasat System (Royal Institute of Thailand Astronomical Standard)',
+});
+
+// 태국 8대 요일 (수요일은 주간 06:00~18:00, 야간 18:00~06:00 분리)
+export const HORASAT_WEEKDAYS = Object.freeze([
+  {
+    dayIndex: 0,
+    korean: '일요일',
+    thai: 'วันอาทิตย์ (Wan Athit)',
+    planet: '태양 (Surya)',
+    element: '화 (Fire)',
+    color: '붉은색 (Red)',
+    buddhaPosture: '팡 타와이 넷 (눈을 뜨고 서서 응시하는 부처 / Pang Thawai Net)',
+    keywords: ['리더십', '성실함', '명예', '솔직함'],
+    character: '태양의 찬란한 빛처럼 당당하고 의리가 있으며, 주변에 선한 영향력과 밝은 에너지를 전파합니다.',
+  },
+  {
+    dayIndex: 1,
+    korean: '월요일',
+    thai: 'วันจันทร์ (Wan Chan)',
+    planet: '달 (Chandra)',
+    element: '수 (Water)',
+    color: '노란색 (Yellow)',
+    buddhaPosture: '팡 함 얏 (평화와 화합을 위해 오른손을 든 부처 / Pang Ham Yat)',
+    keywords: ['다정함', '평화', '직관력', '친화력'],
+    character: '달의 부드러운 빛처럼 따뜻하고 배려심이 깊으며, 갈등을 중재하고 사람의 마음을 편안하게 만듭니다.',
+  },
+  {
+    dayIndex: 2,
+    korean: '화요일',
+    thai: 'วันอังคาร (Wan Angkhan)',
+    planet: '화성 (Mangala)',
+    element: '화 (Fire)',
+    color: '분홍색 (Pink)',
+    buddhaPosture: '팡 사이얏 (평온하게 누워 열반에 든 와불 / Pang Saiyat)',
+    keywords: ['용기', '행동력', '승부욕', '결단력'],
+    character: '화성의 강인한 불꽃을 품어 두려움 없이 도전하며, 어려운 난관 앞에서도 굴하지 않는 강철 같은 의지를 지닙니다.',
+  },
+  {
+    dayIndex: 3,
+    subTime: 'day',
+    korean: '수요일 주간 (06시~18시)',
+    thai: 'วันพุธกลางวัน (Wan Phut Klang Wan)',
+    planet: '수성 (Budha)',
+    element: '목 (Wood)',
+    color: '초록색 (Green)',
+    buddhaPosture: '팡 움 밧 (발우를 들고 공양을 받는 부처 / Pang Um Bat)',
+    keywords: ['지혜', '소통', '임기응변', '총명함'],
+    character: '수성의 총명함과 유연성을 지녀 언변과 비즈니스 감각이 뛰어나며, 상황 판단이 빠르고 다재다능합니다.',
+  },
+  {
+    dayIndex: 3,
+    subTime: 'night',
+    korean: '수요일 야간 (18시~06시 라후)',
+    thai: 'วันพุธกลางคืน (Wan Phut Klang Khuen / Rahu)',
+    planet: '라후 (Rahu)',
+    element: '토 (Earth)',
+    color: '연두/회색 (Light Green/Grey)',
+    buddhaPosture: '팡 팔레라이 (숲속에서 동물들에게 공양받는 부처 / Pang Parileyyaka)',
+    keywords: ['독창성', '신비로움', '통찰력', '뚝심'],
+    character: '남들이 보지 못하는 깊은 이면을 꿰뚫는 예리한 직관과 개성을 지녔으며, 위기 속에서 비범한 기지를 발휘합니다.',
+  },
+  {
+    dayIndex: 4,
+    korean: '목요일',
+    thai: 'วันพฤหัสบดี (Wan Phruehatsabodi)',
+    planet: '목성 (Brihaspati)',
+    element: '목 (Wood)',
+    color: '주황색 (Orange)',
+    buddhaPosture: '팡 사마티 (깊은 명상에 든 선정인 부처 / Pang Samadhi)',
+    keywords: ['학문', '도덕성', '스승의 품격', '신뢰'],
+    character: '목성의 고결한 지혜를 품어 학구열이 높고 원칙을 중시하며, 사람들을 올바른 길로 이끄는 스승의 기품이 있습니다.',
+  },
+  {
+    dayIndex: 5,
+    korean: '금요일',
+    thai: 'วันศุกร์ (Wan Suk)',
+    planet: '금성 (Shukra)',
+    element: '금 (Metal)',
+    color: '파란색 (Blue)',
+    buddhaPosture: '팡 람 픙 (두 손을 가슴에 얹고 깊이 묵상하는 부처 / Pang Ram Phung)',
+    keywords: ['예술성', '매력', '감수성', '사랑'],
+    character: '금성의 우아하고 감각적인 매력을 지녀 예술적 안목이 탁월하며, 삶의 즐거움과 사랑을 나눌 줄 아는 낭만주의자입니다.',
+  },
+  {
+    dayIndex: 6,
+    korean: '토요일',
+    thai: 'วันเสาร์ (Wan Sao)',
+    planet: '토성 (Shani)',
+    element: '토 (Earth)',
+    color: '보라색 (Purple)',
+    buddhaPosture: '팡 낙 프록 (일곱 머리 나가 뱀의 보호 아래 좌선하는 부처 / Pang Nak Prok)',
+    keywords: ['인내', '책임감', '침착함', '보호의 힘'],
+    character: '토성의 깊은 인내심과 나가(Naga)의 수호력을 지녀, 묵묵히 자신의 자리를 지키며 결국 큰 결실을 맺는 든든한 사람입니다.',
+  },
+]);
+
+// 태국 12 라시 (황도 12궁)
+export const HORASAT_RASIS = Object.freeze([
+  { id: 'mesha', name: '메샤 (Mesha / 양자리)', thai: 'ราศีเมษ', month: '4월 13일 ~ 5월 13일', ruler: '화성', element: '화', keyword: '선구자, 열정' },
+  { id: 'vrishabha', name: '프리삽 (Vrishabha / 황소자리)', thai: 'ราศีพฤษภ', month: '5월 14일 ~ 6월 14일', ruler: '금성', element: '토', keyword: '안정, 물질적 풍요' },
+  { id: 'mithuna', name: '미툰 (Mithuna / 쌍둥이자리)', thai: 'ราศีเมถุน', month: '6월 15일 ~ 7월 15일', ruler: '수성', element: '공기', keyword: '소통, 다재다능' },
+  { id: 'karka', name: '끄라꼿 (Karka / 게자리)', thai: 'ราศีกรกฎ', month: '7월 16일 ~ 8월 16일', ruler: '달', element: '수', keyword: '모성애, 감수성' },
+  { id: 'simha', name: '싱하 (Simha / 사자자리)', thai: 'ราศีสิงห์', month: '8월 17일 ~ 9월 16일', ruler: '태양', element: '화', keyword: '권위, 당당함' },
+  { id: 'kanya', name: '깐 (Kanya / 처녀자리)', thai: 'ราศีกันย์', month: '9월 17일 ~ 10월 16일', ruler: '수성', element: '토', keyword: '정밀함, 봉사' },
+  { id: 'tula', name: '뚠 (Tula / 천칭자리)', thai: 'ราศีตุลย์', month: '10월 17일 ~ 11월 15일', ruler: '금성', element: '공기', keyword: '조화, 공정함' },
+  { id: 'vrishchika', name: '프리칙 (Vrishchika / 전갈자리)', thai: 'ราศีพิจิก', month: '11월 16일 ~ 12월 15일', ruler: '화성', element: '수', keyword: '집념, 통찰' },
+  { id: 'dhanu', name: '타누 (Dhanu / 사수자리)', thai: 'ราศีธนู', month: '12월 16일 ~ 1월 14일', ruler: '목성', element: '화', keyword: '자유, 철학' },
+  { id: 'makara', name: '망꼰 (Makara / 염소자리)', thai: 'ราศีมังกร', month: '1월 15일 ~ 2월 12일', ruler: '토성', element: '토', keyword: '성실, 대기만성' },
+  { id: 'kumbha', name: '꿈 (Kumbha / 물병자리)', thai: 'ราศีกุมภ์', month: '2월 13일 ~ 3월 14일', ruler: '토성/라후', element: '공기', keyword: '혁신, 인도주의' },
+  { id: 'meena', name: '민 (Meena / 물고기자리)', thai: 'ราศีมีน', month: '3월 15일 ~ 4월 12일', ruler: '목성', element: '수', keyword: '자비, 예술적 영감' },
+]);
+
+/**
+ * 태양의 황경을 기준으로 태국 호라삿의 라시(Rasi)를 도출합니다.
+ */
+function deriveRasi(month, day) {
+  const md = month * 100 + day;
+  if (md >= 413 && md <= 513) return HORASAT_RASIS[0]; // 메샤
+  if (md >= 514 && md <= 614) return HORASAT_RASIS[1]; // 프리삽
+  if (md >= 615 && md <= 715) return HORASAT_RASIS[2]; // 미툰
+  if (md >= 716 && md <= 816) return HORASAT_RASIS[3]; // 끄라꼿
+  if (md >= 817 && md <= 916) return HORASAT_RASIS[4]; // 싱하
+  if (md >= 917 && md <= 1016) return HORASAT_RASIS[5]; // 깐
+  if (md >= 1017 && md <= 1115) return HORASAT_RASIS[6]; // 뚠
+  if (md >= 1116 && md <= 1215) return HORASAT_RASIS[7]; // 프리칙
+  if (md >= 1216 || md <= 114) return HORASAT_RASIS[8]; // 타누
+  if (md >= 115 && md <= 212) return HORASAT_RASIS[9]; // 망꼰
+  if (md >= 213 && md <= 314) return HORASAT_RASIS[10]; // 꿈
+  return HORASAT_RASIS[11]; // 민 (3월 15일 ~ 4월 12일)
+}
+
+/**
+ * 태국 호라삿(Horasat) 차트를 계산합니다.
+ * @param {object} input { date: 'YYYY-MM-DD', time: 'HH:MM', unknownTime: boolean }
+ * @returns {object} 호라삿 계산 결과
+ */
+export function calculateHorasat(input = {}) {
+  const dateStr = String(input.date || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    throw new Error('태국 호라삿 계산을 위해 유효한 출생일(YYYY-MM-DD)이 필요합니다.');
+  }
+
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const birthDate = new Date(Date.UTC(year, month - 1, day));
+  const rawDayOfWeek = birthDate.getUTCDay();
+
+  // 수요일의 경우 주간(06:00~18:00)과 야간(18:00~06:00 라후) 분리
+  const timeStr = String(input.time || '12:00');
+  const [hours] = timeStr.split(':').map(Number);
+  const isWedNight = rawDayOfWeek === 3 && (hours >= 18 || hours < 6) && !input.unknownTime;
+
+  let weekday = HORASAT_WEEKDAYS.find((d) => d.dayIndex === rawDayOfWeek && (!d.subTime || (d.subTime === (isWedNight ? 'night' : 'day'))));
+  if (!weekday) weekday = HORASAT_WEEKDAYS[0];
+
+  const rasi = deriveRasi(month, day);
+
+  return {
+    policy: HORASAT_POLICY,
+    birthDay: weekday,
+    rasi,
+    summary: `${weekday.korean}의 수호불(${weekday.buddhaPosture.split(' ')[0]})과 ${rasi.name}의 기운을 타고났습니다. 행운의 색상은 ${weekday.color}입니다.`,
+  };
+}
