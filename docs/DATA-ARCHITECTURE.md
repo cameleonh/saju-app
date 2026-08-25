@@ -1,26 +1,105 @@
-# Data Architecture: Central Collection and Governed Training
+# Data Architecture: Four Traditions, Local Records, and Governed Optional Storage
 
 | Field | Value |
 |---|---|
-| Status | Proposed default v0.2 |
-| Date | 2026-08-01 |
+| Status | v0.3 documentation contract; Saju storage baseline implemented, four-tradition extension not implemented |
+| Date | 2026-08-23 |
 | Product | Responsive web app/PWA for mobile, tablet, and desktop |
-| Operational database | Managed PostgreSQL; Supabase remains the default candidate |
-| Local database | SQLite durable development store plus IndexedDB cache/offline outbox |
+| Operational database | Optional governed PostgreSQL account path; production remains fail-closed/local-only until launch sign-off |
+| Local database | IndexedDB canonical guest record plus SQLite development adapter |
 | Training storage | Encrypted object storage plus PostgreSQL lineage metadata |
 | Vector database | Not required for collection or model training |
 
 ## Database Decision Summary
 
-- Every submitted birth record, deterministic chart, reading, AI turn, and feedback event is centrally persisted after the required service-storage disclosure and recording of the applicable lawful basis.
-- Service storage and model-training use are separate purposes. A centrally stored record is not automatically eligible for training.
-- Model training requires a separately recorded, revocable consent. The current prototype asks for that receipt before birth input begins; production launch must complete legal review before deciding whether to offer an operational-only path.
-- Exact birth data and account identity are encrypted in a restricted PII vault. Training jobs never query the live vault directly.
-- PostgreSQL is the canonical operational store. Immutable, versioned training snapshots are written to encrypted object storage only after eligibility, pseudonymization, safety, and quality checks.
-- Dataset membership and model lineage make it possible to answer which source records were used by which dataset and model run.
-- IndexedDB keeps responsive/offline behavior, but it is no longer the sole source of truth. Offline submissions enter a purpose-receipt-bound outbox and synchronize when connectivity returns.
-- The repository contains a `/v1/submissions` adapter, `/v1/calendar/convert` endpoint, durable SQLite development store, and PostgreSQL migration contract. The local server returns `durable: true` after SQLite persistence; production PostgreSQL/KMS/identity remains the deployment boundary.
-- Production recovery target: RPO of 15 minutes and RTO of 4 hours for operational data. Training snapshots are reproducible from eligible canonical records and versioned transformation code.
+- IndexedDB is the canonical store for the guest/local product. A user can calculate, compare, save, reopen, export, and delete without central persistence or an account.
+- The governed PostgreSQL/KMS/Cognito path is optional and fail-closed. It becomes authoritative only for records a signed-in adult explicitly saves after every existing legal and security launch gate passes.
+- Local calculation and account sync are separate states. A valid deterministic result does not become invalid because sync is unavailable, pending, or failed.
+- Service storage, model training, human review, analytics, and external AI processing remain separate purposes. No local or centrally stored record is automatically training-eligible.
+- Exact birth data and account identity are encrypted in a restricted vault when account save is enabled. Training jobs never query the live vault directly.
+- Dataset membership and model lineage are retained as future governed capabilities; they do not justify collection in the four-tradition P0.
+- The existing Saju result contract remains immutable. The expansion adds a system registry, shared normalized profile, per-system eligibility, independent native results, and an independently versioned comparison result.
+- Horasat, Tử Vi, and Mahabote data cannot be persisted as completed results while their policies are draft or blocked. A cached explanation screen is not a personalized system result.
+- Immutable training snapshots, if later enabled, are written to encrypted object storage only after eligibility, pseudonymization, safety, quality, and per-system policy checks.
+
+## Four-Tradition Extension Contract
+
+The normative product journey and wire-level examples are in `MULTI-ASTROLOGY-COMPARISON-SPEC.md`; activation rules are in `CALCULATION-POLICY-REGISTRY.md`. This section fixes the storage invariants that implementations must not reinterpret.
+
+### Stable identifiers and ownership
+
+| Record | Owner | Required identity/version fields |
+|---|---|---|
+| System registry entry | Chart Calculation | `system_id`, policy state, active policy, eligibility-contract version, native result-schema version |
+| Birth profile | Identity/Profile | `profile_id`, original-input schema, normalized-profile schema, subject reference, local/account storage state |
+| Eligibility decision | Chart Calculation | profile fingerprint, `system_id`, evaluator version, state, reason codes, missing fields, policy status |
+| System result | Chart Calculation | `result_id`, `system_id`, profile fingerprint, policy/engine/source/schema versions, calculation fingerprint, native facts, sensitivities |
+| System claim | Interpretation | `claim_id`, `system_id`, result fingerprint, domain, theme, stance, native fact references, rule version |
+| Comparison result | Comparison | `comparison_id`, exact source result fingerprints, taxonomy/comparison versions, common/different/unique groups, rejection diagnostics |
+| Share artifact | Presentation | comparison/result fingerprint, included fields, excluded-field contract version, renderer version, content hash |
+
+System IDs are fixed to `saju`, `horasat`, `tu-vi`, and `mahabote`. Translated labels are presentation data and must never become keys. IDs inside native facts and claims are system-scoped with the registry prefixes `saju.`, `horasat.`, `tuvi.`, and `mahabote.`; IDs cannot collide or be joined by suffix.
+
+### Aggregate boundary
+
+```text
+BirthProfile
+  ├─ originalInput
+  ├─ normalizedProfile
+  ├─ eligibility[system_id]
+  ├─ systemResults[result_id]      # zero or more immutable versions per system
+  ├─ currentResultBySystem         # references only
+  ├─ comparisons[comparison_id]    # references exact result fingerprints
+  ├─ shareArtifacts                # derived, reproducible, privacy-minimized
+  └─ storageState                  # local and optional account sync tracked separately
+```
+
+The aggregate does not contain one merged `chart`. Existing Saju records may retain the legacy `chart` field during migration, but new reads project it into a `systemResult` with `system_id: saju`; new writes use the multi-system shape. A comparison references immutable result fingerprints and cannot float to a later recalculation automatically.
+
+### Eligibility and execution states
+
+Persist the evaluator output so a reopened record can explain why a system did or did not run. Domain eligibility states are `eligible`, `partial`, `needs_input`, `policy_unverified`, `engine_unavailable`, `unsupported_range`, and `invalid_input`. The UI maps them to `ready`, `partial`, `needs-input`, `policy-blocked`, and `unsupported` as defined in `CALCULATION-POLICY-REGISTRY.md`. Runtime states use the single `CalculationRunState` contract: `not-requested`, `checking-eligibility`, `blocked`, `queued`, `loading-engine`, `calculating`, `verifying`, `complete`, `partial`, `failed`, `cancelled`, `stale`, and `skipped-by-user`.
+
+`policy-blocked` is not a runtime failure. It records the registry entry and policy status that prevented invocation. `failed` requires an active eligible policy plus a sanitized error code; raw input must never enter error text or logs. Retrying creates a new task attempt and, on success, a new immutable system result. It never overwrites an older completed result.
+
+### Comparison integrity
+
+- A system claim references facts from exactly one system result and the same `system_id`.
+- A common or different comparison item references claims from at least two distinct systems.
+- A strict `unique` item references exactly one system claim only after every requested comparable system completed. If another requested system is blocked, failed, cancelled, or stale, store `classification: partial-unique` with `coverage: partial` and render the partial-scope label instead of strict unique wording.
+- Comparison generation rejects inactive policies, stale fingerprints, missing fact references, duplicate contributions from one system, and unsupported domain/theme/stance values.
+- Numeric fate, accuracy, compatibility, consensus, or metaphysical confidence scores have no column or JSON field.
+- Comparison confidence may not be repurposed as a probability. Operational diagnostics use explicit completeness/rejection fields instead.
+
+### Browser schema target
+
+The next IndexedDB schema migration adds stores atomically; the exact version number is chosen at implementation time after inspecting the live schema:
+
+| Object store | Key | Required indexes | Contents |
+|---|---|---|---|
+| `profiles` | `profileId` | `updatedAt`, `subjectKind` | Original input envelope, normalized profile, display metadata, local/account storage state |
+| `eligibilityDecisions` | `[profileId, systemId, evaluatorVersion]` | `profileId`, `state`, `policyStatus` | Per-system eligibility and recovery reasons |
+| `systemResults` | `resultId` | `[profileId, systemId]`, `calculationFingerprint`, `createdAt` | Immutable native result envelopes |
+| `comparisonResults` | `comparisonId` | `profileId`, `createdAt`, `sourceFingerprintSetHash` | Immutable comparison groups and rejected-claim diagnostics |
+| `shareArtifacts` | `artifactId` | `profileId`, `contentHash` | Privacy-minimized derived previews; safe to regenerate/delete |
+| `purposeReceipts` | `receiptId` | `profileId`, `purposeCode`, `recordedAt` | Optional account sync/external-processing authorization; never required for local calculation |
+| `syncOutbox` | `operationId` | `state`, `nextAttemptAt` | Optional account-sync commands with purpose receipt and idempotency key |
+
+`comparisonResults` is the persistence name for `ComparisonBundleV1`. Each recalculation or newly available system creates a new immutable row with `supersedesComparisonId`; there is no separate `comparisonBundles` or `comparisonRevisions` object store. Migration reads the legacy `records` store, retains it until the new aggregate passes count/hash verification in the same upgrade transaction, and records `migrationSource: legacy-record.v1`. A failed or interrupted upgrade leaves the old database readable. Destructive cleanup of the legacy store requires a later release and separate verified migration; it is not part of the first schema change.
+
+### Optional PostgreSQL extension
+
+Do not mutate the existing Saju `ops.chart_results` JSON shape. Additive target tables are:
+
+- `ops.system_registry_snapshots` — immutable registry metadata used for an account-saved calculation;
+- `ops.profile_eligibility_decisions` — per-profile/system/evaluator outcomes and reason codes;
+- `ops.system_results` — immutable native result envelopes and unique calculation fingerprints;
+- `ops.system_claims` — structured interpretation claims with same-result fact references validated at the application boundary and by stored hashes;
+- `ops.comparison_results` — exact source fingerprint set, versioned groups, rejections, and content hash;
+- `ops.share_artifacts` — optional minimized metadata only; image bytes belong in an approved object boundary, not the PII vault;
+- `ops.system_result_feedback` — typed correction/quality targets without polymorphic dangling references.
+
+Every row remains account/profile/data-subject owned through explicit foreign keys and RLS. System/result/comparison JSON is immutable after insert. Correction or policy upgrade creates new rows and moves an explicit current-reference pointer in one transaction; history remains inspectable.
 
 ## Domain Ownership
 
@@ -29,17 +108,18 @@ The MVP is a modular monolith with pragmatic DDD boundaries. Logical ownership i
 | Bounded context | Canonical records | Allowed dependency |
 |---|---|---|
 | Identity and Profile | Account, data subject, profile, authority relationship | References governance decisions and opaque vault record identifiers |
-| Chart Calculation | Normalized birth, calculation policy, result, chart fact, sensitivity | Depends only on versioned source assets and explicit input contracts |
-| Interpretation | Rule set, reading block, evidence link, uncertainty | Reads immutable chart facts |
+| Chart Calculation | System registry, normalized profile projections, eligibility, calculation policy, native result/fact, sensitivity | Depends only on versioned source assets and explicit input contracts |
+| Interpretation | System-native rule set, claim, reading block, evidence link, uncertainty | Reads immutable facts from one named system result |
+| Comparison | Domain/theme taxonomy, comparison groups, contribution/rejection trace | Reads validated system claims; cannot calculate facts, rank systems, or rewrite native results |
 | Consultation | Conversation, turn, prompt/model/safety version | Reads approved chart facts and current governance decisions |
 | Privacy and Governance | Purpose authorization, consent, processing event, retention, deletion, audit | Evaluates all processing requests; emits versioned decisions/events |
 | Learning and Model Governance | Feedback, labels, dataset snapshots/members, model runs | Reads only eligibility-approved pseudonymized projections |
 
 Contexts exchange stable identifiers, immutable facts, application commands, and versioned events. They do not join another context's private tables from domain code. Database foreign keys may enforce same-cluster integrity, but they do not transfer business ownership. Events that leave their originating transaction use a transactional outbox and idempotent consumers. Shared code is limited to identifiers, timestamps, version references, and error/result primitives.
 
-## What “Store Everything” Means
+## What the Optional Governed Data Program May Store
 
-The application centrally stores the data needed to improve calculation, interpretation, safety, and conversation quality:
+The four-tradition P0 does not require central collection or training. If the optional governed account/learning program is later activated after its separate approvals, it may centrally store only the data needed for the accepted purposes, including:
 
 - original solar/lunar birth input, leap-month flag, birth time or unknown-time state, birthplace, time zone, and calculation parameter inputs;
 - normalized birth representation and validation warnings;
@@ -55,14 +135,14 @@ It explicitly does not mean collecting passwords, access tokens, payment secrets
 
 | Purpose | Required to provide core service | Training eligibility |
 |---|---|---|
-| `service_storage` | Yes for submitted calculations under this product decision | No |
+| `service_storage` | No for local calculation; yes only when the user explicitly invokes governed account save | No |
 | `ai_processing` | Only when the user starts AI consultation | No by itself |
 | `product_analytics` | No; coarse events only | No |
-| `model_training` | Prototype: required to enter the flow; production: policy decision pending legal review | Yes after all other gates |
+| `model_training` | No; optional, separately disclosed, and disabled until the governed learning path is approved | Yes only after all other gates |
 | `human_quality_review` | No; separate disclosure/consent when content is readable by a reviewer | Can create approved labels |
 | `third_party_ai_transfer` | Only for the selected external provider path | Does not grant first-party training rights |
 
-Refusing `model_training` must not remove core chart functionality or create a lower-quality deterministic result. Consent is append-only, versioned, revocable, and attached to each captured record through a receipt identifier.
+Refusing `service_storage` or `model_training` must not remove local calculation, native charts, or comparison functionality or create a lower-quality deterministic result. Consent is append-only, versioned, revocable, and attached to each centrally captured record through a receipt identifier.
 
 Couple submissions are one service interaction with two distinct `data_subjects`: the account user's self subject and a partner subject. The partner birth record, authority proof, purpose receipts, correction path, and deletion scope remain separately addressable. A relationship label such as `getting-to-know`, `dating`, or `partner` is descriptive product context only; it never creates a compatibility score or authorizes training on the partner's data. The current adapter accepts the pair for service storage but keeps it out of the self-only training projection until a partner-specific training policy is approved.
 
@@ -113,8 +193,10 @@ Training never reads directly from browser analytics, application logs, database
 
 ### Calculation application
 
-- Writes one idempotent submission containing encrypted original input, normalized input, purpose-authorization receipts, and device-generated request ID.
-- Writes one immutable deterministic chart result per engine/policy/source-data version set.
+- Writes one local aggregate containing original input, normalized profile, four eligibility decisions, and a device-generated request ID. Optional account sync adds the applicable purpose receipt and idempotency key.
+- Writes one immutable deterministic system result per `system_id` and engine/policy/source-data/schema version set.
+- Writes comparison output only after every contributing claim and native fact reference validates against the exact source result fingerprint.
+- Never invokes a draft/blocked policy or stores its explanation screen as a personalized result.
 - Queues an offline submission locally and exposes pending/synchronized/failed status to the user.
 
 ### AI gateway
@@ -156,6 +238,11 @@ Training never reads directly from browser analytics, application logs, database
 - **Submission:** one user action that sends a birth record for calculation and storage.
 - **Birth Record:** encrypted original and normalized birth information owned by one data subject.
 - **Chart Result:** immutable deterministic calculation result for one submission and version set.
+- **System Registry Snapshot:** immutable record of the active/draft policy metadata used to evaluate eligibility.
+- **Eligibility Decision:** system-specific ready/partial/missing/unsupported/policy-blocked outcome for one profile fingerprint.
+- **System Result:** immutable native result for one system, one policy/version set, and one profile fingerprint.
+- **System Claim:** interpretation-layer projection from one native result into one comparison domain/theme/stance with fact evidence.
+- **Comparison Result:** immutable common/different/unique grouping over an exact set of system result fingerprints.
 - **Reading Output:** deterministic or AI-generated content grounded in a chart result.
 - **Conversation Turn:** ordered user or assistant content within one consultation.
 - **Feedback Label:** user or reviewer assessment tied to a result, reading, turn, or chart fact.
@@ -177,6 +264,10 @@ profiles 1 --- * submissions
 account_users 1 --- * submissions : actor
 submissions 1 --- 1 birth_records
 submissions 1 --- * chart_results
+profiles 1 --- * eligibility_decisions
+profiles 1 --- * system_results
+system_results 1 --- * system_claims
+system_results * --- * comparison_results through comparison_contributions
 chart_results 1 --- * reading_outputs
 chart_results 1 --- * feedback_labels
 submissions 1 --- * conversations
@@ -203,11 +294,11 @@ The prototype intentionally keeps this two-store schema small. The normalized `p
 
 Browser rules:
 
-- A calculation can run offline, but the result is marked `pending sync` until the central submission succeeds.
+- A calculation can run and remain valid offline. Local persistence and optional account-sync state are displayed separately; `pending sync` never means `pending calculation`.
 - The outbox item includes the purpose-authorization receipt, purpose version, payload version, and idempotency key.
 - Sync retries use exponential backoff and never create duplicate submissions.
 - A withdrawn, expired, or incompatible authorization prevents an unsynchronized outbox item from uploading until the user resolves the new notice or choice.
-- Local deletion does not represent server deletion; the UI must invoke and track a deletion request separately.
+- Local deletion transactionally removes the local aggregate and derived share artifacts. If an account-saved copy exists, the UI must separately invoke and track the server deletion request.
 - `localStorage` remains prohibited for birth profiles, content, authorization evidence, and tokens.
 
 ## Internal Schema: PostgreSQL
@@ -274,6 +365,7 @@ Use isolated schemas:
 - Immutable structured chart result and chart facts in versioned JSONB, plus content hash and boundary flags.
 - Unique deterministic fingerprint over input hash and all calculation versions.
 - GIN indexing is deferred until measured query needs justify it; ordinary access uses submission/version indexes.
+- This remains the legacy Saju result table. The multi-system extension uses additive `ops.system_results`; do not overload `chart_results` with a discriminator and four incompatible JSON shapes.
 
 ### `vault.reading_outputs`
 

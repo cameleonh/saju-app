@@ -104,6 +104,21 @@
       .mode-card[aria-pressed="true"] { color: #2c2936; background: var(--moon-300); border-color: var(--moon-300); box-shadow: 0 12px 24px rgba(5, 7, 20, 0.28); }
       .mode-card[aria-pressed="true"] strong { color: #2c2936; }
       .mode-card[aria-pressed="true"] small { color: #665e63; }
+      .comparison-mode-card { border-color: rgba(211, 173, 92, 0.5); }
+      .comparison-status { margin-top: 26px; padding: 24px; color: var(--ink-950); background: var(--paper-100); border: 1px solid var(--paper-300); border-radius: var(--radius-panel); }
+      .comparison-status-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+      .comparison-status-heading h2 { margin-top: 4px; font-size: 21px; letter-spacing: -0.03em; }
+      .comparison-status-heading p { color: var(--ink-600); font-size: 14px; }
+      .comparison-system-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+      .comparison-system-card { min-width: 0; padding: 15px; background: var(--paper-50); border: 1px solid var(--paper-300); border-radius: var(--radius-card); }
+      .comparison-system-card-top { display: flex; align-items: start; justify-content: space-between; gap: 8px; }
+      .comparison-system-name { color: var(--ink-950); font-size: 15px; font-weight: 800; }
+      .comparison-state { flex: 0 0 auto; padding: 3px 7px; color: #51495a; background: var(--amber-100); border-radius: 999px; font-size: 12px; font-weight: 800; }
+      .comparison-system-card.state-ready .comparison-state { background: var(--jade-100); }
+      .comparison-system-card.state-partial .comparison-state { background: var(--sky-100); }
+      .comparison-system-card.state-policy-blocked .comparison-state { background: var(--vermilion-100); }
+      .comparison-system-card p { margin-top: 9px; color: var(--ink-600); font-size: 14px; line-height: 1.65; }
+      .comparison-system-card .comparison-policy-note { color: #8d3322; font-size: 13px; }
       .mode-glyph { width: 28px; height: 20px; display: flex; align-items: center; gap: 4px; margin-bottom: 12px; color: var(--gold-500); }
       .mode-glyph i { width: 11px; height: 11px; display: block; border: 1px solid currentColor; border-radius: 50%; }
       .mode-glyph i:last-child { margin-left: -1px; color: var(--gold-500); }
@@ -308,15 +323,31 @@
       .field input:hover, .field select:hover { border-color: var(--ink-400); }
       .field input:disabled { color: var(--ink-400); background: var(--paper-100); }
       .place-search { padding-right: 42px !important; background-image: radial-gradient(circle, transparent 42%, var(--ink-600) 44% 54%, transparent 56%), linear-gradient(45deg, transparent 44%, var(--ink-600) 46% 54%, transparent 56%); background-position: right 19px top 15px, right 12px top 29px; background-repeat: no-repeat; background-size: 13px 13px, 9px 9px; }
-      .place-match-panel { display: grid; gap: 8px; margin-top: 3px; padding: 12px; background: var(--paper-100); border: 1px solid var(--paper-300); border-radius: var(--radius-control); }
+      .place-match-panel { display: grid; gap: 8px; margin-top: 6px; padding: 12px 14px; background: var(--paper-100); border: 1px solid var(--paper-300); border-radius: var(--radius-control); }
       .place-match-panel[hidden] { display: none; }
-      .place-match-panel label { font-size: 14px; }
-      .place-match-panel select { min-height: 50px; background: #fff; }
-      .place-match-status { color: var(--ink-600); font-size: 14px; line-height: 1.55; }
-      .segmented { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .segmented.three { grid-template-columns: repeat(3, 1fr); }
-      .segmented button { min-height: 48px; padding: 9px 10px; color: var(--ink-600); background: #fff; border: 1px solid var(--paper-300); border-radius: var(--radius-control); font-size: 15px; font-weight: 800; }
-      .segmented button[aria-pressed="true"] { color: #fff; background: var(--ink-950); border-color: var(--ink-950); box-shadow: 0 4px 10px rgba(31, 42, 61, 0.12); }
+      .place-match-panel label { font-size: 14px; font-weight: 700; color: var(--ink-950); }
+      .place-match-panel select { min-height: 46px; background: #fff; }
+      .place-match-status { color: var(--ink-600); font-size: 13.5px; line-height: 1.55; }
+      .place-preview-box { display: flex; align-items: center; gap: 10px; padding: 10px 14px; margin-top: 6px; border-radius: var(--radius-control); font-size: 14px; line-height: 1.5; }
+      .place-preview-box.resolved { background: rgba(33, 89, 73, 0.09); border: 1px solid rgba(33, 89, 73, 0.28); color: #1c453a; }
+      .place-preview-box.ambiguous { background: rgba(164, 101, 45, 0.08); border: 1px solid rgba(164, 101, 45, 0.28); color: #724119; }
+      .place-preview-box.default { background: var(--paper-100); border: 1px solid var(--paper-300); color: var(--ink-600); }
+      .place-preview-badge { display: inline-flex; align-items: center; justify-content: center; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 800; white-space: nowrap; }
+      .place-preview-box.resolved .place-preview-badge { background: #21594a; color: #fffaf0; }
+      .place-preview-box.ambiguous .place-preview-badge { background: #a4652d; color: #fffaf0; }
+      .place-preview-box.default .place-preview-badge { background: var(--paper-300); color: var(--ink-800); }
+      .place-preview-title { font-weight: 700; color: var(--ink-950); font-size: 14.5px; }
+      .place-chips-prompt { margin-bottom: 6px; font-size: 13.5px; font-weight: 700; color: var(--ink-950); }
+      .place-chips-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; max-height: 190px; overflow-y: auto; }
+      .place-chip-btn { padding: 7px 12px; background: #fff; border: 1px solid var(--paper-300); border-radius: 20px; font-size: 13.5px; font-weight: 600; color: var(--ink-800); text-align: left; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+      .place-chip-btn:hover, .place-chip-btn:focus-visible { border-color: #252842; background: #252842; color: #fffaf5; }
+      .segmented { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      .segmented.three { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .segmented button { min-height: 46px; padding: 8px 6px; color: var(--ink-800); background: #fff; border: 1px solid var(--paper-300); border-radius: var(--radius-control); font-size: 15px; font-weight: 800; text-align: center; white-space: nowrap; word-break: keep-all; display: inline-flex; align-items: center; justify-content: center; user-select: none; -webkit-user-select: none; transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s; }
+      .segmented.three button { font-size: clamp(12px, 3.2vw, 14.5px); padding: 8px 4px; }
+      .segmented button:hover:not([aria-pressed="true"]):not(:disabled) { border-color: var(--ink-400); background: #fdfbf7; }
+      .segmented button[aria-pressed="true"] { color: #fffaf5; background: #252842; border-color: #252842; box-shadow: 0 4px 12px rgba(20, 22, 42, 0.18); font-weight: 800; }
+      .segmented button:focus-visible { outline: 2px solid var(--gold-500); outline-offset: 2px; }
       .segmented button:disabled { cursor: not-allowed; color: var(--ink-400); background: var(--paper-100); border-color: var(--paper-200); }
       .check-row { display: flex; align-items: start; gap: 10px; padding-top: 8px; }
       .check-row input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--ink-950); }
@@ -359,7 +390,7 @@
       .annual-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
       .annual-controls [role="status"] { min-width: 48px; text-align: center; font-weight: 700; }
       .annual-card-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
-      .annual-card { min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: clamp(14px, 1.8vw, 22px); overflow: auto; border: 1px solid rgba(177, 135, 52, 0.42); border-radius: 22px; background: linear-gradient(155deg, rgba(255,255,255,0.74), rgba(240,229,204,0.7)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.42); }
+      .annual-card { min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: clamp(14px, 1.8vw, 22px); border: 1px solid rgba(177, 135, 52, 0.42); border-radius: 22px; background: linear-gradient(155deg, rgba(255,255,255,0.74), rgba(240,229,204,0.7)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.42); }
       .annual-card:focus, .annual-card:focus-visible { outline: 3px solid var(--gold-500); outline-offset: 3px; box-shadow: 0 0 0 3px var(--gold-500); }
       .annual-card h3 { font-family: "Noto Serif KR", "Noto Sans KR", serif; font-size: clamp(22px, 2.4vw, 29px); line-height: 1.25; }
       .annual-card-kicker, .annual-hash { font-size: 12px; color: var(--ink-600); overflow-wrap: anywhere; }
@@ -471,6 +502,68 @@
       .chat-form { display: flex; gap: 8px; margin-top: 14px; }
       .chat-form input { min-width: 0; flex: 1; min-height: 46px; padding: 9px 12px; background: #fff; border: 1px solid var(--paper-300); border-radius: var(--radius-control); }
       .toast { position: fixed; right: 20px; bottom: calc(20px + var(--safe-bottom)); z-index: 20; max-width: min(360px, calc(100% - 40px)); padding: 12px 14px; color: #fffaf5; background: var(--night-900); border-radius: 10px; box-shadow: var(--shadow); font-size: 13px; }
+
+      /* Destined Match Panel & Card */
+      .match-panel { margin-top: 18px; padding: clamp(18px, 2.4vw, 32px); }
+      .match-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+      .match-gender-toggle { display: inline-flex; padding: 4px; background: var(--paper-200); border-radius: var(--radius-control); gap: 4px; }
+      .match-gender-btn { padding: 6px 14px; border: 0; background: transparent; border-radius: 6px; font-size: 13.5px; font-weight: 700; color: var(--ink-600); transition: background 0.15s, color 0.15s; }
+      .match-gender-btn.active { background: #fff; color: var(--ink-950); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+      .match-reason-banner { margin-bottom: 20px; padding: 12px 16px; background: rgba(255,255,255,0.6); border: 1px solid var(--paper-300); border-left-width: 4px; border-radius: 8px; }
+      .match-reason-banner strong { display: block; font-size: 13px; color: var(--ink-800); }
+      .match-reason-banner p { margin: 4px 0 0; font-size: 14.5px; color: var(--ink-950); line-height: 1.6; }
+      .match-card-layout { display: grid; grid-template-columns: minmax(260px, 320px) minmax(0, 1fr); gap: 24px; align-items: start; }
+      .match-avatar-col { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+      .match-avatar-wrapper { width: 100%; aspect-ratio: 1; max-width: 320px; border-radius: 20px; overflow: hidden; border: 2px solid rgba(211, 173, 92, 0.4); box-shadow: 0 8px 24px rgba(5,7,20,0.15); background: var(--night-950); }
+      .match-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .match-card-download { width: 100%; max-width: 320px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+      .match-info-col { display: grid; gap: 16px; min-width: 0; }
+      .match-title-group { display: grid; gap: 6px; }
+      .match-element-badge { display: inline-block; justify-self: start; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; color: #fff; }
+      .match-archetype-title { font-family: var(--font-serif); font-size: clamp(20px, 2.2vw, 26px); color: var(--ink-950); line-height: 1.3; }
+      .match-tagline { font-family: var(--font-serif); font-size: 15.5px; color: var(--ink-600); font-style: italic; }
+      .match-section { display: grid; gap: 8px; padding-top: 12px; border-top: 1px solid var(--paper-300); }
+      .match-section h4 { font-size: 14px; font-weight: 800; color: var(--ink-800); }
+      .match-chips-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+      .match-chip { padding: 4px 10px; background: var(--paper-50); border: 1px solid var(--paper-300); border-radius: 999px; font-size: 13px; color: var(--ink-950); }
+      .match-personality-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+      .match-personality-list li { display: flex; gap: 8px; font-size: 14.5px; line-height: 1.6; color: var(--ink-950); }
+      .match-bullet { color: var(--gold-500); font-weight: bold; }
+      .match-meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 12px; background: var(--paper-50); border: 1px solid var(--paper-200); border-radius: 10px; }
+      .match-meta-item strong { display: block; font-size: 12px; color: var(--ink-600); margin-bottom: 2px; }
+      .match-meta-item p { margin: 0; font-size: 13.5px; color: var(--ink-950); line-height: 1.5; }
+      .match-synergy-box { padding: 12px 14px; background: rgba(113, 141, 130, 0.1); border: 1px solid rgba(113, 141, 130, 0.3); border-radius: 10px; }
+      .match-synergy-box strong { display: block; font-size: 13px; color: var(--jade-700, #366050); margin-bottom: 2px; }
+      .match-synergy-box p { margin: 0; font-size: 14px; color: var(--ink-950); line-height: 1.6; }
+
+      .comparison-detail-panel { margin-top: 24px; }
+      .comparison-versus-grid, .comparison-4grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 18px 0; }
+      .comparison-side-card { background: var(--paper-50); border: 1px solid var(--paper-300); border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
+      .comparison-side-card.saju-side { border-top: 4px solid var(--vermilion-600); }
+      .comparison-side-card.mahabote-side { border-top: 4px solid #4a7c59; }
+      .comparison-side-card.horasat-side { border-top: 4px solid #d48800; }
+      .comparison-side-card.tuvi-side { border-top: 4px solid #7c3aed; }
+      .side-header { display: flex; align-items: center; gap: 10px; }
+      .side-flag { font-size: 24px; }
+      .side-header h3 { margin: 0; font-size: 16px; font-weight: 700; color: var(--ink-950); }
+      .side-sub { font-size: 12px; color: var(--ink-600); }
+      .side-highlight { background: rgba(0,0,0,0.03); padding: 10px 12px; border-radius: 8px; border: 1px dashed var(--paper-300); }
+      .highlight-label { font-size: 11.5px; color: var(--ink-600); font-weight: 600; }
+      .highlight-value { font-size: 15px; font-weight: 800; color: var(--ink-950); margin-top: 2px; }
+      .side-details { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 13.5px; color: var(--ink-800); line-height: 1.5; }
+      .side-details li strong { color: var(--ink-950); }
+      .comparison-insights-grid { display: grid; gap: 12px; margin-top: 16px; }
+      .insight-box { padding: 14px 16px; border-radius: 10px; font-size: 14px; line-height: 1.6; color: var(--ink-950); }
+      .insight-box.common { background: rgba(113, 141, 130, 0.1); border: 1px solid rgba(113, 141, 130, 0.3); }
+      .insight-box.different { background: rgba(181, 95, 75, 0.08); border: 1px solid rgba(181, 95, 75, 0.25); }
+      .insight-box.unique { background: rgba(180, 139, 78, 0.1); border: 1px solid rgba(180, 139, 78, 0.3); }
+      .insight-title { font-size: 13.5px; font-weight: 800; margin-bottom: 4px; }
+      .insight-box.common .insight-title { color: #366050; }
+      .insight-box.different .insight-title { color: #8e3e2b; }
+      .insight-box.unique .insight-title { color: #8a6428; }
+      .badge-ready { background: rgba(54, 96, 80, 0.15); color: #2e5949; border: 1px solid rgba(54, 96, 80, 0.3); }
+      .badge-blocked { background: rgba(130, 130, 130, 0.1); color: var(--ink-600); border: 1px solid var(--paper-300); }
+
       .mobile-nav { display: none; }
       .site-footer { width: min(var(--container), calc(100% - 40px)); margin: 0 auto; padding: 18px 0 30px; display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #817d91; font-size: 11px; }
       .site-footer a { color: #b7a875; text-underline-offset: 3px; }
@@ -478,54 +571,66 @@
 
       @media (max-width: 900px) {
         .intro-grid, .result-layout { grid-template-columns: minmax(0, 1fr); }
+        .comparison-system-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .intro-copy { min-height: auto; }
         .result-side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .chat-card { grid-column: 1 / -1; }
+        .couple-chart-pair { grid-template-columns: 1fr; gap: 16px; }
       }
       @media (min-width: 1000px) {
         .couple-input-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 18px; }
         .couple-input-pair .form-section + .form-section { margin-top: 0; }
       }
       @media (max-width: 640px) {
-        .topbar-inner, .container { width: min(100% - 32px, var(--container)); }
-        .site-footer { width: min(100% - 32px, var(--container)); padding-bottom: calc(86px + var(--safe-bottom)); align-items: start; flex-direction: column; }
-        .topbar-inner { min-height: 62px; }
+        .topbar-inner, .container { width: min(calc(100% - 24px), var(--container)); }
+        .site-footer { width: min(calc(100% - 24px), var(--container)); padding-bottom: calc(86px + var(--safe-bottom)); align-items: start; flex-direction: column; }
+        .topbar-inner { min-height: 58px; }
         .topnav { display: none; }
-        main { padding: 30px 0 calc(86px + var(--safe-bottom)); }
-        .intro-grid { gap: 24px; }
-        .display { max-width: 12ch; font-size: clamp(2rem, 8.5vw, 2.7rem); }
-        .lead-copy { font-size: 16px; }
-        .intro-actions { margin-top: 22px; }
-        .intro-actions .button { flex: 1 1 100%; }
-        .mode-picker { grid-template-columns: 1fr; }
-        .aperture-preview { min-height: 350px; padding: 22px; }
-        .aperture-title { margin-top: 22px; font-size: 19px; }
-        .pillar { padding: 12px 6px 13px; }
-        .pillar strong { font-size: 21px; }
-        .section { margin-top: 42px; }
+        main { padding: 20px 0 calc(86px + var(--safe-bottom)); }
+        .intro-grid { gap: 20px; }
+        .display { max-width: 12ch; font-size: clamp(1.9rem, 8vw, 2.5rem); }
+        .lead-copy { font-size: 15.5px; }
+        .intro-actions { margin-top: 20px; }
+        .intro-actions .button { flex: 1 1 100%; width: 100%; }
+        .mode-picker { grid-template-columns: 1fr; gap: 10px; }
+        .comparison-status-heading { display: block; }
+        .comparison-status-heading p { margin-top: 7px; }
+        .comparison-system-grid { grid-template-columns: 1fr; }
+        .aperture-preview { min-height: 340px; padding: 18px; }
+        .aperture-title { margin-top: 18px; font-size: 18px; }
+        .pillar { padding: 10px 4px 11px; }
+        .pillar strong { font-size: clamp(18px, 4.8vw, 22px); }
+        .pillar span { font-size: clamp(9px, 2.3vw, 11px); }
+        .section { margin-top: 32px; }
         .section-heading { display: block; }
-        .section-heading p { margin-top: 7px; }
-        .panel { padding: 20px; border-radius: 18px; }
+        .section-heading p { margin-top: 6px; }
+        .panel { padding: 18px 16px; border-radius: 16px; }
         .reading-report { padding: 4px 0; }
-        .reading-report > .section-heading { padding: 16px 16px 8px; }
+        .reading-report > .section-heading { padding: 14px 14px 6px; }
         .annual-card-grid { grid-template-columns: minmax(0, 1fr); }
         .annual-card[data-active="false"] { display: none; }
-        .annual-card { min-height: auto; }
-        .reading-card summary { padding: 15px 16px; }
-        .reading-body { padding: 0 16px 20px 56px; }
-        .form-grid { grid-template-columns: 1fr; gap: 18px; }
-        .lunar-input-grid { grid-template-columns: 1fr 1fr 1fr; }
+        .annual-card { min-height: auto; padding: 16px 14px; border-radius: 16px; }
+        .match-card-layout { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+        .match-avatar-col { width: 100%; max-width: 320px; }
+        .match-meta-grid { grid-template-columns: 1fr; }
+        .reading-card summary { padding: 14px 14px; min-height: 56px; }
+        .reading-body { padding: 0 14px 18px 44px; }
+        .form-grid { grid-template-columns: 1fr; gap: 16px; }
+        .lunar-input-grid { grid-template-columns: 1.2fr 1fr 1fr; gap: 6px; }
         .field.full { grid-column: auto; }
         .form-footer { align-items: stretch; flex-direction: column; }
         .form-footer .button { width: 100%; }
         .result-toolbar { align-items: start; flex-direction: column; }
-        .chart-aperture { padding: 20px; }
+        .result-toolbar .toolbar-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; width: 100%; }
+        .result-toolbar .toolbar-actions .button { width: 100%; min-height: 40px; justify-content: center; }
+        .chart-aperture { padding: 18px 16px; }
         .method-details { grid-template-columns: 1fr; gap: 8px; }
         .result-side { grid-template-columns: minmax(0, 1fr); }
-        .couple-chart-pair { grid-template-columns: 1fr; }
+        .couple-chart-pair { grid-template-columns: 1fr; gap: 16px; }
         .chat-form { align-items: stretch; flex-direction: column; }
         .chat-form .button { width: 100%; }
-        .mobile-nav { position: fixed; right: 0; bottom: 0; left: 0; z-index: 12; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 7px 16px var(--safe-bottom); background: rgba(20, 22, 42, 0.96); border-top: 1px solid rgba(216, 196, 155, 0.24); backdrop-filter: blur(12px); }
+        .toast { right: 16px; bottom: calc(76px + var(--safe-bottom)); max-width: calc(100% - 32px); }
+        .mobile-nav { position: fixed; right: 0; bottom: 0; left: 0; z-index: 50; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 6px 12px max(8px, env(safe-area-inset-bottom)); background: rgba(20, 22, 42, 0.96); border-top: 1px solid rgba(216, 196, 155, 0.24); backdrop-filter: blur(12px); }
         .info-grid { grid-template-columns: 1fr; }
         .records-heading, .record-card-head { align-items: stretch; flex-direction: column; }
         .records-toolbar .button, .record-actions .button { flex: 1 1 44%; }
@@ -580,6 +685,12 @@
       import { calculateDaewoon } from './chart/daewoon-engine.mjs';
       import { analyzeDaewoonCycles } from './chart/daewoon-branch-analysis.mjs';
       import { getDaewoonDomains, buildDaewoonCycleDomains } from './server/domain/daewoon-domains.mjs';
+      import { getComparisonEligibility, renderComparisonEligibility, renderFourSystemComparison } from './web/multi-system-comparison.mjs';
+      import { calculateMahabote } from './chart/mahabote-engine.mjs';
+      import { calculateHorasat } from './chart/horasat-engine.mjs';
+      import { calculateTuVi } from './chart/tu-vi-engine.mjs';
+      import { deriveDestinedMatch } from './chart/destined-match.mjs';
+      import { renderDestinedMatch, downloadMatchCardPng } from './web/destined-match.mjs';
       (() => {
         const STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
         const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
@@ -611,17 +722,36 @@
         let BIRTH_PLACE_CODES = new Map();
         let BIRTH_PLACE_SHORT_NAMES = new Map();
         let birthPlaceLoadPromise = null;
+        function normalizeDong(str) {
+          return String(str || '').trim().replace(/\s+/g, '').replace(/제(?=\d)/g, '').toLowerCase();
+        }
         function hydrateBirthPlaceCatalog(data) {
           if (!data || !Array.isArray(data.values)) return false;
           BIRTH_PLACE_DATA = data;
           ADMIN_AREA_DATA = data;
-          BIRTH_PLACE_ENTRIES = data.values.map(([code, name, kind]) => ({ code, name, kind, shortName: name.split(' ').at(-1) }));
+          BIRTH_PLACE_ENTRIES = data.values.map(([code, name, kind]) => {
+            const shortName = name.split(' ').at(-1);
+            return {
+              code,
+              name,
+              kind,
+              shortName,
+              normalizedShort: normalizeDong(shortName),
+              normalizedName: normalizeDong(name)
+            };
+          });
           BIRTH_PLACE_VALUES = BIRTH_PLACE_ENTRIES.map(({ name }) => name);
           BIRTH_PLACE_CODES = new Map(BIRTH_PLACE_ENTRIES.map(({ code, name }) => [name, code]));
           BIRTH_PLACE_SHORT_NAMES = BIRTH_PLACE_ENTRIES.reduce((index, entry) => {
-            const matches = index.get(entry.shortName);
-            if (matches) matches.push(entry);
-            else index.set(entry.shortName, [entry]);
+            const keys = [entry.shortName, entry.normalizedShort];
+            keys.forEach((k) => {
+              const matches = index.get(k);
+              if (matches) {
+                if (!matches.some((m) => m.code === entry.code)) matches.push(entry);
+              } else {
+                index.set(k, [entry]);
+              }
+            });
             return index;
           }, new Map());
           return BIRTH_PLACE_VALUES.length > 0;
@@ -662,6 +792,7 @@
         const state = {
           screen: 'intro',
           mode: 'single',
+          comparisonEligibility: [],
           serviceConsent: false,
           consentGate: { open: false, declined: false, terms: false, privacy: false, age14: null, pending: '' },
           cloudGate: { open: false, age19: null },
@@ -680,6 +811,7 @@
           annualCardIndex: 0,
           annualFact: '',
           annualError: '',
+          matchGender: 'female',
           daily: null,
           dailyError: '',
           dailyChartRef: null,
@@ -743,62 +875,101 @@
         // '샘플로 보기' 고정 명식 — 1990-10-10 14:30 서울. 결과 화면에 '샘플 명식입니다'로 표시하고 기록으로 저장하지 않는다.
         const SAMPLE_BIRTH_INPUT = Object.freeze({ calendar: 'solar', date: '1990-10-10', time: '14:30', lunarYear: '1990', lunarMonth: '9', lunarDay: '14', leapMonth: false, unknownTime: false, place: DEFAULT_BIRTH_PLACE, placeCode: DEFAULT_BIRTH_PLACE_CODE, sex: 'unset', samePerson: true });
         function resolveBirthPlace(query) {
-          const normalized = String(query || '').trim();
-          if (!normalized) return { status: 'empty', query: normalized };
+          const raw = String(query || '').trim();
+          if (!raw) return { status: 'empty', query: raw };
 
-          const exactCode = BIRTH_PLACE_CODES.get(normalized);
-          if (exactCode) return { status: 'matched', name: normalized, code: exactCode };
+          const exactCode = BIRTH_PLACE_CODES.get(raw);
+          if (exactCode) return { status: 'matched', name: raw, code: exactCode };
 
-          const shortMatches = BIRTH_PLACE_SHORT_NAMES.get(normalized) || [];
-          if (shortMatches.length === 1) return { status: 'matched', name: shortMatches[0].name, code: shortMatches[0].code };
-          if (shortMatches.length > 1) return { status: 'ambiguous', query: normalized, matches: shortMatches };
-          return { status: 'missing', query: normalized };
+          const norm = normalizeDong(raw);
+          const shortMatches = BIRTH_PLACE_SHORT_NAMES.get(norm) || BIRTH_PLACE_SHORT_NAMES.get(raw) || [];
+          if (shortMatches.length === 1) return { status: 'matched', name: shortMatches[0].name, code: shortMatches[0].code, singleAuto: true };
+          if (shortMatches.length > 1) return { status: 'ambiguous', query: raw, matches: shortMatches };
+
+          const fullMatches = BIRTH_PLACE_ENTRIES.filter((e) => e.normalizedName === norm);
+          if (fullMatches.length === 1) return { status: 'matched', name: fullMatches[0].name, code: fullMatches[0].code, singleAuto: true };
+          if (fullMatches.length > 1) return { status: 'ambiguous', query: raw, matches: fullMatches };
+
+          const suggestions = findBirthPlaceSuggestions(raw, 5);
+          if (suggestions.length === 1) return { status: 'matched', name: suggestions[0].name, code: suggestions[0].code, singleAuto: true };
+          if (suggestions.length > 1) return { status: 'ambiguous', query: raw, matches: suggestions };
+
+          return { status: 'missing', query: raw };
         }
         function findBirthPlaceSuggestions(query, limit = 20) {
-          const normalized = String(query || '').trim();
-          if (!normalized) return [];
+          const raw = String(query || '').trim();
+          if (!raw) return [];
+          const norm = normalizeDong(raw);
           const ranked = [[], [], [], [], []];
+          const seen = new Set();
+
           for (const entry of BIRTH_PLACE_ENTRIES) {
             let rank = -1;
-            if (entry.name === normalized) rank = 0;
-            else if (entry.shortName === normalized) rank = 1;
-            else if (entry.shortName.startsWith(normalized)) rank = 2;
-            else if (entry.shortName.includes(normalized)) rank = 3;
-            else if (entry.name.includes(normalized)) rank = 4;
-            if (rank >= 0 && ranked[rank].length < limit) ranked[rank].push(entry);
+            if (entry.name === raw || entry.normalizedName === norm) rank = 0;
+            else if (entry.shortName === raw || entry.normalizedShort === norm) rank = 1;
+            else if (entry.shortName.startsWith(raw) || entry.normalizedShort.startsWith(norm)) rank = 2;
+            else if (entry.shortName.includes(raw) || entry.normalizedShort.includes(norm)) rank = 3;
+            else if (entry.name.includes(raw) || entry.normalizedName.includes(norm)) rank = 4;
+
+            if (rank >= 0 && !seen.has(entry.code) && ranked[rank].length < limit) {
+              seen.add(entry.code);
+              ranked[rank].push(entry);
+            }
           }
           return ranked.flat().slice(0, limit);
         }
         function updateBirthPlaceSuggestions(input) {
-          const suggestions = findBirthPlaceSuggestions(input.value);
+          const query = input.value.trim();
           const prefix = input.id.startsWith('partner-') ? 'partner' : 'self';
+          const target = prefix === 'partner' ? state.partnerForm : state.form;
           const panel = document.getElementById(`${prefix}-place-panel`);
           const select = document.getElementById(`${prefix}-place-select`);
           const status = document.getElementById(`${prefix}-place-status`);
+          const label = document.getElementById(`${prefix}-place-result-label`);
           if (!panel || !select || !status) return;
 
-          const query = input.value.trim();
           if (!query) {
-            panel.hidden = true;
+            panel.hidden = false;
+            select.hidden = true;
             select.replaceChildren();
-            status.textContent = '';
+            status.innerHTML = `<div class="place-preview-box default"><span class="place-preview-badge">📍 기본값</span> <div><strong>${DEFAULT_BIRTH_PLACE}</strong> <small>비워 두면 서울 기준으로 자동 계산돼요.</small></div></div>`;
+            if (label) label.textContent = '출생지 안내';
             return;
           }
 
+          const resolution = resolveBirthPlace(query);
+          const suggestions = findBirthPlaceSuggestions(query, 20);
+
           panel.hidden = false;
+          if (resolution.status === 'matched') {
+            select.hidden = true;
+            select.innerHTML = `<option value="${escapeHtml(resolution.name)}">${escapeHtml(resolution.name)}</option>`;
+            select.value = resolution.name;
+            target.place = resolution.name;
+            target.placeCode = resolution.code;
+            if (label) label.textContent = '출생지 확인';
+            status.innerHTML = `<div class="place-preview-box resolved"><span class="place-preview-badge">✓ 확인됨</span> <div><span class="place-preview-title">${escapeHtml(resolution.name)}</span> <small>한국 표준시(Asia/Seoul) 기준</small></div></div>`;
+            return;
+          }
+
           if (suggestions.length === 0) {
             select.hidden = true;
             select.replaceChildren();
-            status.textContent = '일치하는 동네가 없어요. 동이나 읍·면·리 이름을 다시 확인해 주세요.';
+            if (label) label.textContent = '출생지 검색 결과';
+            status.innerHTML = `<div class="place-preview-box ambiguous"><span class="place-preview-badge">미일치</span> <div>일치하는 동네가 없어요. 동이나 읍·면·리 이름을 다시 확인해 주세요.</div></div>`;
             return;
           }
 
           select.hidden = false;
           select.innerHTML = `<option value="">${suggestions.length}곳 중 선택해 주세요</option>${suggestions.map(({ name, kind }) => `<option value="${escapeHtml(name)}">${escapeHtml(name)} · ${kind === 'legal' ? '법정동·리' : '행정동'}</option>`).join('')}`;
           if (BIRTH_PLACE_CODES.has(query)) select.value = query;
-          status.textContent = suggestions.length === 20
+
+          if (label) label.textContent = '검색 결과에서 출생지를 골라 주세요';
+          const promptText = suggestions.length === 20
             ? '검색 결과가 많아 먼저 20곳을 보여드려요. 동네 이름을 더 입력하면 범위를 좁힐 수 있어요.'
             : `${suggestions.length}곳을 찾았어요. 시·군·구를 확인하고 선택해 주세요.`;
+          const chipsMarkup = `<div class="place-chips-list"><div class="place-chips-prompt">${promptText}</div><div class="place-chips-grid">${suggestions.slice(0, 10).map(({ name }) => `<button type="button" class="place-chip-btn" data-place-pick="${escapeHtml(name)}" data-prefix="${prefix}">${escapeHtml(name)}</button>`).join('')}</div></div>`;
+          status.innerHTML = chipsMarkup;
         }
         function syncBirthPlaceDraft(event, prefix) {
           const target = prefix === 'partner' ? state.partnerForm : state.form;
@@ -816,7 +987,6 @@
           target.placeCode = resolution.code;
           event.currentTarget.value = resolution.name;
           updateBirthPlaceSuggestions(event.currentTarget);
-          document.getElementById(`${prefix}-place-panel`)?.setAttribute('hidden', '');
         }
         function selectBirthPlace(event, prefix) {
           const name = event.currentTarget.value;
@@ -827,8 +997,10 @@
           target.place = name;
           target.placeCode = code;
           state.error = '';
-          if (input) input.value = name;
-          document.getElementById(`${prefix}-place-panel`)?.setAttribute('hidden', '');
+          if (input) {
+            input.value = name;
+            updateBirthPlaceSuggestions(input);
+          }
         }
         let toastTimer = null;
         const showToast = (message) => {
@@ -1072,11 +1244,11 @@
         }
 
         function introView() {
-          return shell(`<section class="intro-grid" aria-labelledby="page-title"><div class="intro-copy"><div class="eyebrow">四柱 · 五行 · 명식 읽기</div><h1 id="page-title" class="display" tabindex="-1">내 사주와 두 사람의 결을 함께 봅니다</h1><p class="lead-copy">내 명식은 물론, 알아가는 사람이나 지금의 연인과 두 명식을 나란히 확인할 수 있어요. 계산 근거를 먼저 보여드리고, 관계를 판정하지 않는 말로 차분히 풀어드립니다.</p><div class="mode-picker" role="group" aria-label="사주 모드 선택"><button class="mode-card" type="button" data-action="mode" data-mode="single" aria-pressed="${state.mode === 'single'}"><span class="mode-glyph"><i></i></span><strong>내 사주</strong><small>나의 네 기둥과 생활 리듬을 확인해요.</small></button><button class="mode-card" type="button" data-action="mode" data-mode="couple" aria-pressed="${state.mode === 'couple'}"><span class="mode-glyph"><i></i><i></i></span><strong>커플 사주</strong><small>커플이 될 사람 또는 지금의 상대와 비교해요.</small></button></div><div class="intro-actions"><button class="button primary" data-action="start">${state.mode === 'couple' ? '두 사람 정보 입력' : '내 출생 정보 입력'} ${icon('arrow')}</button><button class="button ghost" data-action="sample">샘플로 보기 ${icon('moon')}</button><button class="button secondary" data-action="details">저장 안내 보기 ${icon('info')}</button></div><p class="storage-note">이 기기에만 저장돼요. <button class="button ghost small" data-action="details">자세히 ${icon('info')}</button>${state.error ? `<span class="error" role="alert">${escapeHtml(state.error)}</span>` : ''}</p></div><div class="aperture aperture-preview" aria-label="조선시대 저녁 달빛 아래의 사주 미리보기"><div class="moon-scene" aria-hidden="true"><span class="star star-a"></span><span class="star star-b"></span><span class="star star-c"></span><span class="roofline"></span></div><div><div class="aperture-top"><div><div class="eyebrow">명식 미리보기</div><div class="aperture-title">년주·월주·일주·시주의 흐름을 한 화면에서 확인해요</div></div><span class="aperture-meta">한국 표준시</span></div><div class="pillar-row">${pillarMarkup([{label:'년주',text:'庚午',element:'금',branchElement:'화'},{label:'월주',text:'丙戌',element:'화',branchElement:'토'},{label:'일주',text:'戊申',element:'토',branchElement:'금'},{label:'시주',text:'己未',element:'토',branchElement:'토'}])}</div></div><div class="aperture-footer"><span>천간·지지</span><span>오행 분포</span><span>${icon('check')} 절기 확인</span></div></div></section>${dailyTeaserMarkup()}`);
+          return shell(`<section class="intro-grid" aria-labelledby="page-title"><div class="intro-copy"><div class="eyebrow">四柱 · 五行 · 명식 읽기</div><h1 id="page-title" class="display" tabindex="-1">내 사주와 두 사람의 결을 함께 봅니다</h1><p class="lead-copy">내 명식은 물론, 알아가는 사람이나 지금의 연인과 두 명식을 나란히 확인할 수 있어요. 계산 근거를 먼저 보여드리고, 관계를 판정하지 않는 말로 차분히 풀어드립니다.</p><div class="mode-picker" role="group" aria-label="사주 모드 선택"><button class="mode-card" type="button" data-action="mode" data-mode="single" aria-pressed="${state.mode === 'single'}"><span class="mode-glyph"><i></i></span><strong>내 사주</strong><small>나의 네 기둥과 생활 리듬을 확인해요.</small></button><button class="mode-card" type="button" data-action="mode" data-mode="couple" aria-pressed="${state.mode === 'couple'}"><span class="mode-glyph"><i></i><i></i></span><strong>커플 사주</strong><small>커플이 될 사람 또는 지금의 상대와 비교해요.</small></button><button class="mode-card comparison-mode-card" type="button" data-action="mode" data-mode="comparison" aria-pressed="${state.mode === 'comparison'}"><span class="mode-glyph"><i></i><i></i><i></i><i></i></span><strong>네 전통 비교</strong><small>한 번 입력하고 네 체계의 가능 여부를 함께 확인해요.</small></button></div><div class="intro-actions"><button class="button primary" data-action="start">${state.mode === 'couple' ? '두 사람 정보 입력' : state.mode === 'comparison' ? '네 전통 비교 입력' : '내 출생 정보 입력'} ${icon('arrow')}</button><button class="button ghost" data-action="sample">샘플로 보기 ${icon('moon')}</button><button class="button secondary" data-action="details">저장 안내 보기 ${icon('info')}</button></div><p class="storage-note">이 기기에만 저장돼요. <button class="button ghost small" data-action="details">자세히 ${icon('info')}</button>${state.error ? `<span class="error" role="alert">${escapeHtml(state.error)}</span>` : ''}</p></div><div class="aperture aperture-preview" aria-label="조선시대 저녁 달빛 아래의 사주 미리보기"><div class="moon-scene" aria-hidden="true"><span class="star star-a"></span><span class="star star-b"></span><span class="star star-c"></span><span class="roofline"></span></div><div><div class="aperture-top"><div><div class="eyebrow">명식 미리보기</div><div class="aperture-title">년주·월주·일주·시주의 흐름을 한 화면에서 확인해요</div></div><span class="aperture-meta">한국 표준시</span></div><div class="pillar-row">${pillarMarkup([{label:'년주',text:'庚午',element:'금',branchElement:'화'},{label:'월주',text:'丙戌',element:'화',branchElement:'토'},{label:'일주',text:'戊申',element:'토',branchElement:'금'},{label:'시주',text:'己未',element:'토',branchElement:'토'}])}</div></div><div class="aperture-footer"><span>천간·지지</span><span>오행 분포</span><span>${icon('check')} 절기 확인</span></div></div></section>${dailyTeaserMarkup()}`);
         }
 
         function methodView() {
-          return shell(`<section class="section info-screen" aria-labelledby="method-title"><div class="eyebrow">계산 원칙</div><h1 id="method-title" class="display" tabindex="-1">어떤 기준으로 명식과 연운을 계산하나요?</h1><p class="lead-copy">결은 같은 입력에 같은 결과가 나오도록 계산식과 제한을 분리해 보여드립니다. 해석보다 먼저 날짜·시각·절기 경계를 확인합니다.</p><div class="info-grid"><article class="info-card"><h2>날짜와 절기</h2><p>양력 입력은 그대로 쓰고, 음력 입력은 지원 범위 안에서 양력으로 바꾼 뒤 원래 입력과 변환 결과를 함께 기록합니다. 연운은 검토된 2024~2026년만 제공하며 입춘부터 다음 입춘 직전까지를 한 해로 봅니다.</p></article><article class="info-card"><h2>연운 계산판</h2><p><span class="mono">KR-ANNUAL-IPCHUN-1.1</span>은 KASI·KASA 월력요항과 연결된 2024~2027 KST 분 단위 절기 고정값을 사용합니다. 연간 십신과 원국 지지의 충·육합만 지원하며 형·파·해와 특수합은 만들지 않습니다.</p></article><article class="info-card"><h2>자평명리 적용 범위</h2><p><span class="mono">ziping-annual-basic@1.1.0</span>은 일간, 출생 월지 맥락, 십신 관계를 사용합니다. 격국·용신·신강신약·조후와 연운 지장간 활성화·가중치는 분류하지 않으며, 월별 흐름은 8장 기본 카드와 분리합니다.</p></article><article class="info-card"><h2>해석의 한계</h2><p>사주는 관계, 건강, 재산이나 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산 사실과 실제 생활을 돌아볼 질문을 연결하는 참고 자료로 사용해 주세요.</p></article></div><div class="intro-actions"><button class="button primary" data-action="nav-home">시작 화면으로 ${icon('arrow')}</button></div></section>`);
+          return shell(`<section class="section info-screen" aria-labelledby="method-title"><div class="eyebrow">계산 원칙</div><h1 id="method-title" class="display" tabindex="-1">어떤 기준으로 명식과 연운을 계산하나요?</h1><p class="lead-copy">결은 같은 입력에 같은 결과가 나오도록 계산식과 제한을 분리해 보여드립니다. 해석보다 먼저 날짜·시각·절기 경계를 확인합니다.</p><div class="info-grid"><article class="info-card"><h2>날짜와 절기</h2><p>양력 입력은 그대로 쓰고, 음력 입력은 지원 범위 안에서 양력으로 바꾼 뒤 원래 입력과 변환 결과를 함께 기록합니다. 연운은 검토된 2024~2026년만 제공하며 입춘부터 다음 입춘 직전까지를 한 해로 봅니다.</p></article><article class="info-card"><h2>연운 계산판</h2><p><span class="mono">KR-ANNUAL-IPCHUN-1.1</span>은 KASI·KASA 월력요항과 연결된 2024~2027 KST 분 단위 절기 고정값을 사용합니다. 연간 십신과 원국 지지의 충·육합만 지원하며 형·파·해와 특수합은 만들지 않습니다.</p></article><article class="info-card"><h2>자평명리 적용 범위</h2><p><span class="mono">ziping-annual-basic@1.1.0</span>은 일간, 출생 월지 맥락, 십신 관계를 사용합니다. 격국·용신·신강신약·조후와 연운 지장간 활성화·가중치는 분류하지 않으며, 월별 흐름은 8장 기본 카드와 분리합니다.</p></article><article class="info-card"><h2>동아시아 & 동남아 4대 전통 체계</h2><p>한국 사주(<span class="mono">KR-CIVIL-1.0</span>), 미얀마 마하보테(<span class="mono">MM-MAHABOTE-1.0</span>), 태국 호라삿(<span class="mono">TH-HORASAT-1.0</span>), 베트남 뜨비(<span class="mono">VN-TUVI-1.0</span>)의 계산 원천을 결정론적으로 분리해 검증합니다. 각국의 전통 역법과 수리 점성학 규칙을 100% 보존하며 임의의 생성형 추측을 섞지 않습니다.</p></article><article class="info-card"><h2>해석의 한계</h2><p>사주는 관계, 건강, 재산이나 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산 사실과 실제 생활을 돌아볼 질문을 연결하는 참고 자료로 사용해 주세요.</p></article></div><div class="intro-actions"><button class="button primary" data-action="nav-home">시작 화면으로 ${icon('arrow')}</button></div></section>`);
         }
 
         function recordListMarkup() {
@@ -1104,12 +1276,21 @@
           const areaCount = BIRTH_PLACE_VALUES.length.toLocaleString('ko-KR');
           return `<div class="form-grid"><fieldset class="field full"><legend>달력 종류</legend><div class="segmented"><button type="button" data-field="calendar" data-owner="${prefix}" data-value="solar" aria-pressed="${form.calendar === 'solar'}">양력</button><button type="button" data-field="calendar" data-owner="${prefix}" data-value="lunar" aria-pressed="${form.calendar === 'lunar'}">음력 <span class="tiny">음력·윤달 지원</span></button></div><small>음력은 만세력 원천 데이터로 양력 날짜를 변환한 뒤 계산합니다. 원래 입력과 변환 결과를 함께 저장합니다.</small></fieldset><div class="field"><label for="${id('date')}">생년월일</label><input id="${id('date')}" name="${prefix}Date" type="date" min="1900-01-01" max="${new Date().toISOString().slice(0,10)}" value="${escapeHtml(form.date)}" required><small>양력은 1900년부터 오늘까지 입력할 수 있어요. 음력은 1900~2100년을 지원합니다.</small></div><div class="field"><label for="${id('time')}">출생 시각</label><input id="${id('time')}" name="${prefix}Time" type="time" value="${escapeHtml(form.time)}" ${form.unknownTime ? 'disabled' : ''}><div class="check-row"><input id="${id('unknown-time')}" name="${prefix}UnknownTime" type="checkbox" ${form.unknownTime ? 'checked' : ''}><label for="${id('unknown-time')}">정확한 시각을 몰라요. 시주는 계산하지 않습니다.</label></div></div></div><details class="optional-birth-fields" data-optional-owner="${prefix}" ${form.optionalOpen ? 'open' : ''}><summary><span>나중에 입력 <span class="tiny">선택</span></span><span class="tiny">${partner ? '출생지 · 성별' : '출생지 · 성별 · 본인 확인'}</span></summary><div class="form-grid"><div class="field full"><label for="${id('place')}">출생한 동·읍·면·리</label><input class="place-search" id="${id('place')}" name="${prefix}Place" type="search" value="${escapeHtml(form.place)}" placeholder="예: 문현동, 역삼1동" autocomplete="off" enterkeyhint="search" aria-describedby="${id('place-help')}"><small id="${id('place-help')}">동·읍·면 이름을 입력한 뒤 목록에서 골라 주세요. 비워 두면 서울 기준으로 계산해요. 행정안전부 ${ADMIN_AREA_DATA.version} 시행 기준 ${areaCount}곳을 제공하며, 계산 시각은 한국 표준시(Asia/Seoul)를 사용합니다.</small></div><fieldset class="field"><legend>전통 성별 입력값 <span class="tiny">선택</span></legend><div class="segmented three"><button type="button" data-field="sex" data-owner="${prefix}" data-value="unset" aria-pressed="${form.sex === 'unset'}">선택 안 함</button><button type="button" data-field="sex" data-owner="${prefix}" data-value="female" aria-pressed="${form.sex === 'female'}">여성</button><button type="button" data-field="sex" data-owner="${prefix}" data-value="male" aria-pressed="${form.sex === 'male'}">남성</button></div><small>일부 대운 방식에 쓰이는 계산 입력값이며 정체성을 판단하지 않습니다.</small></fieldset>${partner ? '' : '<div class="field full"><div class="check-row"><input id="same-person" name="samePerson" type="checkbox" ' + (form.samePerson ? 'checked' : '') + '><label for="same-person"><strong>이 정보는 제 출생 정보입니다</strong><br>다른 사람의 정보를 입력한다면 권한과 관계를 확인해야 합니다.</label></div></div>'}</div></details>`;
         }
+        function comparisonEligibilityMarkup(entries) {
+          return renderComparisonEligibility(entries);
+        }
         function inputView() {
           const f = state.form;
           const selfSection = `<section class="form-section"><div class="form-section-heading"><div><span class="pair-label">내 명식</span><h2>내 출생 정보</h2><p>비교의 기준이 되는 첫 번째 명식입니다.</p></div></div>${birthFields('self', f)}</section>`;
           const coupleSection = `<section class="form-section"><div class="form-section-heading"><div><span class="pair-label partner">상대 명식</span><h2>상대방 출생 정보</h2><p>커플이 될 사람 또는 지금의 상대 정보를 별도로 입력합니다. 입력 권한을 확인한 상대방의 출생정보만 사용하며, 커플 명식은 이 기기에만 저장됩니다.</p></div></div><fieldset class="field" style="margin-bottom:18px"><legend>현재 관계</legend><div class="segmented three"><button type="button" data-relationship="getting-to-know" aria-pressed="${state.relationshipType === 'getting-to-know'}">알아가는 사이</button><button type="button" data-relationship="dating" aria-pressed="${state.relationshipType === 'dating'}">현재 연인</button><button type="button" data-relationship="partner" aria-pressed="${state.relationshipType === 'partner'}">배우자·동반자</button></div></fieldset>${birthFields('partner', state.partnerForm, true)}</section>`;
           const annualField = state.mode === 'single' ? `<section class="form-section annual-year-input"><div class="form-section-heading"><div><span class="pair-label">연운 카드</span><h2>살펴볼 연도</h2><p>해당 연도의 입춘부터 다음 입춘 직전까지 계산합니다.</p></div></div><div class="field"><label for="target-year">연운 연도</label><input id="target-year" name="targetYear" type="number" min="2024" max="2026" value="${escapeHtml(state.targetYear)}" required><small>검토된 2024~2026 고정값과 자평명리 파생 v1 프로필로 8장 카드와 별도 월별 흐름을 만듭니다.</small></div></section>` : '';
-          return shell(`<section class="section" aria-labelledby="input-title"><div class="section-heading"><div><div class="eyebrow">${state.mode === 'couple' ? '두 사람 입력' : '출생 정보와 연운'}</div><h1 id="input-title">${state.mode === 'couple' ? '두 사람의 출생 정보를 입력해 주세요' : '출생 정보와 살펴볼 연도를 입력해 주세요'}</h1></div><p>입력한 정보는 계산 정책과 함께 기록됩니다.</p></div><div class="panel"><div class="flow-header"><span class="flow-step">${state.mode === 'couple' ? '두 사람의 출생 정보는 서로 구분해 기록합니다' : '원본 입력·명식·연운 사실·카드를 서로 구분해 기록합니다'}</span><div class="step-track" aria-label="진행 단계"><span class="step-dot active"></span><span class="step-dot"></span><span class="step-dot"></span></div></div><form id="birth-form" novalidate>${selfSection}${annualField}${state.mode === 'couple' ? coupleSection : ''}<div class="form-footer">${state.error ? `<div class="error" role="alert">${escapeHtml(state.error)}</div>` : '<span class="tiny">계산 후에도 원래 입력과 계산 정책을 함께 확인할 수 있어요.</span>'}<button class="button primary" type="submit">${state.mode === 'couple' ? '두 사람의 사주풀이 시작하기' : '명식과 연운 카드 만들기'} ${icon('arrow')}</button></div></form></div></section>`);
+          const isComparison = state.mode === 'comparison';
+          const comparisonEligibility = isComparison ? getComparisonEligibility(f) : [];
+          const inputEyebrow = state.mode === 'couple' ? '두 사람 입력' : isComparison ? '네 전통 비교' : '출생 정보와 연운';
+          const inputTitle = state.mode === 'couple' ? '두 사람의 출생 정보를 입력해 주세요' : isComparison ? '한 번 입력하고 네 전통을 확인해요' : '출생 정보와 살펴볼 연도를 입력해 주세요';
+          const flowText = state.mode === 'couple' ? '두 사람의 출생 정보는 서로 구분해 기록합니다' : isComparison ? '하나의 출생 프로필로 각 체계의 자격을 따로 확인합니다' : '원본 입력·명식·연운 사실·카드를 서로 구분해 기록합니다';
+          const submitText = state.mode === 'couple' ? '두 사람의 사주풀이 시작하기' : isComparison ? '네 전통 비교 시작하기' : '명식과 연운 카드 만들기';
+          return shell(`<section class="section" aria-labelledby="input-title"><div class="section-heading"><div><div class="eyebrow">${inputEyebrow}</div><h1 id="input-title">${inputTitle}</h1></div><p>입력한 정보는 계산 정책과 함께 기록됩니다.</p></div><div class="panel"><div class="flow-header"><span class="flow-step">${flowText}</span><div class="step-track" aria-label="진행 단계"><span class="step-dot active"></span><span class="step-dot"></span><span class="step-dot"></span></div></div><form id="birth-form" novalidate>${selfSection}${annualField}${state.mode === 'couple' ? coupleSection : ''}${isComparison ? comparisonEligibilityMarkup(comparisonEligibility) : ''}<div class="form-footer">${state.error ? `<div class="error" role="alert">${escapeHtml(state.error)}</div>` : '<span class="tiny">계산 후에도 원래 입력과 계산 정책을 함께 확인할 수 있어요.</span>'}<button class="button primary" type="submit">${submitText} ${icon('arrow')}</button></div></form></div></section>`);
         }
 
         // 규칙 기반 질문 정리(Q&A) 카드 — 답변을 만드는 백엔드 API가 없어 렌더링을 끈다(사용자 요청).
@@ -1196,8 +1377,13 @@
           const daewoonPackMarkup = daewoonPackaging ? `<div class="daewoon-pack">${badgeMarkup(daewoonPackaging.badge, `현재 대운 ${daewoonPackaging.cycle.pillar}`)}${questMarkup(daewoonPackaging.quest)}${remarkMarkup(daewoonPackaging.remark, '현재 대운')}${luckyPropsMarkup(daewoonPackaging.lucky)}</div>` : '';
           const daewoonMarkup = chart.daewoon ? `<section class="panel" aria-labelledby="daewoon-heading"><div class="section-heading"><div><div class="eyebrow">대운 (大運)</div><h2 id="daewoon-heading">10년 주기 운의 흐름</h2></div><span class="tiny mono">${chart.daewoon.policy.id}</span></div><p class="muted" style="margin-bottom:16px;font-size:13px">${chart.daewoon.direction === 'forward' ? '순행' : '역행'} · 시작 나이 ${chart.daewoon.startAge}세 · ${chart.daewoon.boundaryTerm} 기준 · 사이클을 눌러 상세 풀이를 보세요</p><div class="daewoon-timeline" role="tablist">${chart.daewoon.cycles.map((c, ci) => { const isCurrent = ci === currentDaewoonIndex; const tone = daewoonCycleData?.cycleAnalysis?.[ci]?.toneSummary || ''; return `<button class="daewoon-cycle${isCurrent ? ' current' : ''}" role="tab" data-action="daewoon-select" data-cycle="${ci}" aria-selected="${isCurrent ? 'true' : 'false'}"><div class="daewoon-pillar">${c.pillar}</div><div class="daewoon-age">${c.startAge}세</div><div class="daewoon-year">${c.startYear}년~</div>${isCurrent ? '<span class="daewoon-now">현재</span>' : ''}</button>`; }).join('')}</div>${daewoonPackMarkup}<div class="daewoon-detail" id="daewoon-detail-panel" role="tabpanel" aria-hidden="true"></div><p class="muted" style="margin-top:12px;font-size:12px">대운의 방향과 시작 나이는 ${chart.daewoon.policy.id} 정책으로 계산합니다. 각 사이클의 십신 기반 풀이와 지지 충·합 분석을 제공합니다. 흐름 배지는 정성 표현이며 점수가 아닙니다.</p></section>` : '';
           const sampleBanner = state.sample ? `<div class="notice amber sample-banner" role="note" aria-label="샘플 명식 안내"><h3>샘플 명식입니다</h3><p>1990년 10월 10일 14:30 · 서울 출생의 고정 예시 결과예요. 실제 내 명식이 아니며 이 기기의 기록함에 저장되지 않습니다.</p><div class="notice-actions"><button class="button primary small" data-action="edit">내 출생 정보 입력하기 ${icon('arrow')}</button><button class="button ghost small" data-action="nav-home">시작 화면으로 ${icon('back')}</button></div></div>` : '';
-          const placeDefaultedNote = chart.input?.sourceInput?.placeDefaulted ? ' · 기본값(서울)' : '';
-          return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">명식과 연운 확인</div><h1 id="result-title">계산 사실과 연운 카드의 근거를 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button primary small" data-action="card-save">${icon('download')} 카드뉴스 저장</button><button class="button secondary small" data-action="card-share">공유하기 ${icon('arrow')}</button><button class="button ghost small" data-action="export">데이터 내보내기(JSON)</button></div></div>${sampleBanner}<div class="result-layout"><div class="result-main"><section class="aperture chart-aperture" aria-labelledby="chart-summary"><div class="aperture-top"><div><div class="eyebrow">계산한 명식</div><h2 id="chart-summary" class="aperture-title">${formatKoreanDate(chart.input.date)}의 네 기둥</h2></div><span class="aperture-meta mono">${state.sample ? '샘플 명식 · ' : ''}${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(chart.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(chart.input.place)}${placeDefaultedNote} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${chart.input.unknownTime ? '시각 미상' : escapeHtml(chart.input.time)}</dd></div></dl></section>${chart.warnings.length ? warningMarkup(chart.warnings) : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 검토된 계산 경계에서 충분히 떨어져 있습니다. 계산 정책은 언제든 다시 열어볼 수 있어요.</p></div>'}${daewoonMarkup}${annualMarkup}${readingPanel}${CHAT_CARD_ENABLED ? `<section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>궁금한 장면을 질문으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 궁금한 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="생각을 정리할 질문 입력" placeholder="예: 이직 전에 확인할 조건은 무엇인가요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section>` : ''}<p class="daily-strip daily-strip-cta" aria-label="오늘의 운세 바로가기"><span class="daily-strip-label">오늘의 운세</span><button class="button ghost small" data-action="daily-from-result">오늘의 운세 보기 ${icon('arrow')}</button></p></div><aside class="result-side"><section class="panel"><div class="side-title"><h3>오행 분포</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 원본 입력과 계산용 값은 분리해 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 연운은 별도 정책과 프로필 버전으로 계산하며 격국·용신·조후를 포함하지 않습니다.</div>` : ''}</section></aside></div></section>`);
+          const destinedMatch = chart ? deriveDestinedMatch(chart) : null;
+          const matchMarkup = destinedMatch ? renderDestinedMatch(destinedMatch, { selectedGender: state.matchGender || 'female' }) : '';
+          const mahaboteChart = chart?.input?.date ? calculateMahabote(chart.input) : null;
+          const horasatChart = chart?.input?.date ? calculateHorasat(chart.input) : null;
+          const tuViChart = chart?.input?.date ? calculateTuVi(chart.input) : null;
+          const comparisonMarkup = chart ? renderFourSystemComparison(chart, mahaboteChart, horasatChart, tuViChart) : '';
+          return shell(`<section class="section" aria-labelledby="result-title"><div class="result-toolbar"><div><div class="eyebrow">명식과 연운 확인</div><h1 id="result-title">계산 사실과 연운 카드의 근거를 확인하세요</h1></div><div class="toolbar-actions"><button class="button ghost small" data-action="edit">${icon('back')} 다시 입력</button><button class="button secondary small" data-action="copy">${icon('copy')} 구조 복사</button><button class="button primary small" data-action="card-save">${icon('download')} 카드뉴스 저장</button><button class="button secondary small" data-action="card-share">공유하기 ${icon('arrow')}</button><button class="button ghost small" data-action="export">데이터 내보내기(JSON)</button></div></div>${sampleBanner}<div class="result-layout"><div class="result-main"><section class="aperture chart-aperture" aria-labelledby="chart-summary"><div class="aperture-top"><div><div class="eyebrow">계산한 명식</div><h2 id="chart-summary" class="aperture-title">${formatKoreanDate(chart.input.date)}의 네 기둥</h2></div><span class="aperture-meta mono">${state.sample ? '샘플 명식 · ' : ''}${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(chart.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(chart.input.place)}${placeDefaultedNote} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${chart.input.unknownTime ? '시각 미상' : escapeHtml(chart.input.time)}</dd></div></dl></section>${chart.warnings.length ? warningMarkup(chart.warnings) : '<div class="notice jade"><h3>주요 경계 경고가 없습니다</h3><p>현재 입력은 검토된 계산 경계에서 충분히 떨어져 있습니다. 계산 정책은 언제든 다시 열어볼 수 있어요.</p></div>'}${daewoonMarkup}${annualMarkup}${matchMarkup}${comparisonMarkup}${readingPanel}${CHAT_CARD_ENABLED ? `<section class="panel chat-card"><div class="side-title"><div><div class="eyebrow">규칙 기반 질문 정리</div><h2>궁금한 장면을 질문으로 정리하기</h2></div><span class="tiny">AI 예측 아님 · 결정을 대신하지 않음</span></div><div class="chat-log" aria-live="polite">${messages || '<div class="bubble">계산된 차트 사실을 바탕으로 생각할 질문을 정리합니다. 궁금한 장면을 짧게 적어보세요.</div>'}</div><form class="chat-form" id="chat-form"><input name="question" aria-label="생각을 정리할 질문 입력" placeholder="예: 이직 전에 확인할 조건은 무엇인가요?" required><button class="button primary" type="submit">질문 정리하기 ${icon('arrow')}</button></form></section>` : ''}<p class="daily-strip daily-strip-cta" aria-label="오늘의 운세 바로가기"><span class="daily-strip-label">오늘의 운세</span><button class="button ghost small" data-action="daily-from-result">오늘의 운세 보기 ${icon('arrow')}</button></p></div><aside class="result-side"><section class="panel"><div class="side-title"><h3>오행 분포</h3><span class="tiny">참고값</span></div><div class="bar-list">${bars}</div><div class="legend-row"><span class="legend-item"><i class="legend-dot wood"></i>목</span><span class="legend-item"><i class="legend-dot fire"></i>화</span><span class="legend-item"><i class="legend-dot earth"></i>토</span><span class="legend-item"><i class="legend-dot metal"></i>금</span><span class="legend-item"><i class="legend-dot water"></i>수</span></div></section><section class="panel"><div class="side-title"><h3>계산 원칙</h3><button class="button ghost small" data-action="method">${state.detailNotice ? '접기' : '열기'} ${icon('chevron')}</button></div><p class="muted" style="margin-top:12px;font-size:13px">${chart.policy.name}. 원본 입력과 계산용 값은 분리해 기록합니다.</p>${state.detailNotice ? `<div class="fact-detail"><strong>출처와 한계</strong><br>${chart.policy.source}. 연운은 별도 정책과 프로필 버전으로 계산하며 격국·용신·조후를 포함하지 않습니다.</div>` : ''}</section></aside></div></section>`);
         }
 
         function consentGateMarkup() {
@@ -1288,7 +1474,7 @@
             input.removeAttribute('list');
             input.setAttribute('aria-controls', panelId);
             input.setAttribute('aria-describedby', `${prefix}-place-help ${prefix}-place-status`);
-            input.insertAdjacentHTML('afterend', `<div class="place-match-panel" id="${panelId}" role="group" aria-labelledby="${prefix}-place-result-label" hidden><label id="${prefix}-place-result-label" for="${prefix}-place-select">검색 결과에서 출생지를 골라 주세요</label><select id="${prefix}-place-select"><option value="">출생지를 선택해 주세요</option></select><small class="place-match-status" id="${prefix}-place-status" role="status" aria-live="polite" aria-atomic="true"></small></div>`);
+            input.insertAdjacentHTML('afterend', `<div class="place-match-panel" id="${panelId}" role="group" aria-labelledby="${prefix}-place-result-label"><label id="${prefix}-place-result-label" for="${prefix}-place-select">검색 결과에서 출생지를 골라 주세요</label><select id="${prefix}-place-select"><option value="">출생지를 선택해 주세요</option></select><div class="place-match-status" id="${prefix}-place-status" role="status" aria-live="polite" aria-atomic="true"></div></div>`);
             if (state.birthPlaceStatus !== 'ready') {
               input.disabled = true;
               if (helper) helper.textContent = state.birthPlaceStatus === 'error' ? (state.birthPlaceError || '출생지 목록을 불러오지 못했습니다.') : '전국 출생지 목록을 불러오는 중입니다.';
@@ -1297,7 +1483,34 @@
             }
             input.disabled = false;
             if (helper) helper.textContent = `동네 이름을 입력하면 아래에 지역 목록이 나옵니다. 시·군·구를 확인해 골라 주세요. 비워 두면 서울 기준으로 계산해요. 행정안전부 ${BIRTH_PLACE_DATA.version} 기준 ${areaCount}곳입니다.`;
+            updateBirthPlaceSuggestions(input);
           });
+        }
+
+        function syncFormInputsToState() {
+          ['self', 'partner'].forEach((prefix) => {
+            const target = prefix === 'partner' ? state.partnerForm : state.form;
+            const dateInput = document.getElementById(`${prefix}-date`);
+            if (dateInput && dateInput.value) target.date = dateInput.value;
+            const timeInput = document.getElementById(`${prefix}-time`);
+            if (timeInput && timeInput.value) target.time = timeInput.value;
+            const unknownCheckbox = document.getElementById(`${prefix}-unknown-time`);
+            if (unknownCheckbox) target.unknownTime = unknownCheckbox.checked;
+            const placeInput = document.getElementById(`${prefix}-place`);
+            if (placeInput) target.place = placeInput.value;
+            const lunarYear = document.querySelector(`input[name="${prefix}LunarYear"]`);
+            if (lunarYear && lunarYear.value) target.lunarYear = lunarYear.value;
+            const lunarMonth = document.querySelector(`input[name="${prefix}LunarMonth"]`);
+            if (lunarMonth && lunarMonth.value) target.lunarMonth = lunarMonth.value;
+            const lunarDay = document.querySelector(`input[name="${prefix}LunarDay"]`);
+            if (lunarDay && lunarDay.value) target.lunarDay = lunarDay.value;
+            const leapMonth = document.getElementById(`${prefix}-leap-month`);
+            if (leapMonth) target.leapMonth = leapMonth.checked;
+          });
+          const targetYearInput = document.getElementById('target-year');
+          if (targetYearInput && targetYearInput.value) state.targetYear = Number(targetYearInput.value);
+          const samePersonInput = document.getElementById('same-person');
+          if (samePersonInput) state.form.samePerson = samePersonInput.checked;
         }
 
         function enhanceCalendarFields() {
@@ -1308,7 +1521,17 @@
             if (form.calendar === 'lunar') {
               dateInput.hidden = true;
               dateInput.required = false;
-              if (!existing) dateInput.insertAdjacentHTML('afterend', `<div id="${prefix}-lunar-fields" class="lunar-input-grid"><label>년<input type="number" name="${prefix}LunarYear" min="1900" max="2100" value="${escapeHtml(form.lunarYear)}" required></label><label>월<input type="number" name="${prefix}LunarMonth" min="1" max="12" value="${escapeHtml(form.lunarMonth)}" required></label><label>일<input type="number" name="${prefix}LunarDay" min="1" max="30" value="${escapeHtml(form.lunarDay)}" required></label></div><div class="check-row"><input id="${prefix}-leap-month" name="${prefix}LeapMonth" type="checkbox" ${form.leapMonth ? 'checked' : ''}><label for="${prefix}-leap-month">윤달</label></div>`);
+              if (!existing) {
+                dateInput.insertAdjacentHTML('afterend', `<div id="${prefix}-lunar-fields" class="lunar-input-grid"><label>년<input type="number" name="${prefix}LunarYear" min="1900" max="2100" value="${escapeHtml(form.lunarYear)}" required></label><label>월<input type="number" name="${prefix}LunarMonth" min="1" max="12" value="${escapeHtml(form.lunarMonth)}" required></label><label>일<input type="number" name="${prefix}LunarDay" min="1" max="30" value="${escapeHtml(form.lunarDay)}" required></label></div><div class="check-row"><input id="${prefix}-leap-month" name="${prefix}LeapMonth" type="checkbox" ${form.leapMonth ? 'checked' : ''}><label for="${prefix}-leap-month">윤달</label></div>`);
+                const ly = document.querySelector(`input[name="${prefix}LunarYear"]`);
+                const lm = document.querySelector(`input[name="${prefix}LunarMonth"]`);
+                const ld = document.querySelector(`input[name="${prefix}LunarDay"]`);
+                const leap = document.getElementById(`${prefix}-leap-month`);
+                ly?.addEventListener('input', (e) => { form.lunarYear = e.target.value; });
+                lm?.addEventListener('input', (e) => { form.lunarMonth = e.target.value; });
+                ld?.addEventListener('input', (e) => { form.lunarDay = e.target.value; });
+                leap?.addEventListener('change', (e) => { form.leapMonth = e.target.checked; });
+              }
             } else {
               dateInput.hidden = false;
               dateInput.required = true;
@@ -1328,12 +1551,48 @@
             const target = element.dataset.optionalOwner === 'partner' ? state.partnerForm : state.form;
             target.optionalOpen = element.open;
           }));
-          document.querySelectorAll('[data-field]').forEach((element) => element.addEventListener('click', () => { const target = element.dataset.owner === 'partner' ? state.partnerForm : state.form; target[element.dataset.field] = element.dataset.value; render(); }));
-          document.querySelectorAll('[data-relationship]').forEach((element) => element.addEventListener('click', () => { state.relationshipType = element.dataset.relationship; render(); }));
+          document.querySelectorAll('[data-field]').forEach((element) => element.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = element.dataset.owner === 'partner' ? state.partnerForm : state.form;
+            const field = element.dataset.field;
+            const val = element.dataset.value;
+            target[field] = val;
+            syncFormInputsToState();
+            const segmented = element.closest('.segmented');
+            if (segmented) {
+              segmented.querySelectorAll(`button[data-field="${field}"]`).forEach((btn) => {
+                btn.setAttribute('aria-pressed', btn.dataset.value === val ? 'true' : 'false');
+              });
+            }
+            if (field === 'calendar') {
+              enhanceCalendarFields();
+            }
+          }));
+          document.querySelectorAll('[data-relationship]').forEach((element) => element.addEventListener('click', (e) => {
+            e.preventDefault();
+            const rel = element.dataset.relationship;
+            state.relationshipType = rel;
+            const segmented = element.closest('.segmented');
+            if (segmented) {
+              segmented.querySelectorAll('button[data-relationship]').forEach((btn) => {
+                btn.setAttribute('aria-pressed', btn.dataset.relationship === rel ? 'true' : 'false');
+              });
+            }
+          }));
           document.getElementById('training-toggle')?.addEventListener('change', (event) => { state.training = event.target.checked; state.error = ''; render(); });
-          document.getElementById('self-unknown-time')?.addEventListener('change', (event) => { state.form.unknownTime = event.target.checked; render(); });
-          document.getElementById('partner-unknown-time')?.addEventListener('change', (event) => { state.partnerForm.unknownTime = event.target.checked; render(); });
           ['self', 'partner'].forEach((prefix) => {
+            const formObj = prefix === 'partner' ? state.partnerForm : state.form;
+            const dateInput = document.getElementById(`${prefix}-date`);
+            dateInput?.addEventListener('input', (e) => { formObj.date = e.target.value; });
+            dateInput?.addEventListener('change', (e) => { formObj.date = e.target.value; });
+            const timeInput = document.getElementById(`${prefix}-time`);
+            timeInput?.addEventListener('input', (e) => { formObj.time = e.target.value; });
+            timeInput?.addEventListener('change', (e) => { formObj.time = e.target.value; });
+            const unknownCheckbox = document.getElementById(`${prefix}-unknown-time`);
+            unknownCheckbox?.addEventListener('change', (event) => {
+              formObj.unknownTime = event.target.checked;
+              if (timeInput) timeInput.disabled = event.target.checked;
+            });
             const input = document.getElementById(`${prefix}-place`);
             const select = document.getElementById(`${prefix}-place-select`);
             input?.addEventListener('input', (event) => syncBirthPlaceDraft(event, prefix));
@@ -1342,6 +1601,27 @@
             input?.addEventListener('focus', (event) => updateBirthPlaceSuggestions(event.currentTarget));
             select?.addEventListener('change', (event) => selectBirthPlace(event, prefix));
           });
+          document.getElementById('birth-form')?.addEventListener('click', (event) => {
+            const pickBtn = event.target.closest('[data-place-pick]');
+            if (!pickBtn) return;
+            event.preventDefault();
+            const name = pickBtn.dataset.placePick;
+            const prefix = pickBtn.dataset.prefix || 'self';
+            const code = BIRTH_PLACE_CODES.get(name);
+            if (!code) return;
+            const target = prefix === 'partner' ? state.partnerForm : state.form;
+            const input = document.getElementById(`${prefix}-place`);
+            target.place = name;
+            target.placeCode = code;
+            state.error = '';
+            if (input) {
+              input.value = name;
+              updateBirthPlaceSuggestions(input);
+            }
+          });
+          const targetYearInput = document.getElementById('target-year');
+          targetYearInput?.addEventListener('input', (e) => { state.targetYear = Number(e.target.value); });
+          targetYearInput?.addEventListener('change', (e) => { state.targetYear = Number(e.target.value); });
           document.getElementById('same-person')?.addEventListener('change', (event) => { state.form.samePerson = event.target.checked; });
           document.getElementById('birth-form')?.addEventListener('submit', onBirthSubmit);
           document.getElementById('chat-form')?.addEventListener('submit', onChatSubmit);
@@ -1536,6 +1816,14 @@
           if (action === 'annual-export' && state.annual) downloadRecord(privacySafeAnnualExport(state.annual), `saju-annual-${state.annual.targetYear}.json`);
           if (action === 'annual-print') window.print();
           if (action === 'annual-card-png' && state.annual) downloadAnnualCardPng(state.annual, state.annualCardIndex);
+          if (action === 'match-gender') {
+            state.matchGender = event.currentTarget.dataset.gender || 'female';
+            render();
+          }
+          if (action === 'match-card-png' && state.chart) {
+            const match = deriveDestinedMatch(state.chart);
+            downloadMatchCardPng(match, state.matchGender || 'female');
+          }
           if (action === 'copy') copyChart();
           if (action === 'card-save') downloadNatalCardPng();
           if (action === 'card-share') shareNatalCard();
@@ -1614,7 +1902,7 @@
               state.chart = calculateCoupleChart(self.calculation, partner.calculation, state.relationshipType);
             } else {
               state.chart = calculateChart(self.calculation);
-              state.targetYear = Number(form.get('targetYear'));
+              state.targetYear = Math.min(2026, Math.max(2024, Number(form.get('targetYear')) || state.targetYear || 2026));
               beginCalculationLoading();
               try {
                 state.annual = await requestAnnualReading(state.chart, state.targetYear);

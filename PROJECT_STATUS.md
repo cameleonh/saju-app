@@ -1,15 +1,23 @@
-# Project Status: Saju App
+# Project Status: Saju App and Four-Tradition Expansion
 
 | Field | Value |
 |---|---|
-| Status date | 2026-08-06 |
+| Status date | 2026-08-23 |
 | Project root | `D:\\codings\\260801_saju-app` |
-| Current phase | Reading pattern DB (31 patterns, Layer A) + personalization composer (Layer B) + LLM generation pipeline completed; production remains local-only pending operator-controlled legal and security sign-off |
+| Current phase | Existing Saju baseline retained; four-tradition comparison is documented for implementation; production account storage remains local-only pending operator-controlled legal and security sign-off |
 | Production default | `SAJU_STORAGE=local-only` |
+| Expansion implementation | Not started: Horasat, Tử Vi, Mahabote engines and cross-system comparison have no runtime implementation in this documentation update |
 
 ## Current objective
 
-Keep the deterministic natal, annual, and daewoon product available without central collection, while preparing an operator-safe account save service on the lowest-cost managed AWS stack.
+Keep the deterministic natal, annual, and daewoon Saju product available without central collection while preparing a source-locked, independently testable expansion to Thai Horasat, Vietnamese Tử Vi, and Myanmar Mahabote. The target experience accepts one birth profile, calculates only eligible systems, preserves each tradition's own facts, and compares evidence-backed themes without ranking the traditions or presenting a certainty score.
+
+## Documentation-only expansion update (2026-08-23)
+
+- `PRD.md`, `DESIGN.md`, `DESIGN-SYSTEM.md`, and `docs/DATA-ARCHITECTURE.md` define the product, interaction, component, and data changes required for the four-system experience.
+- `docs/MULTI-ASTROLOGY-COMPARISON-SPEC.md` is the implementation handoff for input eligibility, routes, screen states, comparison semantics, analytics, rollout, and acceptance tests.
+- `docs/CALCULATION-POLICY-REGISTRY.md` keeps the implemented Saju policy separate from draft Horasat, Tử Vi, and Mahabote policies. A draft policy cannot be exposed as a completed result until sources, licensing, school decisions, independent oracle fixtures, and boundary tests pass.
+- This update changes documentation only. It does not add routes, engines, schemas, UI, migrations, tests, deployments, or production capability.
 
 ## Reading pattern DB (2026-08-06)
 
@@ -54,6 +62,7 @@ Keep the deterministic natal, annual, and daewoon product available without cent
 
 Until every gate in `docs/legal/LAUNCH-SIGNOFF.md` is complete, production stays local-only and must not set `SAJU_STORAGE=postgres`.
 
-## Exact next action
+## Exact next actions
 
-The operator must register root MFA and complete the named-owner legal/security rows in `docs/legal/LAUNCH-SIGNOFF.md`. Only then may the root-managed production environments be installed and the final synthetic account lifecycle run; do not enable cloud save before those real approvals exist.
+1. For the existing production account path, the operator must register root MFA and complete the named-owner legal/security rows in `docs/legal/LAUNCH-SIGNOFF.md`. Only then may the root-managed production environments be installed and the final synthetic account lifecycle run; do not enable cloud save before those real approvals exist.
+2. For the four-tradition product path, approve the three draft policy decision records and their independent oracle fixture sets before implementing or advertising a completed Horasat, Tử Vi, or Mahabote result. The first code change should introduce the system registry and shared normalized birth-profile contract without altering the active `KR-CIVIL-1.0` result.
