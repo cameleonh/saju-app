@@ -330,6 +330,8 @@ export function renderFourSystemAnnualComparison(sajuAnnual, mahaboteAnnual, hor
           </div>
           <ul class="side-details">
             <li><strong>궁의 테마:</strong> ${escapeHtml(tuViAnnual.palaceTheme || '')}</li>
+            ${tuViAnnual.daiHan ? `<li><strong>대한(大限):</strong> ${escapeHtml(tuViAnnual.daiHan.ageRange || '')} ${escapeHtml(tuViAnnual.daiHan.branch?.name || '')} ${escapeHtml(tuViAnnual.daiHan.palace?.name || '')} · ${escapeHtml(tuViAnnual.daiHan.direction || '')}</li>` : ''}
+            ${tuViAnnual.tieuHan ? `<li><strong>소한(小限):</strong> ${escapeHtml(String(tuViAnnual.nominalAge || ''))}세 ${escapeHtml(tuViAnnual.tieuHan.branch?.name || '')} ${escapeHtml(tuViAnnual.tieuHan.palace?.name || '')}</li>` : ''}
             <li><strong>뜨비 조언:</strong> ${escapeHtml(tuViAnnual.advice || '')}</li>
           </ul>
         </div>

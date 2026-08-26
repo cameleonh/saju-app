@@ -155,6 +155,44 @@ function yearTrio(branchIdx) {
   return 'hai-mao-wei';
 }
 
+// 대한(大限 Đại Hạn)·소한(小限 Tiểu Hạn) — 통용 규칙(다수 중국어 문헌 일치, tuvi-neo에는 미구현):
+// 대한 시작 나이 = 국수(水2 木3 金4 土5 火6), 양년생 남성·음년생 여성은 명궁에서 순행,
+// 음년생 남성·양년생 여성은 역행하며 10년마다 다음 궁. 소한은 허삐(만+1세) 나이로 1년 1궁.
+export function getDaiHan(chart, age) {
+  const cucNum = chart.cuc.num;
+  const startAge = cucNum;
+  if (age < startAge) return null;
+  const yearStem = chart.yearStem.index; // 0=甲..9=癸
+  const isYangYear = yearStem % 2 === 0;
+  const maleForward = isYangYear; // 양남·음녀 순행
+  const steps = Math.floor((age - startAge) / 10);
+  const branchIdx = (((maleForward ? chart.menhPalace.branch.index + steps : chart.menhPalace.branch.index - steps) % 12) + 12) % 12;
+  const decadeIndex = steps;
+  const decadeStart = startAge + steps * 10;
+  const palaceAt = chart.palacesPlacement.find((p) => p.branch.index === branchIdx);
+  return {
+    palace: palaceAt?.palace || null,
+    branch: BRANCH_NAMES_VN[branchIdx],
+    decadeIndex,
+    ageRange: `${decadeStart}~${decadeStart + 9}세`,
+    direction: maleForward ? '순행' : '역행',
+  };
+}
+
+export function getTieuHan(chart, age) {
+  if (age < 1) return null;
+  // 통용 규칙: 남명 역행·여명 순행, 명궁을 1세로 1년 1궁 (성별 미지정 시 남명 기준)
+  const forward = chart.sex === 'female';
+  const steps = (age - 1) % 12;
+  const branchIdx = (((forward ? chart.menhPalace.branch.index + steps : chart.menhPalace.branch.index - steps) % 12) + 12) % 12;
+  const palaceAt = chart.palacesPlacement.find((p) => p.branch.index === branchIdx);
+  return {
+    palace: palaceAt?.palace || null,
+    branch: BRANCH_NAMES_VN[branchIdx],
+    direction: forward ? '순행' : '역행',
+  };
+}
+
 function getHourBranchIndex(hours) {
   if (hours >= 23 || hours < 1) return 0; // Tý (자)
   if (hours >= 1 && hours < 3) return 1;  // Sửu (축)
@@ -393,6 +431,11 @@ export function calculateTuViAnnual(input = {}) {
   const targetYear = Number(input.targetYear || new Date().getFullYear());
   const yearBranchInfo = YEAR_BRANCH_VN[targetYear] || { branchIdx: ((targetYear - 4) % 12 + 12) % 12, name: '해당 연도' };
 
+  // 대한·소한: 태어난 음력 년도 기준 허삐 나이(만+1세)
+  const nominalAge = targetYear - chart.lunarInput.year + 1;
+  const daiHan = getDaiHan(chart, nominalAge);
+  const tieuHan = getTieuHan(chart, nominalAge);
+
   const activePlacement = chart.palacesPlacement.find((p) => p.branch.index === yearBranchInfo.branchIdx) || chart.palacesPlacement[0];
   const activePalace = activePlacement.palace;
   const activeStars = (chart.starByBranch.find((s) => s.branch.index === yearBranchInfo.branchIdx)?.stars) || [];
@@ -400,6 +443,9 @@ export function calculateTuViAnnual(input = {}) {
   return {
     targetYear,
     yearBranch: yearBranchInfo,
+    nominalAge,
+    daiHan,
+    tieuHan,
     activePalace,
     activeBranch: activePlacement.branch,
     activeStars,

@@ -62,10 +62,26 @@ for (const spot of tableSpot) {
   assert.equal(found.ziweiBranch.id, spot.branch, `ziwei at ${spot.branch} for cuc${spot.cuc} day${spot.day}`);
 }
 
-// 3. Annual Fortune Test
-const annual1 = calculateTuViAnnual({ date: '1990-10-10', targetYear: 2026 });
+// 3. Annual Fortune Test — now includes Đại hạn/Tiểu hạn (literature rule, hand-verified).
+// 1990 lunar birth, target 2026: nominal age = 2026 - 1990 + 1 = 37.
+// Earth-5 bureau (Canh = yang-year male): Đại hạn starts age 5, forward from Mệnh 寅(2);
+// (37-5)/10 = 3 → branch 2+3 = 5 Tỵ, age range 35~44. Tiểu hạn (male, backward): (37-1)%12 = 0 → Mệnh 寅.
+import { getDaiHan, getTieuHan } from '../../chart/tu-vi-engine.mjs';
+const annual1 = calculateTuViAnnual({ date: '1990-10-10', time: '14:30', targetYear: 2026 });
 assert.equal(annual1.targetYear, 2026);
 assert.equal(annual1.yearBranch.branchIdx, 6, '2026 = Ngọ year');
+assert.equal(annual1.nominalAge, 37, 'nominal (허삐) age 37');
+assert.ok(annual1.daiHan, 'đại hạn present');
+assert.equal(annual1.daiHan.branch.index, 5, 'đại hạn at Tỵ = Mệnh+3 (yang-year male forward)');
+assert.equal(annual1.daiHan.ageRange, '35~44세', 'đại hạn decade 35-44');
+assert.equal(annual1.daiHan.direction, '순행', 'yang-year male goes forward');
+assert.ok(annual1.tieuHan, 'tiểu hạn present');
+assert.equal(annual1.tieuHan.branch.index, 2, 'tiểu hạn at Mệnh (37-1)%12=0, backward');
+// Direct API checks for boundary behavior
+assert.equal(getDaiHan(res1, 4), null, 'đại hạn not yet started below bureau age');
+assert.equal(getDaiHan(res1, 5).branch.index, 2, 'đại hạn first decade sits on Mệnh');
+assert.equal(getDaiHan(res1, 14).branch.index, 2, 'still first decade at 14');
+assert.equal(getDaiHan(res1, 15).branch.index, 3, 'second decade at 15 (forward)');
 assert.ok(annual1.activePalace, 'active palace present');
 assert.ok(annual1.palaceTheme, 'palace theme present');
 assert.ok(annual1.advice, 'advice present');
