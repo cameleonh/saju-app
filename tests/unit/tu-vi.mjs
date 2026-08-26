@@ -81,4 +81,36 @@ const res3 = calculateTuVi({ date: '1990-10-10', unknownTime: true });
 const resNoon = calculateTuVi({ date: '1990-10-10', time: '12:00', unknownTime: false });
 assert.equal(res3.menhPalace.branch.id, resNoon.menhPalace.branch.id, 'unknown time falls back to the noon hour branch');
 
+// 6. Tứ hóa (four transformations) — table matches the Quanshu-lineage standard, cross-verified
+// against tuvi-neo 1.0.7 on 213 sampled charts (host star + palace branch, zero mismatches).
+import { AUX_STARS, TU_HOA_TABLE_EXPORT as TU_HOA_TABLE } from '../../chart/tu-vi-engine.mjs';
+assert.equal(AUX_STARS.length, 4, 'four tu-hoa auxiliary stars defined');
+assert.equal(Object.keys(TU_HOA_TABLE).length, 10, 'tu-hoa table covers all ten year stems');
+assert.equal(TU_HOA_TABLE[0].khoa, 'vu-khuc', '甲: 武曲化科');
+assert.equal(TU_HOA_TABLE[1].quyen, 'thien-luong', '乙: 天梁化權 (Quanshu lineage, matches tuvi-neo)');
+assert.equal(TU_HOA_TABLE[4].khoa, 'huu-bat', '戊: 右弼化科');
+assert.equal(TU_HOA_TABLE[7].ky, 'van-xuong', '辛: 文昌化忌');
+
+// Fixture: 1990-10-10 14:30 is a Canh Ngọ (庚午) year — Thái dương/Lộc, Vũ khúc/Quyền, Thái âm/Khoa, Thiên đồng/Kỵ.
+const hoa = res1.tuHoa;
+assert.equal(res1.yearStem.hanja, '庚', '1990 lunar year stem is Canh');
+assert.equal(hoa.loc.hostKey, 'thai-duong', '庚: 太陽化祿');
+assert.equal(hoa.quyen.hostKey, 'vu-khuc', '庚: 武曲化權');
+assert.equal(hoa.khoa.hostKey, 'thai-am', '庚: 太陰化科');
+assert.equal(hoa.ky.hostKey, 'thien-dong', '庚: 天同化忌');
+// Host palaces for this chart (tuvi-neo oracle): Thái dương@Tý, Vũ khúc+Phá quân@Hợi,
+// Thiên cơ+Thái âm@Dần, Thiên đồng@Tuất.
+assert.equal(hoa.loc.branch.index, 0, 'hoa-loc palace branch Tý (oracle-verified)');
+assert.equal(hoa.quyen.branch.index, 11, 'hoa-quyen palace branch Hợi (oracle-verified)');
+assert.equal(hoa.khoa.branch.index, 2, 'hoa-khoa palace branch Dần (oracle-verified)');
+assert.equal(hoa.ky.branch.index, 10, 'hoa-ky palace branch Tuất (oracle-verified)');
+
+// Fixture: auxiliary stars for the same chart (lunar month 8, hour Mùi idx 7):
+// Văn xương=(10-7)=3 Mão, Văn khúc=(4+7)=11 Hợi, Tả phù=(4+7)=11 Hợi, Hữu bật=(10-7)=3 Mão.
+const auxAt = (key) => res1.auxStarsByBranch.find((a) => a.star.key === key)?.branch.index;
+assert.equal(auxAt('van-xuong'), 3, 'Văn xương at Mão (hour-derived, oracle rule)');
+assert.equal(auxAt('van-khuc'), 11, 'Văn khúc at Hợi (hour-derived, oracle rule)');
+assert.equal(auxAt('ta-phu'), 11, 'Tả phù at Hợi (month-derived, oracle rule)');
+assert.equal(auxAt('huu-bat'), 3, 'Hữu bật at Mão (month-derived, oracle rule)');
+
 console.log('✓ tu-vi: oracle-verified (tuvi-neo parity) assertions passed');

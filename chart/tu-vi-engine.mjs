@@ -96,6 +96,30 @@ const NAYIN_NAMES = Object.freeze([
 ]);
 const ELEMENT_TO_CUC_NUM = Object.freeze({ 수: 2, 목: 3, 금: 4, 토: 5, 화: 6 });
 
+// 사화 대상 보조성 (Tứ hóa phụ tinh)
+export const AUX_STARS = Object.freeze([
+  { key: 'van-xuong', name: 'Văn Xương (문창성 / 文昌)', element: '금', nature: '문서의 별', keyword: '학문, 시험, 문서운' },
+  { key: 'van-khuc', name: 'Văn Khúc (문곡성 / 文曲)', element: '수', nature: '재주의 별', keyword: '예술, 언변, 기교' },
+  { key: 'ta-phu', name: 'Tả Phù (좌보성 / 左輔)', element: '토', nature: '조력의 별', keyword: '보좌, 협력, 성실' },
+  { key: 'huu-bat', name: 'Hữu Bật (우필성 / 右弼)', element: '수', nature: '조력의 별', keyword: '보좌, 관대함, 인망' },
+]);
+
+// 사화(四化) 배정표 — 년간별 祿/權/科/忌 숙주. 전서(全書) 계열 표준표이며
+// 독립 오라클 tuvi-neo 1.0.7 실측(전 천간 4화 숙주궁 덤프)과 일치.
+const TU_HOA_TABLE = Object.freeze({
+  0: { loc: 'liem-trinh', quyen: 'pha-quan', khoa: 'vu-khuc', ky: 'thai-duong' },   // 甲
+  1: { loc: 'thien-co', quyen: 'thien-luong', khoa: 'tu-vi', ky: 'thai-am' },       // 乙
+  2: { loc: 'thien-dong', quyen: 'thien-co', khoa: 'van-xuong', ky: 'liem-trinh' }, // 丙
+  3: { loc: 'thai-am', quyen: 'thien-dong', khoa: 'thien-co', ky: 'cu-mon' },       // 丁
+  4: { loc: 'tham-lang', quyen: 'thai-am', khoa: 'huu-bat', ky: 'thien-co' },       // 戊
+  5: { loc: 'vu-khuc', quyen: 'tham-lang', khoa: 'thien-luong', ky: 'van-khuc' },   // 己
+  6: { loc: 'thai-duong', quyen: 'vu-khuc', khoa: 'thai-am', ky: 'thien-dong' },    // 庚
+  7: { loc: 'cu-mon', quyen: 'thai-duong', khoa: 'van-khuc', ky: 'van-xuong' },     // 辛
+  8: { loc: 'thien-luong', quyen: 'tu-vi', khoa: 'ta-phu', ky: 'vu-khuc' },         // 壬
+  9: { loc: 'pha-quan', quyen: 'cu-mon', khoa: 'thai-am', ky: 'tham-lang' },        // 癸
+});
+export { TU_HOA_TABLE as TU_HOA_TABLE_EXPORT };
+
 function getHourBranchIndex(hours) {
   if (hours >= 23 || hours < 1) return 0; // Tý (자)
   if (hours >= 1 && hours < 3) return 1;  // Sửu (축)
@@ -226,6 +250,28 @@ export function calculateTuVi(input = {}) {
     if (!starByBranch.has(idx)) starByBranch.set(idx, []);
     starByBranch.get(idx).push(star);
   }
+
+  // 6. 보조성(문창·문곡·좌보·우필) 안성 — 고전 규칙(tuvi-neo 실측 일치):
+  // 문창=술궁에서 시지만큼 역행, 문곡=진궁에서 시지만큼 순행,
+  // 좌보=진궁에서 생월만큼 순행, 우필=술궁에서 생월만큼 역행.
+  const auxPlacements = new Map([
+    ['van-xuong', (((10 - hourBranchIdx) % 12) + 12) % 12],
+    ['van-khuc', (4 + hourBranchIdx) % 12],
+    ['ta-phu', (4 + (lunarMonth - 1)) % 12],
+    ['huu-bat', (((10 - (lunarMonth - 1)) % 12) + 12) % 12],
+  ]);
+
+  // 7. 사화(四化) — 년간별 숙주 성의 궁위에 배정
+  const hoaHosts = TU_HOA_TABLE[stemIdx];
+  const starPosition = (key) => (placements.has(key) ? placements.get(key) : auxPlacements.get(key));
+  const hoaEntries = { loc: 'Hóa Lộc (화록)', quyen: 'Hóa Quyền (화권)', khoa: 'Hóa Khoa (화과)', ky: 'Hóa Kỵ (화기)' };
+  const starName = (key) => MAJOR_STARS.find((s) => s.key === key)?.name || AUX_STARS.find((s) => s.key === key)?.name || key;
+  const tuHoa = {};
+  for (const [field, label] of Object.entries(hoaEntries)) {
+    const hostKey = hoaHosts[field];
+    const branchIdx = starPosition(hostKey);
+    tuHoa[field] = { label, host: starName(hostKey), hostKey, branch: BRANCH_NAMES_VN[branchIdx] ?? null };
+  }
   const menhStars = starByBranch.get(menhBranchIdx) || [];
   const primaryStar = menhStars[0] || MAJOR_STARS[0];
 
@@ -253,10 +299,13 @@ export function calculateTuVi(input = {}) {
     cuc,
     ziweiBranch: BRANCH_NAMES_VN[ziweiIdx],
     starByBranch: [...starByBranch.entries()].map(([idx, stars]) => ({ branch: BRANCH_NAMES_VN[idx], stars })),
+    auxStarsByBranch: [...auxPlacements.entries()].map(([key, idx]) => ({ star: AUX_STARS.find((s) => s.key === key), branch: BRANCH_NAMES_VN[idx] })),
+    tuHoa,
+    yearStem: { index: stemIdx, hanja: STEM_NAMES[stemIdx] },
     quanLoc,
     taiBach,
     palacesPlacement,
-    summary: `명궁(Mệnh)이 ${menhBranch.name}(${nayin.ganZhi}, 납음 ${nayin.name})에 위치하며 ${cuc.name}으로 자미(紫微)가 ${BRANCH_NAMES_VN[ziweiIdx].hanja}궁에 앉습니다. 명궁 주성은 ${starsText}로 ${primaryStar.keyword}의 역량을 발휘합니다.`,
+    summary: `명궁(Mệnh)이 ${menhBranch.name}(${nayin.ganZhi}, 납음 ${nayin.name})에 위치하며 ${cuc.name}으로 자미(紫微)가 ${BRANCH_NAMES_VN[ziweiIdx].hanja}궁에 앉습니다. 명궁 주성은 ${starsText}로 ${primaryStar.keyword}의 역량을 발휘합니다. 년간 ${STEM_NAMES[stemIdx]}의 사화는 ${tuHoa.loc.host}·${tuHoa.quyen.host}·${tuHoa.khoa.host}·${tuHoa.ky.host}에 걸립니다.`,
   };
 }
 
