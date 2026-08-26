@@ -2,11 +2,21 @@
 
 | Field | Value |
 |---|---|
-| Status date | 2026-08-23 |
+| Status date | 2026-08-27 |
 | Project root | `D:\\codings\\260801_saju-app` |
-| Current phase | Existing Saju baseline retained; four-tradition comparison is documented for implementation; production account storage remains local-only pending operator-controlled legal and security sign-off |
+| Current phase | Four-tradition comparison runs in production with honest per-tradition verification labels: Korean Saju fully verified; Tử Vi placement oracle-verified (tuvi-neo parity); Horasat rasi on the Thai sidereal table with a bounded Jupiter table; Mahabote remains a labeled simplified model pending a source-locked rule |
 | Production default | `SAJU_STORAGE=local-only` |
-| Expansion implementation | Not started: Horasat, Tử Vi, Mahabote engines and cross-system comparison have no runtime implementation in this documentation update |
+
+## Four-tradition verification status (2026-08-27)
+
+The four-tradition comparison UI initially shipped with fabricated provenance strings and invented placement formulas. This was corrected in three passes:
+
+1. **Honest labeling (all traditions)** — Policy `source` fields no longer cite institutions that were never consulted ("Royal Institute of Thailand", "Myanmar Standard Astronomical Calculation"). The method screen and both comparison panels state that Mahabote, Horasat, and Tử Vi are simplified beta models and the cross-tradition synthesis is a reading perspective, not proof. Couple-policy provenance carries the same label.
+2. **Tử Vi placement rewritten and oracle-verified** — Ming/Than palaces via the orthodox month-forward/hour-wrapping procedure, bureau (Ngũ Hành Cục) via the nayin five elements of the Ming stem-branch with five-tiger-dun month stems, Zi Wei placement by the canonical quotient/difference rule, and the 14 major stars through the Zi Wei group (retrograde offsets) and Tian Fu group (direct offsets). Cross-checked against the independent Vietnamese library `tuvi-neo@1.0.7`: 246 sampled charts (1936–2004) agree on lunar date, Ming palace, bureau, and every star; 6 residual cases are known Chinese-vs-Vietnamese calendar boundary months (1984-11, 1996-07), which the policy already discloses as the Chinese-calendar substitute limitation. `tests/unit/tu-vi.mjs` pins the oracle fixtures. Remaining gaps: four transformations (Tứ hóa), auxiliary stars, leap-month handling.
+3. **Horasat rasi realigned** — Boundaries now follow the Thai Wikipedia chankrasi sidereal (นิรายนะ) table with before/exact/after boundary tests. The Jupiter annual table is explicitly bounded to 2024–2027; out-of-range years return null and the card is omitted instead of silently reusing 2026.
+4. **Mahabote** — Weekday/planet/animal tables match public tradition descriptions, but no source-locked house-assignment rule was found; house and annual-cycle arithmetic stays a labeled simplified model until a Burmese primary source is documented.
+
+## Documentation-only expansion update (2026-08-23)
 
 ## Current objective
 
