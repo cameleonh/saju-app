@@ -208,31 +208,45 @@ export function calculateHorasatAnnual(input = {}) {
   const jupiterRasiIdx = HORASAT_RASIS.findIndex((r) => r.id === jupiterInfo.rasiId);
   const houseDistance = (jupiterRasiIdx - natalRasiIdx + 12) % 12; // 0=Same, 4=Trine, 8=Trine...
 
+  // 목성이 본명 라시에서 몇 번째 하우스에 들어왔는지(1~12)에 따른 연운 문안.
+  // 하우스 의미는 호라삿이 계승한 인도 점성 12하우스 체계를 따른다.
+  const JUPITER_HOUSE_READINGS = Object.freeze([
+    null, // index 0 unused (houseDistance 0 handled separately)
+    { tone: '목성이 나의 하늘 위에 뜨는 해', focus: '새 출발, 건강 회복, 이름 걸고 시작하는 일', practice: '올해 시작하는 일은 내 이름으로 하세요. 12년 주기의 문이 열리는 자리입니다.' },
+    { tone: '재물이 저축되는 해', focus: '수입 안정, 저축·적립, 가치 있는 소유', practice: '모으는 해로 설계하세요. 큰 수익보다 확실한 잔고가 올해의 성과입니다.' },
+    { tone: '용기와 활동이 넓어지는 해', focus: '단거리 도전, 학습, 형제·동료와의 협업', practice: '가까운 거리에서 많이 움직이면 기회가 쌓입니다. 배우는 일에 목성이 후원합니다.' },
+    { tone: '마음과 터전이 따뜻해지는 해', focus: '가정, 주거 안정, 내면의 평온', practice: '집과 마음의 정비에 시간을 쓰세요. 안방이 따뜻해야 바깥 일이 흔들리지 않습니다.' },
+    { tone: '창조와 후원이 겹치는 해', focus: '창작, 자녀·제자, 투자 판단', practice: '낳는 일(작품·사업·사람)에 목성이 힘을 줍니다. 다만 과욕은 산만함이 됩니다.' },
+    { tone: '일의 결을 다듬는 해', focus: '루틴 정비, 건강 검진, 봉사·협력', practice: '작은 습관을 고치면 큰 흐름이 바뀝니다. 봉사의 인연이 나중 귀인이 됩니다.' },
+    { tone: '인연의 문이 열리는 해', focus: '만남, 계약·동업, 공식 관계', practice: '짝과 맺는 일(계약·협약·인연)에 목성이 들어옵니다. 조건은 분명히, 마음은 열려서.' },
+    { tone: '깊은 변화를 통과하는 해', focus: '구조 조정, 심리적 정리, 재투자', practice: ' 겉보다 깊은 곳이 바뀌는 해입니다. 붙잡을 것과 놓을 것을 문서로 정리하세요.' },
+    { tone: '복과 문이 커지는 해', focus: '시험·법률·연구, 장거리 여행, 스승', practice: '목성이 제일 좋아하는 하우스입니다. 배우고 멀리 나가는 일이 복이 됩니다.' },
+    { tone: '직업이 빛나는 해', focus: '승진, 평가, 직책, 사회적 지위', practice: '커리어의 결실기입니다. 성과를 문서와 수치로 남기세요.' },
+    { tone: '소원이 자라는 해', focus: '네트워크, 공동체, 수익원 다변화', practice: '뜻을 같이하는 무리와 함께하세요. 혼자 꾸는 소원보다 함께 이루는 소원이 큽니다.' },
+    { tone: '묵은 것을 정리하는 해', focus: '마무리, 정산, 해외·익숙지 않은 영역', practice: '끝내야 할 일을 끝내는 해입니다. 비우는 만큼 다음 주기가 가벼워집니다.' },
+  ]);
+
   let annualTone = '';
   let annualFocus = '';
-  if (houseDistance === 0) {
-    annualTone = '목성(대길성)의 직접적인 비호와 활력의 해';
-    annualFocus = '새로운 프로젝트 시작, 건강 회복, 자기계발';
-  } else if (houseDistance === 4 || houseDistance === 8) {
-    annualTone = '삼합(Trine)의 기운: 학업·명예·귀인의 큰 후원';
-    annualFocus = '시험 합격, 자격 취득, 승진, 귀인과의 만남';
-  } else if (houseDistance === 3 || houseDistance === 6 || houseDistance === 9) {
-    annualTone = '사정(Kendra)의 기운: 일과 가정의 안정적 번영';
-    annualFocus = '직업적 성과 창출, 주거지 안정, 파트너십 강화';
-  } else {
-    annualTone = '내실을 다지고 지혜롭게 기반을 굳히는 해';
-    annualFocus = '계획의 점검, 불필요한 지출 방어, 꾸준한 루틴 유지';
-  }
+  let annualPractice = '';
+  const reading = houseDistance === 0
+    ? { tone: '목성이 나의 라시에 함께 머무는 해', focus: '대길 — 새 프로젝트, 건강 회복, 자기계발', practice: '12년 만에 돌아온 목성 귀향입니다. 오래 미룬 "나를 위한 시작"을 올해에 하세요.' }
+    : JUPITER_HOUSE_READINGS[houseDistance];
+  annualTone = reading.tone;
+  annualFocus = reading.focus;
+  annualPractice = reading.practice;
 
   return {
     targetYear,
     natalRasi: chart.rasi,
     jupiterRasi: jupiterInfo,
+    jupiterHouse: houseDistance === 0 ? '귀향(1하우스)' : `${houseDistance + 1}하우스`,
     annualTone,
     annualFocus,
+    annualPractice,
     luckyColor: chart.birthDay.color,
     buddhaPosture: chart.birthDay.buddhaPosture,
-    summary: `${targetYear}년 태국 호라삿에서는 목성이 ${jupiterInfo.name}에 머물며, 나의 ${chart.rasi.name}에 '${annualTone}'을 전합니다.`,
+    summary: `${targetYear}년 태국 호라삿에서는 목성이 ${jupiterInfo.name}에 머물며, 나의 ${chart.rasi.name}에서 볼 때 ${houseDistance === 0 ? '바로 내 라시(귀향)' : `${houseDistance + 1}번째 하우스`}에 들어와 '${annualTone}'을 전합니다.`,
   };
 }
 

@@ -288,6 +288,7 @@ export function renderFourSystemAnnualComparison(sajuAnnual, mahaboteAnnual, hor
           </div>
           <ul class="side-details">
             <li><strong>핵심 집중:</strong> ${escapeHtml(mahaboteAnnual.focusKeywords || '')}</li>
+            ${mahaboteAnnual.planetLine ? `<li><strong>하우스의 주인:</strong> ${escapeHtml(mahaboteAnnual.planetLine)}</li>` : ''}
             <li><strong>마하보테 조언:</strong> ${escapeHtml(mahaboteAnnual.yearlyAdvice || '')}</li>
           </ul>
         </div>
@@ -308,7 +309,9 @@ export function renderFourSystemAnnualComparison(sajuAnnual, mahaboteAnnual, hor
             <div class="highlight-value">${escapeHtml(horasatAnnual.annualTone || '')}</div>
           </div>
           <ul class="side-details">
+            <li><strong>목성의 자리:</strong> 나의 ${escapeHtml(horasatAnnual.natalRasi?.name || '')}에서 볼 때 ${escapeHtml(horasatAnnual.jupiterHouse || '')}</li>
             <li><strong>성취 영역:</strong> ${escapeHtml(horasatAnnual.annualFocus || '')}</li>
+            <li><strong>실천 조언:</strong> ${escapeHtml(horasatAnnual.annualPractice || '')}</li>
             <li><strong>행운의 색상:</strong> ${escapeHtml(horasatAnnual.luckyColor || '')}</li>
           </ul>
         </div>
@@ -329,10 +332,11 @@ export function renderFourSystemAnnualComparison(sajuAnnual, mahaboteAnnual, hor
             <div class="highlight-value">${escapeHtml(tuViAnnual.activePalace?.name || '')}</div>
           </div>
           <ul class="side-details">
-            <li><strong>궁의 테마:</strong> ${escapeHtml(tuViAnnual.palaceTheme || '')}</li>
+            ${tuViAnnual.annualTheme ? `<li><strong>올해의 테마:</strong> ${escapeHtml(tuViAnnual.annualTheme)}</li>` : ''}
+            ${tuViAnnual.annualLead ? `<li><strong>흐름 읽기:</strong> ${escapeHtml(tuViAnnual.annualLead)}</li>` : ''}
             ${tuViAnnual.daiHan ? `<li><strong>대한(大限):</strong> ${escapeHtml(tuViAnnual.daiHan.ageRange || '')} ${escapeHtml(tuViAnnual.daiHan.branch?.name || '')} ${escapeHtml(tuViAnnual.daiHan.palace?.name || '')} · ${escapeHtml(tuViAnnual.daiHan.direction || '')}</li>` : ''}
             ${tuViAnnual.tieuHan ? `<li><strong>소한(小限):</strong> ${escapeHtml(String(tuViAnnual.nominalAge || ''))}세 ${escapeHtml(tuViAnnual.tieuHan.branch?.name || '')} ${escapeHtml(tuViAnnual.tieuHan.palace?.name || '')}</li>` : ''}
-            <li><strong>뜨비 조언:</strong> ${escapeHtml(tuViAnnual.advice || '')}</li>
+            <li><strong>뜨비 조언:</strong> ${escapeHtml(tuViAnnual.annualPractice || tuViAnnual.advice || '')}</li>
           </ul>
         </div>
         ` : ''}

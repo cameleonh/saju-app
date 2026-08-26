@@ -300,17 +300,22 @@ export function calculateMahaboteAnnual(input = {}) {
   };
 
   const yearlyTheme = HOUSE_ANNUAL_THEMES[yearlyHouse.id] || HOUSE_ANNUAL_THEMES.atun;
+  const yearlyPlanet = chart.housePlacements[yearlyHouse.houseIndex]?.planet || '';
+  const PLANET_KO = { sun: '태양', mercury: '수성', saturn: '토성', mars: '화성', venus: '금성', moon: '달', jupiter: '목성' };
+  const planetLine = yearlyPlanet ? `올해 하우스의 주인은 ${PLANET_KO[yearlyPlanet] || yearlyPlanet} — ${( { sun: '빛과 이름을 걸고 나서는 힘', mercury: '언어와 계산이 유리하게 굴러가는 힘', saturn: '시간을 들인 만큼 단단해지는 힘', mars: '밀어붙이는 순간에 실리는 힘', venus: '사람과 취향이 끌어당기는 힘', moon: '감각과 인연을 섬세히 읽는 힘', jupiter: '배움과 관대함이 복을 부르는 힘' })[yearlyPlanet] || ''}` : '';
 
   return {
     targetYear,
     age,
     natalRulingHouse: chart.rulingHouse,
     yearlyHouse,
+    yearlyPlanet,
+    planetLine,
     yearlyTheme: yearlyTheme.theme,
     yearlyAdvice: yearlyTheme.advice,
     focusKeywords: yearlyTheme.focus,
     auspiciousDirection: chart.birthDay.direction,
-    summary: `${targetYear}년(만 ${age}세)은 마하보테 7하우스 중 ${yearlyHouse.name}(${yearlyHouse.meaning})에 머무는 '${yearlyTheme.theme}'입니다.`,
+    summary: `${targetYear}년(만 ${age}세)은 마하보테 7하우스 중 ${yearlyHouse.name}(${yearlyHouse.meaning})에 머무는 '${yearlyTheme.theme}'입니다. ${planetLine}.`,
   };
 }
 
