@@ -1,4 +1,4 @@
-const CACHE = 'saju-app-shell-v28';
+const CACHE = 'saju-app-shell-v29';
 const ASSETS = [
   './',
   './index.html',
@@ -14,6 +14,8 @@ const ASSETS = [
   './chart/mahabote-engine.mjs',
   './chart/horasat-engine.mjs',
   './chart/tu-vi-engine.mjs',
+  './chart/solar-lunar.mjs',
+  './chart/lunar-calendar-data.mjs',
   './chart/destined-match.mjs',
   './chart/couple-compatibility.mjs',
   './web/destined-match.mjs',
@@ -22,7 +24,6 @@ const ASSETS = [
   './server/domain/daewoon-domains.mjs',
   './server/domain/daily-reading-selection.mjs',
   './server/domain/natal-chapter-selection.mjs',
-  './server/domain/calendar.mjs',
   './server/storage/seeds/daily-readings.mjs',
   './server/storage/seeds/natal-chapters.mjs',
   './web/consent-gate.mjs',

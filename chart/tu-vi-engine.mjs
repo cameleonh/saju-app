@@ -3,7 +3,7 @@
 // 동아시아·베트남 음력 및 12시진(時辰)을 기반으로
 // 12궁(Cung Mệnh, Quan Lộc, Tài Bạch 등)과 5국(Cục), 주성(Chính Tinh) 배치를 결정론적으로 산출합니다.
 
-import { describeSolarToLunar } from '../server/domain/calendar.mjs';
+import { describeSolarToLunar } from './solar-lunar.mjs';
 
 export const TU_VI_POLICY = Object.freeze({
   id: 'VN-TUVI-1.0',
