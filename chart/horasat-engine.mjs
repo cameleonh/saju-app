@@ -171,3 +171,53 @@ export function calculateHorasat(input = {}) {
     summary: `${weekday.korean}의 수호불(${weekday.buddhaPosture.split(' ')[0]})과 ${rasi.name}의 기운을 타고났습니다. 행운의 색상은 ${weekday.color}입니다.`,
   };
 }
+
+// 당해 연도별 목성(Jupiter / Phra Phruehat)의 황도 입궁 라시
+const JUPITER_YEARLY_RASIS = Object.freeze({
+  2024: { rasiId: 'vrishabha', name: '프리삽 (황소자리)', quality: '안정과 물질적 번영' },
+  2025: { rasiId: 'mithuna', name: '미툰 (쌍둥이자리)', quality: '지식과 새로운 네트워크' },
+  2026: { rasiId: 'karka', name: '끄라꼿 (게자리)', quality: '최고의 고양(Exaltation), 가족과 삶의 터전 번영' },
+  2027: { rasiId: 'simha', name: '싱하 (사자자리)', quality: '명예와 당당한 리더십' },
+});
+
+/**
+ * 특정 연도(targetYear)의 태국 호라삿 연운(Jupiter Transit)을 계산합니다.
+ * @param {object} input { date: 'YYYY-MM-DD', targetYear: number, time?: string, unknownTime?: boolean }
+ * @returns {object} 계산된 호라삿 연운 객체
+ */
+export function calculateHorasatAnnual(input = {}) {
+  const chart = calculateHorasat(input);
+  const targetYear = Number(input.targetYear || new Date().getFullYear());
+  const jupiterInfo = JUPITER_YEARLY_RASIS[targetYear] || JUPITER_YEARLY_RASIS[2026];
+
+  const natalRasiIdx = HORASAT_RASIS.findIndex((r) => r.id === chart.rasi.id);
+  const jupiterRasiIdx = HORASAT_RASIS.findIndex((r) => r.id === jupiterInfo.rasiId);
+  const houseDistance = (jupiterRasiIdx - natalRasiIdx + 12) % 12; // 0=Same, 4=Trine, 8=Trine...
+
+  let annualTone = '';
+  let annualFocus = '';
+  if (houseDistance === 0) {
+    annualTone = '목성(대길성)의 직접적인 비호와 활력의 해';
+    annualFocus = '새로운 프로젝트 시작, 건강 회복, 자기계발';
+  } else if (houseDistance === 4 || houseDistance === 8) {
+    annualTone = '삼합(Trine)의 기운: 학업·명예·귀인의 큰 후원';
+    annualFocus = '시험 합격, 자격 취득, 승진, 귀인과의 만남';
+  } else if (houseDistance === 3 || houseDistance === 6 || houseDistance === 9) {
+    annualTone = '사정(Kendra)의 기운: 일과 가정의 안정적 번영';
+    annualFocus = '직업적 성과 창출, 주거지 안정, 파트너십 강화';
+  } else {
+    annualTone = '내실을 다지고 지혜롭게 기반을 굳히는 해';
+    annualFocus = '계획의 점검, 불필요한 지출 방어, 꾸준한 루틴 유지';
+  }
+
+  return {
+    targetYear,
+    natalRasi: chart.rasi,
+    jupiterRasi: jupiterInfo,
+    annualTone,
+    annualFocus,
+    luckyColor: chart.birthDay.color,
+    buddhaPosture: chart.birthDay.buddhaPosture,
+    summary: `${targetYear}년 태국 호라삿에서는 목성이 ${jupiterInfo.name}에 머물며, 나의 ${chart.rasi.name}에 '${annualTone}'을 전합니다.`,
+  };
+}

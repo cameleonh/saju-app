@@ -241,3 +241,71 @@ export function calculateMahabote(input = {}) {
     summary: `${weekdayItem.korean} ${weekdayItem.animal}의 기운을 타고났으며, 인생의 핵심 기운이 ${myHouse.name}(${myHouse.meaning})에 머뭅니다.`,
   };
 }
+
+/**
+ * 특정 연도(targetYear)의 미얀마 마하보테 연운(Thet-Kayit)을 계산합니다.
+ * @param {object} input { date: 'YYYY-MM-DD', targetYear: number, time?: string, unknownTime?: boolean }
+ * @returns {object} 계산된 마하보테 연운 객체
+ */
+export function calculateMahaboteAnnual(input = {}) {
+  const chart = calculateMahabote(input);
+  const birthYear = Number(String(input.date || '').split('-')[0]);
+  const targetYear = Number(input.targetYear || new Date().getFullYear());
+  const age = Math.max(1, targetYear - birthYear);
+
+  // 전통 마하보테 연령 순환 규칙: 본인의 하우스에서 출발하여 매년 다음 하우스로 순환
+  const yearlyHouseIndex = (chart.rulingHouse.houseIndex + (age % 7)) % 7;
+  const yearlyHouse = MAHABOTE_HOUSES[yearlyHouseIndex];
+
+  const HOUSE_ANNUAL_THEMES = {
+    binga: {
+      theme: '개척과 돌파의 해',
+      advice: '기존의 익숙한 틀을 깨고 새로운 분야를 과감히 개척할 때 큰 성취를 얻습니다.',
+      focus: '도전, 문제 해결, 주도권 확보',
+    },
+    atun: {
+      theme: '명예와 확장의 해',
+      advice: '나의 노력과 역량이 널리 인정받고 사회적 명예와 영향력이 크게 확장됩니다.',
+      focus: '승진, 발표, 대외 활동, 신뢰 구축',
+    },
+    yaza: {
+      theme: '지도력과 권위의 해',
+      advice: '조직이나 모임에서 중심 역할을 맡아 사람들을 이끌고 큰 책임을 완수하게 됩니다.',
+      focus: '리더십, 결정권 행사, 계약과 성사',
+    },
+    adipati: {
+      theme: '통솔과 총괄의 해',
+      advice: '풍부한 경험을 바탕으로 주도적으로 프로젝트를 이끌며 실질적인 지휘권을 갖습니다.',
+      focus: '협력 조율, 총괄 기획, 안정적 성과',
+    },
+    marana: {
+      theme: '전환과 탈바꿈의 해',
+      advice: '낡은 습관과 불필요한 인연을 정리하고 새로운 도약을 위해 내실을 다지는 시기입니다.',
+      focus: '정리정돈, 건강 관리, 내면 성찰, 체질 개선',
+    },
+    thike: {
+      theme: '풍요와 결실의 해',
+      advice: '그동안 뿌려둔 노력의 씨앗이 물질적·정신적 풍요로 환원되어 결실을 맺는 길한 해입니다.',
+      focus: '재물 획득, 투자 성과, 안정적 수입',
+    },
+    puti: {
+      theme: '성찰과 배움의 해',
+      advice: '외형적 확장보다는 깊이 있는 학문, 기술 연마, 마음의 평온을 찾는 데 집중할 때 복이 됩니다.',
+      focus: '자격증 취득, 연구, 명상, 지식 축적',
+    },
+  };
+
+  const yearlyTheme = HOUSE_ANNUAL_THEMES[yearlyHouse.id] || HOUSE_ANNUAL_THEMES.atun;
+
+  return {
+    targetYear,
+    age,
+    natalRulingHouse: chart.rulingHouse,
+    yearlyHouse,
+    yearlyTheme: yearlyTheme.theme,
+    yearlyAdvice: yearlyTheme.advice,
+    focusKeywords: yearlyTheme.focus,
+    auspiciousDirection: chart.birthDay.direction,
+    summary: `${targetYear}년(만 ${age}세)은 마하보테 7하우스 중 ${yearlyHouse.name}(${yearlyHouse.meaning})에 머무는 '${yearlyTheme.theme}'입니다.`,
+  };
+}

@@ -1,6 +1,6 @@
 // tests/unit/tu-vi.mjs
 import assert from 'node:assert/strict';
-import { calculateTuVi, TU_VI_POLICY, PALACES_VN, MAJOR_STARS, CUC_TYPES } from '../../chart/tu-vi-engine.mjs';
+import { calculateTuVi, calculateTuViAnnual, TU_VI_POLICY, PALACES_VN, MAJOR_STARS, CUC_TYPES } from '../../chart/tu-vi-engine.mjs';
 
 // 1. Metadata check
 assert.equal(TU_VI_POLICY.id, 'VN-TUVI-1.0');
@@ -19,4 +19,11 @@ assert.equal(res1.palacesPlacement.length, 12, 'all 12 palaces placed');
 assert.ok(res1.quanLoc, 'Quan Lộc palace found');
 assert.ok(res1.taiBach, 'Tài Bạch palace found');
 
-console.log('✓ tu-vi: 13 assertions passed');
+// 3. Annual Fortune Test
+const annual1 = calculateTuViAnnual({ date: '1990-10-10', targetYear: 2026 });
+assert.equal(annual1.targetYear, 2026);
+assert.ok(annual1.activePalace, 'active palace present');
+assert.ok(annual1.palaceTheme, 'palace theme present');
+assert.ok(annual1.advice, 'advice present');
+
+console.log('✓ tu-vi: 17 assertions passed');

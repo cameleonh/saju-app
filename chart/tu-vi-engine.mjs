@@ -154,3 +154,37 @@ export function calculateTuVi(input = {}) {
     summary: `명궁(Mệnh)이 ${menhBranch.name}에 위치하며, 주성 ${primaryStar.name}(${primaryStar.nature})과 ${cuc.name}의 기운을 바탕으로 ${primaryStar.keyword}의 역량을 발휘합니다.`,
   };
 }
+
+// 서기 연도별 베트남 세차 지지 (Lưu Niên Chi)
+const YEAR_BRANCH_VN = Object.freeze({
+  2024: { branchIdx: 4, name: '진 (Thìn / 용의 해)' },
+  2025: { branchIdx: 5, name: '사 (Tỵ / 뱀의 해)' },
+  2026: { branchIdx: 6, name: '오 (Ngọ / 말의 해)' },
+  2027: { branchIdx: 7, name: '미 (Mùi / 양의 해)' },
+});
+
+/**
+ * 특정 연도(targetYear)의 베트남 뜨비 유년운(Lưu Niên)을 계산합니다.
+ * @param {object} input { date: 'YYYY-MM-DD', targetYear: number, time?: string, unknownTime?: boolean }
+ * @returns {object} 계산된 뜨비 유년운 객체
+ */
+export function calculateTuViAnnual(input = {}) {
+  const chart = calculateTuVi(input);
+  const targetYear = Number(input.targetYear || new Date().getFullYear());
+  const yearBranchInfo = YEAR_BRANCH_VN[targetYear] || { branchIdx: ((targetYear - 4) % 12 + 12) % 12, name: '해당 연도' };
+
+  // 당해 연도 세궁(Lưu Niên Cung)에 위치한 내 12궁 찾기
+  const activePlacement = chart.palacesPlacement.find((p) => p.branch.index === yearBranchInfo.branchIdx) || chart.palacesPlacement[0];
+  const activePalace = activePlacement.palace;
+
+  return {
+    targetYear,
+    yearBranch: yearBranchInfo,
+    activePalace,
+    activeBranch: activePlacement.branch,
+    primaryStar: chart.menhPalace.primaryStar,
+    palaceTheme: `${activePalace.name} (${activePalace.meaning})의 영역이 활성화되는 해`,
+    advice: `올해는 ${activePalace.role}에 주력할 때 가장 큰 결실을 맺습니다.`,
+    summary: `${targetYear}년(${yearBranchInfo.name}) 베트남 뜨비에서는 ${activePlacement.branch.name}에 위치한 '${activePalace.name}'이 당해 유년운의 중심 무대가 됩니다.`,
+  };
+}

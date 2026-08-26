@@ -1,6 +1,6 @@
 // tests/unit/mahabote.mjs
 import assert from 'node:assert/strict';
-import { calculateMahabote, MAHABOTE_DAYS, MAHABOTE_HOUSES, MAHABOTE_POLICY } from '../../chart/mahabote-engine.mjs';
+import { calculateMahabote, calculateMahaboteAnnual, MAHABOTE_DAYS, MAHABOTE_HOUSES, MAHABOTE_POLICY } from '../../chart/mahabote-engine.mjs';
 
 // 1. Metadata and Policy checks
 assert.equal(MAHABOTE_POLICY.id, 'MM-MAHABOTE-1.0');
@@ -16,6 +16,14 @@ assert.equal(res1.birthDay.id, 'wed_pm', '14:30 on Wednesday is Rahu');
 assert.equal(res1.birthDay.animal, '엄니 없는 코끼리 (Tuskless Elephant)');
 assert.ok(res1.rulingHouse, 'ruling house must be resolved');
 assert.equal(res1.housePlacements.length, 7, 'all 7 houses are mapped');
+
+// 3. Annual Fortune Test
+const annual1 = calculateMahaboteAnnual({ date: '1990-10-10', targetYear: 2026 });
+assert.equal(annual1.targetYear, 2026);
+assert.equal(annual1.age, 36);
+assert.ok(annual1.yearlyHouse, 'annual house is populated');
+assert.ok(annual1.yearlyTheme, 'annual theme is populated');
+assert.ok(annual1.yearlyAdvice, 'annual advice is populated');
 
 // Date 2: 1990-10-10 (Wednesday) 09:00 -> Wednesday AM (Boddahu)
 const res2 = calculateMahabote({ date: '1990-10-10', time: '09:00', unknownTime: false });
@@ -35,4 +43,4 @@ assert.equal(res4.birthDay.id, 'mon', '1988-08-08 is Monday');
 assert.equal(res4.birthDay.animal, '호랑이 (Tiger)');
 assert.equal(res4.birthDay.planet, '달 (Moon)');
 
-console.log('✓ mahabote: 16 assertions passed');
+console.log('✓ mahabote: 21 assertions passed');

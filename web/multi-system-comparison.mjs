@@ -230,4 +230,119 @@ export function renderFourSystemComparison(sajuChart, mahaboteChart, horasatChar
   `;
 }
 
+/**
+ * 4대 전통 당해 연도(targetYear) 연운 심층 대조 패널 렌더링.
+ */
+export function renderFourSystemAnnualComparison(sajuAnnual, mahaboteAnnual, horasatAnnual, tuViAnnual, targetYear = 2026) {
+  if (!sajuAnnual && !mahaboteAnnual) return '';
+
+  const sajuLead = sajuAnnual?.cards?.[0]?.lead || '한 해의 계절과 기운이 조화롭게 순환합니다.';
+  const sajuTheme = sajuAnnual?.cards?.[0]?.title || `${targetYear}년 세운의 흐름`;
+  const sajuAdvice = sajuAnnual?.cards?.[0]?.practice || '무리한 확장보다 내실 있는 실천에 집중하세요.';
+
+  return `
+    <section class="panel comparison-detail-panel" aria-labelledby="annual-comparison-title">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">${targetYear}년 연운(年運) 4대 전통 대조</div>
+          <h2 id="annual-comparison-title">${targetYear}년, 네 개의 전통이 바라본 올해의 운</h2>
+        </div>
+        <p class="section-desc">한국의 세운 십신, 미얀마의 당해 하우스 주기, 태국의 목성 입궁 운, 베트남의 유년 세궁이 예고하는 ${targetYear}년 종합 운세입니다.</p>
+      </div>
+
+      <div class="comparison-4grid">
+        <!-- 1. 한국 사주 연운 -->
+        <div class="comparison-side-card saju-side">
+          <div class="side-header">
+            <span class="side-flag">🇰🇷</span>
+            <div>
+              <h3>한국 사주 ${targetYear}년</h3>
+              <span class="side-sub">세운 천간·지지와 십신 흐름</span>
+            </div>
+          </div>
+          <div class="side-highlight">
+            <div class="highlight-label">올해의 핵심 테마</div>
+            <div class="highlight-value">${escapeHtml(sajuTheme)}</div>
+          </div>
+          <ul class="side-details">
+            <li><strong>주요 흐름:</strong> ${escapeHtml(sajuLead)}</li>
+            <li><strong>행동 조언:</strong> ${escapeHtml(sajuAdvice)}</li>
+          </ul>
+        </div>
+
+        <!-- 2. 미얀마 마하보테 연운 -->
+        ${mahaboteAnnual ? `
+        <div class="comparison-side-card mahabote-side">
+          <div class="side-header">
+            <span class="side-flag">🇲🇲</span>
+            <div>
+              <h3>미얀마 마하보테 연운</h3>
+              <span class="side-sub">만 ${mahaboteAnnual.age}세 거주 하우스</span>
+            </div>
+          </div>
+          <div class="side-highlight">
+            <div class="highlight-label">올해 머무는 자리</div>
+            <div class="highlight-value">${escapeHtml(mahaboteAnnual.yearlyHouse?.name || '')} (${escapeHtml(mahaboteAnnual.yearlyTheme || '')})</div>
+          </div>
+          <ul class="side-details">
+            <li><strong>핵심 집중:</strong> ${escapeHtml(mahaboteAnnual.focusKeywords || '')}</li>
+            <li><strong>마하보테 조언:</strong> ${escapeHtml(mahaboteAnnual.yearlyAdvice || '')}</li>
+          </ul>
+        </div>
+        ` : ''}
+
+        <!-- 3. 태국 호라삿 연운 -->
+        ${horasatAnnual ? `
+        <div class="comparison-side-card horasat-side">
+          <div class="side-header">
+            <span class="side-flag">🇹🇭</span>
+            <div>
+              <h3>태국 호라삿 연운</h3>
+              <span class="side-sub">목성(Jupiter)의 황도 입궁</span>
+            </div>
+          </div>
+          <div class="side-highlight">
+            <div class="highlight-label">올해의 목성 기운</div>
+            <div class="highlight-value">${escapeHtml(horasatAnnual.annualTone || '')}</div>
+          </div>
+          <ul class="side-details">
+            <li><strong>성취 영역:</strong> ${escapeHtml(horasatAnnual.annualFocus || '')}</li>
+            <li><strong>행운의 색상:</strong> ${escapeHtml(horasatAnnual.luckyColor || '')}</li>
+          </ul>
+        </div>
+        ` : ''}
+
+        <!-- 4. 베트남 뜨비 유년운 -->
+        ${tuViAnnual ? `
+        <div class="comparison-side-card tuvi-side">
+          <div class="side-header">
+            <span class="side-flag">🇻🇳</span>
+            <div>
+              <h3>베트남 뜨비 유년운</h3>
+              <span class="side-sub">유년 세궁(Lưu Niên) 활성화</span>
+            </div>
+          </div>
+          <div class="side-highlight">
+            <div class="highlight-label">올해 활성화되는 궁</div>
+            <div class="highlight-value">${escapeHtml(tuViAnnual.activePalace?.name || '')}</div>
+          </div>
+          <ul class="side-details">
+            <li><strong>궁의 테마:</strong> ${escapeHtml(tuViAnnual.palaceTheme || '')}</li>
+            <li><strong>뜨비 조언:</strong> ${escapeHtml(tuViAnnual.advice || '')}</li>
+          </ul>
+        </div>
+        ` : ''}
+      </div>
+
+      <div class="comparison-insights-grid">
+        <div class="insight-box unique">
+          <div class="insight-title">✦ ${targetYear}년 4대 전통 종합 실천 가이드</div>
+          <p>한국의 사주가 <em>'시간의 타이밍'</em>을 알려주고, 미얀마의 마하보테가 <em>'올해 집중할 영역'</em>을 짚어주며, 태국의 호라삿이 <em>'행운의 일상 색상과 마음가짐'</em>을 비추고, 베트남의 뜨비가 <em>'활성화될 삶의 무대'</em>를 안내합니다. 네 가지 지혜를 조화롭게 융합하여 주도적인 한 해를 설계하세요.</p>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
 export const comparisonStateLabel = (state) => STATE_LABELS[state] || '상태 확인 필요';
+
