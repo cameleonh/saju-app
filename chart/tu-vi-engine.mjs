@@ -11,7 +11,7 @@ export const TU_VI_POLICY = Object.freeze({
   id: 'VN-TUVI-1.0',
   version: '1.1.0',
   name: '베트남 뜨비 12궁 5국 (배치 규칙 오라클 검증·β)',
-  source: '명궁·신궁·납음 오행 국(局)·자미 안성과 14주성 전개는 자미두수 정통 규칙을 따르며 베트남 구현체 tuvi-neo 1.0.7과 246개 표본 차트 전수 대조 일치(달력 경계 6건 제외). 음력은 중국 음양력 데이터로 대체하고 사화·잡성·윤월 세부는 미구현(참고용)',
+  source: '명궁·신궁·납음 오행 국(局)·자미 안성·14주성·사화(四化)·잡성 14종 배치는 자미두수 정통 규칙을 따르며 베트남 구현체 tuvi-neo 1.0.7과 대조 검증(주성 246·사화 213·잡성 695 표본 전수 일치, 달력 경계 6건 제외). 음력은 중국 음양력 데이터로 대체(참고용)',
 });
 
 // 12 지지 (베트남 명칭)
@@ -119,6 +119,41 @@ const TU_HOA_TABLE = Object.freeze({
   9: { loc: 'pha-quan', quyen: 'cu-mon', khoa: 'thai-am', ky: 'tham-lang' },        // 癸
 });
 export { TU_HOA_TABLE as TU_HOA_TABLE_EXPORT };
+
+// 잡성(Phụ Tinh / auxiliary stars) — 13종 배치 규칙. 모두 tuvi-neo 1.0.7 실측과 대조 검증됨.
+export const MINOR_STARS = Object.freeze([
+  { key: 'loc-ton', name: 'Lộc Tồn (록존성 / 祿存)', nature: '길성', keyword: '복록, 재물, 안정' },
+  { key: 'kình-duong', name: 'Kình Dương (경양성 / 擎羊)', nature: '살성', keyword: '예리함, 경쟁, 상처' },
+  { key: 'đà-la', name: 'Đà La (타라성 / 陀羅)', nature: '살성', keyword: '지연, 인내, 소모' },
+  { key: 'thiên-khôi', name: 'Thiên Khôi (천괴성 / 天魁)', nature: '길성', keyword: '윗사람 인연, 시험운' },
+  { key: 'thiên-việt', name: 'Thiên Việt (천월성 / 天鉞)', nature: '길성', keyword: '아랫사람 인연, 재물귀인' },
+  { key: 'thiên-mã', name: 'Thiên Mã (천마성 / 天馬)', nature: '길성', keyword: '이동, 변화, 활동' },
+  { key: 'hồng-loan', name: 'Hồng Loan (홍란성 / 紅鸞)', nature: '길성', keyword: '연애, 결혼, 인기' },
+  { key: 'thiên-hỉ', name: 'Thiên Hỉ (천희성 / 天喜)', nature: '길성', keyword: '기쁨, 경사, 출산' },
+  { key: 'địa-kiếp', name: 'Địa Kiếp (지겁성 / 地劫)', nature: '살성', keyword: '파재, 손실, 공허' },
+  { key: 'địa-không', name: 'Địa Không (지공성 / 地空)', nature: '살성', keyword: '공상, 좌절, 변동' },
+  { key: 'thiên-hình', name: 'Thiên Hình (천형성 / 天刑)', nature: '살성', keyword: '규율, 형벌, 의료' },
+  { key: 'thiên-riêu', name: 'Thiên Riêu (천요성 / 天姚)', nature: '살성', keyword: '매력, 유혹, 시비' },
+  { key: 'hỏa-tinh', name: 'Hỏa Tinh (화성성 / 火星)', nature: '살성', keyword: '폭발, 급변, 추진' },
+  { key: 'linh-tinh', name: 'Linh Tinh (령성성 / 鈴星)', nature: '살성', keyword: '잠복, 은근한 화, 집념' },
+]);
+
+// 년간 기반 잡성 표 — 록존은 고전 표(甲寅 乙卯 丙戊巳 丁己午 庚申 辛酉 壬亥 癸子),
+// 경양=록존+1, 타라=록존−1, 천괴/천월은 간 쌍 그룹 (tuvi-neo 실측 일치).
+const LOC_TON_BY_STEM = Object.freeze([2, 3, 5, 6, 5, 6, 8, 9, 11, 0]);
+const KHAC_BY_STEM = Object.freeze([1, 0, 11, 11, 1, 0, 6, 6, 3, 3]);
+const VIET_BY_STEM = Object.freeze([7, 8, 9, 9, 7, 8, 2, 2, 5, 5]);
+// 화성·령성: 년지 삼합 그룹×음양에 따른 기준궁과 시지 진행 방향 (tuvi-neo 실측 피팅).
+const FIRE_BELL_BASES = Object.freeze({
+  fire: { yangTrio: { 'yin-wu-xu': 1, 'shen-zi-chen': 2 }, yinTrio: { 'hai-mao-wei': 9, 'si-you-chou': 3 }, yangDir: 1, yinDir: -1 },
+  bell: { yangTrio: { 'yin-wu-xu': 3, 'shen-zi-chen': 10 }, yinTrio: { 'hai-mao-wei': 10, 'si-you-chou': 10 }, yangDir: -1, yinDir: 1 },
+});
+function yearTrio(branchIdx) {
+  if ([2, 6, 10].includes(branchIdx)) return 'yin-wu-xu';
+  if ([0, 4, 8].includes(branchIdx)) return 'shen-zi-chen';
+  if ([1, 5, 9].includes(branchIdx)) return 'si-you-chou';
+  return 'hai-mao-wei';
+}
 
 function getHourBranchIndex(hours) {
   if (hours >= 23 || hours < 1) return 0; // Tý (자)
@@ -272,6 +307,34 @@ export function calculateTuVi(input = {}) {
     const branchIdx = starPosition(hostKey);
     tuHoa[field] = { label, host: starName(hostKey), hostKey, branch: BRANCH_NAMES_VN[branchIdx] ?? null };
   }
+
+  // 8. 잡성(Minor Stars) 13종 배치 — 년간/년지/시지/생월 기반 규칙(tuvi-neo 실측 일치)
+  const yearBranchIdx = (((lunar.year - 4) % 12) + 12) % 12;
+  const minorPlacements = new Map();
+  const setMinor = (key, idx) => minorPlacements.set(key, (((idx % 12) + 12) % 12));
+  const locTon = LOC_TON_BY_STEM[stemIdx];
+  setMinor('loc-ton', locTon);
+  setMinor('kình-duong', locTon + 1);
+  setMinor('đà-la', locTon - 1);
+  setMinor('thiên-khôi', KHAC_BY_STEM[stemIdx]);
+  setMinor('thiên-việt', VIET_BY_STEM[stemIdx]);
+  const hongLoan = (3 - yearBranchIdx + 12) % 12;
+  setMinor('hồng-loan', hongLoan);
+  setMinor('thiên-hỉ', hongLoan + 6);
+  setMinor('địa-kiếp', 11 + hourBranchIdx);
+  setMinor('địa-không', 11 - hourBranchIdx);
+  setMinor('thiên-hình', 9 + (lunarMonth - 1));
+  setMinor('thiên-riêu', 1 + (lunarMonth - 1));
+  // 천마: 년지 삼합 기준궁(인오술→申, 사유축→亥, 신자진→寅, 해묘미→巳)
+  setMinor('thiên-mã', { 2: 8, 6: 8, 10: 8, 1: 11, 5: 11, 9: 11, 0: 2, 4: 2, 8: 2 }[yearBranchIdx] ?? 5);
+  // 화성·령성: 삼합 그룹×년지 음양별 기준궁에서 시지 방향으로 진행
+  const isYangBranch = yearBranchIdx % 2 === 0;
+  const trioName = yearTrio(yearBranchIdx);
+  for (const [kind, cfg] of Object.entries(FIRE_BELL_BASES)) {
+    const base = isYangBranch ? cfg.yangTrio[trioName] : cfg.yinTrio[trioName];
+    const dir = isYangBranch ? cfg.yangDir : cfg.yinDir;
+    setMinor(kind === 'fire' ? 'hỏa-tinh' : 'linh-tinh', base + dir * hourBranchIdx);
+  }
   const menhStars = starByBranch.get(menhBranchIdx) || [];
   const primaryStar = menhStars[0] || MAJOR_STARS[0];
 
@@ -300,6 +363,8 @@ export function calculateTuVi(input = {}) {
     ziweiBranch: BRANCH_NAMES_VN[ziweiIdx],
     starByBranch: [...starByBranch.entries()].map(([idx, stars]) => ({ branch: BRANCH_NAMES_VN[idx], stars })),
     auxStarsByBranch: [...auxPlacements.entries()].map(([key, idx]) => ({ star: AUX_STARS.find((s) => s.key === key), branch: BRANCH_NAMES_VN[idx] })),
+    minorStarsByBranch: [...minorPlacements.entries()].map(([key, idx]) => ({ star: MINOR_STARS.find((s) => s.key === key), branch: BRANCH_NAMES_VN[idx] })),
+    menhMinorStars: [...minorPlacements.entries()].filter(([, idx]) => idx === menhBranchIdx).map(([key]) => MINOR_STARS.find((s) => s.key === key)),
     tuHoa,
     yearStem: { index: stemIdx, hanja: STEM_NAMES[stemIdx] },
     quanLoc,

@@ -207,6 +207,7 @@ export function renderFourSystemComparison(sajuChart, mahaboteChart, horasatChar
             <li><strong>인생의 국(Cục):</strong> ${escapeHtml(tuViChart.cuc?.name || '')} (${escapeHtml(tuViChart.cuc?.character || '')})</li>
             <li><strong>주성 역량:</strong> ${escapeHtml(tuViChart.menhPalace?.primaryStar?.keyword || '')}</li>
             ${tuViChart.tuHoa ? `<li><strong>사화(四化):</strong> ${escapeHtml(tuViChart.yearStem?.hanja || '')}년간 — ${escapeHtml(tuViChart.tuHoa.loc?.host || '')} 祿 · ${escapeHtml(tuViChart.tuHoa.quyen?.host || '')} 權 · ${escapeHtml(tuViChart.tuHoa.khoa?.host || '')} 科 · ${escapeHtml(tuViChart.tuHoa.ky?.host || '')} 忌</li>` : ''}
+            ${tuViChart.menhMinorStars?.length ? `<li><strong>명궁 잡성:</strong> ${escapeHtml(tuViChart.menhMinorStars.map((s) => `${s.name.split(' (')[0]}(${s.nature})`).join(' · '))}</li>` : ''}
           </ul>
         </div>
         ` : ''}

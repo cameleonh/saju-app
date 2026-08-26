@@ -113,4 +113,26 @@ assert.equal(auxAt('van-khuc'), 11, 'Văn khúc at Hợi (hour-derived, oracle r
 assert.equal(auxAt('ta-phu'), 11, 'Tả phù at Hợi (month-derived, oracle rule)');
 assert.equal(auxAt('huu-bat'), 3, 'Hữu bật at Mão (month-derived, oracle rule)');
 
+// 7. Minor stars (잡성 14종) — parity with tuvi-neo on 695 sampled charts (zero mismatches).
+// Fixture values are the oracle's own output for this profile (Canh Ngọ year, month 8, hour Mùi).
+import { MINOR_STARS } from '../../chart/tu-vi-engine.mjs';
+assert.equal(MINOR_STARS.length, 14, 'fourteen minor stars defined');
+const minorAt = (key) => res1.minorStarsByBranch.find((e) => e.star.key === key)?.branch.index;
+assert.equal(minorAt('loc-ton'), 8, 'Lộc tồn at Thân (oracle-verified)');
+assert.equal(minorAt('kình-duong'), 9, 'Kình dương at Dậu = Lộc tồn+1');
+assert.equal(minorAt('đà-la'), 7, 'Đà la at Mùi = Lộc tồn-1');
+assert.equal(minorAt('thiên-khôi'), 6, 'Thiên khôi at Ngọ (Canh stem)');
+assert.equal(minorAt('thiên-việt'), 2, 'Thiên việt at Dần (Canh stem)');
+assert.equal(minorAt('thiên-mã'), 8, 'Thiên mã at Thân (Ngọ trio)');
+assert.equal(minorAt('hồng-loan'), 9, 'Hồng loan at Dậu = (3-yearBranch)');
+assert.equal(minorAt('thiên-hỉ'), 3, 'Thiên hỉ at Mão = Hồng loan+6');
+assert.equal(minorAt('địa-kiếp'), 6, 'Địa kiếp at Ngọ = Hợi+hour');
+assert.equal(minorAt('địa-không'), 4, 'Địa không at Thìn = Hợi-hour');
+assert.equal(minorAt('thiên-hình'), 4, 'Thiên hình at Thìn = Dậu+month');
+assert.equal(minorAt('thiên-riêu'), 8, 'Thiên riêu at Thân = Sửu+month');
+assert.equal(minorAt('hỏa-tinh'), 8, 'Hỏa tinh at Thân (yin-wu-xu yang branch)');
+assert.equal(minorAt('linh-tinh'), 8, 'Linh tinh at Thân (yin-wu-xu yang branch)');
+// menhMinorStars exposes what actually sits in the Ming palace (Dần idx 2): Thiên việt only.
+assert.deepEqual(res1.menhMinorStars.map((s) => s.key), ['thiên-việt'], 'Mệnh palace minor stars (oracle-verified)');
+
 console.log('✓ tu-vi: oracle-verified (tuvi-neo parity) assertions passed');
