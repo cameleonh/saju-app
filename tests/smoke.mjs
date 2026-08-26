@@ -254,6 +254,7 @@ assert.match(html, /import \{ buildDailyReading \} from '\.\/server\/domain\/dai
 assert.match(html, /function ensureDailyReading\(\)/, 'the daily screen recomputes the daily reading instead of pinning it to the saved date');
 assert.match(html, /formatSeoulInstant\(Math\.floor\(Date\.now\(\) \/ 60000\)\)/, 'today comes from the engine Seoul timezone snapshot, not UTC');
 assert.match(html, /\$\{daewoonMarkup\}\$\{annualMarkup\}/, '대운 → 연운 zoom-in order in the natal result flow');
+assert.match(html, /\$\{fourSystemPanels\}\$\{singleFlowPanels\}/, 'comparison mode renders the four-system panels ahead of the single reading flow');
 assert.doesNotMatch(html, /dailyMarkup/, 'the natal result view no longer renders the daily panel (P0-C: daily stays standalone and does not invade the main reading)');
 assert.match(html, /data-action="daily-from-result"/, 'the natal result view keeps only a tiny footer link to the daily screen');
 
