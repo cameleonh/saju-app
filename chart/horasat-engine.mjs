@@ -5,9 +5,9 @@
 
 export const HORASAT_POLICY = Object.freeze({
   id: 'TH-HORASAT-1.0',
-  version: '1.0.0',
-  name: '태국 호라삿 12라시 및 8대 탄생 요일 점성학',
-  source: 'Traditional Siamese Horasat System (Royal Institute of Thailand Astronomical Standard)',
+  version: '1.1.0',
+  name: '태국 호라삿 12라시 수호불 간이 모형(β)',
+  source: '요일별 수호불·색상은 널리 알려진 태국 전통 설명을 따름. 라시 구간은 태국어 위키백과 「จักรราศี」 항성황도(นิรายนะ) 고정 날짜 표 기준. 연운 목성 입궁 표는 2024~2027 한정(참고용)',
 });
 
 // 태국 8대 요일 (수요일은 주간 06:00~18:00, 야간 18:00~06:00 분리)
@@ -104,13 +104,14 @@ export const HORASAT_WEEKDAYS = Object.freeze([
   },
 ]);
 
-// 태국 12 라시 (황도 12궁)
+// 태국 12 라시 (황도 12궁) — 항성황도(นิรายนะ/Sidereal) 기준 날짜 구간.
+// 경계값은 태국어 위키백과 「จักรราศี」 표(항성황도 열)를 따른다(근사 고정 구간).
 export const HORASAT_RASIS = Object.freeze([
-  { id: 'mesha', name: '메샤 (Mesha / 양자리)', thai: 'ราศีเมษ', month: '4월 13일 ~ 5월 13일', ruler: '화성', element: '화', keyword: '선구자, 열정' },
-  { id: 'vrishabha', name: '프리삽 (Vrishabha / 황소자리)', thai: 'ราศีพฤษภ', month: '5월 14일 ~ 6월 14일', ruler: '금성', element: '토', keyword: '안정, 물질적 풍요' },
-  { id: 'mithuna', name: '미툰 (Mithuna / 쌍둥이자리)', thai: 'ราศีเมถุน', month: '6월 15일 ~ 7월 15일', ruler: '수성', element: '공기', keyword: '소통, 다재다능' },
-  { id: 'karka', name: '끄라꼿 (Karka / 게자리)', thai: 'ราศีกรกฎ', month: '7월 16일 ~ 8월 16일', ruler: '달', element: '수', keyword: '모성애, 감수성' },
-  { id: 'simha', name: '싱하 (Simha / 사자자리)', thai: 'ราศีสิงห์', month: '8월 17일 ~ 9월 16일', ruler: '태양', element: '화', keyword: '권위, 당당함' },
+  { id: 'mesha', name: '메샤 (Mesha / 양자리)', thai: 'ราศีเมษ', month: '4월 13일 ~ 5월 14일', ruler: '화성', element: '화', keyword: '선구자, 열정' },
+  { id: 'vrishabha', name: '프리삽 (Vrishabha / 황소자리)', thai: 'ราศีพฤษภ', month: '5월 15일 ~ 6월 14일', ruler: '금성', element: '토', keyword: '안정, 물질적 풍요' },
+  { id: 'mithuna', name: '미툰 (Mithuna / 쌍둥이자리)', thai: 'ราศีเมถุน', month: '6월 15일 ~ 7월 14일', ruler: '수성', element: '공기', keyword: '소통, 다재다능' },
+  { id: 'karka', name: '끄라꼿 (Karka / 게자리)', thai: 'ราศีกรกฎ', month: '7월 15일 ~ 8월 15일', ruler: '달', element: '수', keyword: '모성애, 감수성' },
+  { id: 'simha', name: '싱하 (Simha / 사자자리)', thai: 'ราศีสิงห์', month: '8월 16일 ~ 9월 16일', ruler: '태양', element: '화', keyword: '권위, 당당함' },
   { id: 'kanya', name: '깐 (Kanya / 처녀자리)', thai: 'ราศีกันย์', month: '9월 17일 ~ 10월 16일', ruler: '수성', element: '토', keyword: '정밀함, 봉사' },
   { id: 'tula', name: '뚠 (Tula / 천칭자리)', thai: 'ราศีตุลย์', month: '10월 17일 ~ 11월 15일', ruler: '금성', element: '공기', keyword: '조화, 공정함' },
   { id: 'vrishchika', name: '프리칙 (Vrishchika / 전갈자리)', thai: 'ราศีพิจิก', month: '11월 16일 ~ 12월 15일', ruler: '화성', element: '수', keyword: '집념, 통찰' },
@@ -121,20 +122,21 @@ export const HORASAT_RASIS = Object.freeze([
 ]);
 
 /**
- * 태양의 황경을 기준으로 태국 호라삿의 라시(Rasi)를 도출합니다.
+ * 태국 호라삿의 라시(Rasi)를 태어난 날짜(월·일)로 도출한다.
+ * 구간은 항성황도 기준 고정 날짜 표(태국어 위키백과 「จักรราศี」)를 따른다.
  */
 function deriveRasi(month, day) {
   const md = month * 100 + day;
-  if (md >= 413 && md <= 513) return HORASAT_RASIS[0]; // 메샤
-  if (md >= 514 && md <= 614) return HORASAT_RASIS[1]; // 프리삽
-  if (md >= 615 && md <= 715) return HORASAT_RASIS[2]; // 미툰
-  if (md >= 716 && md <= 816) return HORASAT_RASIS[3]; // 끄라꼿
-  if (md >= 817 && md <= 916) return HORASAT_RASIS[4]; // 싱하
+  if (md >= 413 && md <= 514) return HORASAT_RASIS[0];  // 메샤
+  if (md >= 515 && md <= 614) return HORASAT_RASIS[1];  // 프리삽
+  if (md >= 615 && md <= 714) return HORASAT_RASIS[2];  // 미툰
+  if (md >= 715 && md <= 815) return HORASAT_RASIS[3];  // 끄라꼿
+  if (md >= 816 && md <= 916) return HORASAT_RASIS[4];  // 싱하
   if (md >= 917 && md <= 1016) return HORASAT_RASIS[5]; // 깐
   if (md >= 1017 && md <= 1115) return HORASAT_RASIS[6]; // 뚠
   if (md >= 1116 && md <= 1215) return HORASAT_RASIS[7]; // 프리칙
   if (md >= 1216 || md <= 114) return HORASAT_RASIS[8]; // 타누
-  if (md >= 115 && md <= 212) return HORASAT_RASIS[9]; // 망꼰
+  if (md >= 115 && md <= 212) return HORASAT_RASIS[9];  // 망꼰
   if (md >= 213 && md <= 314) return HORASAT_RASIS[10]; // 꿈
   return HORASAT_RASIS[11]; // 민 (3월 15일 ~ 4월 12일)
 }
@@ -188,7 +190,8 @@ const JUPITER_YEARLY_RASIS = Object.freeze({
 export function calculateHorasatAnnual(input = {}) {
   const chart = calculateHorasat(input);
   const targetYear = Number(input.targetYear || new Date().getFullYear());
-  const jupiterInfo = JUPITER_YEARLY_RASIS[targetYear] || JUPITER_YEARLY_RASIS[2026];
+  const jupiterInfo = JUPITER_YEARLY_RASIS[targetYear] || null;
+  if (!jupiterInfo) return null; // 검증된 목성 입궁 표는 2024~2027 한정 — 그 외 연도는 계산하지 않고 카드를 생략한다.
 
   const natalRasiIdx = HORASAT_RASIS.findIndex((r) => r.id === chart.rasi.id);
   const jupiterRasiIdx = HORASAT_RASIS.findIndex((r) => r.id === jupiterInfo.rasiId);

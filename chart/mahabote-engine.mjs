@@ -6,8 +6,8 @@
 export const MAHABOTE_POLICY = Object.freeze({
   id: 'MM-MAHABOTE-1.0',
   version: '1.0.0',
-  name: '미얀마 마하보테 정통 8요일 7하우스 수리역학',
-  source: 'Traditional Burmese Mahabote Chart Rules (Myanmar Standard Astronomical Calculation)',
+  name: '미얀마 마하보테 8요일 7하우스 간이 모형(β)',
+  source: '탄생 요일·행성·수호 동물 표는 널리 알려진 마하보테 전통 설명을 따름. 하우스 배치와 연운 순환은 특정 미얀마 원전과 대조 검증 전인 간이 산술 규칙(참고용)',
 });
 
 // 8개 요일 (수요일은 정오 12시 기준으로 오전/오후 분리)

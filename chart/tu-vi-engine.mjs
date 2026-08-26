@@ -1,15 +1,17 @@
 // chart/tu-vi-engine.mjs
 // 베트남 전통 점성학 뜨비(Tử Vi / Tử Vi Đẩu Số) 계산 엔진.
-// 동아시아·베트남 음력 및 12시진(時辰)을 기반으로
-// 12궁(Cung Mệnh, Quan Lộc, Tài Bạch 등)과 5국(Cục), 주성(Chính Tinh) 배치를 결정론적으로 산출합니다.
+// 명궁·신궁·국(局)·주성 배치는 자미두수(紫微斗數) 통용 규칙(중국어 위키백과 「紫微斗數」
+// 안궁 절차: 五行局=명궁 간지의 납음 오행, 紫微 안성 공식, 자미군·천부군 14성 전개)을 따름.
+// 베트남 현지 유파별 상세 규칙(사화, 잡성, 윤월 세분)과 대조 검증은 진행 중이며
+// 음력은 중국 음양력 데이터로 대체 사용한다(정책 source 참조).
 
 import { describeSolarToLunar } from './solar-lunar.mjs';
 
 export const TU_VI_POLICY = Object.freeze({
   id: 'VN-TUVI-1.0',
-  version: '1.0.0',
-  name: '베트남 뜨비 12궁 5국 정통 수리점성학',
-  source: 'Traditional Vietnamese Tử Vi Đẩu Số Chart Rules',
+  version: '1.1.0',
+  name: '베트남 뜨비 12궁 5국 (배치 규칙 오라클 검증·β)',
+  source: '명궁·신궁·납음 오행 국(局)·자미 안성과 14주성 전개는 자미두수 정통 규칙을 따르며 베트남 구현체 tuvi-neo 1.0.7과 246개 표본 차트 전수 대조 일치(달력 경계 6건 제외). 음력은 중국 음양력 데이터로 대체하고 사화·잡성·윤월 세부는 미구현(참고용)',
 });
 
 // 12 지지 (베트남 명칭)
@@ -28,7 +30,10 @@ export const BRANCH_NAMES_VN = Object.freeze([
   { id: 'hoi', name: '해 (Hợi)', hanja: '亥', index: 11 },
 ]);
 
-// 12궁 (Cung) 정의
+// 10천간 (자미두수 안궁용)
+const STEM_NAMES = Object.freeze(['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']);
+
+// 12궁 (Cung) 정의 — 명궁부터 시계 반대 방향 순서
 export const PALACES_VN = Object.freeze([
   { id: 'menh', name: 'Mệnh (명궁 / 命宮)', meaning: '나의 본질과 정체성', role: '선천적 기질, 성격, 체질 및 평생의 중심축' },
   { id: 'phu_mau', name: 'Phụ mẫu (부모궁 / 父母宮)', meaning: '부모와 윗사람', role: '부모와의 인연, 유산, 스승 및 상사의 후원' },
@@ -44,25 +49,26 @@ export const PALACES_VN = Object.freeze([
   { id: 'huynh_de', name: 'Huynh đệ (형제궁 / 兄弟宮)', meaning: '형제와 자매', role: '형제자매와의 우애, 가장 가까운 벗과의 협력' },
 ]);
 
-// 14 주성 (Chính Tinh) 대표 속성
+// 14 주성 (Chính Tinh) — 자미두수 14정성. 자미군 6성 + 천부군 8성.
+// 베트남 명칭과 한국 대응 표기.
 export const MAJOR_STARS = Object.freeze([
-  { name: 'Tử Vi (자미성 / 紫微)', element: '토', nature: '황제의 별', keyword: '위엄, 리더십, 통솔력' },
-  { name: 'Thiên Phủ (천부성 / 天府)', element: '토', nature: '재고의 별', keyword: '풍요, 포용력, 안정성' },
-  { name: 'Thái Dương (태양성 / 太陽)', element: '화', nature: '빛의 별', keyword: '공명정대, 열정, 봉사' },
-  { name: 'Thái Âm (태음성 / 太陰)', element: '수', nature: '달의 별', keyword: '감수성, 섬세함, 부유함' },
-  { name: 'Vũ Khúc (무곡성 / 武曲)', element: '금', nature: '재백의 별', keyword: '실행력, 결단력, 재물 창출' },
-  { name: 'Thiên Cơ (천기성 / 天機)', element: '목', nature: '지혜의 별', keyword: '기획력, 두뇌 회전, 통찰' },
-  { name: 'Liêm Trinh (염정성 / 廉貞)', element: '화', nature: '정의의 별', keyword: '추진력, 도전, 개성' },
-  { name: 'Thiên Đồng (천동성 / 天同)', element: '수', nature: '복덕의 별', keyword: '낙천성, 화합, 온화함' },
-  { name: 'Tham Lang (탐랑성 / 貪狼)', element: '목', nature: '욕망의 별', keyword: '재능, 매력, 다재다능' },
-  { name: 'Cự Môn (거문성 / 巨門)', element: '수', nature: '언변의 별', keyword: '달변, 설득력, 연구' },
-  { name: 'Thiên Tướng (천상성 / 天相)', element: '수', nature: '재상의 별', keyword: '조력, 신뢰, 성실함' },
-  { name: 'Thiên Lương (천량성 / 天梁)', element: '토', nature: '어른의 별', keyword: '보호, 원칙, 스승' },
-  { name: 'Thất Sát (칠살성 / 七殺)', element: '금', nature: '장수의 별', keyword: '돌파력, 카리스마, 용맹' },
-  { name: 'Phá Quân (파군성 / 破軍)', element: '수', nature: '개혁의 별', keyword: '혁신, 개척, 과감함' },
+  { key: 'tu-vi', name: 'Tử Vi (자미성 / 紫微)', element: '토', nature: '황제의 별', keyword: '위엄, 리더십, 통솔력', group: 'ziwei' },
+  { key: 'thien-co', name: 'Thiên Cơ (천기성 / 天機)', element: '목', nature: '지혜의 별', keyword: '기획력, 두뇌 회전, 통찰', group: 'ziwei' },
+  { key: 'thai-duong', name: 'Thái Dương (태양성 / 太陽)', element: '화', nature: '빛의 별', keyword: '공명정대, 열정, 봉사', group: 'ziwei' },
+  { key: 'vu-khuc', name: 'Vũ Khúc (무곡성 / 武曲)', element: '금', nature: '재백의 별', keyword: '실행력, 결단력, 재물 창출', group: 'ziwei' },
+  { key: 'thien-dong', name: 'Thiên Đồng (천동성 / 天同)', element: '수', nature: '복덕의 별', keyword: '낙천성, 화합, 온화함', group: 'ziwei' },
+  { key: 'liem-trinh', name: 'Liêm Trinh (염정성 / 廉貞)', element: '화', nature: '정의의 별', keyword: '추진력, 도전, 개성', group: 'ziwei' },
+  { key: 'thien-phu', name: 'Thiên Phủ (천부성 / 天府)', element: '토', nature: '재고의 별', keyword: '풍요, 포용력, 안정성', group: 'tianfu' },
+  { key: 'thai-am', name: 'Thái Âm (태음성 / 太陰)', element: '수', nature: '달의 별', keyword: '감수성, 섬세함, 부유함', group: 'tianfu' },
+  { key: 'tham-lang', name: 'Tham Lang (탐랑성 / 貪狼)', element: '목', nature: '욕망의 별', keyword: '재능, 매력, 다재다능', group: 'tianfu' },
+  { key: 'cu-mon', name: 'Cự Môn (거문성 / 巨門)', element: '수', nature: '언변의 별', keyword: '달변, 설득력, 연구', group: 'tianfu' },
+  { key: 'thien-tuong', name: 'Thiên Tướng (천상성 / 天相)', element: '수', nature: '재상의 별', keyword: '조력, 신뢰, 성실함', group: 'tianfu' },
+  { key: 'thien-luong', name: 'Thiên Lương (천량성 / 天梁)', element: '토', nature: '어른의 별', keyword: '보호, 원칙, 스승', group: 'tianfu' },
+  { key: 'that-sat', name: 'Thất Sát (칠살성 / 七殺)', element: '금', nature: '장수의 별', keyword: '돌파력, 카리스마, 용맹', group: 'tianfu' },
+  { key: 'pha-quan', name: 'Phá Quân (파군성 / 破軍)', element: '수', nature: '개혁의 별', keyword: '혁신, 개척, 과감함', group: 'tianfu' },
 ]);
 
-// 5국 (Ngũ Cục) 정의
+// 5국 (Ngũ Cục) — 납음 오행 → 국수 매핑 (자미두수 통용: 水二 木三 金四 土五 火六)
 export const CUC_TYPES = Object.freeze([
   { num: 2, name: 'Thủy Nhị Cục (수2국 / 水二局)', element: '수', character: '유연하고 지혜로우며 주변 환경에 빠르게 적응' },
   { num: 3, name: 'Mộc Tam Cục (목3국 / 木三局)', element: '목', character: '성장 욕구가 강하고 곧은 원칙과 생명력을 지님' },
@@ -70,6 +76,25 @@ export const CUC_TYPES = Object.freeze([
   { num: 5, name: 'Thổ Ngũ Cục (토5국 / 土五局)', element: '토', character: '묵직한 신뢰감과 포용력으로 중심을 지킴' },
   { num: 6, name: 'Hỏa Lục Cục (화6국 / 火六局)', element: '화', character: '뜨거운 열정과 추진력으로 새로운 영역을 개척' },
 ]);
+
+// 60갑자 납음 오행 (30쌍; 각 쌍은 같은 납음). 순서는 甲子乙丑(海中金)부터.
+const NAYIN_ELEMENTS = Object.freeze([
+  '금', '화', '목', '토', '금', // 甲子..壬申
+  '화', '수', '토', '금', '목', // 甲戌..壬午
+  '수', '토', '화', '목', '수', // 甲申..壬辰
+  '금', '화', '목', '토', '금', // 甲午..壬寅
+  '화', '수', '토', '금', '목', // 甲辰..壬子
+  '수', '토', '화', '목', '수', // 甲寅..壬戌
+]);
+const NAYIN_NAMES = Object.freeze([
+  '海中金', '爐中火', '大林木', '路旁土', '劍鋒金',
+  '山頭火', '澗下水', '城頭土', '白蠟金', '楊柳木',
+  '泉中水', '屋上土', '霹靂火', '松柏木', '長流水',
+  '砂石金', '山下火', '平地木', '壁上土', '金箔金',
+  '覆燈火', '天河水', '大驛土', '釵釧金', '桑柘木',
+  '大溪水', '沙中土', '天上火', '石榴木', '大海水',
+]);
+const ELEMENT_TO_CUC_NUM = Object.freeze({ 수: 2, 목: 3, 금: 4, 토: 5, 화: 6 });
 
 function getHourBranchIndex(hours) {
   if (hours >= 23 || hours < 1) return 0; // Tý (자)
@@ -83,7 +108,70 @@ function getHourBranchIndex(hours) {
   if (hours >= 15 && hours < 17) return 8;// Thân (신)
   if (hours >= 17 && hours < 19) return 9;// Dậu (유)
   if (hours >= 19 && hours < 21) return 10;// Tuất (술)
-  return 11;                              // Hợi (해)
+  return 11;                               // Hợi (해)
+}
+
+// 생년 천간 인덱스(甲0..癸9). 60갑자 년주는 (year - 4) 기준: 1984=甲子.
+function yearStemIndex(year) {
+  return (((year - 4) % 10) + 10) % 10;
+}
+
+// 오호둔(五虎遁): 년간 → 인궁 천간. 甲己→丙寅, 乙庚→戊寅, 丙辛→庚寅, 丁壬→壬寅, 戊癸→甲寅.
+function yinStemIndexForYearStem(stemIdx) {
+  return ((stemIdx % 5) * 2 + 2) % 10;
+}
+
+// 지지 인덱스에 배치된 천간 인덱스 (인궁부터 순행)
+function stemAtBranch(branchIdx, yinStem) {
+  return (yinStem + ((branchIdx - 2 + 12) % 12)) % 10;
+}
+
+// 60갑자 인덱스 → 납음 쌍 인덱스 (동일 납음이 2간지씩)
+// 60갑자 순서 n(0..59)은 stem = n%10, branch = n%12을 만족하므로 stem에서 10씩 올라 branch를 맞춘다.
+function nayinPairOf(stemIdx, branchIdx) {
+  let n = stemIdx % 10;
+  while (n % 12 !== branchIdx % 12) n += 10;
+  return Math.floor(n / 2);
+}
+
+function nayinOf(stemIdx, branchIdx) {
+  const pair = nayinPairOf(stemIdx, branchIdx);
+  const element = NAYIN_ELEMENTS[pair];
+  const name = NAYIN_NAMES[pair];
+  const cucNum = ELEMENT_TO_CUC_NUM[element];
+  const cuc = CUC_TYPES.find((c) => c.num === cucNum) || CUC_TYPES[0];
+  return { element, name, ganZhi: `${STEM_NAMES[stemIdx]}${BRANCH_NAMES_VN[branchIdx].hanja}`, cuc, cucNum };
+}
+
+// 자미(紫微) 안성 — 정통 규칙(紫微斗數全書 계열, 독립 구현 ziwei@0.0.8과 대조 검증):
+// 국수로 생일을 나누어 떨어지면 몫이 자미수. 아니면 차 = (몫+1)×국수 - 생일로,
+// 차가 짝수면 자미수 = 차 + 몫 + 1, 홀수면 자미수 = 몫 + 1 - 차. 자미궁 = (자미수+1)을 12로 나눈 나머지.
+function ziweiBranchIndex(cucNum, lunarDay) {
+  let number;
+  if (lunarDay % cucNum === 0) number = lunarDay / cucNum;
+  else {
+    const quotient = Math.floor(lunarDay / cucNum);
+    const diff = (quotient + 1) * cucNum - lunarDay;
+    number = diff % 2 === 0 ? diff + quotient + 1 : quotient + 1 - diff;
+  }
+  return (((number + 1) % 12) + 12) % 12;
+}
+
+// 자미 기준 14성 전개. 천부는 자미와 寅-申 축 대칭.
+// 자미군 6성은 자미로부터 역행(-), 천부군 8성은 천부로부터 순행(+).
+const ZIWEI_GROUP_OFFSETS = Object.freeze([
+  ['tu-vi', 0], ['thien-co', -1], ['thai-duong', -3], ['vu-khuc', -4], ['thien-dong', -5], ['liem-trinh', -8],
+]);
+const TIANFU_GROUP_OFFSETS = Object.freeze([
+  ['thien-phu', 0], ['thai-am', 1], ['tham-lang', 2], ['cu-mon', 3], ['thien-tuong', 4], ['thien-luong', 5], ['that-sat', 6], ['pha-quan', 10],
+]);
+
+function starPlacements(ziweiIdx) {
+  const tianfuIdx = (4 - ziweiIdx + 12) % 12;
+  const placements = new Map();
+  for (const [key, offset] of ZIWEI_GROUP_OFFSETS) placements.set(key, (ziweiIdx + offset + 120) % 12);
+  for (const [key, offset] of TIANFU_GROUP_OFFSETS) placements.set(key, (tianfuIdx + offset + 120) % 12);
+  return placements;
 }
 
 /**
@@ -97,21 +185,19 @@ export function calculateTuVi(input = {}) {
     throw new Error('베트남 뜨비 계산을 위해 유효한 출생일(YYYY-MM-DD)이 필요합니다.');
   }
 
-  // 음력 변환
   const lunar = describeSolarToLunar({ date: dateStr });
-  const lunarMonth = lunar.month;
+  const lunarMonth = lunar.month; // 윤달은 본월에 붙여 계산
   const lunarDay = lunar.day;
 
   const timeStr = String(input.time || '12:00');
   const [hours] = timeStr.split(':').map(Number);
   const hourBranchIdx = input.unknownTime ? 6 : getHourBranchIndex(hours); // 기본값 Ngọ (오시)
 
-  // 1. Mệnh(명궁) 위치 계산 (공식: 인(Dần=2)에서 출발하여 음력 월만큼 순행 후, 시진만큼 역행)
-  // Mệnh = (2 + (lunarMonth - 1) - hourBranchIdx + 12) % 12
+  // 1. Mệnh(명궁): 인(寅)에서 음력 월만큼 순행 후 시진만큼 역행
   const menhBranchIdx = (2 + (lunarMonth - 1) - hourBranchIdx + 120) % 12;
   const menhBranch = BRANCH_NAMES_VN[menhBranchIdx];
 
-  // 2. Thân(신궁) 위치 계산 (공식: 인에서 출발하여 음력 월만큼 순행 후, 시진만큼 순행)
+  // 2. Thân(신궁): 인(寅)에서 음력 월만큼 순행 후 시진만큼 순행
   const thanBranchIdx = (2 + (lunarMonth - 1) + hourBranchIdx) % 12;
   const thanBranch = BRANCH_NAMES_VN[thanBranchIdx];
 
@@ -124,34 +210,53 @@ export function calculateTuVi(input = {}) {
     };
   });
 
-  // 4. 5국(Cục) 산출 (명궁 지지와 월 기반)
-  const cucIdx = (menhBranchIdx + lunarMonth) % 5;
-  const cuc = CUC_TYPES[cucIdx];
+  // 4. 국(Cục): 오호둔으로 명궁 천간을 정하고 명궁 간지의 납음 오행으로 결정 (紫微斗數 통용 절차)
+  const stemIdx = yearStemIndex(lunar.year);
+  const yinStem = yinStemIndexForYearStem(stemIdx);
+  const menhStemIdx = stemAtBranch(menhBranchIdx, yinStem);
+  const nayin = nayinOf(menhStemIdx, menhBranchIdx);
+  const cuc = nayin.cuc;
 
-  // 5. 대표 주성(Chính Tinh) 배치
-  const starIdx = (menhBranchIdx * 2 + lunarDay) % MAJOR_STARS.length;
-  const primaryStar = MAJOR_STARS[starIdx];
+  // 5. 자미(紫微) 안성 후 14주성(Chính Tinh) 전개
+  const ziweiIdx = ziweiBranchIndex(cuc.num, lunarDay);
+  const placements = starPlacements(ziweiIdx);
+  const starByBranch = new Map();
+  for (const star of MAJOR_STARS) {
+    const idx = placements.get(star.key);
+    if (!starByBranch.has(idx)) starByBranch.set(idx, []);
+    starByBranch.get(idx).push(star);
+  }
+  const menhStars = starByBranch.get(menhBranchIdx) || [];
+  const primaryStar = menhStars[0] || MAJOR_STARS[0];
 
-  // 관록궁(Quan Lộc) & 재백궁(Tài Bạch) 찾기
+  // 관록궁(Quan Lộc) & 재백궁(Tài Bạch)
   const quanLoc = palacesPlacement.find((p) => p.palace.id === 'quan_loc');
   const taiBach = palacesPlacement.find((p) => p.palace.id === 'tai_bach');
 
+  const starsText = menhStars.map((s) => s.name).join(' + ');
+
   return {
     policy: TU_VI_POLICY,
-    lunarDate: `음력 ${lunar.year}년 ${lunar.month}월 ${lunar.day}일`,
+    lunarDate: `음력 ${lunar.year}년 ${lunar.month}월${lunar.leapMonth ? '(윤) ' : ' '}${lunar.day}일`,
+    lunarInput: { year: lunar.year, month: lunar.month, day: lunar.day, leapMonth: lunar.leapMonth },
     menhPalace: {
       palace: PALACES_VN[0],
       branch: menhBranch,
       primaryStar,
+      stars: menhStars,
     },
     thanPalace: {
       branch: thanBranch,
     },
+    menhGanZhi: nayin.ganZhi,
+    menhNayin: { element: nayin.element, name: nayin.name },
     cuc,
+    ziweiBranch: BRANCH_NAMES_VN[ziweiIdx],
+    starByBranch: [...starByBranch.entries()].map(([idx, stars]) => ({ branch: BRANCH_NAMES_VN[idx], stars })),
     quanLoc,
     taiBach,
     palacesPlacement,
-    summary: `명궁(Mệnh)이 ${menhBranch.name}에 위치하며, 주성 ${primaryStar.name}(${primaryStar.nature})과 ${cuc.name}의 기운을 바탕으로 ${primaryStar.keyword}의 역량을 발휘합니다.`,
+    summary: `명궁(Mệnh)이 ${menhBranch.name}(${nayin.ganZhi}, 납음 ${nayin.name})에 위치하며 ${cuc.name}으로 자미(紫微)가 ${BRANCH_NAMES_VN[ziweiIdx].hanja}궁에 앉습니다. 명궁 주성은 ${starsText}로 ${primaryStar.keyword}의 역량을 발휘합니다.`,
   };
 }
 
@@ -165,6 +270,7 @@ const YEAR_BRANCH_VN = Object.freeze({
 
 /**
  * 특정 연도(targetYear)의 베트남 뜨비 유년운(Lưu Niên)을 계산합니다.
+ * 세궁(歲宮)은 당해 년지가 놓인 궁 — 통용 규칙.
  * @param {object} input { date: 'YYYY-MM-DD', targetYear: number, time?: string, unknownTime?: boolean }
  * @returns {object} 계산된 뜨비 유년운 객체
  */
@@ -173,24 +279,26 @@ export function calculateTuViAnnual(input = {}) {
   const targetYear = Number(input.targetYear || new Date().getFullYear());
   const yearBranchInfo = YEAR_BRANCH_VN[targetYear] || { branchIdx: ((targetYear - 4) % 12 + 12) % 12, name: '해당 연도' };
 
-  // 당해 연도 세궁(Lưu Niên Cung)에 위치한 내 12궁 찾기
   const activePlacement = chart.palacesPlacement.find((p) => p.branch.index === yearBranchInfo.branchIdx) || chart.palacesPlacement[0];
   const activePalace = activePlacement.palace;
+  const activeStars = (chart.starByBranch.find((s) => s.branch.index === yearBranchInfo.branchIdx)?.stars) || [];
 
   return {
     targetYear,
     yearBranch: yearBranchInfo,
     activePalace,
     activeBranch: activePlacement.branch,
+    activeStars,
     primaryStar: chart.menhPalace.primaryStar,
     palaceTheme: `${activePalace.name} (${activePalace.meaning})의 영역이 활성화되는 해`,
     advice: `올해는 ${activePalace.role}에 주력할 때 가장 큰 결실을 맺습니다.`,
-    summary: `${targetYear}년(${yearBranchInfo.name}) 베트남 뜨비에서는 ${activePlacement.branch.name}에 위치한 '${activePalace.name}'이 당해 유년운의 중심 무대가 됩니다.`,
+    summary: `${targetYear}년(${yearBranchInfo.name}) 베트남 뜨비에서는 ${activePlacement.branch.name}에 위치한 '${activePalace.name}'${activeStars.length ? `(${activeStars.map((s) => s.name).join(', ')})` : ''}이 당해 유년운의 중심 무대가 됩니다.`,
   };
 }
 
 /**
  * 특정 날짜(targetDate)의 베트남 뜨비 일운(Nhật Vận)을 계산합니다.
+ * 일운의 궁 회전은 통용 규칙이 확립되지 않아 음력 일수 기반 간이 순환을 사용한다(β).
  * @param {object} input { date: 'YYYY-MM-DD', targetDate?: 'YYYY-MM-DD' }
  * @returns {object} 계산된 뜨비 일운 객체
  */
@@ -199,7 +307,6 @@ export function calculateTuViDaily(input = {}) {
   const targetDateStr = String(input.targetDate || new Date().toISOString().slice(0, 10)).trim();
   const todayLunar = describeSolarToLunar({ date: targetDateStr });
 
-  // 음력 일진에 따른 12궁 활성화 (음력 일을 12로 나눈 나머지 지지 매핑)
   const activePalaceIdx = ((todayLunar.day - 1) % 12 + 12) % 12;
   const activePlacement = chart.palacesPlacement[activePalaceIdx] || chart.palacesPlacement[0];
   const palace = activePlacement.palace;

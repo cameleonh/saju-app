@@ -121,7 +121,7 @@ export function renderFourSystemComparison(sajuChart, mahaboteChart, horasatChar
           <div class="eyebrow">동아시아 & 동남아 4대 전통 심층 대조</div>
           <h2 id="comparison-detail-title">하나의 생년월일, 네 개의 전통이 바라본 나</h2>
         </div>
-        <p class="section-desc">한국의 60갑자 사주, 미얀마의 8요일 마하보테, 태국의 수호불 호라삿, 베트남의 12궁 뜨비가 전하는 종합 통찰입니다.</p>
+        <p class="section-desc">한국의 60갑자 사주, 미얀마의 8요일 마하보테, 태국의 수호불 호라삿, 베트남의 12궁 뜨비가 전하는 종합 통찰입니다. <strong>마하보테·호라삿·뜨비는 원전 대조 검증 전인 간이 모형(β)입니다.</strong></p>
       </div>
 
       <div class="comparison-4grid">
@@ -215,7 +215,7 @@ export function renderFourSystemComparison(sajuChart, mahaboteChart, horasatChar
       <div class="comparison-insights-grid">
         <div class="insight-box common">
           <div class="insight-title">🌿 4대 전통이 공통으로 가리키는 나의 기질</div>
-          <p>사주의 <strong>일간(${escapeHtml(dayPillar.element)})</strong>, 마하보테의 <strong>${escapeHtml(mahaboteChart?.birthDay?.animal || '')}</strong>, 호라삿의 <strong>${escapeHtml(horasatChart?.birthDay?.planet || '')}</strong>, 뜨비의 <strong>${escapeHtml(tuViChart?.menhPalace?.primaryStar?.name || '')}</strong>는 모두 당신의 타고난 지혜와 능동적인 추진력이 삶의 핵심 무기임을 일치되게 증명합니다.</p>
+          <p>사주의 <strong>일간(${escapeHtml(dayPillar.element)})</strong>, 마하보테의 <strong>${escapeHtml(mahaboteChart?.birthDay?.animal || '')}</strong>, 호라삿의 <strong>${escapeHtml(horasatChart?.birthDay?.planet || '')}</strong>, 뜨비의 <strong>${escapeHtml(tuViChart?.menhPalace?.primaryStar?.name || '')}</strong>를 함께 놓고 읽어보는 관점입니다. 전통마다 쓰는 입력과 규칙이 다르므로 이 해석은 참고용으로만 제공합니다.</p>
         </div>
 
         <div class="insight-box different">
@@ -247,7 +247,7 @@ export function renderFourSystemAnnualComparison(sajuAnnual, mahaboteAnnual, hor
           <div class="eyebrow">${targetYear}년 연운(年運) 4대 전통 대조</div>
           <h2 id="annual-comparison-title">${targetYear}년, 네 개의 전통이 바라본 올해의 운</h2>
         </div>
-        <p class="section-desc">한국의 세운 십신, 미얀마의 당해 하우스 주기, 태국의 목성 입궁 운, 베트남의 유년 세궁이 예고하는 ${targetYear}년 종합 운세입니다.</p>
+        <p class="section-desc">한국의 세운 십신, 미얀마의 당해 하우스 주기, 태국의 목성 입궁 운, 베트남의 유년 세궁이 예고하는 ${targetYear}년 종합 운세입니다. <strong>한국 사주 외 세 전통의 연운 산출은 간이 모형(β)입니다.</strong></p>
       </div>
 
       <div class="comparison-4grid">

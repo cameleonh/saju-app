@@ -10,8 +10,8 @@ import { calculateTuVi } from './tu-vi-engine.mjs';
 export const COUPLE_POLICY = Object.freeze({
   id: 'ASIAN-COUPLE-4SYS-1.0',
   version: '1.0.0',
-  name: '아시아 4대 전통 다각도 인연·궁합 종합 분석',
-  source: 'Four Asian Astrological Traditions Comparative Relationship Analysis Standard',
+  name: '아시아 4대 전통 다각도 인연·궁합 간이 모형(β)',
+  source: '한국 사주 오행 관계는 검증된 정책 기반. 마하보테·호라삿·뜨비 기반 궁합 산출은 원전 대조 검증 전인 간이 규칙(참고용)',
 });
 
 // 1. 한국 사주 오행 상생/상극 맵
