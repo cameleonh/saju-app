@@ -5,9 +5,9 @@
 
 export const MAHABOTE_POLICY = Object.freeze({
   id: 'MM-MAHABOTE-1.0',
-  version: '1.0.0',
-  name: '미얀마 마하보테 8요일 7하우스 간이 모형(β)',
-  source: '탄생 요일·행성·수호 동물 표는 널리 알려진 마하보테 전통 설명을 따름. 하우스 배치와 연운 순환은 특정 미얀마 원전과 대조 검증 전인 간이 산술 규칙(참고용)',
+  version: '1.1.0',
+  name: '미얀마 마하보테 8요일 7하우스 (배치 산법 원전 확보·β)',
+  source: '미얀마력 환산(4/15 경계 ±638/639)·mod 7 나머지의 1하우스 행성 배정(1태양 2달 3화성 4수성 5목성 6금성 0토성)·마하보테 행성 순(태양-수성-토성-화성-금성-달-목성) 순행 채움·출생 요일 행성 하우스는 dirah.org 마하보테 레슨(2026-08-27 확보)의 산법을 따르며 예시 차트(1985-02-20)와 일치 검증. 연운 순환(하우스+나이%7)은 통용 해석(참고용)',
 });
 
 // 8개 요일 (수요일은 정오 12시 기준으로 오전/오후 분리)
@@ -179,9 +179,15 @@ export const MAHABOTE_HOUSES = Object.freeze([
   },
 ]);
 
-// 마하보테 기본 하우스 배치 매트릭스
-// Akar (MY % 7)에 따른 하우스별 요일 순서 (0:Sun, 1:Mon, 2:Tue, 3:Wed, 4:Thu, 5:Fri, 6:Sat)
-const HOUSE_ORDER_SEQUENCE = [1, 2, 3, 4, 5, 6, 0]; // Mon, Tue, Wed, Thu, Fri, Sat, Sun
+// 마하보테 하우스 배치 — 정통 산법 (dirah.org 마하보테 레슨 전문, 2026-08-27 확보):
+// 미얀마력(MY) mod 7 나머지가 1하우스(Binga) 행성을 정한다:
+//   1=태양, 2=달, 3=화성, 4=수성, 5=목성, 6=금성, 0=토성
+// 이후 마하보테 고유 행성 순서 태양-수성-토성-화성-금성-달-목성 으로 하우스를 순행 채움한다.
+// 출생 요일 행성(수요일 오후=라후)이 놓인 하우스가 당신의 하우스다.
+const PLANET_SEQUENCE = ['sun', 'mercury', 'saturn', 'mars', 'venus', 'moon', 'jupiter'];
+const REMAINDER_TO_FIRST_PLANET = { 1: 'sun', 2: 'moon', 3: 'mars', 4: 'mercury', 5: 'jupiter', 6: 'venus', 0: 'saturn' };
+// 요일 → 행성 (수요일 오전=수성, 수요일 오후=라후(수성 대체))
+const DAY_TO_PLANET = { 0: 'sun', 1: 'moon', 2: 'mars', 3: 'mercury', 4: 'jupiter', 5: 'venus', 6: 'saturn', rahu: 'rahu' };
 
 /**
  * 주어진 날짜와 시각으로 미얀마 마하보테 차트를 계산합니다.
@@ -206,29 +212,27 @@ export function calculateMahabote(input = {}) {
   let weekdayItem = MAHABOTE_DAYS.find((d) => d.dayIndex === rawDayOfWeek && (!d.subDay || (d.subDay === (isWednesdayPm ? 'pm' : 'am'))));
   if (!weekdayItem) weekdayItem = MAHABOTE_DAYS[0];
 
-  // 미얀마력 연도 계산 (Burmese Era)
-  // 전통적으로 미얀마 띤잔(Thingyan, 양력 4월 16~17일경) 기준으로 새해가 시작되나,
-  // 표준 수리역학에서는 서기 연도 - 638년 환산을 기본으로 합니다.
-  const burmeseYear = month < 4 || (month === 4 && day < 16) ? year - 639 : year - 638;
+  // 미얀마력 연도 계산 (Burmese Era) — 정통 산법: 4월 15일 이전 출생 −639, 이후 −638 (dirah.org)
+  const burmeseYear = month < 4 || (month === 4 && day <= 15) ? year - 639 : year - 638;
   const akar = ((burmeseYear % 7) + 7) % 7; // 0 to 6
 
-  // 7개 하우스에 각 요일 행성 배치
-  // Akar에 따라 Binga(하우스 0)에 들어갈 시작 요일 인덱스 결정
-  // 규칙: Akar 값에 해당하는 요일이 Binga 하우스에 배속되고 순차적으로 회전
-  const housePlacements = [];
+  // 7개 하우스 배치 — 나머지가 지정한 행성이 1하우스(Binga)에 앉고 마하보테 행성 순서로 순행 채움
+  const firstPlanet = REMAINDER_TO_FIRST_PLANET[akar];
+  const firstIdx = PLANET_SEQUENCE.indexOf(firstPlanet);
+  const planetByHouse = [];
   for (let hIndex = 0; hIndex < 7; hIndex++) {
-    const dayIndexInHouse = (akar + hIndex) % 7;
-    const matchedDay = MAHABOTE_DAYS.find((d) => d.dayIndex === dayIndexInHouse && (!d.subDay || d.subDay === 'am'));
-    housePlacements.push({
-      house: MAHABOTE_HOUSES[hIndex],
-      assignedDay: matchedDay,
-    });
+    planetByHouse.push(PLANET_SEQUENCE[(firstIdx + hIndex) % 7]);
   }
 
-  // 본인의 탄생 요일이 위치한 하우스 찾기
-  // (수요일 오후 라후도 7하우스 수리역학 상 수요일 자리 매핑)
-  const myHousePlacementIndex = housePlacements.findIndex((p) => p.assignedDay.dayIndex === rawDayOfWeek);
+  // 출생 요일 행성이 놓인 하우스 찾기 (수요일 오후 라후는 수성 자리를 대체)
+  const myPlanet = rawDayOfWeek === 3 && isWednesdayPm ? 'rahu' : DAY_TO_PLANET[rawDayOfWeek];
+  const myHousePlacementIndex = planetByHouse.findIndex((p) => p === (myPlanet === 'rahu' ? 'mercury' : myPlanet));
   const myHouse = myHousePlacementIndex >= 0 ? MAHABOTE_HOUSES[myHousePlacementIndex] : MAHABOTE_HOUSES[0];
+
+  const housePlacements = planetByHouse.map((planet, hIndex) => ({
+    house: MAHABOTE_HOUSES[hIndex],
+    planet,
+  }));
 
   return {
     policy: MAHABOTE_POLICY,

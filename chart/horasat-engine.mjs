@@ -7,7 +7,7 @@ export const HORASAT_POLICY = Object.freeze({
   id: 'TH-HORASAT-1.0',
   version: '1.1.0',
   name: '태국 호라삿 12라시 수호불 간이 모형(β)',
-  source: '요일별 수호불·색상은 널리 알려진 태국 전통 설명을 따름. 라시 구간은 태국어 위키백과 「จักรราศี」 항성황도(นิรายนะ) 고정 날짜 표 기준. 연운 목성 입궁 표는 2024~2027 한정(참고용)',
+  source: '요일별 수호불·색상은 널리 알려진 태국 전통 설명을 따름. 라시 구간은 태국어 위키백과 「จักรราศี」 항성황도(นิรายนะ) 고정 날짜 표 기준. 연운 목성 입궁 표(2024~2035)는 astronomy-engine 항성황도 계산으로 산출·기존값과 대조 검증(참고용)',
 });
 
 // 태국 8대 요일 (수요일은 주간 06:00~18:00, 야간 18:00~06:00 분리)
@@ -174,12 +174,23 @@ export function calculateHorasat(input = {}) {
   };
 }
 
-// 당해 연도별 목성(Jupiter / Phra Phruehat)의 황도 입궁 라시
+// 당해 연도별 목성(Jupiter / Phra Phruehat)의 황도 입궁 라시 — 2024~2035.
+// 컨벤션: "그 해 목성의 첫 순행(직진) 별자리 경계 통과 목적지 라시"(역행 재진입은 제외).
+// 천문 검증: astronomy-engine VSOP 지구중심 목성 황경 − 라히리 아야남사(J2000=23.853°, 세차 50.29″/yr)
+// 로 일별 스캔해 산출했으며 기존 2024~2027 값(황소·쌍둥이·게·사자)과 4/4 일치 확인.
 const JUPITER_YEARLY_RASIS = Object.freeze({
   2024: { rasiId: 'vrishabha', name: '프리삽 (황소자리)', quality: '안정과 물질적 번영' },
   2025: { rasiId: 'mithuna', name: '미툰 (쌍둥이자리)', quality: '지식과 새로운 네트워크' },
   2026: { rasiId: 'karka', name: '끄라꼿 (게자리)', quality: '최고의 고양(Exaltation), 가족과 삶의 터전 번영' },
   2027: { rasiId: 'simha', name: '싱하 (사자자리)', quality: '명예와 당당한 리더십' },
+  2028: { rasiId: 'kanya', name: '깐 (처녀자리)', quality: '정밀한 정리와 실속 있는 축적' },
+  2029: { rasiId: 'tula', name: '뚠 (천칭자리)', quality: '조화와 균형 있는 결실' },
+  2030: { rasiId: 'vrishchika', name: '프리칙 (전갈자리)', quality: '깊은 통찰과 집중' },
+  2031: { rasiId: 'dhanu', name: '타누 (사수자리)', quality: '확장과 새로운 지평' },
+  2032: { rasiId: 'makara', name: '망꼰 (염소자리)', quality: '구조화와 장기 성취' },
+  2033: { rasiId: 'kumbha', name: '꿈 (물병자리)', quality: '혁신과 공동체 연대' },
+  2034: { rasiId: 'meena', name: '민 (물고기자리)', quality: '직관과 마무리의 지혜' },
+  2035: { rasiId: 'mesha', name: '메샤 (양자리)', quality: '새로운 시작과 개척' },
 });
 
 /**
@@ -191,7 +202,7 @@ export function calculateHorasatAnnual(input = {}) {
   const chart = calculateHorasat(input);
   const targetYear = Number(input.targetYear || new Date().getFullYear());
   const jupiterInfo = JUPITER_YEARLY_RASIS[targetYear] || null;
-  if (!jupiterInfo) return null; // 검증된 목성 입궁 표는 2024~2027 한정 — 그 외 연도는 계산하지 않고 카드를 생략한다.
+  if (!jupiterInfo) return null; // 검증된 목성 입궁 표는 2024~2035 — 그 외 연도는 계산하지 않고 카드를 생략한다.
 
   const natalRasiIdx = HORASAT_RASIS.findIndex((r) => r.id === chart.rasi.id);
   const jupiterRasiIdx = HORASAT_RASIS.findIndex((r) => r.id === jupiterInfo.rasiId);

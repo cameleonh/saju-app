@@ -17,6 +17,19 @@ assert.equal(res1.birthDay.animal, '엄니 없는 코끼리 (Tuskless Elephant)'
 assert.ok(res1.rulingHouse, 'ruling house must be resolved');
 assert.equal(res1.housePlacements.length, 7, 'all 7 houses are mapped');
 
+// 2b. Orthodox placement rule (dirah.org lesson, acquired 2026-08-27):
+// akar 1 => Sun leads Binga; mahabote planet order fills forward; worked example 1985-02-20.
+assert.equal(res1.housePlacements[0].planet, 'sun', 'akar 1 places the Sun in Binga');
+assert.deepEqual(res1.housePlacements.map((p) => p.planet), ['sun', 'mercury', 'saturn', 'mars', 'venus', 'moon', 'jupiter'], 'mahabote planet sequence fills the houses');
+// Wednesday PM = Rahu replaces Mercury's house: Atun (2nd house, mercury at akar 1)
+assert.equal(res1.rulingHouse.name, 'Atun (아툰)', 'Wednesday PM birth planet (Rahu→Mercury) sits in Atun at akar 1');
+// dirah worked example: 1985-02-20 (Wednesday) 10:00, MY 1346, akar 2 => Moon in Binga, print chart matches exactly.
+const resDirah = calculateMahabote({ date: '1985-02-20', time: '10:00', unknownTime: false });
+assert.equal(resDirah.burmeseYear, 1346, '1985-02-20 is before Thingyan: 1985-639');
+assert.equal(resDirah.akar, 2, '1346 % 7 = 2');
+assert.deepEqual(resDirah.housePlacements.map((p) => p.planet), ['moon', 'jupiter', 'sun', 'mercury', 'saturn', 'mars', 'venus'], 'dirah print chart: Moon, Jupiter, Sun, Mercury, Saturn, Mars, Venus');
+assert.equal(resDirah.rulingHouse.name, 'Adipati (아디파티)', 'Wednesday AM (Mercury) sits in the 4th house per the dirah chart');
+
 // 3. Annual Fortune Test
 const annual1 = calculateMahaboteAnnual({ date: '1990-10-10', targetYear: 2026 });
 assert.equal(annual1.targetYear, 2026);

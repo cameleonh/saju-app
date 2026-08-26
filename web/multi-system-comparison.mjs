@@ -121,7 +121,7 @@ export function renderFourSystemComparison(sajuChart, mahaboteChart, horasatChar
           <div class="eyebrow">동아시아 & 동남아 4대 전통 심층 대조</div>
           <h2 id="comparison-detail-title">하나의 생년월일, 네 개의 전통이 바라본 나</h2>
         </div>
-        <p class="section-desc">한국의 60갑자 사주, 미얀마의 8요일 마하보테, 태국의 수호불 호라삿, 베트남의 12궁 뜨비가 전하는 종합 통찰입니다. <strong>마하보테·호라삿·뜨비는 원전 대조 검증 전인 간이 모형(β)입니다.</strong></p>
+        <p class="section-desc">한국의 60갑자 사주, 미얀마의 8요일 마하보테, 태국의 수호불 호라삿, 베트남의 12궁 뜨비가 전하는 종합 통찰입니다. <strong>배치 산법은 원전·독립 구현체와 대조 검증했으며(마하보테 dirah 산법·호라삿 항성황도 표·뜨비 tuvi-neo 패리티), 연운 해석은 참고용(β)입니다.</strong></p>
       </div>
 
       <div class="comparison-4grid">

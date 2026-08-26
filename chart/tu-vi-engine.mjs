@@ -158,6 +158,7 @@ function yearTrio(branchIdx) {
 // 대한(大限 Đại Hạn)·소한(小限 Tiểu Hạn) — 통용 규칙(다수 중국어 문헌 일치, tuvi-neo에는 미구현):
 // 대한 시작 나이 = 국수(水2 木3 金4 土5 火6), 양년생 남성·음년생 여성은 명궁에서 순행,
 // 음년생 남성·양년생 여성은 역행하며 10년마다 다음 궁. 소한은 허삐(만+1세) 나이로 1년 1궁.
+// 본 서비스는 성별을 입력받지 않아 소한 진행 방향을 남명 기준(역행)으로 고정한다.
 export function getDaiHan(chart, age) {
   const cucNum = chart.cuc.num;
   const startAge = cucNum;

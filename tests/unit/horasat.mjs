@@ -22,8 +22,10 @@ assert.ok(annual1.jupiterRasi, 'jupiter info present');
 assert.ok(annual1.annualTone, 'annual tone present');
 assert.ok(annual1.luckyColor, 'lucky color present');
 
-// 3b. Years outside the verified Jupiter table return null instead of silently reusing 2026
-assert.equal(calculateHorasatAnnual({ date: '1990-10-10', targetYear: 2030 }), null, 'unverified target year yields no annual reading');
+// 3b. Years outside the verified Jupiter table return null instead of silently reusing 2026.
+// The table now spans 2024~2035 (astronomy-engine sidereal scan; first direct ingress of the year).
+assert.equal(calculateHorasatAnnual({ date: '1990-10-10', targetYear: 2030 }).jupiterRasi.rasiId, 'vrishchika', '2030 extended row: Jupiter first direct ingress Scorpio');
+assert.equal(calculateHorasatAnnual({ date: '1990-10-10', targetYear: 2036 }), null, 'year beyond the verified table yields no annual reading');
 assert.equal(calculateHorasatAnnual({ date: '1990-10-10', targetYear: 2023 }), null, 'year before the table yields no annual reading');
 
 // 4. Date 2: 1990-10-10 20:00 (Wednesday night -> Rahu)
