@@ -43,7 +43,8 @@ export function buildAnnualRequest(chart, targetYear) {
 
 export async function requestAnnualReading(chart, targetYear, endpoint = '/v1/annual-readings', fetchImpl = globalThis.fetch) {
   if (typeof fetchImpl !== 'function') throw new Error('fetch is unavailable');
-  const response = await fetchImpl(endpoint, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(buildAnnualRequest(chart, targetYear)) });
+  const signal = typeof AbortSignal?.timeout === 'function' ? AbortSignal.timeout(4000) : undefined;
+  const response = await fetchImpl(endpoint, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(buildAnnualRequest(chart, targetYear)), signal });
   const result = await response.json();
   if (!response.ok) throw new Error(result.message || `annual reading rejected: ${response.status}`);
   return result;
