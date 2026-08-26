@@ -309,3 +309,39 @@ export function calculateMahaboteAnnual(input = {}) {
     summary: `${targetYear}년(만 ${age}세)은 마하보테 7하우스 중 ${yearlyHouse.name}(${yearlyHouse.meaning})에 머무는 '${yearlyTheme.theme}'입니다.`,
   };
 }
+
+/**
+ * 특정 날짜(targetDate)의 미얀마 마하보테 일운을 계산합니다.
+ * @param {object} input { date: 'YYYY-MM-DD', targetDate?: 'YYYY-MM-DD' }
+ * @returns {object} 계산된 마하보테 일운 객체
+ */
+export function calculateMahaboteDaily(input = {}) {
+  const chart = calculateMahabote(input);
+  const targetDateStr = String(input.targetDate || new Date().toISOString().slice(0, 10)).trim();
+  const [tYear, tMonth, tDay] = targetDateStr.split('-').map(Number);
+  const todayDate = new Date(Date.UTC(tYear, tMonth - 1, tDay));
+  const todayDayIdx = todayDate.getUTCDay();
+
+  const todayDayItem = MAHABOTE_DAYS.find((d) => d.dayIndex === todayDayIdx && (!d.subDay || d.subDay === 'am')) || MAHABOTE_DAYS[0];
+  const isBirthDay = chart.birthDay.dayIndex === todayDayIdx;
+
+  let dailyTheme = '';
+  let dailyAdvice = '';
+  if (isBirthDay) {
+    dailyTheme = '수호령의 날: 내 고유의 주도력과 자신감이 빛나는 날';
+    dailyAdvice = '중요한 결정이나 자기표현에 적극적으로 나서기에 가장 길한 날입니다.';
+  } else {
+    dailyTheme = `${todayDayItem.korean}(${todayDayItem.animal})의 기운이 흐르는 날`;
+    dailyAdvice = `${todayDayItem.direction}의 차분한 기운을 받아 성실하고 유연하게 일정을 소화하세요.`;
+  }
+
+  return {
+    targetDate: targetDateStr,
+    birthDay: chart.birthDay,
+    todayDay: todayDayItem,
+    dailyTheme,
+    dailyAdvice,
+    favorableDirection: isBirthDay ? chart.birthDay.direction : todayDayItem.direction,
+    summary: `오늘은 ${todayDayItem.korean}(${todayDayItem.animal})의 날로, 나의 ${chart.birthDay.animal} 기운과 어우러져 '${dailyTheme}'이 됩니다.`,
+  };
+}

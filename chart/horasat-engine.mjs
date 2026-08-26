@@ -221,3 +221,29 @@ export function calculateHorasatAnnual(input = {}) {
     summary: `${targetYear}년 태국 호라삿에서는 목성이 ${jupiterInfo.name}에 머물며, 나의 ${chart.rasi.name}에 '${annualTone}'을 전합니다.`,
   };
 }
+
+/**
+ * 특정 날짜(targetDate)의 태국 호라삿 일운을 계산합니다.
+ * @param {object} input { date: 'YYYY-MM-DD', targetDate?: 'YYYY-MM-DD' }
+ * @returns {object} 계산된 호라삿 일운 객체
+ */
+export function calculateHorasatDaily(input = {}) {
+  const chart = calculateHorasat(input);
+  const targetDateStr = String(input.targetDate || new Date().toISOString().slice(0, 10)).trim();
+  const [tYear, tMonth, tDay] = targetDateStr.split('-').map(Number);
+  const todayDate = new Date(Date.UTC(tYear, tMonth - 1, tDay));
+  const todayDayIdx = todayDate.getUTCDay();
+
+  const todayDayInfo = HORASAT_WEEKDAYS.find((d) => d.dayIndex === todayDayIdx && (!d.subTime || d.subTime === 'day')) || HORASAT_WEEKDAYS[0];
+
+  return {
+    targetDate: targetDateStr,
+    natalRasi: chart.rasi,
+    todayRuler: todayDayInfo.planet,
+    todayColor: todayDayInfo.color,
+    todayBuddha: todayDayInfo.buddhaPosture,
+    todayTheme: `${todayDayInfo.korean}의 지배성(${todayDayInfo.planet})이 인도하는 하루`,
+    advice: `오늘 행운의 색상인 ${todayDayInfo.color} 아이템을 곁들이고, ${todayDayInfo.keywords[0]}의 마음가짐으로 일과를 대하세요.`,
+    summary: `오늘은 ${todayDayInfo.korean}으로 ${todayDayInfo.planet}의 기운이 흐릅니다. 추천 색상은 ${todayDayInfo.color}입니다.`,
+  };
+}

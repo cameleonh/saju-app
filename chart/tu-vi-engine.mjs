@@ -188,3 +188,29 @@ export function calculateTuViAnnual(input = {}) {
     summary: `${targetYear}년(${yearBranchInfo.name}) 베트남 뜨비에서는 ${activePlacement.branch.name}에 위치한 '${activePalace.name}'이 당해 유년운의 중심 무대가 됩니다.`,
   };
 }
+
+/**
+ * 특정 날짜(targetDate)의 베트남 뜨비 일운(Nhật Vận)을 계산합니다.
+ * @param {object} input { date: 'YYYY-MM-DD', targetDate?: 'YYYY-MM-DD' }
+ * @returns {object} 계산된 뜨비 일운 객체
+ */
+export function calculateTuViDaily(input = {}) {
+  const chart = calculateTuVi(input);
+  const targetDateStr = String(input.targetDate || new Date().toISOString().slice(0, 10)).trim();
+  const todayLunar = describeSolarToLunar({ date: targetDateStr });
+
+  // 음력 일진에 따른 12궁 활성화 (음력 일을 12로 나눈 나머지 지지 매핑)
+  const activePalaceIdx = ((todayLunar.day - 1) % 12 + 12) % 12;
+  const activePlacement = chart.palacesPlacement[activePalaceIdx] || chart.palacesPlacement[0];
+  const palace = activePlacement.palace;
+
+  return {
+    targetDate: targetDateStr,
+    lunarDay: todayLunar.day,
+    activePalace: palace,
+    activeBranch: activePlacement.branch,
+    dailyFocus: `${palace.name} (${palace.meaning})의 기운이 비추는 날`,
+    advice: `오늘은 ${palace.role}에 마음을 기울이고 균형을 유지하세요.`,
+    summary: `오늘(음력 ${todayLunar.month}월 ${todayLunar.day}일)은 내 12궁 중 '${palace.name}'이 활성화되는 날입니다.`,
+  };
+}

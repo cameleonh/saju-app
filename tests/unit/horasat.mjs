@@ -1,6 +1,6 @@
 // tests/unit/horasat.mjs
 import assert from 'node:assert/strict';
-import { calculateHorasat, calculateHorasatAnnual, HORASAT_POLICY, HORASAT_RASIS, HORASAT_WEEKDAYS } from '../../chart/horasat-engine.mjs';
+import { calculateHorasat, calculateHorasatAnnual, calculateHorasatDaily, HORASAT_POLICY, HORASAT_RASIS, HORASAT_WEEKDAYS } from '../../chart/horasat-engine.mjs';
 
 // 1. Metadata check
 assert.equal(HORASAT_POLICY.id, 'TH-HORASAT-1.0');
@@ -34,4 +34,10 @@ assert.equal(res3.birthDay.planet, '달 (Chandra)');
 assert.equal(res3.birthDay.color, '노란색 (Yellow)');
 assert.equal(res3.rasi.id, 'karka', '08-08 is Karka (끄라꼿 / 게자리)');
 
-console.log('✓ horasat: 18 assertions passed');
+// 6. Daily Fortune Test
+const daily1 = calculateHorasatDaily({ date: '1990-10-10', targetDate: '2026-08-26' });
+assert.ok(daily1.todayRuler, 'today ruler populated');
+assert.ok(daily1.todayColor, 'today color populated');
+assert.ok(daily1.todayTheme, 'today theme populated');
+
+console.log('✓ horasat: 21 assertions passed');

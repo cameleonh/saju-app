@@ -1,6 +1,6 @@
 // tests/unit/mahabote.mjs
 import assert from 'node:assert/strict';
-import { calculateMahabote, calculateMahaboteAnnual, MAHABOTE_DAYS, MAHABOTE_HOUSES, MAHABOTE_POLICY } from '../../chart/mahabote-engine.mjs';
+import { calculateMahabote, calculateMahaboteAnnual, calculateMahaboteDaily, MAHABOTE_DAYS, MAHABOTE_HOUSES, MAHABOTE_POLICY } from '../../chart/mahabote-engine.mjs';
 
 // 1. Metadata and Policy checks
 assert.equal(MAHABOTE_POLICY.id, 'MM-MAHABOTE-1.0');
@@ -37,10 +37,16 @@ assert.equal(res3.birthDay.id, 'fri', '1992-02-14 is Friday');
 assert.equal(res3.birthDay.animal, '기니피그 (Guinea Pig)');
 assert.equal(res3.birthDay.planet, '금성 (Venus)');
 
+// 4. Daily Fortune Test
+const daily1 = calculateMahaboteDaily({ date: '1990-10-10', targetDate: '2026-08-26' });
+assert.ok(daily1.todayDay, 'today day resolved');
+assert.ok(daily1.dailyTheme, 'daily theme populated');
+assert.ok(daily1.dailyAdvice, 'daily advice populated');
+
 // Date 4: 1988-08-08 (Monday)
 const res4 = calculateMahabote({ date: '1988-08-08', time: '12:00', unknownTime: false });
 assert.equal(res4.birthDay.id, 'mon', '1988-08-08 is Monday');
 assert.equal(res4.birthDay.animal, '호랑이 (Tiger)');
 assert.equal(res4.birthDay.planet, '달 (Moon)');
 
-console.log('✓ mahabote: 21 assertions passed');
+console.log('✓ mahabote: 24 assertions passed');

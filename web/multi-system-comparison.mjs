@@ -344,5 +344,109 @@ export function renderFourSystemAnnualComparison(sajuAnnual, mahaboteAnnual, hor
   `;
 }
 
+/**
+ * 4대 전통 오늘의 운세(Daily) 심층 대조 패널 렌더링.
+ */
+export function renderFourSystemDailyComparison(sajuDaily, mahaboteDaily, horasatDaily, tuViDaily, targetDateStr = '') {
+  const sajuLead = sajuDaily?.sections?.[0]?.lead || '오늘의 일진과 기운이 조화롭게 흐릅니다.';
+  const sajuTitle = sajuDaily?.sections?.[0]?.title || '오늘의 기운 흐름';
+
+  return `
+    <section class="panel comparison-detail-panel" aria-labelledby="daily-comparison-title">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">오늘의 운세 4대 전통 대조</div>
+          <h2 id="daily-comparison-title">오늘, 네 개의 전통이 비추는 하루의 기운</h2>
+        </div>
+        <p class="section-desc">한국의 일진 십신, 미얀마의 당일 요일 수호령, 태국의 일일 지배 행성, 베트남의 음력 활성화 궁이 전하는 하루 지침입니다.</p>
+      </div>
+
+      <div class="comparison-4grid">
+        <!-- 1. 한국 사주 일운 -->
+        <div class="comparison-side-card saju-side">
+          <div class="side-header">
+            <span class="side-flag">🇰🇷</span>
+            <div>
+              <h3>한국 사주 오늘의 운</h3>
+              <span class="side-sub">일진 십신과 오행의 흐름</span>
+            </div>
+          </div>
+          <div class="side-highlight">
+            <div class="highlight-label">오늘의 테마</div>
+            <div class="highlight-value">${escapeHtml(sajuTitle)}</div>
+          </div>
+          <ul class="side-details">
+            <li><strong>주요 흐름:</strong> ${escapeHtml(sajuLead)}</li>
+          </ul>
+        </div>
+
+        <!-- 2. 미얀마 마하보테 일운 -->
+        ${mahaboteDaily ? `
+        <div class="comparison-side-card mahabote-side">
+          <div class="side-header">
+            <span class="side-flag">🇲🇲</span>
+            <div>
+              <h3>미얀마 마하보테 일운</h3>
+              <span class="side-sub">${escapeHtml(mahaboteDaily.todayDay?.korean || '')} 수호 동물 교감</span>
+            </div>
+          </div>
+          <div class="side-highlight">
+            <div class="highlight-label">오늘의 수호 기운</div>
+            <div class="highlight-value">${escapeHtml(mahaboteDaily.dailyTheme)}</div>
+          </div>
+          <ul class="side-details">
+            <li><strong>추천 방향:</strong> ${escapeHtml(mahaboteDaily.favorableDirection)}</li>
+            <li><strong>마하보테 조언:</strong> ${escapeHtml(mahaboteDaily.dailyAdvice)}</li>
+          </ul>
+        </div>
+        ` : ''}
+
+        <!-- 3. 태국 호라삿 일운 -->
+        ${horasatDaily ? `
+        <div class="comparison-side-card horasat-side">
+          <div class="side-header">
+            <span class="side-flag">🇹🇭</span>
+            <div>
+              <h3>태국 호라삿 일운</h3>
+              <span class="side-sub">오늘의 지배성: ${escapeHtml(horasatDaily.todayRuler)}</span>
+            </div>
+          </div>
+          <div class="side-highlight">
+            <div class="highlight-label">오늘 행운의 색상</div>
+            <div class="highlight-value">${escapeHtml(horasatDaily.todayColor)}</div>
+          </div>
+          <ul class="side-details">
+            <li><strong>오늘의 테마:</strong> ${escapeHtml(horasatDaily.todayTheme)}</li>
+            <li><strong>호라삿 조언:</strong> ${escapeHtml(horasatDaily.advice)}</li>
+          </ul>
+        </div>
+        ` : ''}
+
+        <!-- 4. 베트남 뜨비 일운 -->
+        ${tuViDaily ? `
+        <div class="comparison-side-card tuvi-side">
+          <div class="side-header">
+            <span class="side-flag">🇻🇳</span>
+            <div>
+              <h3>베트남 뜨비 일운</h3>
+              <span class="side-sub">오늘 활성화 궁(Nhật Vận)</span>
+            </div>
+          </div>
+          <div class="side-highlight">
+            <div class="highlight-label">오늘의 중심 궁</div>
+            <div class="highlight-value">${escapeHtml(tuViDaily.activePalace?.name || '')}</div>
+          </div>
+          <ul class="side-details">
+            <li><strong>영역 포커스:</strong> ${escapeHtml(tuViDaily.dailyFocus)}</li>
+            <li><strong>뜨비 조언:</strong> ${escapeHtml(tuViDaily.advice)}</li>
+          </ul>
+        </div>
+        ` : ''}
+      </div>
+    </section>
+  `;
+}
+
 export const comparisonStateLabel = (state) => STATE_LABELS[state] || '상태 확인 필요';
+
 

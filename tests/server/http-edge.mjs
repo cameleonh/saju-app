@@ -61,6 +61,8 @@ assert.equal(matchSvg.status, 200);
 assert.equal(matchSvg.headers.get('content-type'), 'image/svg+xml');
 const matchModule = await fetch(`${url}/web/destined-match.mjs`);
 assert.equal(matchModule.status, 200);
+assert.equal((await fetch(`${url}/chart/couple-compatibility.mjs`)).status, 200);
+assert.equal((await fetch(`${url}/web/couple-compatibility.mjs`)).status, 200);
 assert.equal((await fetch(`${url}/chart/mahabote-engine.mjs`)).status, 200);
 assert.equal((await fetch(`${url}/chart/horasat-engine.mjs`)).status, 200);
 assert.equal((await fetch(`${url}/chart/tu-vi-engine.mjs`)).status, 200);

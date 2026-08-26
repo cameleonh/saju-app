@@ -1,6 +1,6 @@
 // tests/unit/tu-vi.mjs
 import assert from 'node:assert/strict';
-import { calculateTuVi, calculateTuViAnnual, TU_VI_POLICY, PALACES_VN, MAJOR_STARS, CUC_TYPES } from '../../chart/tu-vi-engine.mjs';
+import { calculateTuVi, calculateTuViAnnual, calculateTuViDaily, TU_VI_POLICY, PALACES_VN, MAJOR_STARS, CUC_TYPES } from '../../chart/tu-vi-engine.mjs';
 
 // 1. Metadata check
 assert.equal(TU_VI_POLICY.id, 'VN-TUVI-1.0');
@@ -26,4 +26,10 @@ assert.ok(annual1.activePalace, 'active palace present');
 assert.ok(annual1.palaceTheme, 'palace theme present');
 assert.ok(annual1.advice, 'advice present');
 
-console.log('✓ tu-vi: 17 assertions passed');
+// 4. Daily Fortune Test
+const daily1 = calculateTuViDaily({ date: '1990-10-10', targetDate: '2026-08-26' });
+assert.ok(daily1.activePalace, 'daily active palace present');
+assert.ok(daily1.dailyFocus, 'daily focus present');
+assert.ok(daily1.advice, 'daily advice present');
+
+console.log('✓ tu-vi: 20 assertions passed');
