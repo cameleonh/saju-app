@@ -256,6 +256,21 @@ assert.match(html, /formatSeoulInstant\(Math\.floor\(Date\.now\(\) \/ 60000\)\)/
 assert.match(html, /\$\{daewoonMarkup\}\$\{annualMarkup\}/, '대운 → 연운 zoom-in order in the natal result flow');
 assert.doesNotMatch(html, /dailyMarkup/, 'the natal result view no longer renders the daily panel (P0-C: daily stays standalone and does not invade the main reading)');
 assert.match(html, /data-action="daily-from-result"/, 'the natal result view keeps only a tiny footer link to the daily screen');
+
+// Template-literal guard: every `${identifier}` interpolation must name an identifier that also
+// occurs in executable (non-template, non-comment, non-string) script code. A view referencing a
+// deleted binding (the placeDefaultedNote regression) throws ReferenceError only at render time,
+// so the static surface is checked here instead.
+const inlineScripts = [...html.matchAll(/<script type="module">([\s\S]*?)<\/script>/g)].map((match) => match[1]).join('\n');
+const commentFree = inlineScripts.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/[^\n]*/g, ' ');
+const interpolatedIdentifiers = new Set([...commentFree.matchAll(/\$\{\s*([A-Za-z_$][\w$]*)\s*\}/g)].map((match) => match[1]));
+assert.ok(interpolatedIdentifiers.size >= 10, `the views expose a meaningful bare-identifier interpolation surface (got ${interpolatedIdentifiers.size})`);
+let executableCode = commentFree.replace(/'(?:[^'\\\n]|\\.)*'/g, "''").replace(/"(?:[^"\\\n]|\\.)*"/g, '""');
+let previousCode;
+do { previousCode = executableCode; executableCode = executableCode.replace(/`(?:[^`\\]|\\.)*`/g, '``'); } while (executableCode !== previousCode);
+for (const identifier of interpolatedIdentifiers) {
+  assert.ok(new RegExp(`\\b${identifier.replace(/\$/g, '\\$')}\\b`).test(executableCode), `\${${identifier}} is referenced by a view template but never appears in executable code (deleted binding?)`);
+}
 assert.match(serviceWorker, /web\/daily-reading\.mjs/, 'the SW precaches the daily panel renderer');
 assert.match(serviceWorker, /daily-reading-selection\.mjs/);
 assert.match(serviceWorker, /seeds\/daily-readings\.mjs/);
