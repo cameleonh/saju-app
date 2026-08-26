@@ -68,6 +68,29 @@ assert.equal((await fetch(`${url}/chart/horasat-engine.mjs`)).status, 200);
 assert.equal((await fetch(`${url}/chart/tu-vi-engine.mjs`)).status, 200);
 assert.equal((await fetch(`${url}/web/multi-system-comparison.mjs`)).status, 200);
 
+const pageHtml = fs.readFileSync(path.join(staticRoot, 'index.html'), 'utf8');
+const graphEntries = [...pageHtml.matchAll(/from\s+['"](\.[^'"]+)['"]/g)].map((match) => match[1].replace(/^\.\//, ''));
+const browserModuleGraph = new Set(graphEntries);
+for (const entry of graphEntries) {
+  const queue = [entry];
+  while (queue.length) {
+    const rel = queue.pop();
+    const source = fs.readFileSync(path.join(staticRoot, ...rel.split('/')), 'utf8');
+    for (const dep of source.matchAll(/(?:^|\n)\s*import\s+(?:[^'"]*?\sfrom\s+)?['"](\.[^'"]+)['"]/g)) {
+      const next = path.posix.join(path.posix.dirname(rel), dep[1]).replace(/^\.\//, '');
+      if (!browserModuleGraph.has(next)) { browserModuleGraph.add(next); queue.push(next); }
+    }
+  }
+}
+assert.ok(browserModuleGraph.size >= graphEntries.length, 'the browser module graph resolves to at least its entry modules');
+for (const rel of browserModuleGraph) {
+  assert.equal((await fetch(`${url}/${rel}`)).status, 200, `browser module ${rel} is served by the public static allowlist`);
+}
+const serviceWorkerSource = fs.readFileSync(path.join(staticRoot, 'service-worker.js'), 'utf8');
+for (const asset of serviceWorkerSource.matchAll(/'\.\/([^']*)'/g)) {
+  assert.equal((await fetch(`${url}/${asset[1]}`)).status, 200, `service-worker precache asset ${asset[1] || '(app shell)'} is served by the public static allowlist`);
+}
+
 assert.equal((await fetch(`${url}/%2e%2e/package.json`)).status, 404, 'path traversal via URL-encoded dots is rejected by the public allowlist');
 assert.equal((await fetch(`${url}/..%2fpackage.json`)).status, 404);
 assert.equal((await fetch(`${url}/server/http.mjs`)).status, 404, 'server source is never public');

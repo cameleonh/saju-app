@@ -1,4 +1,4 @@
-const CACHE = 'saju-app-shell-v27';
+const CACHE = 'saju-app-shell-v28';
 const ASSETS = [
   './',
   './index.html',
@@ -22,6 +22,7 @@ const ASSETS = [
   './server/domain/daewoon-domains.mjs',
   './server/domain/daily-reading-selection.mjs',
   './server/domain/natal-chapter-selection.mjs',
+  './server/domain/calendar.mjs',
   './server/storage/seeds/daily-readings.mjs',
   './server/storage/seeds/natal-chapters.mjs',
   './web/consent-gate.mjs',
