@@ -106,7 +106,7 @@ assert.match(daewoonFact.value, /^.{2} \(\d+세~\)$/, 'daewoon fact reports a pi
 assert.match(daewoonFact.detail, /KR-DAEWOON-1\.0/);
 assert.ok(golden.daewoon, 'daewoon object is attached to chart result');
 assert.equal(golden.daewoon.cycles.length, 8);
-assert.equal(golden.daewoon.cycles[0].pillar, `${golden.pillars[1].text}`);
+assert.equal(golden.daewoon.cycles[0].pillar, '丁亥', 'first daewoon cycle is one step past the natal month pillar (oracle rule)');
 
 const unknownTime = evaluate({ date: '1990-10-10', time: '12:00', unknownTime: true, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true });
 assert.equal(unknownTime.pillars[3].text, '미상');

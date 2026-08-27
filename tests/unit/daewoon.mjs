@@ -8,13 +8,13 @@ import {
 import { calculateNatalChart } from '../../chart/natal-engine.mjs';
 
 assert.equal(DAEWOON_POLICY.id, 'KR-DAEWOON-1.0');
-assert.equal(DAEWOON_POLICY.version, '1.0.0');
+assert.equal(DAEWOON_POLICY.version, '1.1.0');
 assert.equal(DAEWOON_POLICY.engine, 'gyeol-daewoon-core');
 assert.equal(DAEWOON_POLICY.maxCycleCount, 8);
 assert.equal(DAEWOON_POLICY.cycleSpanYears, 10);
 assert.equal(DAEWOON_POLICY.dayToYearDivisor, 3);
 assert.equal(DAEWOON_POLICY.boundaryConvention, 'direction-dependent-jie');
-assert.equal(DAEWOON_POLICY.directionRule, 'year-stem-yang-forward-yin-backward');
+assert.match(DAEWOON_POLICY.directionRule, /yang-male-yin-female-forward/);
 assert.deepEqual(DAEWOON_POLICY.natalPolicy, 'KR-CIVIL-1.0');
 assert.equal(Object.isFrozen(DAEWOON_POLICY), true);
 
@@ -28,26 +28,51 @@ assert.throws(() => calculateDaewoon({ date: '1990-10-10', time: '12:00', yearSt
 assert.throws(() => calculateDaewoon({ date: '1990-10-10', time: '12:00', yearStem: '甲', monthStem: '丙', monthBranch: 'X' }), /monthBranch/);
 assert.throws(() => calculateDaewoon({ date: '1990-10-10', time: 'bad', yearStem: '甲', monthStem: '丙', monthBranch: '寅' }), /time must use HH:MM/);
 
-const yangResult = calculateDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌', unknownTime: false });
+const yangResult = calculateDaewoon({ date: '1990-10-10', time: '14:30', sex: 'male', yearStem: '庚', monthStem: '丙', monthBranch: '戌', unknownTime: false });
 assert.equal(yangResult.schemaVersion, 'daewoon.v1');
-assert.equal(yangResult.direction, 'forward', '庚 is yang → forward');
+assert.equal(yangResult.direction, 'forward', '庚 yang year + male → forward');
 assert.equal(yangResult.cycles.length, 8);
-assert.equal(yangResult.cycles[0].pillar, '丙戌', 'first cycle starts from month pillar');
-assert.equal(yangResult.cycles[1].pillar, '丁亥', 'second cycle advances one step forward');
-assert.equal(yangResult.cycles[7].pillar, '癸巳', 'eighth cycle');
+assert.equal(yangResult.cycles[0].pillar, '丁亥', 'first cycle is the pillar AFTER the month pillar (oracle: lunar-javascript)');
+assert.equal(yangResult.cycles[1].pillar, '戊子', 'second cycle advances one step forward');
+assert.equal(yangResult.cycles[7].pillar, '甲午', 'eighth cycle');
+assert.equal(yangResult.cycles[0].startYear, 2000, 'start year uses the exact 1-day=4-month conversion (oracle: 2000, not 1990+9)');
+assert.equal(yangResult.cycles[1].startYear, 2010, 'subsequent cycles are +10 calendar years');
+assert.equal(yangResult.startAge, 9, 'daewoon-su (3-day-per-year, truncated)');
 assert.equal(yangResult.cycles[0].startAge < yangResult.cycles[1].startAge, true);
 for (let i = 1; i < 8; i += 1) {
   assert.equal(yangResult.cycles[i].startAge - yangResult.cycles[i - 1].startAge, 10, `cycle ${i} is 10 years after cycle ${i - 1}`);
 }
-assert.equal(yangResult.cycles[0].startYear, 1990 + yangResult.cycles[0].startAge);
 assert.ok(yangResult.startAge >= 0 && yangResult.startAge < 10, 'start age from 3-day rule is between 0 and 9');
 assert.ok(yangResult.boundaryTerm, 'boundary term is identified');
 
-const yinResult = calculateDaewoon({ date: '1985-06-15', time: '10:00', yearStem: '乙', monthStem: '壬', monthBranch: '午', unknownTime: false });
-assert.equal(yinResult.direction, 'backward', '乙 is yin → backward');
-assert.equal(yinResult.cycles[0].pillar, '壬午', 'backward first cycle starts from month pillar');
-assert.equal(yinResult.cycles[1].pillar, '辛巳', 'backward second cycle retreats one step');
-assert.equal(yinResult.cycles[7].pillar, '乙亥', 'backward eighth cycle');
+// Oracle-verified fixtures (lunar-javascript EightChar parity, 2026-08-27):
+// [date, time, sex, yearStem, monthStem/Branch, direction, first pillar, first startYear]
+const oracleFixtures = [
+  { date: '1990-10-10', time: '14:30', sex: 'male', yearStem: '庚', monthStem: '丙', monthBranch: '戌', direction: 'forward', first: '丁亥', year: 2000, seq: ['丁亥', '戊子', '己丑', '庚寅', '辛卯'] },
+  { date: '1985-02-20', time: '10:00', sex: 'male', yearStem: '乙', monthStem: '戊', monthBranch: '寅', direction: 'backward', first: '丁丑', year: 1990, seq: ['丁丑', '丙子', '乙亥', '甲戌', '癸酉'] },
+  { date: '1972-08-15', time: '03:40', sex: 'female', yearStem: '壬', monthStem: '戊', monthBranch: '申', direction: 'backward', first: '丁未', year: 1975, seq: ['丁未', '丙午', '乙巳', '甲辰', '癸卯'] },
+  { date: '2001-05-05', time: '23:30', sex: 'female', yearStem: '辛', monthStem: '癸', monthBranch: '巳', direction: 'forward', first: '甲午', year: 2011, seq: ['甲午', '乙未', '丙申', '丁酉', '戊戌'] },
+  { date: '1949-10-01', time: '06:00', sex: 'male', yearStem: '己', monthStem: '癸', monthBranch: '酉', direction: 'backward', first: '壬申', year: 1957, seq: ['壬申', '辛未', '庚午', '己巳', '戊辰'] },
+];
+for (const f of oracleFixtures) {
+  const r = calculateDaewoon({ date: f.date, time: f.time, sex: f.sex, yearStem: f.yearStem, monthStem: f.monthStem, monthBranch: f.monthBranch, unknownTime: false });
+  assert.equal(r.direction, f.direction, `${f.date} ${f.sex}: direction`);
+  assert.equal(r.cycles[0].pillar, f.first, `${f.date} ${f.sex}: first pillar`);
+  assert.equal(r.cycles[0].startYear, f.year, `${f.date} ${f.sex}: first start year`);
+  f.seq.forEach((pillar, i) => assert.equal(r.cycles[i].pillar, pillar, `${f.date} ${f.sex}: sequence ${i}`));
+}
+
+// Gender flips the direction (양남음녀 순행 · 음남양녀 역행).
+const female1990 = calculateDaewoon({ date: '1990-10-10', time: '14:30', sex: 'female', yearStem: '庚', monthStem: '丙', monthBranch: '戌', unknownTime: false });
+assert.equal(female1990.direction, 'backward', 'yang-year FEMALE walks backward');
+const female1985 = calculateDaewoon({ date: '1985-02-20', time: '10:00', sex: 'female', yearStem: '乙', monthStem: '戊', monthBranch: '寅', unknownTime: false });
+assert.equal(female1985.direction, 'forward', 'yin-year FEMALE walks forward');
+
+const yinResult = calculateDaewoon({ date: '1985-06-15', time: '10:00', sex: 'male', yearStem: '乙', monthStem: '壬', monthBranch: '午', unknownTime: false });
+assert.equal(yinResult.direction, 'backward', '乙 yin year + male → backward');
+assert.equal(yinResult.cycles[0].pillar, '辛巳', 'backward first cycle is the pillar BEFORE the month pillar');
+assert.equal(yinResult.cycles[1].pillar, '庚辰', 'backward second cycle retreats one step');
+assert.equal(yinResult.cycles[7].pillar, '甲戌', 'backward eighth cycle');
 
 for (const yangStem of ['甲', '丙', '戊', '庚', '壬']) {
   const r = calculateDaewoon({ date: '2000-03-15', time: '12:00', yearStem: yangStem, monthStem: '己', monthBranch: '卯' });
@@ -77,12 +102,13 @@ const natal = calculateNatalChart({ calendar: 'solar', date: '1990-10-10', time:
 const natalDaewoon = calculateDaewoon({
   date: '1990-10-10',
   time: '14:30',
+  sex: 'male',
   yearStem: natal.pillars[0].stem,
   monthStem: natal.pillars[1].stem,
   monthBranch: natal.pillars[1].branch,
   unknownTime: false,
 });
-assert.equal(natalDaewoon.cycles[0].pillar, `${natal.pillars[1].stem}${natal.pillars[1].branch}`, 'daewoon first cycle matches natal month pillar');
+assert.equal(natalDaewoon.cycles[0].pillar, '丁亥', 'daewoon first cycle is one step past the natal month pillar 丙戌 (forward, male)');
 
 const verification = verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, yangResult);
 assert.equal(verification.valid, true);

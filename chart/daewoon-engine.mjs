@@ -18,16 +18,18 @@ const JIE_TERMS = NATAL_TERM_KEYS;
 
 const POLICY = Object.freeze({
   id: 'KR-DAEWOON-1.0',
-  version: '1.0.0',
+  version: '1.1.0',
   engine: 'gyeol-daewoon-core',
-  engineVersion: '1.0.0',
+  engineVersion: '1.1.0',
   range: NATAL_POLICY.supportedSolarDates.join('..'),
   maxCycleCount: 8,
   cycleSpanYears: 10,
   dayToYearDivisor: 3,
   boundaryConvention: 'direction-dependent-jie',
-  directionRule: 'year-stem-yang-forward-yin-backward',
-  startAgeRule: 'three-day-per-year',
+  directionRule: 'yang-male-yin-female-forward (양남음녀 순행 · 음남양녀 역행; 미선택 시 남성 기준)',
+  firstCycleRule: 'first-cycle-is-month-pillar-plus-minus-one (첫 대운은 월주의 다음/이전 간지)',
+  startAgeRule: 'three-day-per-year-truncated-age (대운수=3일1년 절사)',
+  startYearRule: 'exact-date-conversion (1일=4개월 환산을 출생일에 가산한 해)',
   unknownTimeProxy: '12:00',
   natalPolicy: NATAL_POLICY.id,
   natalPolicyVersion: NATAL_POLICY.version,
@@ -99,35 +101,47 @@ export function calculateDaewoon(input) {
   if (!input.monthBranch || !BRANCHES.includes(input.monthBranch)) throw new Error('monthBranch must be one of the twelve earthly branches');
   if (!input.yearStem || !STEMS.includes(input.yearStem)) throw new Error('yearStem must be one of the ten heavenly stems');
 
-  const direction = YANG_STEMS.has(input.yearStem) ? 'forward' : 'backward';
+  // 정통 방향 규칙: 양남·음녀 순행, 음남·양녀 역행. 성별 미선택(unset) 시 남성 기준으로 계산한다.
+  const yangYear = YANG_STEMS.has(input.yearStem);
+  const male = input.sex !== 'female';
+  const direction = yangYear === male ? 'forward' : 'backward';
 
   const birthEpochMinute = resolveSeoulCivilTime(input.date, birthTime).utcMinute;
   const boundary = findNearestJieBoundary(birthEpochMinute, birthYear, direction);
   const diffMinutes = direction === 'forward'
     ? boundary.epochMinute - birthEpochMinute
     : birthEpochMinute - boundary.epochMinute;
-  const diffDays = Math.floor(diffMinutes / (24 * 60));
+  const diffDays = diffMinutes / (24 * 60);
   const startAge = Math.max(0, Math.floor(diffDays / POLICY.dayToYearDivisor));
 
+  // 시작 연도는 정통 환산(3일=1년, 1일=4개월)으로 출생일에 가산한 실제 날짜의 연도를 쓴다.
+  const convertedYears = Math.floor(diffDays / POLICY.dayToYearDivisor);
+  const convertedMonths = Math.floor((diffDays - convertedYears * POLICY.dayToYearDivisor) * 4);
+  const startDate = new Date(Date.UTC(birthYear, birthMonth - 1, birthDay));
+  startDate.setUTCFullYear(startDate.getUTCFullYear() + convertedYears);
+  startDate.setUTCMonth(startDate.getUTCMonth() + convertedMonths);
+  const startYearExact = startDate.getUTCFullYear();
+
   // Determine cycle count AFTER startAge is known, so truncation is accurate
-  const lastCycleEndYear = birthYear + startAge + (POLICY.maxCycleCount - 1) * POLICY.cycleSpanYears;
+  const lastCycleEndYear = startYearExact + (POLICY.maxCycleCount - 1) * POLICY.cycleSpanYears;
   const cycleCount = lastCycleEndYear > NATAL_EPHEMERIS_END_YEAR
-    ? Math.max(1, Math.floor((NATAL_EPHEMERIS_END_YEAR - birthYear - startAge) / POLICY.cycleSpanYears) + 1)
+    ? Math.max(1, Math.floor((NATAL_EPHEMERIS_END_YEAR - startYearExact) / POLICY.cycleSpanYears) + 1)
     : POLICY.maxCycleCount;
 
   const { stemIndex, branchIndex } = monthPillarIndices(input.monthStem, input.monthBranch);
   const cycles = [];
   for (let i = 0; i < cycleCount; i += 1) {
-    const step = direction === 'forward' ? i : -i;
+    // 첫 대운은 월주 자체가 아니라 진행 방향으로 한 칸 이동한 간지부터 시작한다.
+    const offset = i + 1;
+    const step = direction === 'forward' ? offset : -offset;
     const pillar = advancePillar(stemIndex, branchIndex, step);
-    const cycleStartAge = startAge + i * POLICY.cycleSpanYears;
-    const cycleStartYear = birthYear + cycleStartAge;
+    const cycleStartYear = startYearExact + i * POLICY.cycleSpanYears;
     cycles.push({
       index: i,
       pillar: `${STEMS[pillar.stemIndex]}${BRANCHES[pillar.branchIndex]}`,
       stem: STEMS[pillar.stemIndex],
       branch: BRANCHES[pillar.branchIndex],
-      startAge: cycleStartAge,
+      startAge: startAge + i * POLICY.cycleSpanYears,
       startYear: cycleStartYear,
       direction,
     });
@@ -146,6 +160,7 @@ export function calculateDaewoon(input) {
       date: input.date,
       time: birthTime,
       unknownTime: Boolean(input.unknownTime),
+      sex: input.sex || 'unset',
       yearStem: input.yearStem,
       monthStem: input.monthStem,
       monthBranch: input.monthBranch,
