@@ -46,13 +46,17 @@ const BRANCH_CLASHES = [
   ['자', '오'], ['축', '미'], ['인', '신'], ['묘', '유'], ['진', '술'], ['사', '해'],
 ];
 
+// natal-engine의 일주는 { stem:'戊', element:'토', branch:'申' } 문자열 형태로 반환된다.
+// 궁합 산출은 일간 오행(pillar.element)과 일지 한글명으로 읽는다.
+const HANJA_TO_HANGUL_BRANCH = { 子: '자', 丑: '축', 寅: '인', 卯: '묘', 辰: '진', 巳: '사', 午: '오', 未: '미', 申: '신', 酉: '유', 戌: '술', 亥: '해' };
+
 function analyzeSajuCouple(chartA, chartB) {
   const dayPillarA = Array.isArray(chartA.pillars) ? chartA.pillars[2] : (chartA.pillars?.day || chartA.pillars?.[2]);
   const dayPillarB = Array.isArray(chartB.pillars) ? chartB.pillars[2] : (chartB.pillars?.day || chartB.pillars?.[2]);
-  const elemA = dayPillarA?.stem?.element || '목';
-  const elemB = dayPillarB?.stem?.element || '목';
-  const branchA = dayPillarA?.branch?.hangul || '자';
-  const branchB = dayPillarB?.branch?.hangul || '자';
+  const elemA = dayPillarA?.element || dayPillarA?.stem?.element || '목';
+  const elemB = dayPillarB?.element || dayPillarB?.stem?.element || '목';
+  const branchA = HANJA_TO_HANGUL_BRANCH[dayPillarA?.branch] || dayPillarA?.branch?.hangul || '자';
+  const branchB = HANJA_TO_HANGUL_BRANCH[dayPillarB?.branch] || dayPillarB?.branch?.hangul || '자';
 
   let stemSynergy = '';
   let stemDetail = '';

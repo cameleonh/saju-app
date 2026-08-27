@@ -108,18 +108,37 @@ export function calculateDaewoon(input) {
 
   const birthEpochMinute = resolveSeoulCivilTime(input.date, birthTime).utcMinute;
   const boundary = findNearestJieBoundary(birthEpochMinute, birthYear, direction);
-  const diffMinutes = direction === 'forward'
-    ? boundary.epochMinute - birthEpochMinute
-    : birthEpochMinute - boundary.epochMinute;
-  const diffDays = diffMinutes / (24 * 60);
-  const startAge = Math.max(0, Math.floor(diffDays / POLICY.dayToYearDivisor));
 
-  // 시작 연도는 정통 환산(3일=1년, 1일=4개월)으로 출생일에 가산한 실제 날짜의 연도를 쓴다.
-  const convertedYears = Math.floor(diffDays / POLICY.dayToYearDivisor);
-  const convertedMonths = Math.floor((diffDays - convertedYears * POLICY.dayToYearDivisor) * 4);
+  // 정통 환산(lunar-javascript 팔자 표준 流派1 산식) 재현:
+  // dayDiff는 달력 날짜 차(자정 기준), 시진은 출생은 입력 벽시계 그대로·절기는 중국 표준시(+8)
+  // 벽시계로 세고, month = dayDiff*4 + floor(hourDiff*10/30), 음수 시진차는 dayDiff-1로 보정한다.
+  const zhiOfHour = (h) => (h === 23 ? 11 : Math.floor((h + 1) / 2));
+  const jieCstHourOf = (utcMinute) => {
+    const cstMinutes = ((((utcMinute % 1440) + 1440) % 1440) + 480) % 1440;
+    return Math.floor(cstMinutes / 60);
+  };
+  const dayIndexOf = (utcMinute) => Math.floor((utcMinute + 480) / 1440); // CST(+8) 달력 날짜
+  const forward = direction === 'forward';
+  // 출생은 입력 벽시계를 CST로 취급한 값(lunar-javascript 재현), 절기는 epoch의 CST 시각을 쓴다.
+  const birthDayIdx = Math.floor(Date.UTC(birthYear, birthMonth - 1, birthDay) / 86400000);
+  const startZhi = forward ? zhiOfHour(birthHour) : zhiOfHour(jieCstHourOf(boundary.epochMinute));
+  const endZhi = forward ? zhiOfHour(jieCstHourOf(boundary.epochMinute)) : zhiOfHour(birthHour);
+  const startDayIdx = forward ? birthDayIdx : dayIndexOf(boundary.epochMinute);
+  const endDayIdx = forward ? dayIndexOf(boundary.epochMinute) : birthDayIdx;
+  let hourDiff = endZhi - startZhi;
+  let dayDiff = endDayIdx - startDayIdx;
+  if (hourDiff < 0) { hourDiff += 12; dayDiff -= 1; }
+  const monthDiff = Math.floor((hourDiff * 10) / 30);
+  const totalMonths = dayDiff * 4 + monthDiff;
+  const startAge = Math.floor(totalMonths / 12);
+
+  const convertedYears = startAge;
+  const convertedMonths = totalMonths - convertedYears * 12;
+  const convertedDays = hourDiff * 10 - monthDiff * 30; // 잔여 시진의 일 환산(1시진=10일) — lunar-javascript 규칙
   const startDate = new Date(Date.UTC(birthYear, birthMonth - 1, birthDay));
   startDate.setUTCFullYear(startDate.getUTCFullYear() + convertedYears);
   startDate.setUTCMonth(startDate.getUTCMonth() + convertedMonths);
+  startDate.setUTCDate(startDate.getUTCDate() + convertedDays);
   const startYearExact = startDate.getUTCFullYear();
 
   // Determine cycle count AFTER startAge is known, so truncation is accurate
