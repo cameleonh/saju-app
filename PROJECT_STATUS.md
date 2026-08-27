@@ -4,7 +4,7 @@
 |---|---|
 | Status date | 2026-08-27 |
 | Project root | `D:\\codings\\260801_saju-app` |
-| Current phase | Four-tradition comparison runs in production with honest per-tradition verification labels: Korean Saju fully verified; Tử Vi placement oracle-verified (tuvi-neo parity); Horasat rasi on the Thai sidereal table with a bounded Jupiter table; Mahabote remains a labeled simplified model pending a source-locked rule |
+| Current phase | Four-tradition comparison is folded into the natal and couple results (no standalone mode): natal results lead with the deep four-system and annual four-tradition panels; couple results carry the four-system compatibility panel. Korean Saju fully verified; Tử Vi placement oracle-verified (tuvi-neo parity); Horasat rasi on the Thai sidereal table with a 2024–2035 Jupiter table; Mahabote placement follows the dirah orthodox arithmetic |
 | Production default | `SAJU_STORAGE=local-only` |
 
 ## Four-tradition verification status (2026-08-27)
