@@ -72,7 +72,7 @@ assert.deepEqual((await natalResponse.json()).pillars.map(({ text }) => text), [
 const rejectedNatalResponse = await fetch(`${url}/v1/natal-charts`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...defaultBirthInput, date: '2024-02-30' }) });
 assert.equal(rejectedNatalResponse.status, 422);
 const rejectedNatalBody = await rejectedNatalResponse.json();
-assert.deepEqual(rejectedNatalBody.calculationPolicy, { id: 'KR-CIVIL-1.0', version: '1.0.0', engine: 'gyeol-natal-core', engineVersion: '1.0.0' });
+assert.deepEqual(rejectedNatalBody.calculationPolicy, { id: 'KR-CIVIL-1.0', version: '1.1.0', engine: 'gyeol-natal-core', engineVersion: '1.1.0' });
 assert.doesNotMatch(JSON.stringify(rejectedNatalBody), /1990-10-10|2024-02-30|역삼1동|1168064000/);
 const annualRequest = { targetYear: 2026, natal: { dayStem: '戊', monthBranch: '戌', branches: ['午', '戌', '申', '未'], unknownTime: false }, chartPolicy: calculateNatalChart(defaultBirthInput).policy };
 const annualResponse = await fetch(`${url}/v1/annual-readings`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(annualRequest) });

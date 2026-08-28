@@ -22,12 +22,15 @@ const birth = (date, time, overrides = {}) => ({
 const golden = calculateNatalChart(birth('1990-10-10', '14:30'));
 assert.deepEqual(golden.pillars.map(({ text }) => text), ['庚午', '丙戌', '戊申', '己未']);
 assert.equal(golden.policy.id, 'KR-CIVIL-1.0');
-assert.equal(golden.policy.version, '1.0.0');
+assert.equal(golden.policy.version, '1.1.0');
 assert.equal(golden.policy.engine, 'gyeol-natal-core');
-assert.equal(golden.policy.engineVersion, '1.0.0');
+assert.equal(golden.policy.engineVersion, '1.1.0');
 assert.equal(golden.boundaryFlags.yearTerm, 'LI_CHUN');
-assert.equal(golden.boundaryFlags.dayBoundary, 'civil-midnight');
-assert.equal(golden.boundaryFlags.ziHour, '23:00-00:59');
+assert.equal(golden.boundaryFlags.dayBoundary, 'solar-corrected-midnight (동경 127.5도 보정시계의 자정)');
+assert.equal(golden.boundaryFlags.ziHour, '23:00-00:59 (보정시계 기준)');
+assert.equal(golden.solarTime.date, '1990-10-10');
+assert.equal(golden.solarTime.time, '14:00');
+assert.equal(golden.solarTime.offsetMinutes, 510);
 assert.equal(golden.boundaryFlags.endExclusive, true);
 assert.equal(golden.provenance.solarTerms.calculationSources[0].id, 'shouxing-ephemeris-snapshot');
 assert.equal(golden.provenance.solarTerms.validationSource.id, 'kasi-kasa-almanac-kst-minute');
@@ -41,9 +44,10 @@ assert.equal(unknownTime.pillars[3].text, '미상');
 assert.equal(unknownTime.boundaryFlags.timeKnown, false);
 assert.ok(unknownTime.warnings.some(({ fact }) => fact === 'input.unknown-time'));
 
-const beforeIpchun = calculateNatalChart(birth('2024-02-04', '17:26'));
-const exactIpchun = calculateNatalChart(birth('2024-02-04', '17:27'));
-const afterIpchun = calculateNatalChart(birth('2024-02-04', '17:28'));
+// 입춘 2024 = 17:27 KST. 동경 127.5도 보정(−30분)으로 유효 경계는 벽시계 17:57이다.
+const beforeIpchun = calculateNatalChart(birth('2024-02-04', '17:56'));
+const exactIpchun = calculateNatalChart(birth('2024-02-04', '17:57'));
+const afterIpchun = calculateNatalChart(birth('2024-02-04', '17:58'));
 assert.deepEqual(beforeIpchun.pillars.slice(0, 2).map(({ text }) => text), ['癸卯', '乙丑']);
 assert.deepEqual(exactIpchun.pillars.slice(0, 2).map(({ text }) => text), ['甲辰', '丙寅']);
 assert.deepEqual(afterIpchun.pillars.slice(0, 2).map(({ text }) => text), ['甲辰', '丙寅']);
@@ -54,8 +58,9 @@ assert.equal(exactIpchun.boundaryFlags.yearBoundary.sourceId, 'kasi-kasa-almanac
 assert.deepEqual(exactIpchun.provenance.solarTerms.calculationSources.map(({ id }) => id), ['kasi-kasa-almanac-kst-minute']);
 assert.ok(exactIpchun.warnings.some(({ fact }) => fact === 'boundary.solar-term'));
 
-const beforeJingzhe = calculateNatalChart(birth('2024-03-05', '11:22'));
-const exactJingzhe = calculateNatalChart(birth('2024-03-05', '11:23'));
+// 경칩 2024 = 11:23 KST → 유효 경계는 벽시계 11:53.
+const beforeJingzhe = calculateNatalChart(birth('2024-03-05', '11:52'));
+const exactJingzhe = calculateNatalChart(birth('2024-03-05', '11:53'));
 assert.equal(beforeJingzhe.pillars[1].text, '丙寅');
 assert.equal(exactJingzhe.pillars[1].text, '丁卯');
 
@@ -70,12 +75,13 @@ for (const year of [2024, 2025, 2026, 2027]) {
   assert.equal(Object.keys(EPHEMERIS_FIXTURES[year].terms).length, 24, `${year} retains the complete authoritative 24-term fixture set`);
   for (const key of termKeys) {
     const instant = Date.parse(EPHEMERIS_FIXTURES[year].terms[key]);
+    // 동경 127.5도 보정(−30분)으로 절기의 유효 경계는 epoch+30분(벽시계)이다.
     const before = chartAtModernSeoulInstant(instant - 60_000);
-    const exact = chartAtModernSeoulInstant(instant);
-    const after = chartAtModernSeoulInstant(instant + 60_000);
+    const exact = chartAtModernSeoulInstant(instant + 30 * 60_000);
+    const after = chartAtModernSeoulInstant(instant + 31 * 60_000);
     assert.notEqual(before.boundaryFlags.solarTerm.key, key, `${year} ${key} one minute before retains the prior term`);
-    assert.equal(exact.boundaryFlags.solarTerm.key, key, `${year} ${key} exact minute uses the new term`);
-    assert.equal(after.boundaryFlags.solarTerm.key, key, `${year} ${key} one minute after retains the new term`);
+    assert.equal(exact.boundaryFlags.solarTerm.key, key, `${year} ${key} solar-corrected exact minute uses the new term`);
+    assert.equal(after.boundaryFlags.solarTerm.key, key, `${year} ${key} one minute past the effective boundary retains the new term`);
     assert.equal(exact.boundaryFlags.solarTerm.instant, EPHEMERIS_FIXTURES[year].terms[key]);
     assert.ok(Number.isFinite(instant));
   }
@@ -88,8 +94,10 @@ const at0030 = calculateNatalChart(birth('1990-10-11', '00:30'));
 const at0130 = calculateNatalChart(birth('1990-10-11', '01:30'));
 assert.equal(at2300.pillars[2].text, '戊申');
 assert.equal(at2330.pillars[2].text, '戊申');
-assert.equal(at2300.pillars[3].text, '壬子');
-assert.equal(midnight.pillars[2].text, '己酉');
+assert.equal(at2300.pillars[3].text, '癸亥'); // 보정시계 22:30 → 亥시
+assert.equal(midnight.pillars[2].text, '戊申'); // 보정시계 10일 23:30 → 일주는 아직 전날
+assert.equal(midnight.pillars[3].text, '壬子');
+assert.equal(at0030.pillars[2].text, '己酉'); // 보정시계 00:00 → 자정 이후 11일
 assert.equal(at0030.pillars[3].text, '甲子');
 assert.equal(at0130.pillars[3].text, '乙丑');
 assert.ok(at2330.warnings.some(({ fact }) => fact === 'boundary.day'));
@@ -116,4 +124,4 @@ process.env.TZ = originalTz;
 assert.deepEqual(newYorkHost.pillars, honoluluHost.pillars, 'host timezone never changes the chart');
 
 const assertionCount = (fs.readFileSync(new URL(import.meta.url), 'utf8').match(/\bassert\./g) || []).length;
-console.log(`natal policy: ${assertionCount} assertions passed plus ${termKeys.length * 4} official solar-term boundaries at -1/exact/+1 minute`);
+console.log(`natal policy: ${assertionCount} assertions passed plus ${termKeys.length * 4} official solar-term boundaries verified at the solar-corrected effective minute (+30분 보정)`);

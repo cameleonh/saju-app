@@ -8,8 +8,9 @@ import {
 import { calculateNatalChart } from '../../chart/natal-engine.mjs';
 
 assert.equal(DAEWOON_POLICY.id, 'KR-DAEWOON-1.0');
-assert.equal(DAEWOON_POLICY.version, '1.1.0');
+assert.equal(DAEWOON_POLICY.version, '1.2.0');
 assert.equal(DAEWOON_POLICY.engine, 'gyeol-daewoon-core');
+assert.match(DAEWOON_POLICY.birthClockRule, /solar-corrected/);
 assert.equal(DAEWOON_POLICY.maxCycleCount, 8);
 assert.equal(DAEWOON_POLICY.cycleSpanYears, 10);
 assert.equal(DAEWOON_POLICY.dayToYearDivisor, 3);
@@ -95,8 +96,9 @@ assert.equal(unknownTimeResult.input.unknownTime, true);
 const historicalForward = calculateDaewoon({ date: '1901-02-07', time: '15:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
 assert.equal(historicalForward.startAge, 8, 'historical forward calculation uses Korean legal civil time instead of a fixed UTC+9 offset');
 const historicalBackward = calculateDaewoon({ date: '1901-03-06', time: '15:00', yearStem: '乙', monthStem: '丙', monthBranch: '寅' });
-assert.equal(historicalBackward.startAge, 0, 'historical backward calculation selects the correct legal-time boundary');
-assert.equal(historicalBackward.boundaryTerm, 'JING_ZHE');
+// 경칩 1901-03-06 출생 직후 30분 이내 — 동경 127.5도 보정(−30분)으로 경칩 이전이 되어 입춘이 경계가 된다.
+assert.equal(historicalBackward.startAge, 9, 'historical backward calculation selects the pre-Jingzhe boundary after the solar correction');
+assert.equal(historicalBackward.boundaryTerm, 'LI_CHUN');
 
 const natal = calculateNatalChart({ calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울', placeCode: '1111000000', unknownTime: false });
 const natalDaewoon = calculateDaewoon({

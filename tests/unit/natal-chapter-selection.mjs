@@ -157,8 +157,8 @@ assert.ok(sel1986.chapters.some((c) => c.chapter_id === 'repeated_ten_god' && c.
 assert.ok(sel1986.chapters.some((c) => c.chapter_id === 'dominant_skew' && c.matched === '화'), 'approved dominant 화 skew renders');
 assert.ok(sel1986.chapters.some((c) => c.chapter_id === 'missing_element' && c.matched === '수'), 'approved missing 수 renders');
 
-// --- Real dominant-skew chart (1993-08-17 05:00 → 癸酉 庚申 庚午 己卯: 금 4) ---
-const chart1993 = calculateNatalChart(birth({ date: '1993-08-17', time: '05:00' }));
+// --- Real dominant-skew chart (1993-08-17 05:30 → 보정시계 05:00, 癸酉 庚申 庚午 己卯: 금 4) ---
+const chart1993 = calculateNatalChart(birth({ date: '1993-08-17', time: '05:30' }));
 const f1993 = extractNatalFeatures(chart1993);
 assert.equal(f1993.dominant_element, '금');
 assert.equal(f1993.dominant_count, 4);
@@ -166,15 +166,15 @@ const sel1993 = selectNatalChapters(f1993);
 assert.ok(sel1993.chapters.some((c) => c.chapter_id === 'dominant_skew' && c.matched === '금'), 'real skew chart fires dominant_skew');
 assert.ok(sel1993.chapters.some((c) => c.chapter_id === 'branch_clash' && c.matched === '묘유'), 'real skew chart carries 묘유 clash');
 
-// --- Boundary sensitivity: 1985-02-04 05:15 sits within a minute of 입춘 ---
-const chartBoundary = calculateNatalChart(birth({ date: '1985-02-04', time: '05:15' }));
+// --- Boundary sensitivity: 입춘 1985 = 06:12 KST → 보정 기준 유효 경계 06:42, 05:45(보정 05:15)는 57분 거리 ---
+const chartBoundary = calculateNatalChart(birth({ date: '1985-02-04', time: '05:45' }));
 const fBoundary = extractNatalFeatures(chartBoundary);
 assert.equal(fBoundary.boundary_sensitive, true);
 const selBoundary = selectNatalChapters(fBoundary);
 const boundaryChapter = selBoundary.chapters.find((c) => c.chapter_id === 'boundary_sensitive');
 assert.ok(boundaryChapter, 'boundary-sensitive chart includes boundary chapter');
 assert.ok(boundaryChapter.lead.includes('입춘'), 'boundary term renders in Korean');
-const chartNotBoundary = calculateNatalChart(birth({ date: '1985-02-04', time: '05:00' }));
+const chartNotBoundary = calculateNatalChart(birth({ date: '1985-02-04', time: '04:00' }));
 assert.equal(extractNatalFeatures(chartNotBoundary).boundary_sensitive, false);
 assert.equal(buildNatalChapters(chartNotBoundary).chapters.some((c) => c.chapter_id === 'boundary_sensitive'), false, 'non-sensitive chart omits boundary chapter');
 

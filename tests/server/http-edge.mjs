@@ -151,9 +151,9 @@ assert.equal(malformedLunar.status, 422);
 const malformedNatal = await fetch(`${url}/v1/natal-charts`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ calendar: 'solar', date: '2024-02-30', time: '12:00' }) });
 assert.equal(malformedNatal.status, 422);
 const natalPolicyBody = await malformedNatal.json();
-assert.deepEqual(natalPolicyBody.calculationPolicy, { id: 'KR-CIVIL-1.0', version: '1.0.0', engine: 'gyeol-natal-core', engineVersion: '1.0.0' });
+assert.deepEqual(natalPolicyBody.calculationPolicy, { id: 'KR-CIVIL-1.0', version: '1.1.0', engine: 'gyeol-natal-core', engineVersion: '1.1.0' });
 
-const annualOutOfRange = await fetch(`${url}/v1/annual-readings`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ targetYear: 2100, natal: { dayStem: '戊', monthBranch: '戌', branches: ['午', '戌', '申', '未'] }, chartPolicy: { id: 'KR-CIVIL-1.0', version: '1.0.0', engine: 'gyeol-natal-core', engineVersion: '1.0.0' } }) });
+const annualOutOfRange = await fetch(`${url}/v1/annual-readings`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ targetYear: 2100, natal: { dayStem: '戊', monthBranch: '戌', branches: ['午', '戌', '申', '未'] }, chartPolicy: { id: 'KR-CIVIL-1.0', version: '1.1.0', engine: 'gyeol-natal-core', engineVersion: '1.1.0' } }) });
 assert.equal(annualOutOfRange.status, 422);
 
 const unsupportedMethod = await fetch(`${url}/v1/submissions`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: '{}' });

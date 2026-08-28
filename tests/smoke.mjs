@@ -83,9 +83,9 @@ const evaluate = (input) => {
 const golden = evaluate({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true });
 assert.deepEqual(Array.from(golden.pillars, (pillar) => pillar.text), ['庚午', '丙戌', '戊申', '己未']);
 assert.equal(golden.policy.id, 'KR-CIVIL-1.0');
-assert.equal(golden.policy.version, '1.0.0');
+assert.equal(golden.policy.version, '1.1.0');
 assert.equal(golden.policy.engine, 'gyeol-natal-core');
-assert.equal(golden.policy.engineVersion, '1.0.0');
+assert.equal(golden.policy.engineVersion, '1.1.0');
 assert.ok(golden.facts.every((fact) => fact.id && fact.value), 'facts have stable identifiers and values');
 assert.equal(golden.reading.length, 11, 'single reading renders the approved natal chapters for the sample chart (draft variants fail closed)');
 assert.ok(golden.reading.every((item) => item.detail && item.practice && item.questions?.length >= 2), 'single reading includes detail, practice, and prompts');
