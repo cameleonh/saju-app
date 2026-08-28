@@ -1219,7 +1219,9 @@
         function getFacts() { return state.chart?.mode === 'couple' ? state.chart.facts : state.chart?.facts || []; }
         function getFact(id) { return getFacts().find((fact) => fact.id === id); }
         const annualStorage = createAnnualStorage({ outboxBinding: OUTBOX_PURPOSE });
-        function pillarMarkup(items) { return items.map((item) => `<div class="pillar"><small>${item.label}</small><strong>${escapeHtml(item.text)}</strong><span>${item.element ? `${item.element} · ${item.branchElement}` : '계산 제한'}</span>${item.tenGod ? `<em>${escapeHtml(item.tenGod)}</em>` : ''}</div>`).join(''); }
+        // 표시 순서만 시주→일주→월주→년주로 뒤집는다. pillars 데이터 배열과 인덱스 접근(pillars[0]=년주)은 년→월→일→시 순서를 유지하며 테스트가 그 순서를 고정한다.
+        function displayPillars(items) { return [...(items || [])].reverse(); }
+        function pillarMarkup(items) { return displayPillars(items).map((item) => `<div class="pillar"><small>${item.label}</small><strong>${escapeHtml(item.text)}</strong><span>${item.element ? `${item.element} · ${item.branchElement}` : '계산 제한'}</span>${item.tenGod ? `<em>${escapeHtml(item.tenGod)}</em>` : ''}</div>`).join(''); }
         function readingExtras(item) {
           return `${item.detail ? `<div class="reading-detail-block"><strong>쉽게 풀어보면</strong><p class="reading-detail">${escapeHtml(item.detail)}</p></div>` : ''}${item.practice ? `<div class="reading-practice"><strong>오늘 해볼 일</strong><p>${escapeHtml(item.practice)}</p></div>` : ''}${item.questions?.length ? `<div class="reading-prompts"><strong>생각해볼 질문</strong><ul>${item.questions.map((question) => `<li>${escapeHtml(question)}</li>`).join('')}</ul></div>` : ''}`;
         }
@@ -1249,7 +1251,7 @@
         }
 
         function introView() {
-          return shell(`<section class="intro-grid" aria-labelledby="page-title"><div class="intro-copy"><div class="eyebrow">四柱 · 五行 · 명식 읽기</div><h1 id="page-title" class="display" tabindex="-1">내 사주와 두 사람의 결을 함께 봅니다</h1><p class="lead-copy">내 명식은 물론, 알아가는 사람이나 지금의 연인과 두 명식을 나란히 확인할 수 있어요. 계산 근거를 먼저 보여드리고, 관계를 판정하지 않는 말로 차분히 풀어드립니다.</p><div class="mode-picker" role="group" aria-label="사주 모드 선택"><button class="mode-card" type="button" data-action="mode" data-mode="single" aria-pressed="${state.mode === 'single'}"><span class="mode-glyph"><i></i></span><strong>내 사주</strong><small>네 기둥과 함께 미얀마·태국·베트남 전통 비교까지 확인해요.</small></button><button class="mode-card" type="button" data-action="mode" data-mode="couple" aria-pressed="${state.mode === 'couple'}"><span class="mode-glyph"><i></i><i></i></span><strong>커플 사주</strong><small>커플이 될 사람 또는 지금의 상대와 비교해요.</small></button></div><div class="intro-actions"><button class="button primary" data-action="start">${state.mode === 'couple' ? '두 사람 정보 입력' : '내 출생 정보 입력'} ${icon('arrow')}</button><button class="button ghost" data-action="sample">샘플로 보기 ${icon('moon')}</button><button class="button secondary" data-action="details">저장 안내 보기 ${icon('info')}</button></div><p class="storage-note">이 기기에만 저장돼요. <button class="button ghost small" data-action="details">자세히 ${icon('info')}</button>${state.error ? `<span class="error" role="alert">${escapeHtml(state.error)}</span>` : ''}</p></div><div class="aperture aperture-preview" aria-label="조선시대 저녁 달빛 아래의 사주 미리보기"><div class="moon-scene" aria-hidden="true"><span class="star star-a"></span><span class="star star-b"></span><span class="star star-c"></span><span class="roofline"></span></div><div><div class="aperture-top"><div><div class="eyebrow">명식 미리보기</div><div class="aperture-title">년주·월주·일주·시주의 흐름을 한 화면에서 확인해요</div></div><span class="aperture-meta">한국 표준시</span></div><div class="pillar-row">${pillarMarkup([{label:'년주',text:'庚午',element:'금',branchElement:'화'},{label:'월주',text:'丙戌',element:'화',branchElement:'토'},{label:'일주',text:'戊申',element:'토',branchElement:'금'},{label:'시주',text:'己未',element:'토',branchElement:'토'}])}</div></div><div class="aperture-footer"><span>천간·지지</span><span>오행 분포</span><span>${icon('check')} 절기 확인</span></div></div></section>${dailyTeaserMarkup()}`);
+          return shell(`<section class="intro-grid" aria-labelledby="page-title"><div class="intro-copy"><div class="eyebrow">四柱 · 五行 · 명식 읽기</div><h1 id="page-title" class="display" tabindex="-1">내 사주와 두 사람의 결을 함께 봅니다</h1><p class="lead-copy">내 명식은 물론, 알아가는 사람이나 지금의 연인과 두 명식을 나란히 확인할 수 있어요. 계산 근거를 먼저 보여드리고, 관계를 판정하지 않는 말로 차분히 풀어드립니다.</p><div class="mode-picker" role="group" aria-label="사주 모드 선택"><button class="mode-card" type="button" data-action="mode" data-mode="single" aria-pressed="${state.mode === 'single'}"><span class="mode-glyph"><i></i></span><strong>내 사주</strong><small>네 기둥과 함께 미얀마·태국·베트남 전통 비교까지 확인해요.</small></button><button class="mode-card" type="button" data-action="mode" data-mode="couple" aria-pressed="${state.mode === 'couple'}"><span class="mode-glyph"><i></i><i></i></span><strong>커플 사주</strong><small>커플이 될 사람 또는 지금의 상대와 비교해요.</small></button></div><div class="intro-actions"><button class="button primary" data-action="start">${state.mode === 'couple' ? '두 사람 정보 입력' : '내 출생 정보 입력'} ${icon('arrow')}</button><button class="button ghost" data-action="sample">샘플로 보기 ${icon('moon')}</button><button class="button secondary" data-action="details">저장 안내 보기 ${icon('info')}</button></div><p class="storage-note">이 기기에만 저장돼요. <button class="button ghost small" data-action="details">자세히 ${icon('info')}</button>${state.error ? `<span class="error" role="alert">${escapeHtml(state.error)}</span>` : ''}</p></div><div class="aperture aperture-preview" aria-label="조선시대 저녁 달빛 아래의 사주 미리보기"><div class="moon-scene" aria-hidden="true"><span class="star star-a"></span><span class="star star-b"></span><span class="star star-c"></span><span class="roofline"></span></div><div><div class="aperture-top"><div><div class="eyebrow">명식 미리보기</div><div class="aperture-title">시주·일주·월주·년주의 흐름을 한 화면에서 확인해요</div></div><span class="aperture-meta">한국 표준시</span></div><div class="pillar-row">${pillarMarkup([{label:'년주',text:'庚午',element:'금',branchElement:'화'},{label:'월주',text:'丙戌',element:'화',branchElement:'토'},{label:'일주',text:'戊申',element:'토',branchElement:'금'},{label:'시주',text:'己未',element:'토',branchElement:'토'}])}</div></div><div class="aperture-footer"><span>천간·지지</span><span>오행 분포</span><span>${icon('check')} 절기 확인</span></div></div></section>${dailyTeaserMarkup()}`);
         }
 
         function methodView() {
@@ -2196,8 +2198,8 @@
           showToast('제품 개선을 위한 학습 사용을 철회했어요. 서비스 기록은 남아 있습니다.');
         }
         async function copyChart() {
-          const selfText = `${formatKoreanDate(state.chart.input.date)}\n${state.chart.pillars.map((item) => `${item.label} ${item.text}`).join(' · ')}`;
-          const partnerText = state.chart.mode === 'couple' ? `\n상대 ${formatKoreanDate(state.chart.partnerInput.date)}\n${state.chart.partner.pillars.map((item) => `${item.label} ${item.text}`).join(' · ')}` : '';
+          const selfText = `${formatKoreanDate(state.chart.input.date)}\n${displayPillars(state.chart.pillars).map((item) => `${item.label} ${item.text}`).join(' · ')}`;
+          const partnerText = state.chart.mode === 'couple' ? `\n상대 ${formatKoreanDate(state.chart.partnerInput.date)}\n${displayPillars(state.chart.partner.pillars).map((item) => `${item.label} ${item.text}`).join(' · ')}` : '';
           const text = `${selfText}${partnerText}\n계산 정책 ${state.chart.policy.id} · ${state.chart.policy.name}`;
           try { await navigator.clipboard.writeText(text); showToast('구조화된 차트를 복사했어요'); } catch (error) { showToast('복사하지 못했어요. 브라우저 권한을 확인해 주세요'); }
         }
@@ -2354,15 +2356,15 @@
           if (couple) ctx.fillText(`${relationshipLabel(chart.relationshipType)} · 비교는 판정이 아니라 관찰입니다`, x, y + 8);
           else ctx.fillText(`${chart.input?.place || ''} 출생 · ${chart.input?.unknownTime ? '출생 시각 미상' : `${chart.input?.time || ''} 생`}`, x, y + 8);
           if (!couple) {
-            y = drawCardPillarRow(ctx, chart.pillars || [], x, y + 70, maxWidth, 300, 84);
+            y = drawCardPillarRow(ctx, displayPillars(chart.pillars), x, y + 70, maxWidth, 300, 84);
             y = drawCardElementBar(ctx, chart.elementCounts, x, y + 70, maxWidth);
           } else {
             ctx.fillStyle = '#8589ae'; ctx.font = '800 24px "Noto Sans KR", sans-serif';
             ctx.fillText(`내 · ${formatKoreanDate(chart.input?.date)}`, x, y + 64);
-            y = drawCardPillarRow(ctx, chart.self?.pillars || [], x, y + 84, maxWidth, 200, 56);
+            y = drawCardPillarRow(ctx, displayPillars(chart.self?.pillars), x, y + 84, maxWidth, 200, 56);
             ctx.fillStyle = '#b55f4b'; ctx.font = '800 24px "Noto Sans KR", sans-serif';
             ctx.fillText(`상대 · ${formatKoreanDate(chart.partnerInput?.date)}`, x, y + 56);
-            y = drawCardPillarRow(ctx, chart.partner?.pillars || [], x, y + 76, maxWidth, 200, 56);
+            y = drawCardPillarRow(ctx, displayPillars(chart.partner?.pillars), x, y + 76, maxWidth, 200, 56);
             y = drawCardElementBar(ctx, chart.elementCounts, x, y + 46, maxWidth);
           }
           const narrative = chart.reading?.[0]?.text || '';
