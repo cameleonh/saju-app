@@ -1,6 +1,6 @@
 // tests/unit/couple-compatibility.mjs
 import assert from 'node:assert/strict';
-import { calculateFourSystemCompatibility, COUPLE_POLICY, findCoupleBranchInteractions } from '../../chart/couple-compatibility.mjs';
+import { calculateFourSystemCompatibility, COUPLE_POLICY, findCoupleBranchInteractions, findNatalBranchInteractions } from '../../chart/couple-compatibility.mjs';
 
 // 1. Policy metadata
 assert.equal(COUPLE_POLICY.id, 'ASIAN-COUPLE-4SYS-1.0');
@@ -45,4 +45,17 @@ const branchInteractions = findCoupleBranchInteractions(
 assert.deepEqual(branchInteractions.map(({ type, branches }) => `${type}:${branches}`).sort(), ['육합:卯戌', '충:子午', '충:巳亥', '형:子卯']);
 assert.ok(branchInteractions.every(({ branchA, branchB }) => branchA !== '?' && branchB !== '?'), 'unknown-time branch is excluded from cross-chart relations');
 
-console.log('✓ couple-compatibility: 14 assertions passed');
+const updatedSelfBranches = [
+  { label: '년주', branch: '亥' }, { label: '월주', branch: '午' }, { label: '일주', branch: '酉' }, { label: '시주', branch: '卯' },
+];
+const updatedPartnerBranches = [
+  { label: '년주', branch: '戌' }, { label: '월주', branch: '巳' }, { label: '일주', branch: '子' }, { label: '시주', branch: '?' },
+];
+assert.deepEqual(
+  findCoupleBranchInteractions(updatedSelfBranches, updatedPartnerBranches).map(({ type, branches }) => `${type}:${branches}`).sort(),
+  ['육합:卯戌', '충:子午', '충:巳亥', '파:子酉', '해:酉戌', '형:子卯'],
+  'cross-chart comparison includes clash, punishment, harmony, harm, and break markers',
+);
+assert.deepEqual(findNatalBranchInteractions(updatedSelfBranches).map(({ type, branches }) => `${type}:${branches}`), ['파:卯午', '충:卯酉'], 'within-chart branch markers are reported separately from couple cross-markers');
+
+console.log('✓ couple-compatibility: 16 assertions passed');

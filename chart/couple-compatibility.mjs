@@ -52,6 +52,12 @@ const BRANCH_CLASHES_HANJA = [
 const BRANCH_SIX_HARMONY_HANJA = [
   ['子', '丑'], ['寅', '亥'], ['卯', '戌'], ['辰', '酉'], ['巳', '申'], ['午', '未'],
 ];
+const BRANCH_HARMS_HANJA = [
+  ['子', '未'], ['丑', '午'], ['寅', '巳'], ['卯', '辰'], ['申', '亥'], ['酉', '戌'],
+];
+const BRANCH_BREAKS_HANJA = [
+  ['子', '酉'], ['丑', '辰'], ['寅', '亥'], ['卯', '午'], ['巳', '申'], ['未', '戌'],
+];
 const BRANCH_PUNISHMENT_PAIRS = [
   ['子', '卯'], ['寅', '巳'], ['巳', '申'], ['申', '寅'], ['丑', '戌'], ['戌', '未'], ['未', '丑'],
 ];
@@ -78,6 +84,8 @@ export function findCoupleBranchInteractions(pillarsA = [], pillarsB = []) {
         ['충', BRANCH_CLASHES_HANJA],
         ['육합', BRANCH_SIX_HARMONY_HANJA],
         ['형', BRANCH_PUNISHMENT_PAIRS],
+        ['해', BRANCH_HARMS_HANJA],
+        ['파', BRANCH_BREAKS_HANJA],
       ];
       for (const [type, pairs] of relations) {
         const pair = matchingBranchPair(pairs, pillarA.branch, pillarB.branch);
@@ -102,6 +110,41 @@ export function findCoupleBranchInteractions(pillarsA = [], pillarsB = []) {
     }
   }
 
+  return interactions;
+}
+
+/** Returns supported pairwise/triple markers within one natal chart, excluding unknown pillars. */
+export function findNatalBranchInteractions(pillars = []) {
+  const known = (Array.isArray(pillars) ? pillars : []).filter((pillar) => pillar?.branch && pillar.branch !== '?' && pillar.branch !== '미상');
+  const interactions = [];
+  const relations = [
+    ['충', BRANCH_CLASHES_HANJA],
+    ['육합', BRANCH_SIX_HARMONY_HANJA],
+    ['형', BRANCH_PUNISHMENT_PAIRS],
+    ['해', BRANCH_HARMS_HANJA],
+    ['파', BRANCH_BREAKS_HANJA],
+  ];
+  for (let left = 0; left < known.length; left += 1) {
+    for (let right = left + 1; right < known.length; right += 1) {
+      const pillarA = known[left];
+      const pillarB = known[right];
+      for (const [type, pairs] of relations) {
+        const pair = matchingBranchPair(pairs, pillarA.branch, pillarB.branch);
+        if (pair) interactions.push({
+          type,
+          branches: pair.join(''),
+          pillarA: pillarA.label,
+          branchA: pillarA.branch,
+          pillarB: pillarB.label,
+          branchB: pillarB.branch,
+        });
+      }
+    }
+  }
+  const branches = new Set(known.map(({ branch }) => branch));
+  for (const group of BRANCH_THREE_HARMONY_HANJA) {
+    if (group.every((branch) => branches.has(branch))) interactions.push({ type: '삼합', branches: group.join(''), pillarA: null, branchA: null, pillarB: null, branchB: null });
+  }
   return interactions;
 }
 

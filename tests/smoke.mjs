@@ -8,7 +8,7 @@ import { calculateNatalChart } from '../chart/natal-engine.mjs';
 import { calculateDaewoon } from '../chart/daewoon-engine.mjs';
 import { buildNatalChapters, extractNatalFeatures } from '../server/domain/natal-chapter-selection.mjs';
 import { natalReadingItems } from '../web/natal-reading.mjs';
-import { findCoupleBranchInteractions } from '../chart/couple-compatibility.mjs';
+import { findCoupleBranchInteractions, findNatalBranchInteractions } from '../chart/couple-compatibility.mjs';
 
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const annualClient = fs.readFileSync(new URL('../annual/client.mjs', import.meta.url), 'utf8');
@@ -76,7 +76,7 @@ assert.match(adminAreaSource, /Effective date: 2026-07-20/);
 assert.match(adminAreaSource, /KIKcd_H and KIKcd_B/);
 assert.deepEqual(JSON.parse(JSON.stringify(catalogSandbox.tenGodMap)), [['甲', '편관'], ['乙', '정관'], ['丙', '편인'], ['丁', '정인'], ['戊', '비견'], ['己', '겁재'], ['庚', '식신'], ['辛', '상관'], ['壬', '편재'], ['癸', '정재']], 'ten-god relation covers all five element relations and both polarities');
 const evaluate = (input) => {
-  const sandbox = { calculateNatalChart, calculateDaewoon, extractNatalFeatures, buildNatalChapters, natalReadingItems, findCoupleBranchInteractions };
+  const sandbox = { calculateNatalChart, calculateDaewoon, extractNatalFeatures, buildNatalChapters, natalReadingItems, findCoupleBranchInteractions, findNatalBranchInteractions };
   vm.runInNewContext(`${engineSource}; globalThis.result = calculateChart(${JSON.stringify(input)});`, sandbox);
   return sandbox.result;
 };
@@ -136,7 +136,7 @@ assert.match(serviceUnit, /EnvironmentFile=-\/etc\/saju-app\.env/, 'managed stor
 assert.match(serviceUnit, /ReadWritePaths=\/var\/lib\/saju-app\/runtime/, 'systemd grants writes only to the runtime boundary');
 
 const couple = (() => {
-  const sandbox = { calculateNatalChart, calculateDaewoon, extractNatalFeatures, buildNatalChapters, natalReadingItems, findCoupleBranchInteractions };
+  const sandbox = { calculateNatalChart, calculateDaewoon, extractNatalFeatures, buildNatalChapters, natalReadingItems, findCoupleBranchInteractions, findNatalBranchInteractions };
   vm.runInNewContext(`${engineSource}; globalThis.result = calculateCoupleChart(${JSON.stringify({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar' })}, ${JSON.stringify({ date: '1992-02-14', time: '09:00', unknownTime: false, place: '서울', calendar: 'solar' })}, 'dating');`, sandbox);
   return sandbox.result;
 })();
@@ -156,21 +156,22 @@ assert.ok(couple.facts.some((fact) => fact.id === 'self.ten-god.visible'));
 assert.ok(couple.facts.some((fact) => fact.id === 'partner.hidden-stems'));
 
 const unknownHourCouple = (() => {
-  const sandbox = { calculateNatalChart, calculateDaewoon, extractNatalFeatures, buildNatalChapters, natalReadingItems, findCoupleBranchInteractions };
-  vm.runInNewContext(`${engineSource}; globalThis.result = calculateCoupleChart(${JSON.stringify({ date: '1983-06-20', time: '19:30', unknownTime: false, place: '서울', calendar: 'solar' })}, ${JSON.stringify({ date: '1994-05-14', time: '12:00', unknownTime: true, place: '서울', calendar: 'solar' })}, 'dating');`, sandbox);
+  const sandbox = { calculateNatalChart, calculateDaewoon, extractNatalFeatures, buildNatalChapters, natalReadingItems, findCoupleBranchInteractions, findNatalBranchInteractions };
+  vm.runInNewContext(`${engineSource}; globalThis.result = calculateCoupleChart(${JSON.stringify({ date: '1983-06-14', time: '06:30', unknownTime: false, place: '서울', calendar: 'solar' })}, ${JSON.stringify({ date: '1994-05-14', time: '12:00', unknownTime: true, place: '서울', calendar: 'solar' })}, 'dating');`, sandbox);
   return sandbox.result;
 })();
-assert.deepEqual(Array.from(unknownHourCouple.self.pillars, ({ text }) => text), ['癸亥', '戊午', '己卯', '甲戌'], '1983-06-20 19:30 uses the KR-CIVIL legal-civil-time pillars');
+assert.deepEqual(Array.from(unknownHourCouple.self.pillars, ({ text }) => text), ['癸亥', '戊午', '癸酉', '乙卯'], '1983-06-14 06:30 uses the KR-CIVIL legal-civil-time pillars');
 assert.deepEqual(Array.from(unknownHourCouple.partner.pillars, ({ text }) => text), ['甲戌', '己巳', '庚子', '미상'], '1994-05-14 keeps the partner hour explicitly unknown');
 assert.deepEqual(Array.from(unknownHourCouple.elementComparison.pillarLabels), ['년주', '월주', '일주'], 'unknown hour is excluded so both people are compared on the same pillars');
-assert.deepEqual({ ...unknownHourCouple.elementComparison.self }, { 목: 1, 화: 1, 토: 2, 금: 0, 수: 2 });
+assert.deepEqual({ ...unknownHourCouple.elementComparison.self }, { 목: 0, 화: 1, 토: 1, 금: 1, 수: 3 });
 assert.deepEqual({ ...unknownHourCouple.elementComparison.partner }, { 목: 1, 화: 1, 토: 2, 금: 1, 수: 1 });
-assert.equal(unknownHourCouple.facts.find((fact) => fact.id === 'relationship.balance.gap').value, '금 · 수 · 각각 1칸', 'ties for the largest visible-element gap are all shown');
+assert.equal(unknownHourCouple.facts.find((fact) => fact.id === 'relationship.balance.gap').value, '수 · 각각 2칸', 'the largest visible-element gap is calculated over the common three pillars');
 assert.match(unknownHourCouple.facts.find((fact) => fact.id === 'partner.hidden-stems').value, /子\(癸·상관·壬·식신\)/);
 assert.match(unknownHourCouple.facts.find((fact) => fact.id === 'partner.hidden-stems').detail, /월률분야/);
 const crossRelations = unknownHourCouple.branchInteractions.map(({ type, branches }) => `${type}:${branches}`).sort();
-assert.deepEqual(Array.from(crossRelations), ['육합:卯戌', '충:子午', '충:巳亥', '형:子卯']);
-assert.match(unknownHourCouple.facts.find((fact) => fact.id === 'relationship.branch.interactions').detail, /시주 미상은 자동으로 제외/);
+assert.deepEqual(Array.from(crossRelations), ['육합:卯戌', '충:子午', '충:巳亥', '파:子酉', '해:酉戌', '형:子卯']);
+assert.match(unknownHourCouple.facts.find((fact) => fact.id === 'relationship.branch.interactions').detail, /시주 미상은 제외/);
+assert.equal(unknownHourCouple.facts.find((fact) => fact.id === 'self.branch.interactions').value, '월주 午·시주 卯 파(卯午) · 일주 酉·시주 卯 충(卯酉)');
 
 assert.match(html, /import \{ createAnnualStorage \} from '\.\/annual\/storage\.mjs'/);
 assert.match(html, /purpose-receipt-bound/);

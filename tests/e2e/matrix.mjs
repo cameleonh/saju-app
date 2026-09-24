@@ -378,8 +378,8 @@ const atResult = (s) => /근거|명식|카드|나란히/.test(s.heading) || s.ha
   const page = await newPage();
   await gotoHome(page);
   await enterCoupleInput(page);
-  await page.fill('#self-date', '1983-06-20');
-  await page.fill('#self-time', '19:30');
+  await page.fill('#self-date', '1983-06-14');
+  await page.fill('#self-time', '06:30');
   await page.fill('#partner-date', '1994-05-14');
   await page.check('#partner-unknown-time');
   const timePolicyCopy = await page.textContent('#self-place-help');
@@ -391,15 +391,15 @@ const atResult = (s) => /근거|명식|카드|나란히/.test(s.heading) || s.ha
       pillarGroups,
       hasCommonThreePillarBasis: text.includes('공통 년주·월주·일주 기둥'),
       excludesHiddenStemsFromCount: text.includes('지장간은 오행 개수에서 제외'),
-      visibleCrossMarkers: ['子午', '巳亥', '子卯', '卯戌'].filter((marker) => text.includes(marker)),
+      visibleCrossMarkers: ['子午', '巳亥', '子卯', '卯戌', '酉戌', '子酉'].filter((marker) => text.includes(marker)),
     };
   });
   record('S18 검산 명식 결과 표시', atResult(state) && !state.error, JSON.stringify(state));
-  const pillarsMatch = JSON.stringify(facts.pillarGroups) === JSON.stringify([['甲戌', '己卯', '戊午', '癸亥'], ['미상', '庚子', '己巳', '甲戌']]);
+  const pillarsMatch = JSON.stringify(facts.pillarGroups) === JSON.stringify([['乙卯', '癸酉', '戊午', '癸亥'], ['미상', '庚子', '己巳', '甲戌']]);
   record('S18 제공된 두 날짜의 4주 검산', pillarsMatch, JSON.stringify(facts.pillarGroups));
   record('S18 공통 3주 집계·지장간 기준 명시', facts.hasCommonThreePillarBasis && facts.excludesHiddenStemsFromCount, JSON.stringify(facts));
   record('S18 법정 민간시/보정 기준 고지', /Asia\/Seoul.*경도.*태양시 보정은 하지 않습니다/.test(timePolicyCopy || ''), timePolicyCopy || 'missing place help');
-  record('S18 교차 지지 표식 4종', facts.visibleCrossMarkers.length === 4, facts.visibleCrossMarkers.join(' · '));
+  record('S18 교차 지지 표식 6종', facts.visibleCrossMarkers.length === 6, facts.visibleCrossMarkers.join(' · '));
 
   const readEvidence = async (readingIndex, factId) => {
     const card = page.locator(`.reading-card[data-reading-key="couple-${readingIndex}"]`);
@@ -409,9 +409,11 @@ const atResult = (s) => /근거|명식|카드|나란히/.test(s.heading) || s.ha
     return card.locator('.fact-detail').textContent();
   };
   const elementBasisDetail = await readEvidence(3, 'relationship.element.counts');
-  record('S18 오행 수치·지장간 제외 근거 열기', /내 명식 목1 · 화1 · 토2 · 금0 · 수2 \/ 상대 목1 · 화1 · 토2 · 금1 · 수1/.test(elementBasisDetail || ''), elementBasisDetail || 'missing detail');
+  record('S18 오행 수치·지장간 제외 근거 열기', /내 명식 목0 · 화1 · 토1 · 금1 · 수3 \/ 상대 목1 · 화1 · 토2 · 금1 · 수1/.test(elementBasisDetail || ''), elementBasisDetail || 'missing detail');
   const branchDetail = await readEvidence(3, 'relationship.branch.interactions');
-  record('S18 지지 교차 관계 근거 열기', ['子午', '巳亥', '子卯', '卯戌'].every((marker) => (branchDetail || '').includes(marker)), branchDetail || 'missing detail');
+  record('S18 지지 교차 관계 근거 열기', ['子午', '巳亥', '子卯', '卯戌', '酉戌', '子酉'].every((marker) => (branchDetail || '').includes(marker)), branchDetail || 'missing detail');
+  const selfBranchDetail = await readEvidence(3, 'self.branch.interactions');
+  record('S18 본인 명식 내부 지지 관계 근거', ['충(卯酉)', '파(卯午)'].every((marker) => (selfBranchDetail || '').includes(marker)), selfBranchDetail || 'missing detail');
   const hiddenStemDetail = await readEvidence(2, 'partner.hidden-stems');
   record('S18 지장간 선택 규칙 고지', /월률분야/.test(hiddenStemDetail || '') && /子.*癸.*壬/.test(hiddenStemDetail || ''), hiddenStemDetail || 'missing detail');
   await page.close();
