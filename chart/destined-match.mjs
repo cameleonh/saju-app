@@ -26,6 +26,7 @@ export const MATCH_ARCHETYPES = Object.freeze({
     synergy: '내 사주에 생기와 온화함을 불어넣어, 메마른 마음에 따뜻한 활력과 성장의 에너지를 더해줍니다.',
     avatarMale: 'images/matches/match_wood_male.svg',
     avatarFemale: 'images/matches/match_wood_female.svg',
+    photoPool: 'images/matches/pool/wood',
   }),
   화: Object.freeze({
     element: '화',
@@ -49,6 +50,7 @@ export const MATCH_ARCHETYPES = Object.freeze({
     synergy: '내 사주의 차가운 기운을 녹이고 침체된 감정을 깨워, 언제나 설렘과 활기찬 용기를 선물합니다.',
     avatarMale: 'images/matches/match_fire_male.svg',
     avatarFemale: 'images/matches/match_fire_female.svg',
+    photoPool: 'images/matches/pool/fire',
   }),
   토: Object.freeze({
     element: '토',
@@ -72,6 +74,7 @@ export const MATCH_ARCHETYPES = Object.freeze({
     synergy: '불안정하거나 급변하는 상황 속에서 단단한 뿌리가 되어주며, 지친 마음에 가장 편안한 안식처를 마련해 줍니다.',
     avatarMale: 'images/matches/match_earth_male.svg',
     avatarFemale: 'images/matches/match_earth_female.svg',
+    photoPool: 'images/matches/pool/earth',
   }),
   금: Object.freeze({
     element: '금',
@@ -95,6 +98,7 @@ export const MATCH_ARCHETYPES = Object.freeze({
     synergy: '흐트러지기 쉬운 생각과 목표를 깔끔하게 정돈해 주며, 함께할수록 더 멋진 사람으로 나아가게 하는 자극제가 됩니다.',
     avatarMale: 'images/matches/match_metal_male.svg',
     avatarFemale: 'images/matches/match_metal_female.svg',
+    photoPool: 'images/matches/pool/metal',
   }),
   수: Object.freeze({
     element: '수',
@@ -118,8 +122,24 @@ export const MATCH_ARCHETYPES = Object.freeze({
     synergy: '과열된 열기와 경직된 긴장을 유연하게 풀어주며, 보이지 않는 깊은 감정까지 온전히 어루만져 줍니다.',
     avatarMale: 'images/matches/match_water_male.svg',
     avatarFemale: 'images/matches/match_water_female.svg',
+    photoPool: 'images/matches/pool/water',
   }),
 });
+
+export const MATCH_PHOTO_POOL_SIZE = 10;
+
+function hashPhotoSeed(value) {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
+  }
+  return hash;
+}
+
+function resolvePhotoVariant(pillars) {
+  const seed = pillars.map((pillar) => `${pillar.stem || ''}${pillar.branch || ''}`).join('');
+  return seed ? hashPhotoSeed(seed) % MATCH_PHOTO_POOL_SIZE : 0;
+}
 
 // 천간 합(合) 짝 매핑 — 갑기, 을경, 병신, 정임, 무계
 const HEAVENLY_STEM_HARMONY = Object.freeze({
@@ -156,6 +176,7 @@ export function deriveDestinedMatch(chart) {
       archetype: MATCH_ARCHETYPES['목'],
       reason: '기본 보완 오행인 목(木)의 생명력을 권장합니다.',
       dayStem: '甲',
+      photoVariant: 0,
     };
   }
 
@@ -208,5 +229,6 @@ export function deriveDestinedMatch(chart) {
     reason,
     archetype,
     elementCounts: counts,
+    photoVariant: resolvePhotoVariant(chart.pillars),
   };
 }

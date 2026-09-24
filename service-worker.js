@@ -1,4 +1,4 @@
-const CACHE = 'saju-app-shell-v33';
+const CACHE = 'saju-app-shell-v34';
 const ASSETS = [
   './',
   './index.html',

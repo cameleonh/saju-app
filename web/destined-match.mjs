@@ -13,6 +13,13 @@ function escapeHtml(str) {
     .replaceAll("'", '&#39;');
 }
 
+function resolveMatchPhotoPath(archetype, selectedGender, variantIndex) {
+  if (!archetype?.photoPool) return null;
+  const genderKey = selectedGender === 'female' ? 'female' : 'male';
+  const variant = Number.isInteger(variantIndex) ? variantIndex : 0;
+  return `${archetype.photoPool}_${genderKey}_${String(variant + 1).padStart(2, '0')}.jpg`;
+}
+
 /**
  * 운명의 상대 패널 마크업을 렌더링합니다.
  * @param {object} match deriveDestinedMatch(chart) 결과
@@ -23,7 +30,9 @@ export function renderDestinedMatch(match, { selectedGender = 'female' } = {}) {
 
   const { archetype, reason, targetElement, myElement, dayStem } = match;
   const isFemale = selectedGender === 'female';
+  const photoPath = resolveMatchPhotoPath(archetype, selectedGender, match.photoVariant);
   const avatarPath = isFemale ? archetype.avatarFemale : archetype.avatarMale;
+  const imagePath = photoPath || avatarPath;
   const genderLabel = isFemale ? '여성 인연' : '남성 인연';
 
   const impressions = (archetype.impressions || []).map((imp) => `<span class="match-chip">${escapeHtml(imp)}</span>`).join('');
@@ -50,7 +59,7 @@ export function renderDestinedMatch(match, { selectedGender = 'female' } = {}) {
       <div class="match-card-layout">
         <div class="match-avatar-col">
           <div class="match-avatar-wrapper" style="border-color: ${archetype.color};">
-            <img src="${escapeHtml(avatarPath)}" alt="${escapeHtml(archetype.title)} ${genderLabel}" class="match-avatar-img" width="500" height="500" loading="lazy" />
+            <img src="${escapeHtml(imagePath)}" data-fallback-src="${escapeHtml(avatarPath)}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" alt="${escapeHtml(archetype.title)} ${genderLabel}" class="match-avatar-img" width="500" height="500" loading="lazy" />
           </div>
           <button type="button" class="button secondary small match-card-download" data-action="match-card-png">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -153,10 +162,16 @@ export function downloadMatchCardPng(match, selectedGender = 'female') {
   // Avatar Image Draw
   const img = new Image();
   img.crossOrigin = 'anonymous';
-  img.src = isFemale ? archetype.avatarFemale : archetype.avatarMale;
+  const fallbackSrc = isFemale ? archetype.avatarFemale : archetype.avatarMale;
+  const preferredSrc = resolveMatchPhotoPath(archetype, selectedGender, match.photoVariant) || fallbackSrc;
+  let usedFallback = false;
+  img.onerror = () => {
+    if (!usedFallback && fallbackSrc) { usedFallback = true; img.src = fallbackSrc; }
+  };
+  img.src = preferredSrc;
   img.onload = () => {
     // Draw Avatar Image Box (Square 420x420 at x=60, y=340)
-    ctx.drawImage(img, 60, 340, 420, 420);
+    drawCover(ctx, img, 60, 340, 420);
     ctx.strokeStyle = archetype.color || '#718d82';
     ctx.lineWidth = 3;
     ctx.strokeRect(60, 340, 420, 420);
@@ -235,6 +250,21 @@ export function downloadMatchCardPng(match, selectedGender = 'female') {
     a.href = canvas.toDataURL('image/png');
     a.click();
   };
+}
+
+function drawCover(ctx, image, dx, dy, size) {
+  const width = image.naturalWidth || image.width || 0;
+  const height = image.naturalHeight || image.height || 0;
+  if (!width || !height) {
+    ctx.drawImage(image, dx, dy, size, size);
+    return;
+  }
+  const coverScale = Math.max(size / width, size / height);
+  const sourceWidth = size / coverScale;
+  const sourceHeight = size / coverScale;
+  const sourceX = (width - sourceWidth) / 2;
+  const sourceY = (height - sourceHeight) / 2;
+  ctx.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, dx, dy, size, size);
 }
 
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {

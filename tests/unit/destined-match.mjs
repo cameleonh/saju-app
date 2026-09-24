@@ -15,6 +15,7 @@ for (const el of elements) {
   assert.ok(arc.personality.length >= 2, 'must have at least 2 personality traits');
   assert.ok(arc.avatarMale.includes('male'), 'male avatar must be linked');
   assert.ok(arc.avatarFemale.includes('female'), 'female avatar must be linked');
+  assert.ok(arc.photoPool.startsWith('images/matches/pool/'), 'photo pool base must be linked');
   assert.ok(arc.synergy.length > 0, 'synergy must be present');
 }
 
@@ -48,16 +49,22 @@ const matchNoWood = deriveDestinedMatch(mockChartNoWood);
 assert.equal(matchNoWood.targetElement, '목', 'chart lacking Wood must match Wood archetype');
 assert.equal(matchNoWood.archetype.element, '목');
 
+assert.ok(Number.isInteger(matchNoFire.photoVariant) && matchNoFire.photoVariant >= 0 && matchNoFire.photoVariant < 10, 'photo variant stays inside the pool bounds');
+assert.equal(deriveDestinedMatch(mockChartNoFire).photoVariant, matchNoFire.photoVariant, 'photo variant is deterministic for the same chart');
+
 // 3. UI Markup Rendering Tests
 const femaleHtml = renderDestinedMatch(matchNoFire, { selectedGender: 'female' });
 assert.match(femaleHtml, /class="panel match-panel"/, 'renders match panel container');
-assert.match(femaleHtml, /match_fire_female\.svg/, 'renders female fire avatar');
+assert.match(femaleHtml, /src="images\/matches\/pool\/fire_female_\d{2}\.jpg"/, 'prefers a female fire pool photo');
+assert.match(femaleHtml, /data-fallback-src="images\/matches\/match_fire_female\.svg"/, 'keeps the female fire SVG fallback');
+assert.match(femaleHtml, /onerror="this\.onerror=null;this\.src=this\.dataset\.fallbackSrc;"/, 'falls back to the SVG when the photo is missing');
 assert.match(femaleHtml, /여성 인연 보기/, 'renders female gender toggle button');
 assert.match(femaleHtml, /data-action="match-card-png"/, 'renders card PNG download action');
 assert.match(femaleHtml, /따뜻한 모닥불 같은 화\(火\)의 인연/, 'renders correct title');
 
 const maleHtml = renderDestinedMatch(matchNoFire, { selectedGender: 'male' });
-assert.match(maleHtml, /match_fire_male\.svg/, 'renders male fire avatar');
+assert.match(maleHtml, /src="images\/matches\/pool\/fire_male_\d{2}\.jpg"/, 'prefers a male fire pool photo');
+assert.match(maleHtml, /data-fallback-src="images\/matches\/match_fire_male\.svg"/, 'keeps the male fire SVG fallback');
 assert.match(maleHtml, /남성 인연 보기/, 'renders male toggle button active');
 
 console.log('✓ destined-match: 18 assertions passed');

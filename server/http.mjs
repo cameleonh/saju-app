@@ -44,7 +44,7 @@ async function readJson(request) {
   catch { throw Object.assign(new Error('request body must be valid JSON'), { statusCode: 400 }); }
 }
 
-const MIME_TYPES = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
+const MIME_TYPES = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
 const PUBLIC_STATIC_FILES = new Set([
   'index.html', 'privacy.html', 'terms.html', 'service-worker.js', 'manifest.webmanifest', 'icon.svg', 'robots.txt', 'ai.txt', 'copyright.html',
   'annual/client.mjs', 'annual/storage.mjs',
@@ -58,7 +58,7 @@ const PUBLIC_STATIC_FILES = new Set([
   'server/storage/seeds/daily-readings.mjs', 'server/storage/seeds/natal-chapters.mjs',
 ]);
 const PUBLIC_FONT_FILE = /^fonts\/noto-sans-kr-5\.3\.0\/(?:400\.css|files\/noto-sans-kr-(?:\d{1,3}|korean|latin|latin-ext|cyrillic|vietnamese)-400-normal\.woff2)$/;
-const PUBLIC_IMAGE_FILE = /^images\/matches\/match_[a-z]+_(?:male|female)\.svg$/;
+const PUBLIC_IMAGE_FILE = /^images\/matches\/(?:match_[a-z]+_(?:male|female)\.(?:svg|jpe?g|png|webp)|pool\/[a-z]+_(?:male|female)_\d{2}\.jpe?g)$/;
 
 async function serveStatic(root, request, response) {
   if (!root || request.method !== 'GET') return false;
