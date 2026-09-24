@@ -24,4 +24,14 @@ assert.ok(result.mahabote.animalPair, 'animal pair populated');
 assert.ok(result.horasat.rasiPair, 'rasi pair populated');
 assert.ok(result.tuVi.starPair, 'star pair populated');
 
-console.log('✓ couple-compatibility: 11 assertions passed');
+// 3. Unknown birth time is rejected until both times are known (Thai/Vietnamese boundaries require it)
+assert.throws(
+  () => calculateFourSystemCompatibility({
+    personA: { name: '지훈', date: '1990-10-10', time: '14:30', unknownTime: false },
+    personB: { name: '서연', date: '1992-02-14', time: '09:00', unknownTime: true },
+  }),
+  /정확한 출생 시각/,
+  'unknown birth time must throw before computing Thai/Vietnamese boundaries',
+);
+
+console.log('✓ couple-compatibility: 12 assertions passed');
