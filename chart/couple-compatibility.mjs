@@ -46,6 +46,65 @@ const BRANCH_CLASHES = [
   ['자', '오'], ['축', '미'], ['인', '신'], ['묘', '유'], ['진', '술'], ['사', '해'],
 ];
 
+const BRANCH_CLASHES_HANJA = [
+  ['子', '午'], ['丑', '未'], ['寅', '申'], ['卯', '酉'], ['辰', '戌'], ['巳', '亥'],
+];
+const BRANCH_SIX_HARMONY_HANJA = [
+  ['子', '丑'], ['寅', '亥'], ['卯', '戌'], ['辰', '酉'], ['巳', '申'], ['午', '未'],
+];
+const BRANCH_PUNISHMENT_PAIRS = [
+  ['子', '卯'], ['寅', '巳'], ['巳', '申'], ['申', '寅'], ['丑', '戌'], ['戌', '未'], ['未', '丑'],
+];
+const BRANCH_THREE_HARMONY_HANJA = [
+  ['申', '子', '辰'], ['亥', '卯', '未'], ['寅', '午', '戌'], ['巳', '酉', '丑'],
+];
+
+function matchingBranchPair(pairs, branchA, branchB) {
+  return pairs.find(([first, second]) => (first === branchA && second === branchB) || (first === branchB && second === branchA)) || null;
+}
+
+/**
+ * Compares known branches across two charts using explicit traditional markers.
+ * Unknown pillars are omitted; these markers are descriptive, not relationship verdicts.
+ */
+export function findCoupleBranchInteractions(pillarsA = [], pillarsB = []) {
+  const knownA = (Array.isArray(pillarsA) ? pillarsA : []).filter((pillar) => pillar?.branch && pillar.branch !== '?' && pillar.branch !== '미상');
+  const knownB = (Array.isArray(pillarsB) ? pillarsB : []).filter((pillar) => pillar?.branch && pillar.branch !== '?' && pillar.branch !== '미상');
+  const interactions = [];
+
+  for (const pillarA of knownA) {
+    for (const pillarB of knownB) {
+      const relations = [
+        ['충', BRANCH_CLASHES_HANJA],
+        ['육합', BRANCH_SIX_HARMONY_HANJA],
+        ['형', BRANCH_PUNISHMENT_PAIRS],
+      ];
+      for (const [type, pairs] of relations) {
+        const pair = matchingBranchPair(pairs, pillarA.branch, pillarB.branch);
+        if (pair) interactions.push({
+          type,
+          branches: pair.join(''),
+          pillarA: pillarA.label,
+          branchA: pillarA.branch,
+          pillarB: pillarB.label,
+          branchB: pillarB.branch,
+        });
+      }
+    }
+  }
+
+  const branchesA = new Set(knownA.map(({ branch }) => branch));
+  const branchesB = new Set(knownB.map(({ branch }) => branch));
+  const combined = new Set([...branchesA, ...branchesB]);
+  for (const group of BRANCH_THREE_HARMONY_HANJA) {
+    if (group.every((branch) => combined.has(branch)) && group.some((branch) => branchesA.has(branch)) && group.some((branch) => branchesB.has(branch))) {
+      interactions.push({ type: '삼합', branches: group.join(''), pillarA: null, branchA: null, pillarB: null, branchB: null });
+    }
+  }
+
+  return interactions;
+}
+
 // natal-engine의 일주는 { stem:'戊', element:'토', branch:'申' } 문자열 형태로 반환된다.
 // 궁합 산출은 일간 오행(pillar.element)과 일지 한글명으로 읽는다.
 const HANJA_TO_HANGUL_BRANCH = { 子: '자', 丑: '축', 寅: '인', 卯: '묘', 辰: '진', 巳: '사', 午: '오', 未: '미', 申: '신', 酉: '유', 戌: '술', 亥: '해' };

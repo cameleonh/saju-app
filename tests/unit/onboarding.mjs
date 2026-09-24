@@ -59,10 +59,12 @@ assert.match(html, /name="\$\{prefix\}Date" type="date"[^>]*required/, 'the birt
 assert.match(html, /details\[data-optional-owner\]/, 'the collapsible open state is bound in bindEvents');
 assert.match(html, /target\.optionalOpen = element\.open/, 'toggling the collapsible persists into form state');
 assert.match(html, /optionalOpen: false/, 'both form states initialize the collapsible closed');
+assert.match(html, /form: \{ calendar: 'solar', date: '', time: '', lunarYear: '', lunarMonth: '', lunarDay: ''/, 'birth inputs start blank rather than with another person’s sample values');
 
 // --- Fail-closed validation gates preserved (re-order/default only) -------------
-assert.match(html, /if \(!source\.place\) \{ source\.place = DEFAULT_BIRTH_PLACE; source\.placeDefaulted = true; \}/, 'a completely blank place falls back to the Seoul default');
-assert.ok(html.indexOf("source.place = DEFAULT_BIRTH_PLACE") < html.indexOf('const placeResolution = resolveBirthPlace(source.place)'), 'the default is applied before resolution so the default itself passes the gate');
+assert.match(html, /if \(!source\.place\) \{ source\.place = DEFAULT_BIRTH_PLACE; source\.placeCode = DEFAULT_BIRTH_PLACE_CODE; source\.placeDefaulted = true; \}/, 'a completely blank place falls back to the Seoul default and its fixed code');
+assert.match(html, /const placeResolution = source\.placeDefaulted\s*\?\s*\{ status: 'matched', name: source\.place, code: DEFAULT_BIRTH_PLACE_CODE \}/, 'the Seoul default resolves without waiting for the optional place catalog');
+assert.match(html, /if \(!unknownTime && !enteredTime\) throw new Error\('출생 시각을 입력하거나/, 'an empty known-time field is rejected instead of silently substituted with noon');
 assert.match(html, /placeResolution\.status === 'ambiguous'/, 'ambiguous place names still fail closed');
 assert.match(html, /placeResolution\.status !== 'matched'/, 'unmatched place names still fail closed');
 assert.match(html, /내 명식은 본인 정보로 확인해 주세요\./, 'the self-attestation gate text is unchanged');

@@ -156,6 +156,7 @@ const atResult = (s) => /근거|명식|카드|나란히/.test(s.heading) || s.ha
   const page = await newPage();
   await gotoHome(page);
   await enterSingleInput(page);
+  await page.fill('#self-date', '1990-10-10');
   await page.click('details[data-optional-owner="self"] summary').catch(() => {});
   await page.waitForTimeout(200);
   await page.check('#self-unknown-time').catch(async () => {
@@ -180,6 +181,7 @@ const atResult = (s) => /근거|명식|카드|나란히/.test(s.heading) || s.ha
   await page.fill('input[name="selfLunarYear"]', '1990');
   await page.fill('input[name="selfLunarMonth"]', '9');
   await page.fill('input[name="selfLunarDay"]', '14');
+  await page.fill('#self-time', '12:00');
   const state = await submitAndRead(page, { waitMs: 4500 });
   record('S7 단일 음력 변환', atResult(state) && !state.error, JSON.stringify(state));
   await page.close();
@@ -214,6 +216,15 @@ const atResult = (s) => /근거|명식|카드|나란히/.test(s.heading) || s.ha
   const page = await newPage();
   await gotoHome(page);
   await enterCoupleInput(page);
+  const initialValues = await page.evaluate(() => ['#self-date', '#self-time', '#partner-date', '#partner-time'].map((selector) => document.querySelector(selector)?.value ?? null));
+  record('S10 입력 폼에 예시 생년월일·시각 미리 채우지 않음', initialValues.every((value) => value === ''), JSON.stringify(initialValues));
+  await page.fill('#self-date', '1990-10-10');
+  await page.fill('#self-time', '14:30');
+  await page.fill('#partner-date', '1992-02-14');
+  await page.fill('#partner-time', '09:00');
+  await page.waitForFunction(() => document.querySelector('#self-time')?.value === '14:30' && document.querySelector('#partner-time')?.value === '09:00');
+  const entered = await page.evaluate(() => ({ selfDate: document.querySelector('#self-date')?.value, selfTime: document.querySelector('#self-time')?.value, partnerDate: document.querySelector('#partner-date')?.value, partnerTime: document.querySelector('#partner-time')?.value, selfUnknown: document.querySelector('#self-unknown-time')?.checked, partnerUnknown: document.querySelector('#partner-unknown-time')?.checked }));
+  record('S10 양쪽 날짜·시각 명시 입력 확인', entered.selfDate === '1990-10-10' && entered.selfTime === '14:30' && entered.partnerDate === '1992-02-14' && entered.partnerTime === '09:00' && !entered.selfUnknown && !entered.partnerUnknown, JSON.stringify(entered));
   const state = await submitAndRead(page);
   const fourSystem = await page.evaluate(() => document.body.textContent.includes('미얀마 마하보테'));
   record('S10 커플(시각 입력)', atResult(state) && !state.error, JSON.stringify(state));
@@ -226,6 +237,9 @@ const atResult = (s) => /근거|명식|카드|나란히/.test(s.heading) || s.ha
   const page = await newPage();
   await gotoHome(page);
   await enterCoupleInput(page);
+  await page.fill('#self-date', '1990-10-10');
+  await page.fill('#self-time', '14:30');
+  await page.fill('#partner-date', '1992-02-14');
   await page.click('details[data-optional-owner="partner"] summary').catch(() => {});
   await page.waitForTimeout(200);
   await page.check('#partner-unknown-time').catch(async () => {
@@ -233,6 +247,9 @@ const atResult = (s) => /근거|명식|카드|나란히/.test(s.heading) || s.ha
     await page.waitForTimeout(200);
     await page.check('#partner-unknown-time');
   });
+  await page.waitForFunction(() => document.querySelector('#self-date')?.value === '1990-10-10' && document.querySelector('#self-time')?.value === '14:30' && document.querySelector('#partner-date')?.value === '1992-02-14' && document.querySelector('#partner-unknown-time')?.checked);
+  const entered = await page.evaluate(() => [...new FormData(document.querySelector('#birth-form')).entries()]);
+  record('S11 상대 시각 미상 입력 상태 유지', entered.some(([key, value]) => key === 'selfDate' && value === '1990-10-10') && entered.some(([key, value]) => key === 'partnerDate' && value === '1992-02-14') && entered.some(([key, value]) => key === 'partnerUnknownTime'), JSON.stringify(entered));
   const state = await submitAndRead(page);
   const notice = await page.evaluate(() => [...document.querySelectorAll('.notice.amber h3')].some((h) => h.textContent.includes('4전통')));
   record('S11 커플(상대 미상)', atResult(state) && !state.error, JSON.stringify(state));
@@ -245,6 +262,9 @@ const atResult = (s) => /근거|명식|카드|나란히/.test(s.heading) || s.ha
   const page = await newPage();
   await gotoHome(page);
   await enterCoupleInput(page);
+  await page.fill('#self-date', '1990-10-10');
+  await page.fill('#partner-date', '1992-02-14');
+  await page.fill('#partner-time', '09:00');
   await page.check('#self-unknown-time').catch(async () => {
     await page.click('details[data-optional-owner="self"] summary').catch(() => {});
     await page.waitForTimeout(200);
@@ -260,6 +280,10 @@ const atResult = (s) => /근거|명식|카드|나란히/.test(s.heading) || s.ha
   const page = await newPage();
   await gotoHome(page);
   await enterCoupleInput(page);
+  await page.fill('#self-date', '1990-10-10');
+  await page.fill('#self-time', '14:30');
+  await page.fill('#partner-date', '1992-02-14');
+  await page.fill('#partner-time', '09:00');
   await page.click('details[data-optional-owner="self"] summary').catch(() => {});
   await page.waitForTimeout(150);
   const selfSex = await page.$('#self-sex');
@@ -268,6 +292,8 @@ const atResult = (s) => /근거|명식|카드|나란히/.test(s.heading) || s.ha
   await page.waitForTimeout(150);
   const partnerSex = await page.$('#partner-sex');
   if (partnerSex) await partnerSex.selectOption('female');
+  const entered = await page.evaluate(() => [...new FormData(document.querySelector('#birth-form')).entries()]);
+  record('S13 날짜·시각·성별 FormData 유지', entered.some(([key, value]) => key === 'selfDate' && value === '1990-10-10') && entered.some(([key, value]) => key === 'selfTime' && value === '14:30') && entered.some(([key, value]) => key === 'partnerDate' && value === '1992-02-14') && entered.some(([key, value]) => key === 'partnerTime' && value === '09:00') && entered.some(([key, value]) => key === 'selfSex' && value === 'male') && entered.some(([key, value]) => key === 'partnerSex' && value === 'female'), JSON.stringify(entered));
   const state = await submitAndRead(page, { waitMs: 4000 });
   record('S13 커플(성별값 입력)', atResult(state) && !state.error, JSON.stringify(state));
   await page.close();
@@ -320,6 +346,7 @@ const atResult = (s) => /근거|명식|카드|나란히/.test(s.heading) || s.ha
   const page = await newPage();
   await gotoHome(page);
   await enterSingleInput(page);
+  await page.fill('#self-time', '12:00');
   await page.evaluate(() => { document.querySelector('#self-date').value = '2999-01-01'; });
   const state = await submitAndRead(page, { waitMs: 2000 });
   record('S16 미래 날짜 에러 표시', Boolean(state.error) && state.heading.includes('출생'), JSON.stringify(state));
@@ -346,15 +373,77 @@ const atResult = (s) => /근거|명식|카드|나란히/.test(s.heading) || s.ha
   await page.close();
 }
 
-// S18: 모바일 탭 제출 (모바일 모드에서만)
+// S18: 사용자 검산 프로필 — 같은 공통 기둥으로 비교하고 교차 지지 표식을 표시.
+{
+  const page = await newPage();
+  await gotoHome(page);
+  await enterCoupleInput(page);
+  await page.fill('#self-date', '1983-06-20');
+  await page.fill('#self-time', '19:30');
+  await page.fill('#partner-date', '1994-05-14');
+  await page.check('#partner-unknown-time');
+  const timePolicyCopy = await page.textContent('#self-place-help');
+  const state = await submitAndRead(page, { waitMs: 3500 });
+  const facts = await page.evaluate(() => {
+    const pillarGroups = [...document.querySelectorAll('.couple-chart-pair .chart-aperture')].map((section) => [...section.querySelectorAll('.pillar strong')].map((node) => node.textContent.trim()));
+    const text = document.body.textContent;
+    return {
+      pillarGroups,
+      hasCommonThreePillarBasis: text.includes('공통 년주·월주·일주 기둥'),
+      excludesHiddenStemsFromCount: text.includes('지장간은 오행 개수에서 제외'),
+      visibleCrossMarkers: ['子午', '巳亥', '子卯', '卯戌'].filter((marker) => text.includes(marker)),
+    };
+  });
+  record('S18 검산 명식 결과 표시', atResult(state) && !state.error, JSON.stringify(state));
+  const pillarsMatch = JSON.stringify(facts.pillarGroups) === JSON.stringify([['甲戌', '己卯', '戊午', '癸亥'], ['미상', '庚子', '己巳', '甲戌']]);
+  record('S18 제공된 두 날짜의 4주 검산', pillarsMatch, JSON.stringify(facts.pillarGroups));
+  record('S18 공통 3주 집계·지장간 기준 명시', facts.hasCommonThreePillarBasis && facts.excludesHiddenStemsFromCount, JSON.stringify(facts));
+  record('S18 법정 민간시/보정 기준 고지', /Asia\/Seoul.*경도.*태양시 보정은 하지 않습니다/.test(timePolicyCopy || ''), timePolicyCopy || 'missing place help');
+  record('S18 교차 지지 표식 4종', facts.visibleCrossMarkers.length === 4, facts.visibleCrossMarkers.join(' · '));
+
+  const readEvidence = async (readingIndex, factId) => {
+    const card = page.locator(`.reading-card[data-reading-key="couple-${readingIndex}"]`);
+    if (!(await card.evaluate((element) => element.open))) await card.locator('summary').click();
+    await card.locator(`[data-action="evidence"][data-fact="${factId}"]`).click();
+    await page.waitForTimeout(150);
+    return card.locator('.fact-detail').textContent();
+  };
+  const elementBasisDetail = await readEvidence(3, 'relationship.element.counts');
+  record('S18 오행 수치·지장간 제외 근거 열기', /내 명식 목1 · 화1 · 토2 · 금0 · 수2 \/ 상대 목1 · 화1 · 토2 · 금1 · 수1/.test(elementBasisDetail || ''), elementBasisDetail || 'missing detail');
+  const branchDetail = await readEvidence(3, 'relationship.branch.interactions');
+  record('S18 지지 교차 관계 근거 열기', ['子午', '巳亥', '子卯', '卯戌'].every((marker) => (branchDetail || '').includes(marker)), branchDetail || 'missing detail');
+  const hiddenStemDetail = await readEvidence(2, 'partner.hidden-stems');
+  record('S18 지장간 선택 규칙 고지', /월률분야/.test(hiddenStemDetail || '') && /子.*癸.*壬/.test(hiddenStemDetail || ''), hiddenStemDetail || 'missing detail');
+  await page.close();
+}
+
+// S19: 모바일 탭 제출 (모바일 모드에서만)
 if (mode === 'mobile') {
   const page = await newPage();
   await gotoHome(page);
   await enterCoupleInput(page);
+  await page.fill('#self-date', '1990-10-10');
+  await page.fill('#self-time', '14:30');
+  await page.fill('#partner-date', '1992-02-14');
+  await page.fill('#partner-time', '09:00');
   await page.tap('#birth-form button[type="submit"]').catch(async () => { await page.click('#birth-form button[type="submit"]'); });
   await page.waitForTimeout(3500);
   const state = await page.evaluate(() => ({ heading: document.querySelector('h1')?.textContent?.trim() || '', error: document.querySelector('.error')?.textContent?.trim() || null }));
-  record('S18 모바일 탭 제출', atResult(state) && !state.error, JSON.stringify(state));
+  record('S19 모바일 탭 제출', atResult(state) && !state.error, JSON.stringify(state));
+  await page.close();
+}
+
+// S20: 빈 출생 시각은 정오로 몰래 대체하지 않고 입력 오류로 안내.
+{
+  const page = await newPage();
+  await gotoHome(page);
+  await enterCoupleInput(page);
+  await page.fill('#self-date', '1990-10-10');
+  await page.fill('#self-time', '14:30');
+  await page.fill('#partner-date', '1992-02-14');
+  await page.fill('#partner-time', '');
+  const state = await submitAndRead(page, { waitMs: 1500 });
+  record('S20 빈 시각의 임의 정오 대체 방지', Boolean(state.error?.includes('출생 시각을 입력하거나')) && !state.heading.includes('나란히 확인'), JSON.stringify(state));
   await page.close();
 }
 

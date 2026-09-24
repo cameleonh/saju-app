@@ -690,7 +690,7 @@
       import { calculateMahabote, calculateMahaboteAnnual, calculateMahaboteDaily } from './chart/mahabote-engine.mjs';
       import { calculateHorasat, calculateHorasatAnnual, calculateHorasatDaily } from './chart/horasat-engine.mjs';
        import { TU_VI_POLICY, calculateTuVi, calculateTuViAnnual, calculateTuViDaily } from './chart/tu-vi-engine.mjs';
-      import { calculateFourSystemCompatibility } from './chart/couple-compatibility.mjs';
+      import { calculateFourSystemCompatibility, findCoupleBranchInteractions } from './chart/couple-compatibility.mjs';
       import { renderFourSystemCompatibility } from './web/couple-compatibility.mjs';
       import { deriveDestinedMatch } from './chart/destined-match.mjs';
       import { renderDestinedMatch, downloadMatchCardPng } from './web/destined-match.mjs';
@@ -719,6 +719,7 @@
         // 지장간 표 — 한국 만세력(월률분야) 통용안 기준, 본기→중기→여기 힘 순서.
         // 子는 壬(여기)·癸(본기) 병존, 巳는 丙(본기)·庚(중기)·戊(여기) 순서로 배정한다.
         const HIDDEN = { 子: ['癸', '壬'], 丑: ['己', '癸', '辛'], 寅: ['甲', '丙', '戊'], 卯: ['乙'], 辰: ['戊', '乙', '癸'], 巳: ['丙', '庚', '戊'], 午: ['丁', '己'], 未: ['己', '丁', '乙'], 申: ['庚', '壬', '戊'], 酉: ['辛'], 戌: ['戊', '辛', '丁'], 亥: ['壬', '甲'] };
+        const HIDDEN_STEM_POLICY_DESCRIPTION = '지장간은 한국 만세력 월률분야 기준으로 본기→중기→여기 순서로 표시합니다. 이 표는 子에 癸(본기)와 壬(여기)를 모두 두며, 子를 癸만으로 적는 표와는 선택이 다릅니다.';
         const EMPTY_BIRTH_PLACE_DATA = { version: '불러오기 전', counts: { administrative: 0, legal: 0, unique: 0 }, values: [] };
         let BIRTH_PLACE_DATA = EMPTY_BIRTH_PLACE_DATA;
         let ADMIN_AREA_DATA = BIRTH_PLACE_DATA;
@@ -806,9 +807,9 @@
           detailNotice: false,
           birthPlaceStatus: 'idle',
           birthPlaceError: '',
-          form: { calendar: 'solar', date: '1990-10-10', time: '14:30', lunarYear: '1990', lunarMonth: '9', lunarDay: '14', leapMonth: false, unknownTime: false, place: '', placeCode: '', sex: 'unset', samePerson: true, optionalOpen: false },
+          form: { calendar: 'solar', date: '', time: '', lunarYear: '', lunarMonth: '', lunarDay: '', leapMonth: false, unknownTime: false, place: '', placeCode: '', sex: 'unset', samePerson: true, optionalOpen: false },
           relationshipType: 'getting-to-know',
-          partnerForm: { calendar: 'solar', date: '1992-02-14', time: '09:00', lunarYear: '1992', lunarMonth: '1', lunarDay: '22', leapMonth: false, unknownTime: false, place: '', placeCode: '', sex: 'unset', authorityVerified: false, optionalOpen: false },
+          partnerForm: { calendar: 'solar', date: '', time: '', lunarYear: '', lunarMonth: '', lunarDay: '', leapMonth: false, unknownTime: false, place: '', placeCode: '', sex: 'unset', authorityVerified: false, optionalOpen: false },
           chart: null,
           sample: false,
           targetYear: Math.min(2026, Math.max(2024, new Date().getFullYear())),
@@ -1071,7 +1072,7 @@
             { id: 'day.element', label: '일간 오행', value: `${dayPillar.stem} · ${dayPillar.element}`, detail: `일간 ${dayPillar.stem}의 오행은 ${dayPillar.element}입니다.` },
             { id: 'balance.dominant', label: '가장 많은 기운', value: sortedElements[0][0], detail: `현재 구조에서 ${sortedElements[0][0]} 기운이 ${sortedElements[0][1]}개로 가장 많습니다.` },
             { id: 'ten-god.visible', label: '천간 십신', value: visibleTenGodSummary(pillars) || '시각 정보 제한', detail: `일간 ${dayPillar.stem}${objectParticle(dayPillar.stem)} 기준으로 겉에 드러난 천간의 관계를 계산했습니다. 십신은 성격 판정표가 아니라 관계와 역할을 읽는 전통 분류입니다.` },
-            { id: 'hidden-stems', label: '지장간', value: hiddenStemSummary(pillars) || '계산 제한', detail: '각 지지 안에 배속된 천간과 일간의 십신 관계입니다. 표면 행동과 늘 같다고 단정하지 않고, 반복되는 내적 동기와 비교합니다.' },
+            { id: 'hidden-stems', label: '지장간', value: hiddenStemSummary(pillars) || '계산 제한', detail: `${HIDDEN_STEM_POLICY_DESCRIPTION} 각 지지 안에 배속된 천간과 일간의 십신 관계입니다. 표면 행동과 늘 같다고 단정하지 않고, 반복되는 내적 동기와 비교합니다.` },
             ...(daewoon ? [{ id: 'cycles.daewoon', label: '대운', value: `${daewoon.cycles[0].pillar} (${daewoon.cycles[0].startAge}세~)`, detail: `${daewoon.direction === 'forward' ? '순행' : '역행'}, 시작 나이 ${daewoon.startAge}세. ${daewoon.policy.id} 정책으로 계산했습니다. 대운의 의미론적 해석은 지원하지 않습니다.` }] : [{ id: 'cycles.daewoon', label: '대운', value: '계산 입력 필요', detail: '정확한 출생 시각과 전통 계산용 성별값을 제공하면 계산합니다. 임의의 기본값으로 방향이나 시작 시점을 추정하지 않습니다.' }]),
             { id: 'input.policy', label: '계산 정책', value: core.policy.id, detail: '한국 법정 민간시와 분 단위 절기 경계를 동일한 실제 시각축에서 비교하며, 자정 일주와 2시간 시주를 사용하는 결정론적 정책입니다.' },
           ];
@@ -1121,34 +1122,66 @@
           const partnerDay = partner.pillars.find((item) => item.label === '일주');
           const selfMonth = self.pillars.find((item) => item.label === '월주');
           const partnerMonth = partner.pillars.find((item) => item.label === '월주');
-          const shared = Object.entries(self.elementCounts).filter(([key, value]) => value > 0 && partner.elementCounts[key] > 0).map(([key]) => key);
-          const gap = Object.entries(self.elementCounts).map(([key, value]) => [key, Math.abs(value - partner.elementCounts[key])]).sort((a, b) => b[1] - a[1])[0];
+          const commonPillars = self.pillars.map((selfPillar, index) => ({ self: selfPillar, partner: partner.pillars[index] }))
+            .filter(({ self: selfPillar, partner: partnerPillar }) => selfPillar?.element && selfPillar?.branchElement && partnerPillar?.element && partnerPillar?.branchElement);
+          const commonPillarLabels = commonPillars.map(({ self: selfPillar }) => selfPillar.label);
+          const countCommonVisibleElements = (personKey) => {
+            const counts = Object.fromEntries(Object.keys(self.elementCounts).map((key) => [key, 0]));
+            commonPillars.forEach((pair) => {
+              const pillar = pair[personKey];
+              counts[pillar.element] += 1;
+              counts[pillar.branchElement] += 1;
+            });
+            return counts;
+          };
+          const selfComparisonCounts = countCommonVisibleElements('self');
+          const partnerComparisonCounts = countCommonVisibleElements('partner');
+          const elementCounts = Object.fromEntries(Object.keys(self.elementCounts).map((key) => [key, selfComparisonCounts[key] + partnerComparisonCounts[key]]));
+          const shared = Object.keys(selfComparisonCounts).filter((key) => selfComparisonCounts[key] > 0 && partnerComparisonCounts[key] > 0);
+          const elementGaps = Object.keys(selfComparisonCounts).map((key) => [key, Math.abs(selfComparisonCounts[key] - partnerComparisonCounts[key])]);
+          const maxElementGap = Math.max(...elementGaps.map(([, count]) => count));
+          const gap = maxElementGap > 0 ? { elements: elementGaps.filter(([, count]) => count === maxElementGap).map(([key]) => key), count: maxElementGap } : null;
+          const branchInteractions = findCoupleBranchInteractions(self.pillars, partner.pillars);
+          const branchInteractionSummary = branchInteractions.map((interaction) => interaction.type === '삼합'
+            ? `삼합(${interaction.branches})`
+            : `${interaction.pillarA} ${interaction.branchA}·${interaction.pillarB} ${interaction.branchB} ${interaction.type}(${interaction.branches})`).join(' · ');
+          const formatElementCounts = (counts) => Object.entries(counts).map(([key, count]) => `${key}${count}`).join(' · ');
+          const elementCountBasis = `공통 ${commonPillarLabels.join('·')} 기둥의 천간·지지 겉글자를 각각 1개로 세며, 지장간은 오행 개수에서 제외합니다. 내 명식 ${formatElementCounts(selfComparisonCounts)} / 상대 ${formatElementCounts(partnerComparisonCounts)}.`;
+          const relationBasis = '입력된 지지만 교차 대조하며, 시주 미상은 자동으로 제외합니다. 충·형·합은 전통 표식이지 관계의 길흉 판정이 아닙니다.';
           const facts = [
             { id: 'self.day.element', label: '내 일간 오행', value: `${selfDay.stem} · ${selfDay.element}`, detail: `내 일간 ${selfDay.stem}${topicParticle(selfDay.stem)} ${selfDay.element} 오행으로 계산됩니다.` },
             { id: 'partner.day.element', label: '상대 일간 오행', value: `${partnerDay.stem} · ${partnerDay.element}`, detail: `상대 일간 ${partnerDay.stem}${topicParticle(partnerDay.stem)} ${partnerDay.element} 오행으로 계산됩니다.` },
             { id: 'self.ten-god.visible', label: '내 천간 십신', value: visibleTenGodSummary(self.pillars), detail: `내 일간 ${selfDay.stem}${objectParticle(selfDay.stem)} 기준으로 년·월·시 천간의 관계를 계산했습니다.` },
             { id: 'partner.ten-god.visible', label: '상대 천간 십신', value: visibleTenGodSummary(partner.pillars), detail: `상대 일간 ${partnerDay.stem}${objectParticle(partnerDay.stem)} 기준으로 년·월·시 천간의 관계를 계산했습니다.` },
-            { id: 'self.hidden-stems', label: '내 지장간', value: hiddenStemSummary(self.pillars), detail: '내 명식의 지지에 배속된 천간과 십신 관계입니다.' },
-            { id: 'partner.hidden-stems', label: '상대 지장간', value: hiddenStemSummary(partner.pillars), detail: '상대 명식의 지지에 배속된 천간과 십신 관계입니다.' },
-            { id: 'relationship.shared.element', label: '겹치는 오행', value: shared.length ? shared.join(' · ') : '없음', detail: shared.length ? `두 명식에 함께 나타나는 오행은 ${shared.join(', ')}입니다.` : '두 명식에 공통으로 나타나는 오행이 없습니다.' },
-            { id: 'relationship.balance.gap', label: '분포 차이가 큰 오행', value: gap ? `${gap[0]} · ${gap[1]}` : '계산 제한', detail: gap ? `${gap[0]} 오행의 분포 차이가 ${gap[1]}칸입니다. 우열이 아니라 서로 다른 반응의 단서로 봅니다.` : '분포 차이를 계산하지 못했습니다.' },
+            { id: 'self.hidden-stems', label: '내 지장간', value: hiddenStemSummary(self.pillars), detail: `${HIDDEN_STEM_POLICY_DESCRIPTION} 내 명식의 지지에 배속된 천간과 십신 관계입니다.` },
+            { id: 'partner.hidden-stems', label: '상대 지장간', value: hiddenStemSummary(partner.pillars), detail: `${HIDDEN_STEM_POLICY_DESCRIPTION} 상대 명식의 지지에 배속된 천간과 십신 관계입니다.` },
+            { id: 'relationship.element.counts', label: '오행 집계 기준', value: `공통 ${commonPillarLabels.join('·')} 기둥`, detail: elementCountBasis },
+            { id: 'relationship.shared.element', label: '겹치는 오행', value: shared.length ? shared.join(' · ') : '없음', detail: shared.length ? `${elementCountBasis} 이 기준에서 두 명식에 함께 나타나는 오행은 ${shared.join(', ')}입니다.` : `${elementCountBasis} 이 기준에서 두 명식에 공통으로 나타나는 오행이 없습니다.` },
+            { id: 'relationship.balance.gap', label: '분포 차이가 큰 오행', value: gap ? `${gap.elements.join(' · ')} · 각각 ${gap.count}칸` : '공통 기둥 분포 차이 없음', detail: gap ? `${elementCountBasis} 최대 차이는 ${gap.elements.join('·')} 오행의 각각 ${gap.count}칸이며, 공동 최대를 모두 표시합니다. 우열이 아니라 서로 다른 반응의 단서로 봅니다.` : `${elementCountBasis} 천간·지지 겉글자 개수에서 두 사람의 차이가 없습니다.` },
+            { id: 'relationship.branch.interactions', label: '지지 상호작용 표식', value: branchInteractionSummary || '표시된 표식 없음', detail: `${relationBasis}${branchInteractionSummary ? ` 확인된 교차 표식: ${branchInteractionSummary}.` : ' 등록한 충·형·육합·완전 삼합 표식이 없습니다. 표식이 없다는 뜻이 두 사람의 관계에 상호작용이 없다는 의미는 아닙니다.'}` },
             { id: 'relationship.type', label: '관계 상태', value: relationshipLabel(relationshipType), detail: '관계 상태는 결과의 질문과 설명 범위를 정하는 입력값입니다.' },
           ];
           const selfGuide = ELEMENT_GUIDE[selfDay.element];
           const partnerGuide = ELEMENT_GUIDE[partnerDay.element];
+          const gapReadingText = gap
+            ? `공통 ${commonPillarLabels.join('·')} 기둥의 겉글자 오행에서 ${gap.elements.join('·')} 분포 차이가 각각 ${gap.count}칸입니다. 이 차이는 우열이 아니라 서로 다른 반응을 확인할 단서입니다.`
+            : `공통 ${commonPillarLabels.join('·')} 기둥의 겉글자 오행 분포에는 두 사람 사이의 개수 차이가 없습니다.`;
+          const branchReadingText = branchInteractions.length
+            ? ` 지지에는 ${branchInteractionSummary} 표식도 함께 나타납니다.`
+            : ' 지지에서 표시 기준에 해당하는 교차 표식은 확인되지 않았습니다.';
           const reading = [
             {
               title: '함께 움직이는 방식', kind: '두 사람의 기본 흐름',
               text: relationText(self, partner),
-              detail: `내게는 ${selfDay.element}의 ${selfGuide.image}이 중심으로 보이고, 상대에게는 ${partnerDay.element}의 ${partnerGuide.image}이 중심으로 보입니다. 같은 목표를 두고도 한 사람은 먼저 시작하고, 다른 사람은 준비가 됐는지 살핀 뒤 움직일 수 있습니다. 빠르고 느림으로 우열을 가르지는 마세요.`,
+              detail: `내게는 ${selfDay.element}의 ${selfGuide.image}이 중심으로 보이고, 상대에게는 ${partnerDay.element}의 ${partnerGuide.image}이 중심으로 보입니다. 같은 목표를 두고도 한 사람은 먼저 시작하고, 다른 사람은 준비가 됐는지 살핀 뒤 움직일 수 있습니다. 이는 명식만으로 실제 행동을 확정하는 예측이 아니라 서로의 경험과 대조해 볼 대화 가설입니다. 빠르고 느림으로 우열을 가르지는 마세요.`,
               practice: '약속을 잡을 때 날짜만 정하지 말고, 무엇이 준비되면 시작할 수 있는지도 서로 말해보세요.',
               questions: ['나는 지금 빠른 진행이 필요한가요, 마음의 확신이 필요한가요?', '상대가 편하게 움직이려면 무엇이 준비돼야 하나요?'],
               evidence: ['self.day.element', 'partner.day.element'],
             },
             {
               title: '역할을 주고받는 언어', kind: '서로 맡는 역할',
-              text: `월주를 보면 나는 ${selfMonth.tenGod}, 상대는 ${partnerMonth.tenGod}으로 계산됩니다.`,
-              detail: `나의 ${selfMonth.tenGod}${topicParticle(selfMonth.tenGod)} ${TEN_GOD_GUIDE[selfMonth.tenGod]}${objectParticle(TEN_GOD_GUIDE[selfMonth.tenGod])}, 상대의 ${partnerMonth.tenGod}${topicParticle(partnerMonth.tenGod)} ${TEN_GOD_GUIDE[partnerMonth.tenGod]}${objectParticle(TEN_GOD_GUIDE[partnerMonth.tenGod])} 살펴보게 합니다. 이 설명으로 한 사람의 역할을 고정하지는 않습니다. 부탁과 책임을 나눌 때 서로 같은 뜻으로 말하고 있는지 확인하는 데 써보세요.`,
+              text: `내 월간 ${selfMonth.stem}은 일간 기준 ${selfMonth.tenGod}, 상대 월간 ${partnerMonth.stem}은 ${partnerMonth.tenGod}으로 계산됩니다.`,
+              detail: `월간 ${selfMonth.stem}·${selfMonth.tenGod}은 ${TEN_GOD_GUIDE[selfMonth.tenGod]}${objectParticle(TEN_GOD_GUIDE[selfMonth.tenGod])}의 관계, 상대 월간 ${partnerMonth.stem}·${partnerMonth.tenGod}은 ${TEN_GOD_GUIDE[partnerMonth.tenGod]}${objectParticle(TEN_GOD_GUIDE[partnerMonth.tenGod])}의 관계를 나타냅니다. 이는 성별에 따른 남편·아내 역할을 뜻하지 않으며 한 사람의 역할을 고정하지도 않습니다. 부탁과 책임을 나눌 때 서로 같은 뜻으로 말하고 있는지 확인하는 데 써보세요.`,
               practice: '함께할 일 하나를 고르세요. 누가 시작하고, 누가 확인하고, 누가 마무리하는지 실제 순서만 적어보세요.',
               questions: ['나는 상대가 당연히 맡아야 한다고 생각하는 일이 있나요?', '상대가 편하게 맡는 일과 부담스러워하는 일은 무엇인가요?'],
               evidence: ['self.ten-god.visible', 'partner.ten-god.visible'],
@@ -1163,11 +1196,11 @@
             },
             {
               title: '엇갈리기 쉬운 지점', kind: '반응의 차이',
-              text: gap ? `${gap[0]} 기운의 분포가 두 사람 사이에서 ${gap[1]}칸 차이 납니다. 같은 약속도 서로 다르게 받아들일 수 있는 부분입니다.` : '현재 입력만으로는 두 사람의 오행 차이를 충분히 확인하기 어렵습니다.',
-              detail: gap ? `이 차이는 누가 더 낫다는 뜻이 아닙니다. ${gap[0]}${connectiveParticle(gap[0])} 관련된 행동이 한 사람에게는 자연스럽고 다른 사람에게는 힘들 수 있다는 정도로 읽으세요. 먼저 실제로 무슨 일이 있었는지 확인하고, 부탁의 크기를 조절하는 편이 좋습니다.` : '억지로 차이를 만들어 해석하지 않습니다. 실제로 자주 되풀이되는 일을 놓고 다시 이야기해보세요.',
+              text: `${gapReadingText}${branchReadingText}`,
+              detail: `${elementCountBasis} 지장간은 이 단순 개수 비교에 넣지 않았습니다. 지지 표식은 전통적 관계 조합을 나열한 것이며 실제 행동이나 관계 결과를 단정하지 않습니다. 먼저 실제로 무슨 일이 있었는지 확인하고, 부탁의 크기를 조절하는 편이 좋습니다.`,
               practice: '서로 다르게 반응했던 일을 하나 고르세요. 실제로 본 것과 내가 짐작한 뜻을 따로 적어보세요.',
               questions: ['이 차이를 성격 탓이 아니라 상황의 차이로 설명할 수 있나요?', '서로 양보하기 전에 바꿔볼 수 있는 조건은 무엇인가요?'],
-              evidence: ['relationship.balance.gap'],
+              evidence: ['relationship.element.counts', 'relationship.balance.gap', 'relationship.branch.interactions'],
             },
             {
               title: '대화의 단서', kind: relationshipLabel(relationshipType),
@@ -1179,11 +1212,11 @@
             },
             {
               title: '두 사람의 오행 합산', kind: '함께 쓰는 힘',
-              text: `두 명식에 함께 보이는 기운은 ${shared.length ? shared.join('·') : '없음'}입니다. 공통점은 둘이 편하게 함께할 수 있는 방식으로, 차이는 역할을 나눌 때 확인할 점으로 볼 수 있습니다.`,
-              detail: shared.length ? `${shared.join('·')} 기운이 함께 보인다고 늘 같은 생각을 하는 것은 아닙니다. 다만 두 사람이 이미 익숙하게 잘하는 방식이 무엇인지 찾는 출발점은 될 수 있습니다.` : '겹치는 기운이 없다고 두 사람 사이에 연결이 없다는 뜻은 아닙니다. 서로 다른 방식을 이해할 수 있도록 말과 시간을 더 충분히 나누면 됩니다.',
+              text: `공통 ${commonPillarLabels.join('·')} 기둥의 겉글자를 합산하면 함께 보이는 오행은 ${shared.length ? shared.join('·') : '없음'}입니다. 이 집계는 지장간을 제외합니다.`,
+              detail: shared.length ? `${elementCountBasis} ${shared.join('·')} 기운이 함께 보인다고 늘 같은 생각을 하는 것은 아닙니다. 실제로 편하게 함께하는 방식이 무엇인지 대화하는 출발점으로만 사용하세요.` : `${elementCountBasis} 겹치는 겉글자 오행이 없다고 두 사람 사이에 연결이 없다는 뜻은 아닙니다.`,
               practice: '함께할 일 하나를 정하고 누가 시작하고, 정리하고, 확인할지 먼저 나눠보세요.',
               questions: ['둘이 힘들이지 않고도 잘 맞추는 일은 무엇인가요?', '서로 다른 방식을 설명할 때 함께 쓸 말은 무엇인가요?'],
-              evidence: ['relationship.shared.element'],
+              evidence: ['relationship.element.counts', 'relationship.shared.element'],
             },
             {
               title: '다음 질문', kind: '읽기를 마치며',
@@ -1194,8 +1227,7 @@
               evidence: ['self.day.element', 'partner.day.element'],
             },
           ];
-          const elementCounts = Object.fromEntries(Object.keys(self.elementCounts).map((key) => [key, self.elementCounts[key] + partner.elementCounts[key]]));
-          return { mode: 'couple', relationshipType, input, partnerInput, self, partner, pillars: self.pillars, facts, elementCounts, sortedElements: Object.entries(elementCounts).sort((a, b) => b[1] - a[1]), warnings: [...self.warnings, ...partner.warnings], reading, policy: self.policy, createdAt: new Date().toISOString() };
+          return { mode: 'couple', relationshipType, input, partnerInput, self, partner, pillars: self.pillars, facts, elementCounts, elementComparison: { pillarLabels: commonPillarLabels, basis: 'visible-stems-and-branches', hiddenStemsIncluded: false, self: selfComparisonCounts, partner: partnerComparisonCounts }, branchInteractions, sortedElements: Object.entries(elementCounts).sort((a, b) => b[1] - a[1]), warnings: [...self.warnings, ...partner.warnings], reading, policy: self.policy, createdAt: new Date().toISOString() };
         }
         function buildReflectionAnswer(question, chart) {
           const query = String(question || '').trim();
@@ -1252,6 +1284,8 @@
         function shell(content) {
           content = content.replace('음력은 1900~2100년을 지원합니다.', '음력은 1900년 1월 1일~2050년 11월 18일까지 지원합니다.');
           content = content.replace('성인 본인의 생년월일, 출생 시각, 출생지와 계산 결과만 암호화 저장합니다.', '성인 본인의 생년월일, 출생 시각, 출생지, 직접 선택한 전통 계산용 성별값과 계산 결과를 암호화 저장합니다.');
+          content = content.replaceAll('통용 만세력 관행에 따라 동경 127.5도(−30분) 경도보정을 적용합니다.', '한국 법정 민간시(Asia/Seoul)로 계산하며 출생지별 경도·평균태양시·진태양시 보정은 적용하지 않습니다.');
+          content = content.replaceAll('공식 절기 고정값으로 검증된 정책에 통용 만세력 관행의 동경 127.5도(−30분) 경도보정을 적용합니다.', '공식 절기 고정값을 사용합니다. 한국 사주 출생 시각은 Asia/Seoul 법정 민간시로 해석하며 경도·평균태양시·진태양시 보정은 적용하지 않습니다.');
           return `<header class="topbar"><div class="topbar-inner"><a class="brand" href="#" data-action="home"><span class="brand-mark">${icon('moon')}</span><span class="brand-copy">결<small>달빛 명식 작업대</small></span></a><nav class="topnav" aria-label="주요 메뉴"><button data-action="nav-method" aria-current="${state.screen === 'method' ? 'page' : 'false'}">계산 원칙</button><button data-action="nav-data" aria-current="${state.screen === 'data' ? 'page' : 'false'}">데이터 안내</button><button data-action="nav-home" aria-current="${state.screen === 'intro' ? 'page' : 'false'}">새로 시작</button>${state.account.available ? `<button data-action="${state.account.authenticated ? 'account-logout' : 'account-login'}">${state.account.loading ? '계정 확인 중' : state.account.authenticated ? '로그아웃' : '로그인'}</button>` : ''}</nav></div></header><main class="container">${content}</main><footer class="site-footer"><span>© 2026 결 · 사주 해석은 참고 자료입니다.</span><a href="/privacy.html">개인정보 처리방침</a><a href="/terms.html">이용약관</a><a href="/copyright.html">저작권 안내</a><span class="canary" aria-hidden="true">cg-saju-joseon-8b6c2e41</span></footer><nav class="mobile-nav" aria-label="모바일 메뉴"><button data-action="nav-home" aria-current="${state.screen === 'intro' ? 'page' : 'false'}">시작</button><button data-action="nav-method" aria-current="${state.screen === 'method' ? 'page' : 'false'}">원칙</button><button data-action="nav-data" aria-current="${state.screen === 'data' ? 'page' : 'false'}">기록</button></nav>`;
         }
 
@@ -1317,7 +1351,11 @@
         function coupleResultView() {
           const chart = state.chart;
           const max = Math.max(...Object.values(chart.elementCounts), 1);
-          const bars = Object.entries(chart.elementCounts).map(([key, value]) => `<div><div class="bar-head"><span>${ELEMENT_LABELS[key]}</span><strong class="mono">${value}</strong></div><div class="bar-track"><div class="bar-fill ${({목:'wood',화:'fire',토:'earth',금:'metal',수:'water'})[key]}" style="width:${Math.max(8, (value / max) * 100)}%"></div></div></div>`).join('');
+          const comparisonPillarLabel = chart.elementComparison?.pillarLabels?.map(escapeHtml).join('·');
+          const comparisonBasisNote = comparisonPillarLabel
+            ? `공통 ${comparisonPillarLabel} 기둥의 겉 천간·지지 합산 · 지장간 제외`
+            : '이전 저장 기록: 저장된 오행 합산 기준을 사용합니다';
+          const bars = `${Object.entries(chart.elementCounts).map(([key, value]) => `<div><div class="bar-head"><span>${ELEMENT_LABELS[key]}</span><strong class="mono">${value}</strong></div><div class="bar-track"><div class="bar-fill ${({목:'wood',화:'fire',토:'earth',금:'metal',수:'water'})[key]}" style="width:${Math.max(8, (value / max) * 100)}%"></div></div></div>`).join('')}<p class="tiny">${comparisonBasisNote}</p>`;
           const reading = readingMarkup(chart.reading);
           const messages = state.messages.map((message) => `<div class="bubble ${message.role === 'user' ? 'user' : ''}">${escapeHtml(message.text)}</div>`).join('');
           const sheet = (label, input, data) => `<section class="aperture chart-aperture" aria-label="${label} 명식"><div class="aperture-top"><div><span class="pair-label ${label === '상대' ? 'partner' : ''}">${label} 명식</span><h2 class="aperture-title">${formatKoreanDate(input.date)}</h2></div><span class="aperture-meta mono">${chart.policy.id}</span></div><div class="pillar-row">${pillarMarkup(data.pillars)}</div><dl class="method-details"><div><dt>출생지</dt><dd>${escapeHtml(input.place)}${input.sourceInput?.placeDefaulted ? ' · 기본값(서울)' : ''} · Asia/Seoul</dd></div><div><dt>입력 상태</dt><dd>${input.unknownTime ? '시각 미상' : escapeHtml(input.time)}</dd></div></dl></section>`;
@@ -1390,7 +1428,8 @@
           const chart = state.chart;
           if (chart?.mode === 'couple') return coupleResultView();
           const max = Math.max(...Object.values(chart.elementCounts), 1);
-          const bars = Object.entries(chart.elementCounts).map(([key, value]) => `<div><div class="bar-head"><span>${ELEMENT_LABELS[key]}</span><strong class="mono">${value}</strong></div><div class="bar-track"><div class="bar-fill ${({목:'wood',화:'fire',토:'earth',금:'metal',수:'water'})[key]}" style="width:${Math.max(8, (value / max) * 100)}%"></div></div></div>`).join('');
+          const countedPillarLabels = chart.pillars.filter((pillar) => pillar.element && pillar.branchElement).map((pillar) => escapeHtml(pillar.label)).join('·');
+          const bars = `${Object.entries(chart.elementCounts).map(([key, value]) => `<div><div class="bar-head"><span>${ELEMENT_LABELS[key]}</span><strong class="mono">${value}</strong></div><div class="bar-track"><div class="bar-fill ${({목:'wood',화:'fire',토:'earth',금:'metal',수:'water'})[key]}" style="width:${Math.max(8, (value / max) * 100)}%"></div></div></div>`).join('')}<p class="tiny">${countedPillarLabels} 기둥의 겉 천간·지지 기준 · 지장간 제외</p>`;
           const reading = readingMarkup(chart.reading);
           // 패널 존재 가드: 승인 챕터가 없으면(선택 실패·모두 초안) 명식 읽기 패널을 통째로 숨긴다.
           const readingPanel = Array.isArray(chart.reading) && chart.reading.length
@@ -1541,7 +1580,7 @@
               return;
             }
             input.disabled = false;
-            if (helper) helper.textContent = `동네 이름을 입력하면 아래에 지역 목록이 나옵니다. 시·군·구를 확인해 골라 주세요. 비워 두면 서울 기준으로 계산해요. 행정안전부 ${BIRTH_PLACE_DATA.version} 기준 ${areaCount}곳입니다.`;
+            if (helper) helper.textContent = `동네 이름을 입력하면 아래에 지역 목록이 나옵니다. 시·군·구를 확인해 골라 주세요. 비워 두면 서울 기준으로 계산해요. 출생 시각은 한국 법정 민간시(Asia/Seoul)를 사용하며 경도·평균태양시·진태양시 보정은 하지 않습니다. 행정안전부 ${BIRTH_PLACE_DATA.version} 기준 ${areaCount}곳입니다.`;
             updateBirthPlaceSuggestions(input);
           });
         }
@@ -1550,9 +1589,9 @@
           ['self', 'partner'].forEach((prefix) => {
             const target = prefix === 'partner' ? state.partnerForm : state.form;
             const dateInput = document.getElementById(`${prefix}-date`);
-            if (dateInput && dateInput.value) target.date = dateInput.value;
+            if (dateInput) target.date = dateInput.value;
             const timeInput = document.getElementById(`${prefix}-time`);
-            if (timeInput && timeInput.value) target.time = timeInput.value;
+            if (timeInput) target.time = timeInput.value;
             const unknownCheckbox = document.getElementById(`${prefix}-unknown-time`);
             if (unknownCheckbox) target.unknownTime = unknownCheckbox.checked;
             const placeInput = document.getElementById(`${prefix}-place`);
@@ -1560,11 +1599,11 @@
             const sexInput = document.getElementById(`${prefix}-sex`);
             if (sexInput) target.sex = ['male', 'female'].includes(sexInput.value) ? sexInput.value : 'unset';
             const lunarYear = document.querySelector(`input[name="${prefix}LunarYear"]`);
-            if (lunarYear && lunarYear.value) target.lunarYear = lunarYear.value;
+            if (lunarYear) target.lunarYear = lunarYear.value;
             const lunarMonth = document.querySelector(`input[name="${prefix}LunarMonth"]`);
-            if (lunarMonth && lunarMonth.value) target.lunarMonth = lunarMonth.value;
+            if (lunarMonth) target.lunarMonth = lunarMonth.value;
             const lunarDay = document.querySelector(`input[name="${prefix}LunarDay"]`);
-            if (lunarDay && lunarDay.value) target.lunarDay = lunarDay.value;
+            if (lunarDay) target.lunarDay = lunarDay.value;
             const leapMonth = document.getElementById(`${prefix}-leap-month`);
             if (leapMonth) target.leapMonth = leapMonth.checked;
           });
@@ -1726,8 +1765,8 @@
           render();
           moveToStage('input-title');
           catalogRequest.then(
-            () => { if (state.screen === 'input') { render(); moveToStage('input-title'); } },
-            () => { if (state.screen === 'input') { render(); moveToStage('input-title'); } },
+            () => { if (state.screen === 'input') { syncFormInputsToState(); render(); moveToStage('input-title'); } },
+            () => { if (state.screen === 'input') { syncFormInputsToState(); render(); moveToStage('input-title'); } },
           );
         }
 
@@ -1938,9 +1977,14 @@
         }
 
         async function resolveBirthInput(form, prefix, current) {
-          const source = { calendar: current.calendar, date: form.get(`${prefix}Date`) || null, time: form.get(`${prefix}Time`) || '12:00', unknownTime: form.get(`${prefix}UnknownTime`) === 'on', place: String(form.get(`${prefix}Place`) || '').trim(), sex: ['male', 'female'].includes(form.get(`${prefix}Sex`)) ? form.get(`${prefix}Sex`) : 'unset', lunarYear: form.get(`${prefix}LunarYear`), lunarMonth: form.get(`${prefix}LunarMonth`), lunarDay: form.get(`${prefix}LunarDay`), leapMonth: form.get(`${prefix}LeapMonth`) === 'on' };
-          if (!source.place) { source.place = DEFAULT_BIRTH_PLACE; source.placeDefaulted = true; }
-          const placeResolution = resolveBirthPlace(source.place);
+          const unknownTime = form.get(`${prefix}UnknownTime`) === 'on';
+          const enteredTime = String(form.get(`${prefix}Time`) || '').trim();
+          if (!unknownTime && !enteredTime) throw new Error('출생 시각을 입력하거나 “정확한 시각을 몰라요”를 선택해 주세요.');
+          const source = { calendar: current.calendar, date: form.get(`${prefix}Date`) || null, time: unknownTime ? '12:00' : enteredTime, unknownTime, place: String(form.get(`${prefix}Place`) || '').trim(), sex: ['male', 'female'].includes(form.get(`${prefix}Sex`)) ? form.get(`${prefix}Sex`) : 'unset', lunarYear: form.get(`${prefix}LunarYear`), lunarMonth: form.get(`${prefix}LunarMonth`), lunarDay: form.get(`${prefix}LunarDay`), leapMonth: form.get(`${prefix}LeapMonth`) === 'on' };
+          if (!source.place) { source.place = DEFAULT_BIRTH_PLACE; source.placeCode = DEFAULT_BIRTH_PLACE_CODE; source.placeDefaulted = true; }
+          const placeResolution = source.placeDefaulted
+            ? { status: 'matched', name: source.place, code: DEFAULT_BIRTH_PLACE_CODE }
+            : resolveBirthPlace(source.place);
           if (placeResolution.status === 'ambiguous') throw new Error('같은 동네 이름이 여러 지역에 있어요. 아래 검색 결과에서 시·군·구를 확인해 골라 주세요.');
           if (placeResolution.status !== 'matched') throw new Error('동네 이름을 입력한 뒤 아래 검색 결과에서 출생지를 골라 주세요.');
           source.place = placeResolution.name;
