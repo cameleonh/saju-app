@@ -29,24 +29,24 @@ const GENERATED_SOURCE = Object.freeze({
 
 export const NATAL_POLICY = Object.freeze({
   id: 'KR-CIVIL-1.0',
-  version: '1.1.0',
-  name: '한국 법정시 + 동경 127.5도 경도보정 정책',
-  source: 'KASI/KASA 검토 절기 고정값과 ShouXing 결정론적 절기 스냅샷; 출생시각은 통용 만세력 관행에 따라 동경 127.5도(UTC+8:30) 평균시로 보정',
+  version: '1.2.0',
+  name: '한국 법정 민간시 정책',
+  source: 'KASI/KASA 검토 절기 고정값과 ShouXing 결정론적 절기 스냅샷; 출생 일시와 절기 순간을 모두 Asia/Seoul 법정시의 동일한 UTC 시간축으로 비교',
   timezone: 'Asia/Seoul',
   timezoneRules: 'IANA tzdb Asia/Seoul 2026c snapshot',
   supportedSolarDates: Object.freeze(['1900-01-01', '2100-12-31']),
   yearBoundary: 'LI_CHUN',
   monthBoundaries: Object.freeze([...NATAL_TERM_KEYS]),
-  dayBoundary: 'solar-corrected-midnight (동경 127.5도 보정시계의 자정)',
-  ziHour: '23:00-00:59 (보정시계 기준)',
+  dayBoundary: 'civil-midnight (Asia/Seoul 법정 민간시 자정)',
+  ziHour: '23:00-00:59 (Asia/Seoul 법정 민간시 기준)',
   repeatedCivilTime: 'earlier-instant',
   nonexistentCivilTime: 'reject',
-  longitudeCorrection: '동경 127.5도(UTC+8:30) 출생시각 보정 — 절기 시각은 그대로',
-  solarTimeCorrection: 'mean-solar longitude only (균시차 미적용)',
-  unknownTime: 'suppress-hour-pillar',
+  longitudeCorrection: 'none (한국 출생지 경도 보정 미적용)',
+  solarTimeCorrection: 'none (평균태양시·진태양시 보정 미적용)',
+  unknownTime: 'suppress-hour-pillar; exact time required when a jie boundary falls on the birth civil date',
   daewoon: 'unsupported',
   engine: 'gyeol-natal-core',
-  engineVersion: '1.1.0',
+  engineVersion: '1.2.0',
 });
 
 const MONTH_INDEX_BY_TERM = Object.freeze({
@@ -172,22 +172,14 @@ function pad(value) {
   return String(value).padStart(2, '0');
 }
 
-// 통용 만세력 관행: 출생 벽시계를 동경 135도 법정시가 아니라 동경 127.5도(UTC+8:30) 평균시로 읽는다.
-// 절기 epoch는 그대로 두고 출생시각만 상대적으로 −30분 이동해 비교한다(서머타임 era는 해소 후 재표현이라 자동 반영).
-const SOLAR_STANDARD_OFFSET_MINUTES = 510;
-
-function solarCivilFromUtcMinute(utcMinute) {
-  const local = new Date((utcMinute + SOLAR_STANDARD_OFFSET_MINUTES) * 60_000);
-  return { year: local.getUTCFullYear(), month: local.getUTCMonth() + 1, day: local.getUTCDate(), hour: local.getUTCHours(), minute: local.getUTCMinutes() };
-}
-
-export function solarCorrectedClock(date, time) {
+export function seoulCivilClock(date, time) {
   const civil = resolveSeoulCivilTime(date, time);
-  const solar = solarCivilFromUtcMinute(civil.utcMinute);
   return {
-    date: `${solar.year}-${pad(solar.month)}-${pad(solar.day)}`,
-    time: `${pad(solar.hour)}:${pad(solar.minute)}`,
-    utcMinute: civil.utcMinute - 30,
+    date: `${civil.year}-${pad(civil.month)}-${pad(civil.day)}`,
+    time: `${pad(civil.hour)}:${pad(civil.minute)}`,
+    utcMinute: civil.utcMinute,
+    offsetSeconds: civil.offsetSeconds,
+    ambiguous: civil.ambiguous,
   };
 }
 
@@ -224,6 +216,12 @@ function pillar(stemIndex, branchIndex, label, source) {
   return { label, stem, branch, text: `${stem}${branch}`, element: ELEMENTS[stem], branchElement: ELEMENTS[branch], source };
 }
 
+export function calculateDayPillar(date) {
+  const { year, month, day } = parseDate(date);
+  const cycle = cycleIndex(year, month, day);
+  return pillar(cycle % 10, cycle % 12, '일주', 'Asia/Seoul civil date at midnight');
+}
+
 function unknownHourPillar() {
   return { label: '시주', stem: '?', branch: '?', text: '미상', element: null, branchElement: null, source: 'birth time unknown' };
 }
@@ -255,23 +253,31 @@ export function calculateNatalChart(input) {
   if (input.calendar && input.calendar !== 'solar') throw new Error('natal calculation requires a normalized solar input');
   const dateParts = parseDate(input.date);
   const civil = resolveSeoulCivilTime(input.date, input.unknownTime ? '12:00' : input.time);
-  const correctedMinute = civil.utcMinute - 30; // 동경 127.5도 보정 — 절기 epoch와의 상대 비교에 쓴다
-  const solar = solarCivilFromUtcMinute(civil.utcMinute);
+  const calculationMinute = civil.utcMinute;
+  const civilClock = { year: civil.year, month: civil.month, day: civil.day, hour: civil.hour, minute: civil.minute };
   const terms = surroundingTerms(dateParts.year);
-  const yearMonth = calculateYearMonthPillars(dateParts.year, correctedMinute, terms);
+  if (input.unknownTime) {
+    const nextDayProbe = new Date(Date.UTC(dateParts.year, dateParts.month - 1, dateParts.day + 1));
+    const nextDate = `${nextDayProbe.getUTCFullYear()}-${pad(nextDayProbe.getUTCMonth() + 1)}-${pad(nextDayProbe.getUTCDate())}`;
+    const startMinute = resolveSeoulCivilTime(input.date, '00:00').utcMinute;
+    const endMinute = resolveSeoulCivilTime(nextDate, '00:00').utcMinute;
+    const ambiguousTerm = terms.find(({ epochMinute }) => epochMinute >= startMinute && epochMinute < endMinute);
+    if (ambiguousTerm) throw new Error(`정확한 출생 시각이 필요합니다. ${ambiguousTerm.key} 절입이 생일 날짜 안에 있어 년주·월주가 달라질 수 있습니다.`);
+  }
+  const yearMonth = calculateYearMonthPillars(dateParts.year, calculationMinute, terms);
   const { currentTerm, ipchun, yearPillar, monthPillar } = yearMonth;
-  const nextTerm = terms.find(({ epochMinute }) => epochMinute > correctedMinute);
+  const nextTerm = terms.find(({ epochMinute }) => epochMinute > calculationMinute);
 
-  const dayCycle = cycleIndex(solar.year, solar.month, solar.day);
-  const dayPillar = pillar(dayCycle % 10, dayCycle % 12, '일주', 'solar-corrected date at corrected midnight');
+  const dayCycle = cycleIndex(civilClock.year, civilClock.month, civilClock.day);
+  const dayPillar = calculateDayPillar(`${civilClock.year}-${pad(civilClock.month)}-${pad(civilClock.day)}`);
   let hourPillar = unknownHourPillar();
   if (!input.unknownTime) {
-    const hourBranch = Math.floor(((solar.hour + 1) % 24) / 2);
+    const hourBranch = Math.floor(((civilClock.hour + 1) % 24) / 2);
     const hourStem = (HOUR_START_STEMS[dayCycle % 10] + hourBranch) % 10;
-    hourPillar = pillar(hourStem, hourBranch, '시주', 'two-hour solar-corrected interval');
+    hourPillar = pillar(hourStem, hourBranch, '시주', 'two-hour Asia/Seoul civil interval');
   }
 
-  const termDistances = [currentTerm, nextTerm].filter(Boolean).map((term) => ({ term, distance: Math.abs(term.epochMinute - correctedMinute) }));
+  const termDistances = [currentTerm, nextTerm].filter(Boolean).map((term) => ({ term, distance: Math.abs(term.epochMinute - calculationMinute) }));
   const nearest = termDistances.sort((left, right) => left.distance - right.distance)[0];
   const warnings = [];
   let boundarySensitivity = null;
@@ -285,7 +291,7 @@ export function calculateNatalChart(input) {
     };
     warnings.push({ title: '절기 경계에 가까워요', body: `${nearest.term.key} 직전에는 년주 ${boundarySensitivity.before.yearPillar}·월주 ${boundarySensitivity.before.monthPillar}, 경계부터는 년주 ${boundarySensitivity.after.yearPillar}·월주 ${boundarySensitivity.after.monthPillar}로 계산됩니다.`, fact: 'boundary.solar-term' });
   }
-  if (!input.unknownTime && (solar.hour === 23 || solar.hour === 0)) warnings.push({ title: '자시와 날짜 경계에 가까워요', body: '자시는 보정시계 23:00~00:59(동경 127.5도 기준 벽시계 22:30~00:29)이며, 일주는 보정시계의 자정에 바뀌는 정책입니다.', fact: 'boundary.day' });
+  if (!input.unknownTime && (civilClock.hour === 23 || civilClock.hour === 0)) warnings.push({ title: '자시와 날짜 경계에 가까워요', body: '자시는 한국 법정 민간시 23:00~00:59이며, 일주는 한국 법정 민간시 자정에 바뀌는 정책입니다.', fact: 'boundary.day' });
   if (input.unknownTime) warnings.push({ title: '출생 시각을 입력하지 않았어요', body: '시주와 시각에 의존하는 해석은 계산하지 않습니다.', fact: 'input.unknown-time' });
   if (civil.ambiguous) warnings.push({ title: '당시 시각이 두 번 존재했어요', body: '한국의 법정시 변경으로 같은 시각이 두 번 존재해 정책에 따라 먼저 발생한 시각을 사용했습니다.', fact: 'boundary.civil-time' });
 
@@ -295,10 +301,11 @@ export function calculateNatalChart(input) {
     pillars: [yearPillar, monthPillar, dayPillar, hourPillar],
     policy: NATAL_POLICY,
     solarTime: {
-      date: `${solar.year}-${pad(solar.month)}-${pad(solar.day)}`,
-      time: `${pad(solar.hour)}:${pad(solar.minute)}`,
-      offsetMinutes: SOLAR_STANDARD_OFFSET_MINUTES,
-      label: '동경 127.5도(UTC+8:30) 보정 출생시각',
+      date: `${civilClock.year}-${pad(civilClock.month)}-${pad(civilClock.day)}`,
+      time: `${pad(civilClock.hour)}:${pad(civilClock.minute)}`,
+      offsetMinutes: civil.offsetSeconds / 60,
+      offsetSeconds: civil.offsetSeconds,
+      label: 'Asia/Seoul 법정 민간시 (경도 보정 없음)',
     },
     boundaryFlags: {
       yearTerm: 'LI_CHUN',
@@ -318,7 +325,7 @@ export function calculateNatalChart(input) {
     },
     unsupportedStates: [
       { id: 'natal.daewoon', reason: 'direction and start-age policy is not approved' },
-      { id: 'natal.apparent-solar-correction', reason: '균시차(참태양시) 보정은 적용하지 않습니다. 동경 127.5도 평균시 보정만 사용합니다.' },
+      { id: 'natal.apparent-solar-correction', reason: '경도 보정과 균시차(참태양시) 보정을 모두 적용하지 않습니다.' },
     ],
     warnings,
   };

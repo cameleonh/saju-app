@@ -15,7 +15,7 @@ const { port } = server.address();
 const url = `http://127.0.0.1:${port}`;
 
 const receipt = (purpose, decision = 'accepted') => ({ receiptId: `${purpose}-receipt`, purpose, decision, disclosureVersion: 'v1', recordedAt: '2026-08-01T00:00:00Z' });
-const defaultBirthInput = { calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울특별시 강남구 역삼1동', placeCode: '1168064000', unknownTime: false };
+const defaultBirthInput = { calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울특별시 강남구 역삼1동', placeCode: '1168064000', unknownTime: false, sex: 'male' };
 const chartFor = (birthInput) => ({ ...calculateNatalChart(birthInput), facts: [{ id: 'day.element', value: '토' }], reading: [] });
 const chartWithDaewoonFor = (birthInput) => {
   const chart = chartFor(birthInput);
@@ -25,6 +25,7 @@ const chartWithDaewoonFor = (birthInput) => {
       date: birthInput.date,
       time: birthInput.unknownTime ? '12:00' : birthInput.time,
       unknownTime: birthInput.unknownTime,
+      sex: birthInput.sex,
       yearStem: chart.pillars[0].stem,
       monthStem: chart.pillars[1].stem,
       monthBranch: chart.pillars[1].branch,
@@ -66,13 +67,18 @@ assert.equal(health.headers.get('x-content-type-options'), 'nosniff');
 const lunarResponse = await fetch(`${url}/v1/calendar/convert`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ calendar: 'lunar', year: 2024, month: 1, day: 1, leapMonth: false, hour: 14, minute: 30 }) });
 assert.equal(lunarResponse.status, 200);
 assert.equal((await lunarResponse.json()).date, '2024-02-10');
+const koreanLeapMonthResponse = await fetch(`${url}/v1/calendar/convert`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ calendar: 'lunar', year: 2017, month: 5, day: 1, leapMonth: true }) });
+assert.equal(koreanLeapMonthResponse.status, 200);
+const koreanLeapMonth = await koreanLeapMonthResponse.json();
+assert.equal(koreanLeapMonth.date, '2017-06-24', 'the HTTP adapter uses the Korean leap fifth month, not the Chinese lunar sixth month');
+assert.equal(koreanLeapMonth.source.library, 'korean-lunar-calendar');
 const natalResponse = await fetch(`${url}/v1/natal-charts`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(defaultBirthInput) });
 assert.equal(natalResponse.status, 200);
 assert.deepEqual((await natalResponse.json()).pillars.map(({ text }) => text), ['庚午', '丙戌', '戊申', '己未']);
 const rejectedNatalResponse = await fetch(`${url}/v1/natal-charts`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...defaultBirthInput, date: '2024-02-30' }) });
 assert.equal(rejectedNatalResponse.status, 422);
 const rejectedNatalBody = await rejectedNatalResponse.json();
-assert.deepEqual(rejectedNatalBody.calculationPolicy, { id: 'KR-CIVIL-1.0', version: '1.1.0', engine: 'gyeol-natal-core', engineVersion: '1.1.0' });
+assert.deepEqual(rejectedNatalBody.calculationPolicy, { id: 'KR-CIVIL-1.0', version: '1.2.0', engine: 'gyeol-natal-core', engineVersion: '1.2.0' });
 assert.doesNotMatch(JSON.stringify(rejectedNatalBody), /1990-10-10|2024-02-30|역삼1동|1168064000/);
 const annualRequest = { targetYear: 2026, natal: { dayStem: '戊', monthBranch: '戌', branches: ['午', '戌', '申', '未'], unknownTime: false }, chartPolicy: calculateNatalChart(defaultBirthInput).policy };
 const annualResponse = await fetch(`${url}/v1/annual-readings`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(annualRequest) });
@@ -104,14 +110,14 @@ assert.equal((await training.json()).trainingEligible, true);
 const couple = await post(valid({
   relationshipMode: 'couple',
   partnerSubject: { relationship: 'partner', authorityVerified: true, minor: 'unknown' },
-  partnerBirthInput: { calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false },
-  chartResult: { mode: 'couple', self: chartFor(defaultBirthInput), partner: chartFor({ calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false }) },
+  partnerBirthInput: { calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false, sex: 'female' },
+  chartResult: { mode: 'couple', self: chartFor(defaultBirthInput), partner: chartFor({ calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false, sex: 'female' }) },
   partnerPurposeReceipts: [receipt('service_storage')],
 }));
 assert.equal(couple.status, 202);
 assert.equal((await couple.json()).trainingEligible, false);
 
-const partnerBirthInput = { calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false };
+const partnerBirthInput = { calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false, sex: 'female' };
 const partnerDaewoonChart = chartWithDaewoonFor(partnerBirthInput);
 const tamperedPartnerDaewoon = { ...partnerDaewoonChart, daewoon: { ...partnerDaewoonChart.daewoon, startAge: partnerDaewoonChart.daewoon.startAge + 1 } };
 const tamperedCouple = await post(valid({

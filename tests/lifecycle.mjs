@@ -126,7 +126,7 @@ const annualStorage = createAnnualStorage({ indexedDB: createFakeIndexedDB(), ou
 const annual = createAnnualReading({
   targetYear: 2026,
   natal: { dayStem: '戊', monthBranch: '戌', branches: ['午', '戌', '申', '未'], unknownTime: false },
-  chartPolicy: { id: 'KR-CIVIL-1.0', version: '1.0.0', engine: 'gyeol-natal-core', engineVersion: '1.0.0' },
+  chartPolicy: { id: 'KR-CIVIL-1.0', version: '1.2.0', engine: 'gyeol-natal-core', engineVersion: '1.2.0' },
 });
 const storedRecord = { id: 'annual-record', annual, chart: { policy: annual.chartPolicy }, training: true, purposeReceipts: [{ purpose: 'model_training', decision: 'accepted' }], createdAt: '2026-08-04T00:00:00Z', updatedAt: '2026-08-04T00:00:00Z' };
 await annualStorage.putPendingRecord(storedRecord, { annualResult: annual, purposeReceipts: storedRecord.purposeReceipts });

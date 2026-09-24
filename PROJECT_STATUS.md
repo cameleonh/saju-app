@@ -39,7 +39,8 @@ Keep the deterministic natal, annual, and daewoon Saju product available without
 
 ## Implemented
 
-- `KR-CIVIL-1.0`, `KR-ANNUAL-IPCHUN-1.1`, and `KR-DAEWOON-1.0` deterministic engines, server verification, PWA shell, local IndexedDB history, single/couple flows, lunar conversion, content-sized annual cards, privacy-safe 720×1080 annual-card PNG export, and the reviewed 1900–2100 boundary behavior.
+- `KR-CIVIL-1.0@1.2.0` uses exact Asia/Seoul civil instants without a birth-only longitude shift; `KR-DAEWOON-1.0@1.3.0` measures birth and Jie on the same time axis and clamps the start age at zero.
+- Scoped SEA birth calculations: Thai weekday + year-specific Lahiri Sun-rasi, Vietnamese Tử Vi with GMT+7 lunar conversion and sex-correct Đại/Tiểu Hạn, and source-verified Mahabote natal arithmetic. Unverified Mahabote annual/daily and Tử Vi daily forecasts are withheld; Thai annual outputs only transit facts.
 - Production runtime configuration that rejects SQLite and fails closed to local-only mode unless the complete PostgreSQL/KMS/Cognito configuration is present.
 - A real bounded-context PostgreSQL adapter against `ops`, `vault`, and `governance`, checksum-locked migrations, advisory locking, a non-owner runtime role, RLS, account-owned history/read/delete, and idempotent saves.
 - KMS envelope encryption for original and normalized birth input using AES-256-GCM data keys. Plaintext birth input, including nested daewoon input, is removed from chart JSON storage and reconstructed only after an authorized vault decrypt; email evidence uses a domain-separated keyed HMAC.
@@ -75,4 +76,4 @@ Until every gate in `docs/legal/LAUNCH-SIGNOFF.md` is complete, production stays
 ## Exact next actions
 
 1. For the existing production account path, the operator must register root MFA and complete the named-owner legal/security rows in `docs/legal/LAUNCH-SIGNOFF.md`. Only then may the root-managed production environments be installed and the final synthetic account lifecycle run; do not enable cloud save before those real approvals exist.
-2. For the four-tradition product path, approve the three draft policy decision records and their independent oracle fixture sets before implementing or advertising a completed Horasat, Tử Vi, or Mahabote result. The first code change should introduce the system registry and shared normalized birth-profile contract without altering the active `KR-CIVIL-1.0` result.
+2. Obtain domain review of the scoped Thai, Vietnamese, and Myanmar policy documents before expanding them into full traditional transit/Lagna/annual/daily interpretation systems.

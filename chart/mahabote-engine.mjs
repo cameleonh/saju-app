@@ -5,9 +5,11 @@
 
 export const MAHABOTE_POLICY = Object.freeze({
   id: 'MM-MAHABOTE-1.0',
-  version: '1.1.0',
-  name: '미얀마 마하보테 8요일 7하우스 (배치 산법 원전 확보·β)',
-  source: '미얀마력 환산(4/15 경계 ±638/639)·mod 7 나머지의 1하우스 행성 배정(1태양 2달 3화성 4수성 5목성 6금성 0토성)·마하보테 행성 순(태양-수성-토성-화성-금성-달-목성) 순행 채움·출생 요일 행성 하우스는 dirah.org 마하보테 레슨(2026-08-27 확보)의 산법을 따르며 예시 차트(1985-02-20)와 일치 검증. 연운 순환(하우스+나이%7)은 통용 해석(참고용)',
+  version: '1.2.0',
+  name: '미얀마 마하보테 출생 차트 산법',
+  source: 'Dirah와 Sage Asita의 공개 산법: 4/15 경계에 따른 BE 오프셋, BE mod 7의 1하우스 행성, Sun-Mercury-Saturn-Mars-Venus-Moon-Jupiter 배치, 수요일 오후 Rahu가 Mercury를 대체. 연운·일운은 확정 산식과 독립 기대값이 없어 제공하지 않는다.',
+  supportedSolarDates: Object.freeze(['1900-01-01', '2100-12-31']),
+  annualAndDaily: 'unsupported-without-source-locked-rule',
 });
 
 // 8개 요일 (수요일은 정오 12시 기준으로 오전/오후 분리)
@@ -202,15 +204,24 @@ export function calculateMahabote(input = {}) {
 
   const [year, month, day] = dateStr.split('-').map(Number);
   const birthDate = new Date(Date.UTC(year, month - 1, day));
+  if (year < 1900 || year > 2100 || birthDate.getUTCFullYear() !== year || birthDate.getUTCMonth() !== month - 1 || birthDate.getUTCDate() !== day) {
+    throw new Error('마하보테 계산을 위해 유효한 출생일(YYYY-MM-DD)이 필요합니다.');
+  }
   const rawDayOfWeek = birthDate.getUTCDay(); // 0: Sun, 1: Mon, ..., 6: Sat
 
   // 수요일의 경우 오전(00:00~12:00)과 오후(12:00~24:00 라후) 분리
+  const unknownTime = input.unknownTime === true || !input.time;
   const timeStr = String(input.time || '12:00');
+  if (!unknownTime && !/^\d{2}:\d{2}$/.test(timeStr)) throw new Error('time must use HH:MM');
   const [hours] = timeStr.split(':').map(Number);
-  const isWednesdayPm = rawDayOfWeek === 3 && (hours >= 12 && !input.unknownTime);
+  if (!unknownTime && (hours > 23 || Number(timeStr.slice(3)) > 59)) throw new Error('time must use a valid HH:MM value');
+  const isWednesdayPm = rawDayOfWeek === 3 && hours >= 12 && !unknownTime;
+  const wednesdayTimeUnknown = rawDayOfWeek === 3 && unknownTime;
 
-  let weekdayItem = MAHABOTE_DAYS.find((d) => d.dayIndex === rawDayOfWeek && (!d.subDay || (d.subDay === (isWednesdayPm ? 'pm' : 'am'))));
-  if (!weekdayItem) weekdayItem = MAHABOTE_DAYS[0];
+  let weekdayItem = wednesdayTimeUnknown
+    ? null
+    : MAHABOTE_DAYS.find((d) => d.dayIndex === rawDayOfWeek && (!d.subDay || (d.subDay === (isWednesdayPm ? 'pm' : 'am'))));
+  if (!weekdayItem && !wednesdayTimeUnknown) weekdayItem = MAHABOTE_DAYS[0];
 
   // 미얀마력 연도 계산 (Burmese Era) — 정통 산법: 4월 15일 이전 출생 −639, 이후 −638 (dirah.org)
   const burmeseYear = month < 4 || (month === 4 && day <= 15) ? year - 639 : year - 638;
@@ -239,118 +250,25 @@ export function calculateMahabote(input = {}) {
     burmeseYear,
     akar,
     birthDay: weekdayItem,
+    birthDayCandidates: wednesdayTimeUnknown ? MAHABOTE_DAYS.filter((d) => d.dayIndex === 3) : null,
     rulingHouse: myHouse,
     houseIndex: myHouse.houseIndex,
     housePlacements,
-    summary: `${weekdayItem.korean} ${weekdayItem.animal}의 기운을 타고났으며, 인생의 핵심 기운이 ${myHouse.name}(${myHouse.meaning})에 머뭅니다.`,
+    unsupportedStates: wednesdayTimeUnknown ? [{ id: 'mahabote.wednesday-period', reason: '수요일 출생 시각을 알 수 없어 수성/라후 요일 표기를 확정하지 않았습니다. 7하우스의 출생 행성 위치는 동일합니다.' }] : [],
+    summary: `${weekdayItem ? `${weekdayItem.korean} ${weekdayItem.animal}의 기운을 타고났으며` : '수요일 주·야 구분이 미정이며'} 인생의 핵심 자리는 ${myHouse.name}(${myHouse.meaning})입니다.`,
   };
 }
 
-/**
- * 특정 연도(targetYear)의 미얀마 마하보테 연운(Thet-Kayit)을 계산합니다.
- * @param {object} input { date: 'YYYY-MM-DD', targetYear: number, time?: string, unknownTime?: boolean }
- * @returns {object} 계산된 마하보테 연운 객체
- */
+/** Annual Thet-Kayit output is unavailable until its source rule is locked. */
 export function calculateMahaboteAnnual(input = {}) {
-  const chart = calculateMahabote(input);
-  const birthYear = Number(String(input.date || '').split('-')[0]);
-  const targetYear = Number(input.targetYear || new Date().getFullYear());
-  const age = Math.max(1, targetYear - birthYear);
-
-  // 전통 마하보테 연령 순환 규칙: 본인의 하우스에서 출발하여 매년 다음 하우스로 순환
-  const yearlyHouseIndex = (chart.rulingHouse.houseIndex + (age % 7)) % 7;
-  const yearlyHouse = MAHABOTE_HOUSES[yearlyHouseIndex];
-
-  const HOUSE_ANNUAL_THEMES = {
-    binga: {
-      theme: '개척과 돌파의 해',
-      advice: '기존의 익숙한 틀을 깨고 새로운 분야를 과감히 개척할 때 큰 성취를 얻습니다.',
-      focus: '도전, 문제 해결, 주도권 확보',
-    },
-    atun: {
-      theme: '명예와 확장의 해',
-      advice: '나의 노력과 역량이 널리 인정받고 사회적 명예와 영향력이 크게 확장됩니다.',
-      focus: '승진, 발표, 대외 활동, 신뢰 구축',
-    },
-    yaza: {
-      theme: '지도력과 권위의 해',
-      advice: '조직이나 모임에서 중심 역할을 맡아 사람들을 이끌고 큰 책임을 완수하게 됩니다.',
-      focus: '리더십, 결정권 행사, 계약과 성사',
-    },
-    adipati: {
-      theme: '통솔과 총괄의 해',
-      advice: '풍부한 경험을 바탕으로 주도적으로 프로젝트를 이끌며 실질적인 지휘권을 갖습니다.',
-      focus: '협력 조율, 총괄 기획, 안정적 성과',
-    },
-    marana: {
-      theme: '전환과 탈바꿈의 해',
-      advice: '낡은 습관과 불필요한 인연을 정리하고 새로운 도약을 위해 내실을 다지는 시기입니다.',
-      focus: '정리정돈, 건강 관리, 내면 성찰, 체질 개선',
-    },
-    thike: {
-      theme: '풍요와 결실의 해',
-      advice: '그동안 뿌려둔 노력의 씨앗이 물질적·정신적 풍요로 환원되어 결실을 맺는 길한 해입니다.',
-      focus: '재물 획득, 투자 성과, 안정적 수입',
-    },
-    puti: {
-      theme: '성찰과 배움의 해',
-      advice: '외형적 확장보다는 깊이 있는 학문, 기술 연마, 마음의 평온을 찾는 데 집중할 때 복이 됩니다.',
-      focus: '자격증 취득, 연구, 명상, 지식 축적',
-    },
-  };
-
-  const yearlyTheme = HOUSE_ANNUAL_THEMES[yearlyHouse.id] || HOUSE_ANNUAL_THEMES.atun;
-  const yearlyPlanet = chart.housePlacements[yearlyHouse.houseIndex]?.planet || '';
-  const PLANET_KO = { sun: '태양', mercury: '수성', saturn: '토성', mars: '화성', venus: '금성', moon: '달', jupiter: '목성' };
-  const planetLine = yearlyPlanet ? `올해 하우스의 주인은 ${PLANET_KO[yearlyPlanet] || yearlyPlanet} — ${( { sun: '빛과 이름을 걸고 나서는 힘', mercury: '언어와 계산이 유리하게 굴러가는 힘', saturn: '시간을 들인 만큼 단단해지는 힘', mars: '밀어붙이는 순간에 실리는 힘', venus: '사람과 취향이 끌어당기는 힘', moon: '감각과 인연을 섬세히 읽는 힘', jupiter: '배움과 관대함이 복을 부르는 힘' })[yearlyPlanet] || ''}` : '';
-
-  return {
-    targetYear,
-    age,
-    natalRulingHouse: chart.rulingHouse,
-    yearlyHouse,
-    yearlyPlanet,
-    planetLine,
-    yearlyTheme: yearlyTheme.theme,
-    yearlyAdvice: yearlyTheme.advice,
-    focusKeywords: yearlyTheme.focus,
-    auspiciousDirection: chart.birthDay.direction,
-    summary: `${targetYear}년(만 ${age}세)은 마하보테 7하우스 중 ${yearlyHouse.name}(${yearlyHouse.meaning})에 머무는 '${yearlyTheme.theme}'입니다. ${planetLine}.`,
-  };
+  // The source set currently locks the natal-house arithmetic only. The
+  // previous age-mod-7 annual prose had no independent source fixture, so it
+  // is intentionally unavailable until its Burmese lineage is locked.
+  return null;
 }
 
-/**
- * 특정 날짜(targetDate)의 미얀마 마하보테 일운을 계산합니다.
- * @param {object} input { date: 'YYYY-MM-DD', targetDate?: 'YYYY-MM-DD' }
- * @returns {object} 계산된 마하보테 일운 객체
- */
+/** Daily Mahabote output is unavailable until its source rule is locked. */
 export function calculateMahaboteDaily(input = {}) {
-  const chart = calculateMahabote(input);
-  const targetDateStr = String(input.targetDate || new Date().toISOString().slice(0, 10)).trim();
-  const [tYear, tMonth, tDay] = targetDateStr.split('-').map(Number);
-  const todayDate = new Date(Date.UTC(tYear, tMonth - 1, tDay));
-  const todayDayIdx = todayDate.getUTCDay();
-
-  const todayDayItem = MAHABOTE_DAYS.find((d) => d.dayIndex === todayDayIdx && (!d.subDay || d.subDay === 'am')) || MAHABOTE_DAYS[0];
-  const isBirthDay = chart.birthDay.dayIndex === todayDayIdx;
-
-  let dailyTheme = '';
-  let dailyAdvice = '';
-  if (isBirthDay) {
-    dailyTheme = '수호령의 날: 내 고유의 주도력과 자신감이 빛나는 날';
-    dailyAdvice = '중요한 결정이나 자기표현에 적극적으로 나서기에 가장 길한 날입니다.';
-  } else {
-    dailyTheme = `${todayDayItem.korean}(${todayDayItem.animal})의 기운이 흐르는 날`;
-    dailyAdvice = `${todayDayItem.direction}의 차분한 기운을 받아 성실하고 유연하게 일정을 소화하세요.`;
-  }
-
-  return {
-    targetDate: targetDateStr,
-    birthDay: chart.birthDay,
-    todayDay: todayDayItem,
-    dailyTheme,
-    dailyAdvice,
-    favorableDirection: isBirthDay ? chart.birthDay.direction : todayDayItem.direction,
-    summary: `오늘은 ${todayDayItem.korean}(${todayDayItem.animal})의 날로, 나의 ${chart.birthDay.animal} 기운과 어우러져 '${dailyTheme}'이 됩니다.`,
-  };
+  // A daily-profection rule has not been source-locked for this policy.
+  return null;
 }

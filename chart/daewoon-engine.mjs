@@ -3,7 +3,7 @@ import {
   BRANCHES,
   NATAL_POLICY,
   formatSeoulInstant,
-  solarCorrectedClock,
+  seoulCivilClock,
 } from './natal-engine.mjs';
 import {
   NATAL_EPHEMERIS_START_YEAR,
@@ -18,20 +18,20 @@ const JIE_TERMS = NATAL_TERM_KEYS;
 
 const POLICY = Object.freeze({
   id: 'KR-DAEWOON-1.0',
-  version: '1.2.0',
+  version: '1.3.0',
   engine: 'gyeol-daewoon-core',
-  engineVersion: '1.2.0',
+  engineVersion: '1.3.0',
   range: NATAL_POLICY.supportedSolarDates.join('..'),
   maxCycleCount: 8,
   cycleSpanYears: 10,
   dayToYearDivisor: 3,
   boundaryConvention: 'direction-dependent-jie',
-  directionRule: 'yang-male-yin-female-forward (양남음녀 순행 · 음남양녀 역행; 미선택 시 남성 기준)',
-  birthClockRule: 'solar-corrected (동경 127.5도, UTC+8:30) 출생시계로 절입 거리와 시진을 잰다 — 절기 epoch는 그대로',
+  directionRule: 'yang-male-yin-female-forward (양남음녀 순행 · 음남양녀 역행; 성별 계산값 필수)',
+  birthClockRule: 'Asia/Seoul legal civil time; birth and jie instants use the same UTC timeline and local wall-clock offset',
   firstCycleRule: 'first-cycle-is-month-pillar-plus-minus-one (첫 대운은 월주의 다음/이전 간지)',
   startAgeRule: 'three-day-per-year-truncated-age (대운수=3일1년 절사)',
   startYearRule: 'exact-date-conversion (1일=4개월 환산을 출생일에 가산한 해)',
-  unknownTimeProxy: '12:00',
+  unknownTime: 'requires-exact-time',
   natalPolicy: NATAL_POLICY.id,
   natalPolicyVersion: NATAL_POLICY.version,
   solarTermsUsed: Object.freeze([...JIE_TERMS]),
@@ -93,7 +93,8 @@ export function calculateDaewoon(input) {
     throw new Error(`birth year must be from ${NATAL_EPHEMERIS_START_YEAR + 1} to ${NATAL_EPHEMERIS_END_YEAR}`);
   }
 
-  const birthTime = input.unknownTime ? POLICY.unknownTimeProxy : (input.time || '12:00');
+  if (input.unknownTime === true || !input.time) throw new Error('exact birth time is required for daewoon calculation');
+  const birthTime = input.time;
   if (!/^\d{2}:\d{2}$/.test(birthTime)) throw new Error('time must use HH:MM');
   const [birthHour, birthMinute] = birthTime.split(':').map(Number);
   if (birthHour > 23 || birthMinute > 59) throw new Error('time must be a valid HH:MM');
@@ -101,47 +102,53 @@ export function calculateDaewoon(input) {
   if (!input.monthStem || !STEMS.includes(input.monthStem)) throw new Error('monthStem must be one of the ten heavenly stems');
   if (!input.monthBranch || !BRANCHES.includes(input.monthBranch)) throw new Error('monthBranch must be one of the twelve earthly branches');
   if (!input.yearStem || !STEMS.includes(input.yearStem)) throw new Error('yearStem must be one of the ten heavenly stems');
+  if (!['male', 'female'].includes(input.sex)) throw new Error('sex must be male or female for daewoon direction');
 
-  // 정통 방향 규칙: 양남·음녀 순행, 음남·양녀 역행. 성별 미선택(unset) 시 남성 기준으로 계산한다.
+  // Yang male / yin female go forward; yin male / yang female go backward.
   const yangYear = YANG_STEMS.has(input.yearStem);
-  const male = input.sex !== 'female';
+  const male = input.sex === 'male';
   const direction = yangYear === male ? 'forward' : 'backward';
 
-  const clock = solarCorrectedClock(input.date, birthTime);
+  const clock = seoulCivilClock(input.date, birthTime);
   const boundary = findNearestJieBoundary(clock.utcMinute, birthYear, direction);
-  const [solarYear, solarMonth, solarDay] = clock.date.split('-').map(Number);
-  const solarHour = Number(clock.time.slice(0, 2));
+  const [civilYear, civilMonth, civilDay] = clock.date.split('-').map(Number);
+  const civilHour = Number(clock.time.slice(0, 2));
 
-  // 정통 환산(lunar-javascript 팔자 표준 流派1 산식) 재현:
-  // 출생은 동경 127.5도 보정시계(벽시계−30분)를, 절기는 epoch의 중국 표준시(+8) 시각을 쓴다.
-  // dayDiff는 달력 날짜 차(자정 기준)로 세고, month = dayDiff*4 + floor(hourDiff*10/30),
-  // 음수 시진차는 dayDiff-1로 보정한다.
+  // Birth and Jie must be measured on the same Asia/Seoul clock. The prior
+  // implementation used UTC+8:30 for birth and UTC+8:00 for Jie, which could
+  // reverse the shichen delta and produce a negative start age.
   const zhiOfHour = (h) => (h === 23 ? 11 : Math.floor((h + 1) / 2));
-  const jieCstHourOf = (utcMinute) => {
-    const cstMinutes = ((((utcMinute % 1440) + 1440) % 1440) + 480) % 1440;
-    return Math.floor(cstMinutes / 60);
+  const boundaryLocal = formatSeoulInstant(boundary.epochMinute);
+  const [boundaryYear, boundaryMonth, boundaryDay] = boundaryLocal.slice(0, 10).split('-').map(Number);
+  const boundaryHour = Number(boundaryLocal.slice(11, 13));
+  const dayIndex = (year, month, day) => Math.floor(Date.UTC(year, month - 1, day) / 86400000);
+  const daysInMonth = (year, month) => new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const addConvertedDuration = (year, month, day, years, months, days) => {
+    const absoluteMonth = year * 12 + (month - 1) + years * 12 + months;
+    const targetYear = Math.floor(absoluteMonth / 12);
+    const targetMonthIndex = ((absoluteMonth % 12) + 12) % 12;
+    const targetDay = Math.min(day, daysInMonth(targetYear, targetMonthIndex + 1));
+    return new Date(Date.UTC(targetYear, targetMonthIndex, targetDay + days));
   };
-  const dayIndexOf = (utcMinute) => Math.floor((utcMinute + 480) / 1440); // CST(+8) 달력 날짜
   const forward = direction === 'forward';
-  const birthDayIdx = Math.floor(Date.UTC(solarYear, solarMonth - 1, solarDay) / 86400000);
-  const startZhi = forward ? zhiOfHour(solarHour) : zhiOfHour(jieCstHourOf(boundary.epochMinute));
-  const endZhi = forward ? zhiOfHour(jieCstHourOf(boundary.epochMinute)) : zhiOfHour(solarHour);
-  const startDayIdx = forward ? birthDayIdx : dayIndexOf(boundary.epochMinute);
-  const endDayIdx = forward ? dayIndexOf(boundary.epochMinute) : birthDayIdx;
+  const birthDayIdx = dayIndex(civilYear, civilMonth, civilDay);
+  const boundaryDayIdx = dayIndex(boundaryYear, boundaryMonth, boundaryDay);
+  const startZhi = forward ? zhiOfHour(civilHour) : zhiOfHour(boundaryHour);
+  const endZhi = forward ? zhiOfHour(boundaryHour) : zhiOfHour(civilHour);
+  const startDayIdx = forward ? birthDayIdx : boundaryDayIdx;
+  const endDayIdx = forward ? boundaryDayIdx : birthDayIdx;
   let hourDiff = endZhi - startZhi;
   let dayDiff = endDayIdx - startDayIdx;
   if (hourDiff < 0) { hourDiff += 12; dayDiff -= 1; }
   const monthDiff = Math.floor((hourDiff * 10) / 30);
-  const totalMonths = dayDiff * 4 + monthDiff;
+  const rawTotalMonths = dayDiff * 4 + monthDiff;
+  const totalMonths = Math.max(0, rawTotalMonths);
   const startAge = Math.floor(totalMonths / 12);
 
   const convertedYears = startAge;
   const convertedMonths = totalMonths - convertedYears * 12;
-  const convertedDays = hourDiff * 10 - monthDiff * 30; // 잔여 시진의 일 환산(1시진=10일) — lunar-javascript 규칙
-  const startDate = new Date(Date.UTC(solarYear, solarMonth - 1, solarDay));
-  startDate.setUTCFullYear(startDate.getUTCFullYear() + convertedYears);
-  startDate.setUTCMonth(startDate.getUTCMonth() + convertedMonths);
-  startDate.setUTCDate(startDate.getUTCDate() + convertedDays);
+  const convertedDays = rawTotalMonths < 0 ? 0 : hourDiff * 10 - monthDiff * 30;
+  const startDate = addConvertedDuration(civilYear, civilMonth, civilDay, convertedYears, convertedMonths, convertedDays);
   const startYearExact = startDate.getUTCFullYear();
 
   // Determine cycle count AFTER startAge is known, so truncation is accurate
@@ -232,6 +239,7 @@ export function verifyDaewoon(input, result) {
   if (recomputed.input?.date !== result.input?.date) errors.push('daewoon input.date does not match');
   if (recomputed.input?.time !== result.input?.time) errors.push('daewoon input.time does not match');
   if (recomputed.input?.unknownTime !== result.input?.unknownTime) errors.push('daewoon input.unknownTime does not match');
+  if (recomputed.input?.sex !== result.input?.sex) errors.push('daewoon input.sex does not match');
   if (recomputed.input?.yearStem !== result.input?.yearStem) errors.push('daewoon input.yearStem does not match');
   if (recomputed.input?.monthStem !== result.input?.monthStem) errors.push('daewoon input.monthStem does not match');
   if (recomputed.input?.monthBranch !== result.input?.monthBranch) errors.push('daewoon input.monthBranch does not match');

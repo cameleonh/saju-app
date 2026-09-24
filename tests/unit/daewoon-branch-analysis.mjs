@@ -65,7 +65,7 @@ assert.deepEqual(analyzeDaewoonBranch('子', [], '수'), []);
 assert.deepEqual(analyzeDaewoonBranch('子', ['X'], '수'), []);
 
 // --- analyzeDaewoonCycles: 전체 사이클 분석 ---
-const daewoon = calculateDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌', unknownTime: false });
+const daewoon = calculateDaewoon({ date: '1990-10-10', time: '14:30', sex: 'male', yearStem: '庚', monthStem: '丙', monthBranch: '戌', unknownTime: false });
 const natalBranches = ['午', '戌', '辰', '申']; // 임의의 원국 지지
 const cycleAnalysis = analyzeDaewoonCycles(daewoon.cycles, natalBranches, '토');
 assert.equal(cycleAnalysis.length, daewoon.cycles.length, 'cycle analysis should cover all cycles');

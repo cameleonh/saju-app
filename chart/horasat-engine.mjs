@@ -1,13 +1,20 @@
 // chart/horasat-engine.mjs
-// 태국 전통 점성학 호라삿(Horasat / โหราศาสตร์) 계산 엔진.
-// 샴 왕국(Siam) 고유의 베다-불교 융합 점성술 체계에 기반하여
-// 황도 12 라시(Rasi)와 8대 탄생 요일별 수호불(Buddha Posture), 수호 색상 및 행성 기운을 계산합니다.
+// Thai weekday observances plus a Lahiri sidereal Sun-rasi projection.
+// This policy is deliberately scoped; it is not a complete Thai Lagna chart.
+
+import { resolveSeoulCivilTime } from './natal-engine.mjs';
+import { HORASAT_RASI_INGRESSES, HORASAT_RASI_DATA_SOURCE } from './horasat-rasi-data.mjs';
 
 export const HORASAT_POLICY = Object.freeze({
   id: 'TH-HORASAT-1.0',
-  version: '1.1.0',
-  name: '태국 호라삿 12라시 수호불 간이 모형(β)',
-  source: '요일별 수호불·색상은 널리 알려진 태국 전통 설명을 따름. 라시 구간은 태국어 위키백과 「จักรราศี」 항성황도(นิรายนะ) 고정 날짜 표 기준. 연운 목성 입궁 표(2024~2035)는 astronomy-engine 항성황도 계산으로 산출·기존값과 대조 검증(참고용)',
+  version: '1.2.0',
+  name: '태국 요일 수호불 + 라히리 항성 태양라시 투영',
+  source: '요일별 수호불·색상은 태국 요일표를 따른다. 태양 라시는 astronomy-engine apparent geocentric solar longitude에서 고정한 Lahiri ayanamsa를 빼고 매년 실제 진입 시각으로 판정한다. 상승점(Lagna)·전 행성 배치·전통 연운 해석은 이 정책 범위가 아니다.',
+  solarRasiSource: HORASAT_RASI_DATA_SOURCE,
+  timezone: 'Asia/Seoul resolved birth instant',
+  supportedBirthDates: Object.freeze(['1900-01-01', '2100-12-31']),
+  unknownTime: 'requires-exact-time',
+  ayanamsa: Object.freeze({ id: 'lahiri-linear-reference', j2000Degrees: 23.853055, precessionArcsecondsPerYear: 50.290966 }),
 });
 
 // 태국 8대 요일 (수요일은 주간 06:00~18:00, 야간 18:00~06:00 분리)
@@ -104,41 +111,58 @@ export const HORASAT_WEEKDAYS = Object.freeze([
   },
 ]);
 
-// 태국 12 라시 (황도 12궁) — 항성황도(นิรายนะ/Sidereal) 기준 날짜 구간.
-// 경계값은 태국어 위키백과 「จักรราศี」 표(항성황도 열)를 따른다(근사 고정 구간).
+// Thai sign labels. The `month` property is descriptive only; sign selection
+// uses the year-specific Lahiri ingress ephemeris, never these fixed dates.
 export const HORASAT_RASIS = Object.freeze([
-  { id: 'mesha', name: '메샤 (Mesha / 양자리)', thai: 'ราศีเมษ', month: '4월 13일 ~ 5월 14일', ruler: '화성', element: '화', keyword: '선구자, 열정' },
-  { id: 'vrishabha', name: '프리삽 (Vrishabha / 황소자리)', thai: 'ราศีพฤษภ', month: '5월 15일 ~ 6월 14일', ruler: '금성', element: '토', keyword: '안정, 물질적 풍요' },
-  { id: 'mithuna', name: '미툰 (Mithuna / 쌍둥이자리)', thai: 'ราศีเมถุน', month: '6월 15일 ~ 7월 14일', ruler: '수성', element: '공기', keyword: '소통, 다재다능' },
-  { id: 'karka', name: '끄라꼿 (Karka / 게자리)', thai: 'ราศีกรกฎ', month: '7월 15일 ~ 8월 15일', ruler: '달', element: '수', keyword: '모성애, 감수성' },
-  { id: 'simha', name: '싱하 (Simha / 사자자리)', thai: 'ราศีสิงห์', month: '8월 16일 ~ 9월 16일', ruler: '태양', element: '화', keyword: '권위, 당당함' },
-  { id: 'kanya', name: '깐 (Kanya / 처녀자리)', thai: 'ราศีกันย์', month: '9월 17일 ~ 10월 16일', ruler: '수성', element: '토', keyword: '정밀함, 봉사' },
-  { id: 'tula', name: '뚠 (Tula / 천칭자리)', thai: 'ราศีตุลย์', month: '10월 17일 ~ 11월 15일', ruler: '금성', element: '공기', keyword: '조화, 공정함' },
-  { id: 'vrishchika', name: '프리칙 (Vrishchika / 전갈자리)', thai: 'ราศีพิจิก', month: '11월 16일 ~ 12월 15일', ruler: '화성', element: '수', keyword: '집념, 통찰' },
-  { id: 'dhanu', name: '타누 (Dhanu / 사수자리)', thai: 'ราศีธนู', month: '12월 16일 ~ 1월 14일', ruler: '목성', element: '화', keyword: '자유, 철학' },
-  { id: 'makara', name: '망꼰 (Makara / 염소자리)', thai: 'ราศีมังกร', month: '1월 15일 ~ 2월 12일', ruler: '토성', element: '토', keyword: '성실, 대기만성' },
-  { id: 'kumbha', name: '꿈 (Kumbha / 물병자리)', thai: 'ราศีกุมภ์', month: '2월 13일 ~ 3월 14일', ruler: '토성/라후', element: '공기', keyword: '혁신, 인도주의' },
-  { id: 'meena', name: '민 (Meena / 물고기자리)', thai: 'ราศีมีน', month: '3월 15일 ~ 4월 12일', ruler: '목성', element: '수', keyword: '자비, 예술적 영감' },
+  { id: 'mesha', name: '메샤 (Mesha / 양자리)', thai: 'ราศีเมษ', month: '연도별 진입 시각', ruler: '화성', element: '화', keyword: '선구자, 열정' },
+  { id: 'vrishabha', name: '프리삽 (Vrishabha / 황소자리)', thai: 'ราศีพฤษภ', month: '연도별 진입 시각', ruler: '금성', element: '토', keyword: '안정, 물질적 풍요' },
+  { id: 'mithuna', name: '미툰 (Mithuna / 쌍둥이자리)', thai: 'ราศีเมถุน', month: '연도별 진입 시각', ruler: '수성', element: '공기', keyword: '소통, 다재다능' },
+  { id: 'karka', name: '끄라꼿 (Karka / 게자리)', thai: 'ราศีกรกฎ', month: '연도별 진입 시각', ruler: '달', element: '수', keyword: '모성애, 감수성' },
+  { id: 'simha', name: '싱하 (Simha / 사자자리)', thai: 'ราศีสิงห์', month: '연도별 진입 시각', ruler: '태양', element: '화', keyword: '권위, 당당함' },
+  { id: 'kanya', name: '깐 (Kanya / 처녀자리)', thai: 'ราศีกันย์', month: '연도별 진입 시각', ruler: '수성', element: '토', keyword: '정밀함, 봉사' },
+  { id: 'tula', name: '뚠 (Tula / 천칭자리)', thai: 'ราศีตุลย์', month: '연도별 진입 시각', ruler: '금성', element: '공기', keyword: '조화, 공정함' },
+  { id: 'vrishchika', name: '프리칙 (Vrishchika / 전갈자리)', thai: 'ราศีพิจิก', month: '연도별 진입 시각', ruler: '화성', element: '수', keyword: '집념, 통찰' },
+  { id: 'dhanu', name: '타누 (Dhanu / 사수자리)', thai: 'ราศีธนู', month: '연도별 진입 시각', ruler: '목성', element: '화', keyword: '자유, 철학' },
+  { id: 'makara', name: '망꼰 (Makara / 염소자리)', thai: 'ราศีมังกร', month: '연도별 진입 시각', ruler: '토성', element: '토', keyword: '성실, 대기만성' },
+  { id: 'kumbha', name: '꿈 (Kumbha / 물병자리)', thai: 'ราศีกุมภ์', month: '연도별 진입 시각', ruler: '토성/라후', element: '공기', keyword: '혁신, 인도주의' },
+  { id: 'meena', name: '민 (Meena / 물고기자리)', thai: 'ราศีมีน', month: '연도별 진입 시각', ruler: '목성', element: '수', keyword: '자비, 예술적 영감' },
 ]);
 
-/**
- * 태국 호라삿의 라시(Rasi)를 태어난 날짜(월·일)로 도출한다.
- * 구간은 항성황도 기준 고정 날짜 표(태국어 위키백과 「จักรราศี」)를 따른다.
- */
-function deriveRasi(month, day) {
-  const md = month * 100 + day;
-  if (md >= 413 && md <= 514) return HORASAT_RASIS[0];  // 메샤
-  if (md >= 515 && md <= 614) return HORASAT_RASIS[1];  // 프리삽
-  if (md >= 615 && md <= 714) return HORASAT_RASIS[2];  // 미툰
-  if (md >= 715 && md <= 815) return HORASAT_RASIS[3];  // 끄라꼿
-  if (md >= 816 && md <= 916) return HORASAT_RASIS[4];  // 싱하
-  if (md >= 917 && md <= 1016) return HORASAT_RASIS[5]; // 깐
-  if (md >= 1017 && md <= 1115) return HORASAT_RASIS[6]; // 뚠
-  if (md >= 1116 && md <= 1215) return HORASAT_RASIS[7]; // 프리칙
-  if (md >= 1216 || md <= 114) return HORASAT_RASIS[8]; // 타누
-  if (md >= 115 && md <= 212) return HORASAT_RASIS[9];  // 망꼰
-  if (md >= 213 && md <= 314) return HORASAT_RASIS[10]; // 꿈
-  return HORASAT_RASIS[11]; // 민 (3월 15일 ~ 4월 12일)
+function ingressIndexAt(utcMinute) {
+  let low = 0;
+  let high = HORASAT_RASI_INGRESSES.length;
+  while (low < high) {
+    const middle = (low + high) >> 1;
+    if (HORASAT_RASI_INGRESSES[middle][0] <= utcMinute) low = middle + 1;
+    else high = middle;
+  }
+  return low - 1;
+}
+
+function rasiAtUtcMinute(utcMinute) {
+  const index = ingressIndexAt(utcMinute);
+  if (index < 0) throw new Error('sidereal Sun ingress data is unavailable for this date');
+  const [, rasiIndex] = HORASAT_RASI_INGRESSES[index];
+  return HORASAT_RASIS[rasiIndex];
+}
+
+function rasiBoundarySensitivity(utcMinute) {
+  const currentIndex = ingressIndexAt(utcMinute);
+  const previous = HORASAT_RASI_INGRESSES[currentIndex];
+  const next = HORASAT_RASI_INGRESSES[currentIndex + 1];
+  const previousDistance = previous ? Math.abs(previous[0] - utcMinute) : Infinity;
+  const nextDistance = next ? Math.abs(next[0] - utcMinute) : Infinity;
+  const ingressIndex = previousDistance <= nextDistance ? currentIndex : currentIndex + 1;
+  const ingress = HORASAT_RASI_INGRESSES[ingressIndex];
+  const distanceMinutes = ingress ? utcMinute - ingress[0] : Infinity;
+  if (!ingress || Math.abs(distanceMinutes) > 60) return null;
+  const before = HORASAT_RASI_INGRESSES[ingressIndex - 1];
+  return {
+    before: before ? HORASAT_RASIS[before[1]].id : null,
+    after: HORASAT_RASIS[ingress[1]].id,
+    ingress: new Date(ingress[0] * 60_000).toISOString(),
+    distanceMinutes,
+  };
 }
 
 /**
@@ -154,22 +178,37 @@ export function calculateHorasat(input = {}) {
 
   const [year, month, day] = dateStr.split('-').map(Number);
   const birthDate = new Date(Date.UTC(year, month - 1, day));
+  if (year < 1900 || year > 2100 || birthDate.getUTCFullYear() !== year || birthDate.getUTCMonth() !== month - 1 || birthDate.getUTCDate() !== day) {
+    throw new Error('태국 호라삿 계산을 위해 유효한 출생일(YYYY-MM-DD)이 필요합니다.');
+  }
   const rawDayOfWeek = birthDate.getUTCDay();
 
+  if (input.unknownTime === true || !input.time) throw new Error('태국 태양라시와 수요일 주·야 구분에는 정확한 출생 시각이 필요합니다.');
+  const timeMatch = /^(\d{2}):(\d{2})$/.exec(String(input.time));
+  if (!timeMatch || Number(timeMatch[1]) > 23 || Number(timeMatch[2]) > 59) throw new Error('time must use a valid HH:MM value');
+
   // 수요일의 경우 주간(06:00~18:00)과 야간(18:00~06:00 라후) 분리
-  const timeStr = String(input.time || '12:00');
-  const [hours] = timeStr.split(':').map(Number);
-  const isWedNight = rawDayOfWeek === 3 && (hours >= 18 || hours < 6) && !input.unknownTime;
+  const [hours] = input.time.split(':').map(Number);
+  const isWedNight = rawDayOfWeek === 3 && (hours >= 18 || hours < 6);
 
   let weekday = HORASAT_WEEKDAYS.find((d) => d.dayIndex === rawDayOfWeek && (!d.subTime || (d.subTime === (isWedNight ? 'night' : 'day'))));
   if (!weekday) weekday = HORASAT_WEEKDAYS[0];
 
-  const rasi = deriveRasi(month, day);
+  if (input.timezoneId && input.timezoneId !== 'Asia/Seoul' && !input.utcInstant) {
+    throw new Error('Non-Seoul birth clocks require a resolved UTC instant for this policy.');
+  }
+  const civil = input.utcInstant
+    ? { utcMinute: Math.floor(Date.parse(input.utcInstant) / 60_000) }
+    : resolveSeoulCivilTime(dateStr, input.time);
+  if (!Number.isFinite(civil.utcMinute)) throw new Error('utcInstant must be a valid ISO timestamp');
+  const rasi = rasiAtUtcMinute(civil.utcMinute);
+  const boundarySensitivity = rasiBoundarySensitivity(civil.utcMinute);
 
   return {
     policy: HORASAT_POLICY,
     birthDay: weekday,
     rasi,
+    boundarySensitivity,
     summary: `${weekday.korean}의 수호불(${weekday.buddhaPosture.split(' ')[0]})과 ${rasi.name}의 기운을 타고났습니다. 행운의 색상은 ${weekday.color}입니다.`,
   };
 }
@@ -206,47 +245,16 @@ export function calculateHorasatAnnual(input = {}) {
 
   const natalRasiIdx = HORASAT_RASIS.findIndex((r) => r.id === chart.rasi.id);
   const jupiterRasiIdx = HORASAT_RASIS.findIndex((r) => r.id === jupiterInfo.rasiId);
-  const houseDistance = (jupiterRasiIdx - natalRasiIdx + 12) % 12; // 0=Same, 4=Trine, 8=Trine...
-
-  // 목성이 본명 라시에서 몇 번째 하우스에 들어왔는지(1~12)에 따른 연운 문안.
-  // 하우스 의미는 호라삿이 계승한 인도 점성 12하우스 체계를 따른다.
-  const JUPITER_HOUSE_READINGS = Object.freeze([
-    null, // index 0 unused (houseDistance 0 handled separately)
-    { tone: '목성이 나의 하늘 위에 뜨는 해', focus: '새 출발, 건강 회복, 이름 걸고 시작하는 일', practice: '올해 시작하는 일은 내 이름으로 하세요. 12년 주기의 문이 열리는 자리입니다.' },
-    { tone: '재물이 저축되는 해', focus: '수입 안정, 저축·적립, 가치 있는 소유', practice: '모으는 해로 설계하세요. 큰 수익보다 확실한 잔고가 올해의 성과입니다.' },
-    { tone: '용기와 활동이 넓어지는 해', focus: '단거리 도전, 학습, 형제·동료와의 협업', practice: '가까운 거리에서 많이 움직이면 기회가 쌓입니다. 배우는 일에 목성이 후원합니다.' },
-    { tone: '마음과 터전이 따뜻해지는 해', focus: '가정, 주거 안정, 내면의 평온', practice: '집과 마음의 정비에 시간을 쓰세요. 안방이 따뜻해야 바깥 일이 흔들리지 않습니다.' },
-    { tone: '창조와 후원이 겹치는 해', focus: '창작, 자녀·제자, 투자 판단', practice: '낳는 일(작품·사업·사람)에 목성이 힘을 줍니다. 다만 과욕은 산만함이 됩니다.' },
-    { tone: '일의 결을 다듬는 해', focus: '루틴 정비, 건강 검진, 봉사·협력', practice: '작은 습관을 고치면 큰 흐름이 바뀝니다. 봉사의 인연이 나중 귀인이 됩니다.' },
-    { tone: '인연의 문이 열리는 해', focus: '만남, 계약·동업, 공식 관계', practice: '짝과 맺는 일(계약·협약·인연)에 목성이 들어옵니다. 조건은 분명히, 마음은 열려서.' },
-    { tone: '깊은 변화를 통과하는 해', focus: '구조 조정, 심리적 정리, 재투자', practice: ' 겉보다 깊은 곳이 바뀌는 해입니다. 붙잡을 것과 놓을 것을 문서로 정리하세요.' },
-    { tone: '복과 문이 커지는 해', focus: '시험·법률·연구, 장거리 여행, 스승', practice: '목성이 제일 좋아하는 하우스입니다. 배우고 멀리 나가는 일이 복이 됩니다.' },
-    { tone: '직업이 빛나는 해', focus: '승진, 평가, 직책, 사회적 지위', practice: '커리어의 결실기입니다. 성과를 문서와 수치로 남기세요.' },
-    { tone: '소원이 자라는 해', focus: '네트워크, 공동체, 수익원 다변화', practice: '뜻을 같이하는 무리와 함께하세요. 혼자 꾸는 소원보다 함께 이루는 소원이 큽니다.' },
-    { tone: '묵은 것을 정리하는 해', focus: '마무리, 정산, 해외·익숙지 않은 영역', practice: '끝내야 할 일을 끝내는 해입니다. 비우는 만큼 다음 주기가 가벼워집니다.' },
-  ]);
-
-  let annualTone = '';
-  let annualFocus = '';
-  let annualPractice = '';
-  const reading = houseDistance === 0
-    ? { tone: '목성이 나의 라시에 함께 머무는 해', focus: '대길 — 새 프로젝트, 건강 회복, 자기계발', practice: '12년 만에 돌아온 목성 귀향입니다. 오래 미룬 "나를 위한 시작"을 올해에 하세요.' }
-    : JUPITER_HOUSE_READINGS[houseDistance];
-  annualTone = reading.tone;
-  annualFocus = reading.focus;
-  annualPractice = reading.practice;
+  const houseNumber = ((jupiterRasiIdx - natalRasiIdx + 12) % 12) + 1;
 
   return {
     targetYear,
     natalRasi: chart.rasi,
-    jupiterRasi: jupiterInfo,
-    jupiterHouse: houseDistance === 0 ? '귀향(1하우스)' : `${houseDistance + 1}하우스`,
-    annualTone,
-    annualFocus,
-    annualPractice,
-    luckyColor: chart.birthDay.color,
-    buddhaPosture: chart.birthDay.buddhaPosture,
-    summary: `${targetYear}년 태국 호라삿에서는 목성이 ${jupiterInfo.name}에 머물며, 나의 ${chart.rasi.name}에서 볼 때 ${houseDistance === 0 ? '바로 내 라시(귀향)' : `${houseDistance + 1}번째 하우스`}에 들어와 '${annualTone}'을 전합니다.`,
+    jupiterRasi: { rasiId: jupiterInfo.rasiId, name: jupiterInfo.name },
+    solarRasiHouse: houseNumber,
+    method: '첫 순행 목성 라시 진입; natal Sun-Rasi부터 세는 whole-sign offset',
+    unsupportedStates: [{ id: 'horasat.annual-interpretation', reason: '검증된 태국 유파별 연운 해석 규칙이 없어 예측 문안은 생성하지 않습니다.' }],
+    summary: `${targetYear}년 첫 순행 목성 진입은 ${jupiterInfo.name}입니다. 출생 태양 라시(${chart.rasi.name}) 기준 whole-sign 위치는 ${houseNumber}번째입니다. 이는 천문·라시 위치 정보이며 사건 예측이 아닙니다.`,
   };
 }
 
@@ -258,20 +266,35 @@ export function calculateHorasatAnnual(input = {}) {
 export function calculateHorasatDaily(input = {}) {
   const chart = calculateHorasat(input);
   const targetDateStr = String(input.targetDate || new Date().toISOString().slice(0, 10)).trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDateStr)) throw new Error('targetDate must use YYYY-MM-DD');
   const [tYear, tMonth, tDay] = targetDateStr.split('-').map(Number);
   const todayDate = new Date(Date.UTC(tYear, tMonth - 1, tDay));
+  if (todayDate.getUTCFullYear() !== tYear || todayDate.getUTCMonth() !== tMonth - 1 || todayDate.getUTCDate() !== tDay) throw new Error('targetDate must be a valid Gregorian date');
   const todayDayIdx = todayDate.getUTCDay();
-
-  const todayDayInfo = HORASAT_WEEKDAYS.find((d) => d.dayIndex === todayDayIdx && (!d.subTime || d.subTime === 'day')) || HORASAT_WEEKDAYS[0];
+  let targetHour = null;
+  if (input.targetTime != null) {
+    const targetTimeMatch = /^(\d{2}):(\d{2})$/.exec(String(input.targetTime));
+    if (!targetTimeMatch || Number(targetTimeMatch[1]) > 23 || Number(targetTimeMatch[2]) > 59) throw new Error('targetTime must use a valid HH:MM value');
+    targetHour = Number(targetTimeMatch[1]);
+  }
+  const todayDayCandidates = todayDayIdx === 3 && targetHour == null ? HORASAT_WEEKDAYS.filter((d) => d.dayIndex === 3) : null;
+  const isWednesdayNight = todayDayIdx === 3 && targetHour != null && (targetHour >= 18 || targetHour < 6);
+  const todayDayInfo = todayDayCandidates ? null : (HORASAT_WEEKDAYS.find((d) => d.dayIndex === todayDayIdx && (!d.subTime || d.subTime === (isWednesdayNight ? 'night' : 'day'))) || HORASAT_WEEKDAYS[0]);
 
   return {
     targetDate: targetDateStr,
     natalRasi: chart.rasi,
-    todayRuler: todayDayInfo.planet,
-    todayColor: todayDayInfo.color,
-    todayBuddha: todayDayInfo.buddhaPosture,
-    todayTheme: `${todayDayInfo.korean}의 지배성(${todayDayInfo.planet})이 인도하는 하루`,
-    advice: `오늘 행운의 색상인 ${todayDayInfo.color} 아이템을 곁들이고, ${todayDayInfo.keywords[0]}의 마음가짐으로 일과를 대하세요.`,
-    summary: `오늘은 ${todayDayInfo.korean}으로 ${todayDayInfo.planet}의 기운이 흐릅니다. 추천 색상은 ${todayDayInfo.color}입니다.`,
+    todayRuler: todayDayInfo?.planet || null,
+    todayColor: todayDayInfo?.color || null,
+    todayBuddha: todayDayInfo?.buddhaPosture || null,
+    todayCandidates: todayDayCandidates,
+    method: '요일별 행성·색상·수호불 표',
+    unsupportedStates: [
+      ...(todayDayCandidates ? [{ id: 'horasat.wednesday-time', reason: 'targetTime이 없어 수요일 주간/라후 시간대는 확정되지 않습니다.' }] : []),
+      { id: 'horasat.daily-interpretation', reason: '요일 표 밖의 일일 운세·행동 조언은 검증된 규칙이 없습니다.' },
+    ],
+    summary: todayDayInfo
+      ? `오늘의 태국 요일 표식은 ${todayDayInfo.korean}, ${todayDayInfo.planet}, ${todayDayInfo.color}입니다.`
+      : '오늘은 수요일이며, 현지 시각에 따라 수요일 주간/라후 표식 중 하나가 적용됩니다.',
   };
 }

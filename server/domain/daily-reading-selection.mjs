@@ -8,7 +8,7 @@
 // Engines are imported read-only — never modified. 신살 (천을귀인·도화·반안살
 // 등) has no engine module, so daily readings deliberately exclude it.
 
-import { calculateNatalChart } from '../../chart/natal-engine.mjs';
+import { calculateDayPillar } from '../../chart/natal-engine.mjs';
 import { analyzeDaewoonBranch } from '../../chart/daewoon-branch-analysis.mjs';
 import { extractNatalFeatures } from './natal-chapter-selection.mjs';
 import {
@@ -105,13 +105,11 @@ function pairKey(table, left, right) {
 }
 
 /**
- * Resolve the day pillar for a solar date. Reuses the natal engine unchanged
- * (unknownTime keeps the hour pillar out; the day pillar follows the engine's
- * KR-CIVIL civil-midnight policy). Supported range: 1900-01-01..2100-12-31.
+ * Resolve only the day pillar for a solar civil date; this calculation does
+ * not need a birth time or solar-term selection. Supported range: 1900-01-01..2100-12-31.
  */
 export function resolveDayPillar(dateString) {
-  const chart = calculateNatalChart({ date: dateString, time: '12:00', calendar: 'solar', unknownTime: true });
-  const dayPillar = chart?.pillars?.[2];
+  const dayPillar = calculateDayPillar(dateString);
   if (!dayPillar || !STEM_ELEMENTS[dayPillar.stem] || !BRANCH_ELEMENTS[dayPillar.branch]) {
     throw new Error('day pillar could not be resolved for this date');
   }
@@ -126,7 +124,7 @@ export function resolveDayPillar(dateString) {
     branch_element: BRANCH_ELEMENTS[dayPillar.branch],
     polarity: POLARITY[dayPillar.stem],
     boundary: 'civil-midnight',
-    engine: 'gyeol-natal-core@1.0.0 (day pillar, read-only reuse)',
+    engine: 'gyeol-natal-core@1.2.0 (day pillar, read-only reuse)',
   };
 }
 

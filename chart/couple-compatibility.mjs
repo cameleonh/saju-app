@@ -211,6 +211,9 @@ export function calculateFourSystemCompatibility(input = {}) {
   if (!pA.date || !pB.date) {
     throw new Error('궁합 계산을 위해 두 사람의 생년월일(YYYY-MM-DD)이 모두 필요합니다.');
   }
+  if (pA.unknownTime === true || pB.unknownTime === true || !pA.time || !pB.time) {
+    throw new Error('4전통 비교 궁합은 태국·베트남 시간 경계 계산을 위해 두 사람의 정확한 출생 시각이 필요합니다.');
+  }
 
   const sajuA = calculateNatalChart(pA);
   const sajuB = calculateNatalChart(pB);

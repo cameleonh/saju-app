@@ -682,14 +682,14 @@
       import { buildDailyReading } from './server/domain/daily-reading-selection.mjs';
       import { buildNatalChapters, extractNatalFeatures } from './server/domain/natal-chapter-selection.mjs';
       import { natalReadingItems } from './web/natal-reading.mjs';
-      import { calculateNatalChart, formatSeoulInstant } from './chart/natal-engine.mjs';
-      import { calculateDaewoon } from './chart/daewoon-engine.mjs';
+       import { NATAL_POLICY, calculateNatalChart, formatSeoulInstant } from './chart/natal-engine.mjs';
+       import { DAEWOON_POLICY, calculateDaewoon } from './chart/daewoon-engine.mjs';
       import { analyzeDaewoonCycles } from './chart/daewoon-branch-analysis.mjs';
       import { getDaewoonDomains, buildDaewoonCycleDomains } from './server/domain/daewoon-domains.mjs';
       import { getComparisonEligibility, renderComparisonEligibility, renderFourSystemComparison, renderFourSystemAnnualComparison, renderFourSystemDailyComparison } from './web/multi-system-comparison.mjs';
       import { calculateMahabote, calculateMahaboteAnnual, calculateMahaboteDaily } from './chart/mahabote-engine.mjs';
       import { calculateHorasat, calculateHorasatAnnual, calculateHorasatDaily } from './chart/horasat-engine.mjs';
-      import { calculateTuVi, calculateTuViAnnual, calculateTuViDaily } from './chart/tu-vi-engine.mjs';
+       import { TU_VI_POLICY, calculateTuVi, calculateTuViAnnual, calculateTuViDaily } from './chart/tu-vi-engine.mjs';
       import { calculateFourSystemCompatibility } from './chart/couple-compatibility.mjs';
       import { renderFourSystemCompatibility } from './web/couple-compatibility.mjs';
       import { deriveDestinedMatch } from './chart/destined-match.mjs';
@@ -878,7 +878,7 @@
         const DEFAULT_BIRTH_PLACE = '서울특별시 종로구 청운효자동';
         const DEFAULT_BIRTH_PLACE_CODE = '1111051500';
         // '샘플로 보기' 고정 명식 — 1990-10-10 14:30 서울. 결과 화면에 '샘플 명식입니다'로 표시하고 기록으로 저장하지 않는다.
-        const SAMPLE_BIRTH_INPUT = Object.freeze({ calendar: 'solar', date: '1990-10-10', time: '14:30', lunarYear: '1990', lunarMonth: '9', lunarDay: '14', leapMonth: false, unknownTime: false, place: DEFAULT_BIRTH_PLACE, placeCode: DEFAULT_BIRTH_PLACE_CODE, sex: 'unset', samePerson: true });
+        const SAMPLE_BIRTH_INPUT = Object.freeze({ calendar: 'solar', date: '1990-10-10', time: '14:30', lunarYear: '1990', lunarMonth: '9', lunarDay: '14', leapMonth: false, unknownTime: false, place: DEFAULT_BIRTH_PLACE, placeCode: DEFAULT_BIRTH_PLACE_CODE, sex: 'male', samePerson: true });
         function resolveBirthPlace(query) {
           const raw = String(query || '').trim();
           if (!raw) return { status: 'empty', query: raw };
@@ -1053,25 +1053,27 @@
           pillars.forEach((item) => { if (item.element) elementCounts[item.element] += 1; if (item.branchElement) elementCounts[item.branchElement] += 1; });
           const sortedElements = Object.entries(elementCounts).sort((a, b) => b[1] - a[1]);
           const warnings = [...core.warnings];
-          const daewoon = calculateDaewoon({
+          const hasDaewoonInputs = !input.unknownTime && ['male', 'female'].includes(input.sex);
+          const daewoon = hasDaewoonInputs ? calculateDaewoon({
             date: input.date,
-            time: input.time || (input.unknownTime ? '12:00' : '12:00'),
-            unknownTime: input.unknownTime,
-            sex: input.sex || 'unset',
+            time: input.time,
+            unknownTime: false,
+            sex: input.sex,
             yearStem: core.pillars[0].stem,
             monthStem: core.pillars[1].stem,
             monthBranch: core.pillars[1].branch,
-          });
+          }) : null;
+          if (!daewoon) warnings.push({ title: '대운 계산 입력이 더 필요해요', body: input.unknownTime ? '대운 시작 시점에는 정확한 출생 시각이 필요합니다.' : '대운 순·역행 계산에는 전통 계산용 성별값이 필요합니다. 값을 입력하기 전에는 대운을 추정하지 않습니다.', fact: 'input.daewoon-required' });
           const facts = [
             { id: 'year.pillar', label: '년주', value: yearPillar.text, detail: `태어난 해의 계절 경계를 반영한 ${yearPillar.text}입니다.` },
             { id: 'month.pillar', label: '월주', value: monthPillar.text, detail: `절기 월령을 기준으로 계산한 ${monthPillar.text}입니다.` },
-            { id: 'day.pillar', label: '일주', value: dayPillar.text, detail: `동경 127.5도 보정시계의 날짜와 자정 경계를 기준으로 계산한 ${dayPillar.text}입니다.` },
+            { id: 'day.pillar', label: '일주', value: dayPillar.text, detail: `한국 법정 민간시의 날짜와 자정 경계를 기준으로 계산한 ${dayPillar.text}입니다.` },
             { id: 'day.element', label: '일간 오행', value: `${dayPillar.stem} · ${dayPillar.element}`, detail: `일간 ${dayPillar.stem}의 오행은 ${dayPillar.element}입니다.` },
             { id: 'balance.dominant', label: '가장 많은 기운', value: sortedElements[0][0], detail: `현재 구조에서 ${sortedElements[0][0]} 기운이 ${sortedElements[0][1]}개로 가장 많습니다.` },
             { id: 'ten-god.visible', label: '천간 십신', value: visibleTenGodSummary(pillars) || '시각 정보 제한', detail: `일간 ${dayPillar.stem}${objectParticle(dayPillar.stem)} 기준으로 겉에 드러난 천간의 관계를 계산했습니다. 십신은 성격 판정표가 아니라 관계와 역할을 읽는 전통 분류입니다.` },
             { id: 'hidden-stems', label: '지장간', value: hiddenStemSummary(pillars) || '계산 제한', detail: '각 지지 안에 배속된 천간과 일간의 십신 관계입니다. 표면 행동과 늘 같다고 단정하지 않고, 반복되는 내적 동기와 비교합니다.' },
-            { id: 'cycles.daewoon', label: '대운', value: `${daewoon.cycles[0].pillar} (${daewoon.cycles[0].startAge}세~)`, detail: `${daewoon.direction === 'forward' ? '순행' : '역행'}, 시작 나이 ${daewoon.startAge}세. ${daewoon.policy.id} 정책으로 계산했습니다. 대운의 의미론적 해석은 지원하지 않습니다.` },
-            { id: 'input.policy', label: '계산 정책', value: core.policy.id, detail: '한국 법정 민간시에 동경 127.5도(−30분) 경도보정을 더하고, 분 단위 절기 경계, 보정시계 자정 일주, 2시간 시주를 사용하는 결정론적 정책입니다.' },
+            ...(daewoon ? [{ id: 'cycles.daewoon', label: '대운', value: `${daewoon.cycles[0].pillar} (${daewoon.cycles[0].startAge}세~)`, detail: `${daewoon.direction === 'forward' ? '순행' : '역행'}, 시작 나이 ${daewoon.startAge}세. ${daewoon.policy.id} 정책으로 계산했습니다. 대운의 의미론적 해석은 지원하지 않습니다.` }] : [{ id: 'cycles.daewoon', label: '대운', value: '계산 입력 필요', detail: '정확한 출생 시각과 전통 계산용 성별값을 제공하면 계산합니다. 임의의 기본값으로 방향이나 시작 시점을 추정하지 않습니다.' }]),
+            { id: 'input.policy', label: '계산 정책', value: core.policy.id, detail: '한국 법정 민간시와 분 단위 절기 경계를 동일한 실제 시각축에서 비교하며, 자정 일주와 2시간 시주를 사용하는 결정론적 정책입니다.' },
           ];
           if (core.boundaryFlags.sensitivity) {
             const sensitivity = core.boundaryFlags.sensitivity;
@@ -1248,6 +1250,8 @@
           }).join('');
         }
         function shell(content) {
+          content = content.replace('음력은 1900~2100년을 지원합니다.', '음력은 1900년 1월 1일~2050년 11월 18일까지 지원합니다.');
+          content = content.replace('성인 본인의 생년월일, 출생 시각, 출생지와 계산 결과만 암호화 저장합니다.', '성인 본인의 생년월일, 출생 시각, 출생지, 직접 선택한 전통 계산용 성별값과 계산 결과를 암호화 저장합니다.');
           return `<header class="topbar"><div class="topbar-inner"><a class="brand" href="#" data-action="home"><span class="brand-mark">${icon('moon')}</span><span class="brand-copy">결<small>달빛 명식 작업대</small></span></a><nav class="topnav" aria-label="주요 메뉴"><button data-action="nav-method" aria-current="${state.screen === 'method' ? 'page' : 'false'}">계산 원칙</button><button data-action="nav-data" aria-current="${state.screen === 'data' ? 'page' : 'false'}">데이터 안내</button><button data-action="nav-home" aria-current="${state.screen === 'intro' ? 'page' : 'false'}">새로 시작</button>${state.account.available ? `<button data-action="${state.account.authenticated ? 'account-logout' : 'account-login'}">${state.account.loading ? '계정 확인 중' : state.account.authenticated ? '로그아웃' : '로그인'}</button>` : ''}</nav></div></header><main class="container">${content}</main><footer class="site-footer"><span>© 2026 결 · 사주 해석은 참고 자료입니다.</span><a href="/privacy.html">개인정보 처리방침</a><a href="/terms.html">이용약관</a><a href="/copyright.html">저작권 안내</a><span class="canary" aria-hidden="true">cg-saju-joseon-8b6c2e41</span></footer><nav class="mobile-nav" aria-label="모바일 메뉴"><button data-action="nav-home" aria-current="${state.screen === 'intro' ? 'page' : 'false'}">시작</button><button data-action="nav-method" aria-current="${state.screen === 'method' ? 'page' : 'false'}">원칙</button><button data-action="nav-data" aria-current="${state.screen === 'data' ? 'page' : 'false'}">기록</button></nav>`;
         }
 
@@ -1255,8 +1259,12 @@
           return shell(`<section class="intro-grid" aria-labelledby="page-title"><div class="intro-copy"><div class="eyebrow">四柱 · 五行 · 명식 읽기</div><h1 id="page-title" class="display" tabindex="-1">내 사주와 두 사람의 결을 함께 봅니다</h1><p class="lead-copy">내 명식은 물론, 알아가는 사람이나 지금의 연인과 두 명식을 나란히 확인할 수 있어요. 계산 근거를 먼저 보여드리고, 관계를 판정하지 않는 말로 차분히 풀어드립니다.</p><div class="mode-picker" role="group" aria-label="사주 모드 선택"><button class="mode-card" type="button" data-action="mode" data-mode="single" aria-pressed="${state.mode === 'single'}"><span class="mode-glyph"><i></i></span><strong>내 사주</strong><small>네 기둥과 함께 미얀마·태국·베트남 전통 비교까지 확인해요.</small></button><button class="mode-card" type="button" data-action="mode" data-mode="couple" aria-pressed="${state.mode === 'couple'}"><span class="mode-glyph"><i></i><i></i></span><strong>커플 사주</strong><small>커플이 될 사람 또는 지금의 상대와 비교해요.</small></button></div><div class="intro-actions"><button class="button primary" data-action="start">${state.mode === 'couple' ? '두 사람 정보 입력' : '내 출생 정보 입력'} ${icon('arrow')}</button><button class="button ghost" data-action="sample">샘플로 보기 ${icon('moon')}</button><button class="button secondary" data-action="details">저장 안내 보기 ${icon('info')}</button></div><p class="storage-note">이 기기에만 저장돼요. <button class="button ghost small" data-action="details">자세히 ${icon('info')}</button>${state.error ? `<span class="error" role="alert">${escapeHtml(state.error)}</span>` : ''}</p></div><div class="aperture aperture-preview" aria-label="조선시대 저녁 달빛 아래의 사주 미리보기"><div class="moon-scene" aria-hidden="true"><span class="star star-a"></span><span class="star star-b"></span><span class="star star-c"></span><span class="roofline"></span></div><div><div class="aperture-top"><div><div class="eyebrow">명식 미리보기</div><div class="aperture-title">시주·일주·월주·년주의 흐름을 한 화면에서 확인해요</div></div><span class="aperture-meta">한국 표준시</span></div><div class="pillar-row">${pillarMarkup([{label:'년주',text:'庚午',element:'금',branchElement:'화'},{label:'월주',text:'丙戌',element:'화',branchElement:'토'},{label:'일주',text:'戊申',element:'토',branchElement:'금'},{label:'시주',text:'己未',element:'토',branchElement:'토'}])}</div></div><div class="aperture-footer"><span>천간·지지</span><span>오행 분포</span><span>${icon('check')} 절기 확인</span></div></div></section>${dailyTeaserMarkup()}`);
         }
 
-        function methodView() {
+        function legacyMethodView() {
           return shell(`<section class="section info-screen" aria-labelledby="method-title"><div class="eyebrow">계산 원칙</div><h1 id="method-title" class="display" tabindex="-1">어떤 기준으로 명식과 연운을 계산하나요?</h1><p class="lead-copy">결은 같은 입력에 같은 결과가 나오도록 계산식과 제한을 분리해 보여드립니다. 해석보다 먼저 날짜·시각·절기 경계를 확인합니다.</p><div class="info-grid"><article class="info-card"><h2>날짜와 절기</h2><p>양력 입력은 그대로 쓰고, 음력 입력은 지원 범위 안에서 양력으로 바꾼 뒤 원래 입력과 변환 결과를 함께 기록합니다. 연운은 검토된 2024~2026년만 제공하며 입춘부터 다음 입춘 직전까지를 한 해로 봅니다.</p></article><article class="info-card"><h2>연운 계산판</h2><p><span class="mono">KR-ANNUAL-IPCHUN-1.1</span>은 KASI·KASA 월력요항과 연결된 2024~2027 KST 분 단위 절기 고정값을 사용합니다. 연간 십신과 원국 지지의 충·육합만 지원하며 형·파·해와 특수합은 만들지 않습니다.</p></article><article class="info-card"><h2>자평명리 적용 범위</h2><p><span class="mono">ziping-annual-basic@1.1.0</span>은 일간, 출생 월지 맥락, 십신 관계를 사용합니다. 격국·용신·신강신약·조후와 연운 지장간 활성화·가중치는 분류하지 않으며, 월별 흐름은 8장 기본 카드와 분리합니다.</p></article><article class="info-card"><h2>동아시아 & 동남아 4대 전통 체계</h2><p>한국 사주(<span class="mono">KR-CIVIL-1.0</span>)는 공식 절기 고정값으로 검증된 정책에 통용 만세력 관행의 동경 127.5도(−30분) 경도보정을 적용합니다. 미얀마 마하보테(<span class="mono">MM-MAHABOTE-1.0</span>)·태국 호라삿(<span class="mono">TH-HORASAT-1.0</span>)·베트남 뜨비(<span class="mono">VN-TUVI-1.0</span>)는 각 전통의 배치 산법을 원전·독립 구현체와 대조 검증했으나, 연운·궁합 등 해석 요소는 아직 참고용(β)입니다. 결과는 참고 자료로만 제공합니다.</p></article><article class="info-card"><h2>해석의 한계</h2><p>사주는 관계, 건강, 재산이나 중요한 선택의 결과를 확정하는 도구가 아닙니다. 계산 사실과 실제 생활을 돌아볼 질문을 연결하는 참고 자료로 사용해 주세요.</p></article></div><div class="intro-actions"><button class="button primary" data-action="nav-home">시작 화면으로 ${icon('arrow')}</button></div></section>`);
+        }
+
+        function methodView() {
+          return shell(`<section class="section info-screen" aria-labelledby="method-title"><div class="eyebrow">계산 원칙</div><h1 id="method-title" class="display" tabindex="-1">어떤 기준으로 계산하나요?</h1><p class="lead-copy">계산 경계와 출처가 확인된 사실만 표시하고, 유파가 정해지지 않은 운 예측은 만들지 않습니다.</p><div class="info-grid"><article class="info-card"><h2>한국 사주 · ${NATAL_POLICY.id}@${NATAL_POLICY.version}</h2><p>출생 입력과 절기 순간을 모두 Asia/Seoul의 실제 UTC 순간으로 비교합니다. 경도·태양시 보정은 하지 않으며, 년주는 입춘·월주는 12개 절입·일주는 민간시 자정·시주는 2시간 구간을 사용합니다.</p></article><article class="info-card"><h2>대운 · ${DAEWOON_POLICY.id}@${DAEWOON_POLICY.version}</h2><p>연간 음양과 입력한 전통 계산용 성별값으로 순·역행을 정하고, 같은 시계 기준의 앞·뒤 절입까지를 3일=1년으로 환산합니다. 학파별 시작 나이 환산 차이가 있을 수 있고, 절입 경계 결과에는 시작 나이 0세 하한을 적용합니다.</p></article><article class="info-card"><h2>베트남 뜨비 · ${TU_VI_POLICY.id}@${TU_VI_POLICY.version}</h2><p>베트남 음력은 GMT+7·동경 105도 규칙으로 계산합니다. 정확한 출생 시각이 없으면 명궁·신궁을 추정하지 않습니다. 대·소한 방향은 전통 계산용 성별값이 있을 때만 표시합니다.</p></article><article class="info-card"><h2>태국·미얀마 계산 범위</h2><p>태국은 요일 수호불 표와 연도별 라히리 항성 태양라시를 사용합니다. 이 정책은 완전한 상승점·행성 배치 차트가 아닙니다. 미얀마 마하보테는 출생 요일·BE 나머지·7하우스 배치를 계산합니다. 별도 출처가 고정되지 않은 일·연 운 예측은 제공하지 않습니다.</p></article><article class="info-card"><h2>절기 경계와 한계</h2><p>공식 KASI/KASA 절기 고정값은 절입 순간부터 적용합니다. 다른 서비스와 차이가 있다면 우선 정책 버전·시간대·자시 및 음력 변환 기준을 비교해 주세요. 해석은 미래 사건을 보장하지 않습니다.</p></article></div><div class="intro-actions"><button class="button primary" data-action="nav-home">시작 화면으로 ${icon('arrow')}</button></div></section>`);
         }
 
         function recordListMarkup() {
@@ -1367,7 +1375,7 @@
           const targetChart = state.chart || state.dailyTeaser?.chart;
           const targetDate = state.dailyDate || seoulDateString();
           const mahaboteDaily = targetChart?.input?.date ? calculateMahaboteDaily({ ...targetChart.input, targetDate }) : null;
-          const horasatDaily = targetChart?.input?.date ? calculateHorasatDaily({ ...targetChart.input, targetDate }) : null;
+          const horasatDaily = targetChart?.input?.date && !targetChart.input.unknownTime ? calculateHorasatDaily({ ...targetChart.input, targetDate }) : null;
           const tuViDaily = targetChart?.input?.date ? calculateTuViDaily({ ...targetChart.input, targetDate }) : null;
           const fourDailyMarkup = renderFourSystemDailyComparison(state.daily, mahaboteDaily, horasatDaily, tuViDaily, targetDate);
           const toolbarActions = `<button class="button ghost small" data-action="home">${icon('back')} 시작 화면으로</button>${state.dailyTeaser ? `<button class="button secondary small" data-action="daily-open-record">전체 명식 풀이 보기 ${icon('arrow')}</button>` : ''}`;
@@ -1403,12 +1411,12 @@
           const destinedMatch = chart ? deriveDestinedMatch(chart) : null;
           const matchMarkup = destinedMatch ? renderDestinedMatch(destinedMatch, { selectedGender: state.matchGender || 'female' }) : '';
           const mahaboteChart = chart?.input?.date ? calculateMahabote(chart.input) : null;
-          const horasatChart = chart?.input?.date ? calculateHorasat(chart.input) : null;
-          const tuViChart = chart?.input?.date ? calculateTuVi(chart.input) : null;
+          const horasatChart = chart?.input?.date && !chart.input.unknownTime ? calculateHorasat(chart.input) : null;
+          const tuViChart = chart?.input?.date && !chart.input.unknownTime ? calculateTuVi(chart.input) : null;
           const comparisonMarkup = chart ? renderFourSystemComparison(chart, mahaboteChart, horasatChart, tuViChart) : '';
           const mahaboteAnnual = chart?.input?.date ? calculateMahaboteAnnual({ ...chart.input, targetYear: state.targetYear || 2026 }) : null;
-          const horasatAnnual = chart?.input?.date ? calculateHorasatAnnual({ ...chart.input, targetYear: state.targetYear || 2026 }) : null;
-          const tuViAnnual = chart?.input?.date ? calculateTuViAnnual({ ...chart.input, targetYear: state.targetYear || 2026 }) : null;
+          const horasatAnnual = chart?.input?.date && !chart.input.unknownTime ? calculateHorasatAnnual({ ...chart.input, targetYear: state.targetYear || 2026 }) : null;
+          const tuViAnnual = chart?.input?.date && !chart.input.unknownTime ? calculateTuViAnnual({ ...chart.input, targetYear: state.targetYear || 2026 }) : null;
           const annualComparisonMarkup = chart ? renderFourSystemAnnualComparison(state.annual, mahaboteAnnual, horasatAnnual, tuViAnnual, state.targetYear || 2026) : '';
           const placeDefaultedNote = chart.input?.sourceInput?.placeDefaulted ? ' · 기본값(서울)' : '';
           // 4전통 패널(심층 대조·연운 대조)은 명식 바로 아래에 먼저 배치하고, 단일 풀이 흐름(대운·연운·궁합)은 그 아래에 둔다.
@@ -1457,6 +1465,21 @@
           const views = { intro: introView, input: inputView, result: resultView, method: methodView, data: dataView, daily: dailyView };
           const content = (views[state.screen] || introView)();
           document.getElementById('app').innerHTML = `${content}${consentGateMarkup()}${cloudGateMarkup()}${loadingOverlayMarkup()}`;
+          enhanceTraditionalSexFields();
+          document.querySelectorAll('small[id$="place-help"]').forEach((note) => {
+            note.textContent = '출생지는 기록에 보관합니다. 사주 계산은 한국 법정 민간시(Asia/Seoul)를 사용하며 장소별 경도 보정은 하지 않습니다.';
+          });
+          document.querySelectorAll('label[for$="unknown-time"]').forEach((label) => {
+            label.textContent = '정확한 시각을 모릅니다. 사주 시주는 생략하고 대운·태국·베트남의 시간 의존 계산은 표시하지 않습니다.';
+          });
+          document.querySelectorAll('label[for$="sex"]').forEach((label) => {
+            const field = label.closest('.field');
+            if (!field || field.querySelector('[data-traditional-sex-help]')) return;
+            const note = document.createElement('small');
+            note.dataset.traditionalSexHelp = 'true';
+            note.textContent = '성 정체성 정보가 아니라 대운·Tử Vi 순행/역행 규칙에 쓰는 전통 계산값입니다. 입력하지 않으면 해당 주기는 계산하지 않습니다.';
+            field.append(note);
+          });
           if (state.consentGate.open || state.cloudGate.open) {
             const dialogTitle = document.querySelector('.gate-dialog [id]');
             dialogTitle?.focus();
@@ -1530,6 +1553,8 @@
             if (unknownCheckbox) target.unknownTime = unknownCheckbox.checked;
             const placeInput = document.getElementById(`${prefix}-place`);
             if (placeInput) target.place = placeInput.value;
+            const sexInput = document.getElementById(`${prefix}-sex`);
+            if (sexInput) target.sex = ['male', 'female'].includes(sexInput.value) ? sexInput.value : 'unset';
             const lunarYear = document.querySelector(`input[name="${prefix}LunarYear"]`);
             if (lunarYear && lunarYear.value) target.lunarYear = lunarYear.value;
             const lunarMonth = document.querySelector(`input[name="${prefix}LunarMonth"]`);
@@ -1554,7 +1579,7 @@
               dateInput.hidden = true;
               dateInput.required = false;
               if (!existing) {
-                dateInput.insertAdjacentHTML('afterend', `<div id="${prefix}-lunar-fields" class="lunar-input-grid"><label>년<input type="number" name="${prefix}LunarYear" min="1900" max="2100" value="${escapeHtml(form.lunarYear)}" required></label><label>월<input type="number" name="${prefix}LunarMonth" min="1" max="12" value="${escapeHtml(form.lunarMonth)}" required></label><label>일<input type="number" name="${prefix}LunarDay" min="1" max="30" value="${escapeHtml(form.lunarDay)}" required></label></div><div class="check-row"><input id="${prefix}-leap-month" name="${prefix}LeapMonth" type="checkbox" ${form.leapMonth ? 'checked' : ''}><label for="${prefix}-leap-month">윤달</label></div>`);
+                dateInput.insertAdjacentHTML('afterend', `<div id="${prefix}-lunar-fields" class="lunar-input-grid"><label>년<input type="number" name="${prefix}LunarYear" min="1900" max="2050" value="${escapeHtml(form.lunarYear)}" required></label><label>월<input type="number" name="${prefix}LunarMonth" min="1" max="12" value="${escapeHtml(form.lunarMonth)}" required></label><label>일<input type="number" name="${prefix}LunarDay" min="1" max="30" value="${escapeHtml(form.lunarDay)}" required></label></div><div class="check-row"><input id="${prefix}-leap-month" name="${prefix}LeapMonth" type="checkbox" ${form.leapMonth ? 'checked' : ''}><label for="${prefix}-leap-month">윤달</label></div>`);
                 const ly = document.querySelector(`input[name="${prefix}LunarYear"]`);
                 const lm = document.querySelector(`input[name="${prefix}LunarMonth"]`);
                 const ld = document.querySelector(`input[name="${prefix}LunarDay"]`);
@@ -1570,6 +1595,17 @@
               existing?.remove();
               document.getElementById(`${prefix}-leap-month`)?.closest('.check-row')?.remove();
             }
+          });
+        }
+
+        function enhanceTraditionalSexFields() {
+          [['self', state.form], ['partner', state.partnerForm]].forEach(([prefix, form]) => {
+            const optionalFields = document.querySelector(`[data-optional-owner="${prefix}"] .form-grid`);
+            if (!optionalFields || document.getElementById(`${prefix}-sex`)) return;
+            optionalFields.insertAdjacentHTML('beforeend', `<div class="field"><label for="${prefix}-sex">전통 계산용 성별값</label><select id="${prefix}-sex" name="${prefix}Sex"><option value="unset" ${form.sex === 'unset' ? 'selected' : ''}>선택 안 함</option><option value="male" ${form.sex === 'male' ? 'selected' : ''}>남성 기준</option><option value="female" ${form.sex === 'female' ? 'selected' : ''}>여성 기준</option></select></div>`);
+            document.getElementById(`${prefix}-sex`)?.addEventListener('change', (event) => {
+              form.sex = ['male', 'female'].includes(event.target.value) ? event.target.value : 'unset';
+            });
           });
         }
 
@@ -1898,7 +1934,7 @@
         }
 
         async function resolveBirthInput(form, prefix, current) {
-          const source = { calendar: current.calendar, date: form.get(`${prefix}Date`) || null, time: form.get(`${prefix}Time`) || '12:00', unknownTime: form.get(`${prefix}UnknownTime`) === 'on', place: String(form.get(`${prefix}Place`) || '').trim(), lunarYear: form.get(`${prefix}LunarYear`), lunarMonth: form.get(`${prefix}LunarMonth`), lunarDay: form.get(`${prefix}LunarDay`), leapMonth: form.get(`${prefix}LeapMonth`) === 'on' };
+          const source = { calendar: current.calendar, date: form.get(`${prefix}Date`) || null, time: form.get(`${prefix}Time`) || '12:00', unknownTime: form.get(`${prefix}UnknownTime`) === 'on', place: String(form.get(`${prefix}Place`) || '').trim(), sex: ['male', 'female'].includes(form.get(`${prefix}Sex`)) ? form.get(`${prefix}Sex`) : 'unset', lunarYear: form.get(`${prefix}LunarYear`), lunarMonth: form.get(`${prefix}LunarMonth`), lunarDay: form.get(`${prefix}LunarDay`), leapMonth: form.get(`${prefix}LeapMonth`) === 'on' };
           if (!source.place) { source.place = DEFAULT_BIRTH_PLACE; source.placeDefaulted = true; }
           const placeResolution = resolveBirthPlace(source.place);
           if (placeResolution.status === 'ambiguous') throw new Error('같은 동네 이름이 여러 지역에 있어요. 아래 검색 결과에서 시·군·구를 확인해 골라 주세요.');
@@ -1909,12 +1945,12 @@
           if (current.calendar !== 'lunar') {
             const year = Number(String(source.date || '').slice(0, 4));
             if (!/^\d{4}-\d{2}-\d{2}$/.test(String(source.date || '')) || year < 1900 || new Date(source.date) > new Date()) throw new Error('1900년부터 오늘까지의 생년월일을 입력해 주세요.');
-            return { source, calculation: { ...current, calendar: 'solar', date: source.date, time: source.time, unknownTime: source.unknownTime, place: source.place, placeCode, sourceInput: source } };
+            return { source, calculation: { ...current, calendar: 'solar', date: source.date, time: source.time, unknownTime: source.unknownTime, sex: source.sex, place: source.place, placeCode, sourceInput: source } };
           }
           const response = await fetch(CALENDAR_CONVERSION_PATH, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ calendar: 'lunar', year: source.lunarYear, month: source.lunarMonth, day: source.lunarDay, leapMonth: source.leapMonth, hour: source.unknownTime ? 12 : Number(source.time.split(':')[0]), minute: source.unknownTime ? 0 : Number(source.time.split(':')[1]), unknownTime: source.unknownTime }) });
           const converted = await response.json();
           if (!response.ok) throw new Error(converted.message || '음력 날짜를 양력으로 변환하지 못했습니다.');
-          return { source, calculation: { ...current, calendar: 'solar', date: converted.date, time: converted.time, unknownTime: source.unknownTime, place: source.place, placeCode, sourceInput: source, calendarConversion: converted } };
+          return { source, calculation: { ...current, calendar: 'solar', date: converted.date, time: converted.time, unknownTime: source.unknownTime, sex: source.sex, place: source.place, placeCode, sourceInput: source, calendarConversion: converted } };
         }
 
         async function onBirthSubmit(event) {
@@ -2068,10 +2104,10 @@
           state.training = false;
           const purposeReceipts = [{ receiptId: `receipt-service-${clientRequestId}`, purpose: 'service_storage', decision: 'accepted', disclosureVersion: 'service-storage.v2', recordedAt: now }];
           const partnerPurposeReceipts = state.mode === 'couple' ? [{ receiptId: `receipt-partner-local-${clientRequestId}`, purpose: 'service_storage', decision: 'accepted', disclosureVersion: 'local-device.v1', recordedAt: now, subjectRole: 'partner' }] : undefined;
-          const birthInput = { calendar: state.chart.input.calendar, date: state.chart.input.date, time: state.chart.input.time, unknownTime: state.chart.input.unknownTime, place: state.chart.input.place, placeCode: state.chart.input.placeCode };
+          const birthInput = { calendar: state.chart.input.calendar, date: state.chart.input.date, time: state.chart.input.time, unknownTime: state.chart.input.unknownTime, sex: state.chart.input.sex || 'unset', place: state.chart.input.place, placeCode: state.chart.input.placeCode };
           const payload = { schemaVersion: 'submission.v1', clientRequestId, relationshipMode: state.mode, dataSubject: { relationship: 'self', authorityVerified: state.form.samePerson, minor: isMinorBirthDate(state.chart.input.date) }, birthInput, sourceBirthInput: state.chart.input.sourceInput || birthInput, chartResult: state.chart, purposeReceipts, ...annualSubmissionFields(state.annual) };
           if (state.mode === 'couple') payload.partnerSubject = { relationship: 'partner', authorityVerified: state.partnerForm.authorityVerified, minor: 'unknown' };
-          if (state.mode === 'couple') { payload.partnerBirthInput = { calendar: state.chart.partnerInput.calendar, date: state.chart.partnerInput.date, time: state.chart.partnerInput.time, unknownTime: state.chart.partnerInput.unknownTime, place: state.chart.partnerInput.place, placeCode: state.chart.partnerInput.placeCode }; payload.partnerSourceBirthInput = state.chart.partnerInput.sourceInput || payload.partnerBirthInput; }
+          if (state.mode === 'couple') { payload.partnerBirthInput = { calendar: state.chart.partnerInput.calendar, date: state.chart.partnerInput.date, time: state.chart.partnerInput.time, unknownTime: state.chart.partnerInput.unknownTime, sex: state.chart.partnerInput.sex || 'unset', place: state.chart.partnerInput.place, placeCode: state.chart.partnerInput.placeCode }; payload.partnerSourceBirthInput = state.chart.partnerInput.sourceInput || payload.partnerBirthInput; }
           if (state.mode === 'couple') payload.partnerPurposeReceipts = partnerPurposeReceipts;
           const shouldCloudSave = cloudSaveEligible();
           let record = { id: clientRequestId, clientRequestId, mode: state.mode, chart: state.chart, annual: state.annual, messages: state.messages, training: false, trainingEligible: false, serviceStorage: shouldCloudSave, purposeReceipts, partnerPurposeReceipts, serverSubmissionId: '', durable: false, status: shouldCloudSave ? 'pending-sync' : 'local-only', createdAt: state.chart.createdAt || now, updatedAt: now };

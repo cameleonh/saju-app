@@ -50,12 +50,13 @@ const session = await storage.getSession(tokenHash);
 assert.equal(session.userId, account.userId);
 assert.equal(session.status, 'active');
 
-const birthInput = { calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울특별시', placeCode: '1100000000', unknownTime: false };
+const birthInput = { calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울특별시', placeCode: '1100000000', unknownTime: false, sex: 'male' };
 const chartResult = { ...calculateNatalChart(birthInput), facts: [], reading: [] };
 chartResult.daewoon = calculateDaewoon({
   date: birthInput.date,
   time: birthInput.time,
   unknownTime: birthInput.unknownTime,
+  sex: birthInput.sex,
   yearStem: chartResult.pillars[0].stem,
   monthStem: chartResult.pillars[1].stem,
   monthBranch: chartResult.pillars[1].branch,

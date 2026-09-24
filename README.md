@@ -1,15 +1,16 @@
 # Saju App: Four Traditions Comparison
 
-Korean-first astrology PWA evolving from a deterministic Saju product into a one-profile comparison of Korean Saju, Thai Horasat, Vietnamese Tử Vi, and Myanmar Mahabote. The existing Saju natal, annual, daewoon, and couple flows are the implemented baseline; the three additional calculation engines and the cross-system comparison are specified but not implemented.
+Korean-first astrology PWA for Korean Saju plus explicitly scoped Thai weekday/sidereal Sun-rasi, Vietnamese Tử Vi, and Myanmar Mahabote natal calculations. Each policy states its calendar, time, source, and unsupported output layers; this is not a claim that every school's full astrology system is implemented.
 
 ## Product behavior
 
-- Current implementation: single and couple Saju calculations, evidence-linked readings, lunar conversion, searchable Korean birthplace data, local IndexedDB history, JSON export, and deletion.
-- `KR-CIVIL-1.0`, `KR-ANNUAL-IPCHUN-1.1`, and `KR-DAEWOON-1.0` are shared by browser/server verification.
+- Current implementation: single/couple Saju, annual and daewoon facts; Thai weekday symbols and ephemeris-based sidereal Sun sign; Tử Vi using the Vietnam GMT+7 lunar calendar and gender-aware timing; Mahabote birth-chart arithmetic; local IndexedDB history, JSON export, and deletion.
+- `KR-CIVIL-1.0@1.2.0`, `KR-DAEWOON-1.0@1.3.0`, `TH-HORASAT-1.0@1.2.0`, `VN-TUVI-1.0@1.2.0`, and `MM-MAHABOTE-1.0@1.2.0` record the calculation policies.
+- Source-unlocked Mahabote annual/daily forecasts, Tử Vi daily palace rotation, Thai full Lagna chart, and unverified Southeast Asian forecast prose are withheld rather than guessed.
 - Questions are organized by deterministic local rules and are not sent to an external generative-AI provider.
 - Couple/partner records and under-19 records never enter central persistence.
 - Target experience: enter one birth profile, show which of the four systems can be calculated from the available input, inspect each tradition separately, and compare only evidence-backed common, different, and system-specific themes.
-- Comparison never ranks a tradition, produces an accuracy or fate score, or fills a missing system with generated text. Each new policy remains release-blocked until its source, license, school decisions, and independent oracle fixtures are approved.
+- Comparison never ranks a tradition, produces an accuracy or fate score, or fills a missing fact with generated text. Policy limits and unavailable inputs are surfaced in the result.
 
 ## Governed account storage
 
@@ -40,7 +41,7 @@ TEST_POSTGRES_URL=postgresql://postgres:password@127.0.0.1:5432/saju npm run tes
 - Account: `GET /auth/login`, `GET /auth/callback`, `POST /auth/logout`, `GET /v1/me`, `DELETE /v1/account`
 - Authenticated history: `GET /v1/submissions`, `POST /v1/submissions`, `GET /v1/submissions/:id`, `DELETE /v1/submissions/:id`
 
-The planned registry, eligibility, per-system result, and comparison routes are contracts in `docs/MULTI-ASTROLOGY-COMPARISON-SPEC.md`; they do not exist in the runtime yet.
+The per-system eligibility and comparison contracts are implemented in `server/domain/astrology-comparison.mjs` and documented in `docs/MULTI-ASTROLOGY-COMPARISON-SPEC.md`.
 
 ## Documents
 
@@ -56,5 +57,10 @@ The planned registry, eligibility, per-system result, and comparison routes are 
 - [Deployment](DEPLOYMENT.md)
 - [Privacy launch gate](docs/legal/LAUNCH-SIGNOFF.md)
 - [Natal policy](docs/NATAL-CALCULATION-POLICY.md)
+- [Korean lunar conversion policy](docs/KOREAN-LUNAR-CALENDAR-POLICY.md)
 - [Annual policy](docs/ANNUAL-READING-POLICY.md)
 - [Daewoon policy](docs/DAEWOON-CALCULATION-POLICY.md)
+- [Thai Horasat policy](docs/TH-HORASAT-CALCULATION-POLICY.md)
+- [Vietnamese Tử Vi policy](docs/VN-TUVI-CALCULATION-POLICY.md)
+- [Myanmar Mahabote policy](docs/MM-MAHABOTE-CALCULATION-POLICY.md)
+- [Calculation repair notes](docs/CALCULATION-REPAIR-2026-09-24.md)

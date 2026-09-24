@@ -1,17 +1,19 @@
 // chart/tu-vi-engine.mjs
-// 베트남 전통 점성학 뜨비(Tử Vi / Tử Vi Đẩu Số) 계산 엔진.
-// 명궁·신궁·국(局)·주성 배치는 자미두수(紫微斗數) 통용 규칙(중국어 위키백과 「紫微斗數」
-// 안궁 절차: 五行局=명궁 간지의 납음 오행, 紫微 안성 공식, 자미군·천부군 14성 전개)을 따름.
-// 베트남 현지 유파별 상세 규칙(사화, 잡성, 윤월 세분)과 대조 검증은 진행 중이며
-// 음력은 중국 음양력 데이터로 대체 사용한다(정책 source 참조).
+// 베트남 Tử Vi chart engine. Structural placement rules are shared with the
+// selected Quanshu lineage; lunar-date conversion follows the VN GMT+7 calendar.
 
-import { describeSolarToLunar } from './solar-lunar.mjs';
+import { describeSolarToVietnameseLunar } from './vietnamese-lunar-calendar.mjs';
+import { resolveSeoulCivilTime } from './natal-engine.mjs';
 
 export const TU_VI_POLICY = Object.freeze({
   id: 'VN-TUVI-1.0',
-  version: '1.1.0',
-  name: '베트남 뜨비 12궁 5국 (배치 규칙 오라클 검증·β)',
-  source: '명궁·신궁·납음 오행 국(局)·자미 안성·14주성·사화(四化)·잡성 14종 배치는 자미두수 정통 규칙을 따르며 베트남 구현체 tuvi-neo 1.0.7과 대조 검증(주성 246·사화 213·잡성 695 표본 전수 일치, 달력 경계 6건 제외). 음력은 중국 음양력 데이터로 대체(참고용)',
+  version: '1.2.0',
+  name: '베트남 현지 음력·자미두수 배치 정책',
+  source: '음력은 Hồ Ngọc Đức의 베트남 GMT+7/105E 천문력 규칙을 사용한다. 명궁·신궁·국·자미 14주성·사화·잡성 배치는 Quanshu 계열 규칙과 tuvi-neo 1.0.7 대조값을 사용한다. 윤달은 같은 번호의 평월 규칙으로 처리한다. 대·소한 진행 방향에는 전통 계산용 성별값이 필요하다.',
+  calendarSource: 'ho-ngoc-duc-vietnamese-lunar-calendar@2008-rules-gmt+7.1',
+  calendarTimezone: 'Asia/Ho_Chi_Minh (UTC+7)',
+  hourRule: 'birthplace civil clock; exact HH:MM required',
+  supportedSolarDates: Object.freeze(['1900-01-01', '2100-12-31']),
 });
 
 // 12 지지 (베트남 명칭)
@@ -160,14 +162,15 @@ function yearTrio(branchIdx) {
 // 음년생 남성·양년생 여성은 역행하며 10년마다 다음 궁. 소한은 허삐(만+1세) 나이로 1년 1궁.
 // 본 서비스는 성별을 입력받지 않아 소한 진행 방향을 남명 기준(역행)으로 고정한다.
 export function getDaiHan(chart, age) {
+  if (!['male', 'female'].includes(chart.sex)) return null;
   const cucNum = chart.cuc.num;
   const startAge = cucNum;
   if (age < startAge) return null;
   const yearStem = chart.yearStem.index; // 0=甲..9=癸
   const isYangYear = yearStem % 2 === 0;
-  const maleForward = isYangYear; // 양남·음녀 순행
+  const forward = (isYangYear && chart.sex === 'male') || (!isYangYear && chart.sex === 'female');
   const steps = Math.floor((age - startAge) / 10);
-  const branchIdx = (((maleForward ? chart.menhPalace.branch.index + steps : chart.menhPalace.branch.index - steps) % 12) + 12) % 12;
+  const branchIdx = (((forward ? chart.menhPalace.branch.index + steps : chart.menhPalace.branch.index - steps) % 12) + 12) % 12;
   const decadeIndex = steps;
   const decadeStart = startAge + steps * 10;
   const palaceAt = chart.palacesPlacement.find((p) => p.branch.index === branchIdx);
@@ -176,13 +179,14 @@ export function getDaiHan(chart, age) {
     branch: BRANCH_NAMES_VN[branchIdx],
     decadeIndex,
     ageRange: `${decadeStart}~${decadeStart + 9}세`,
-    direction: maleForward ? '순행' : '역행',
+    direction: forward ? '순행' : '역행',
   };
 }
 
 export function getTieuHan(chart, age) {
+  if (!['male', 'female'].includes(chart.sex)) return null;
   if (age < 1) return null;
-  // 통용 규칙: 남명 역행·여명 순행, 명궁을 1세로 1년 1궁 (성별 미지정 시 남명 기준)
+  // 통용 규칙: 남명 역행·여명 순행, 명궁을 1세로 1년 1궁.
   const forward = chart.sex === 'female';
   const steps = (age - 1) % 12;
   const branchIdx = (((forward ? chart.menhPalace.branch.index + steps : chart.menhPalace.branch.index - steps) % 12) + 12) % 12;
@@ -282,14 +286,33 @@ export function calculateTuVi(input = {}) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     throw new Error('베트남 뜨비 계산을 위해 유효한 출생일(YYYY-MM-DD)이 필요합니다.');
   }
+  const [inputYear, inputMonth, inputDay] = dateStr.split('-').map(Number);
+  const inputDate = new Date(Date.UTC(inputYear, inputMonth - 1, inputDay));
+  if (inputDate.getUTCFullYear() !== inputYear || inputDate.getUTCMonth() !== inputMonth - 1 || inputDate.getUTCDate() !== inputDay) {
+    throw new Error('Tử Vi birth date must be a valid Gregorian date.');
+  }
+  const birthYear = Number(dateStr.slice(0, 4));
+  if (birthYear < 1900 || birthYear > 2100) throw new Error('Tử Vi birth date must be within 1900..2100.');
 
-  const lunar = describeSolarToLunar({ date: dateStr });
-  const lunarMonth = lunar.month; // 윤달은 본월에 붙여 계산
+  if (input.unknownTime === true || !input.time) throw new Error('Tử Vi requires an exact birth time to place the Life and Body palaces.');
+  const timeMatch = /^(\d{2}):(\d{2})$/.exec(String(input.time));
+  if (!timeMatch || Number(timeMatch[1]) > 23 || Number(timeMatch[2]) > 59) throw new Error('time must use a valid HH:MM value');
+  if (input.timezoneId && input.timezoneId !== 'Asia/Seoul' && !input.utcInstant) {
+    throw new Error('Non-Seoul birth clocks require a resolved UTC instant for this policy.');
+  }
+  const utcMs = input.utcInstant ? Date.parse(input.utcInstant) : resolveSeoulCivilTime(dateStr, input.time).utcMs;
+  if (!Number.isFinite(utcMs)) throw new Error('utcInstant must be a valid ISO timestamp');
+  // Convert the birth instant to the Vietnamese calendar's GMT+7 day before
+  // looking up its lunar date. The two-hour branch still uses the entered
+  // birthplace civil clock, as required by the chosen chart policy.
+  const vietnamLocal = new Date(utcMs + 7 * 60 * 60 * 1000);
+  const vietnamDate = `${vietnamLocal.getUTCFullYear()}-${String(vietnamLocal.getUTCMonth() + 1).padStart(2, '0')}-${String(vietnamLocal.getUTCDate()).padStart(2, '0')}`;
+  const lunar = describeSolarToVietnameseLunar({ date: vietnamDate });
+  const lunarMonth = lunar.month; // 윤달은 같은 번호의 평월로 처리하는 정책
   const lunarDay = lunar.day;
 
-  const timeStr = String(input.time || '12:00');
-  const [hours] = timeStr.split(':').map(Number);
-  const hourBranchIdx = input.unknownTime ? 6 : getHourBranchIndex(hours); // 기본값 Ngọ (오시)
+  const [hours] = input.time.split(':').map(Number);
+  const hourBranchIdx = getHourBranchIndex(hours);
 
   // 1. Mệnh(명궁): 인(寅)에서 음력 월만큼 순행 후 시진만큼 역행
   const menhBranchIdx = (2 + (lunarMonth - 1) - hourBranchIdx + 120) % 12;
@@ -385,6 +408,11 @@ export function calculateTuVi(input = {}) {
 
   return {
     policy: TU_VI_POLICY,
+    sex: ['male', 'female'].includes(input.sex) ? input.sex : null,
+    unsupportedStates: [
+      ...(lunar.leapMonth ? [{ id: 'tu-vi.leap-month', reason: 'This policy maps a leap lunar month to the same-numbered regular month.' }] : []),
+      ...(!['male', 'female'].includes(input.sex) ? [{ id: 'tu-vi.gendered-periods', reason: 'Traditional sex parameter is required to calculate Đại Hạn and Tiểu Hạn direction.' }] : []),
+    ],
     lunarDate: `음력 ${lunar.year}년 ${lunar.month}월${lunar.leapMonth ? '(윤) ' : ' '}${lunar.day}일`,
     lunarInput: { year: lunar.year, month: lunar.month, day: lunar.day, leapMonth: lunar.leapMonth },
     menhPalace: {
@@ -421,22 +449,6 @@ const YEAR_BRANCH_VN = Object.freeze({
   2027: { branchIdx: 7, name: '미 (Mùi / 양의 해)' },
 });
 
-// 유년 세궁(Lưu Niên) 12궁별 연운 문안 — 궁의 전통 의미를 올해의 국면으로 옮긴 해석.
-const PALACE_ANNUAL_THEMES = Object.freeze({
-  menh: { theme: '정체성을 다시 세우는 해', lead: '내 이름과 기준으로 서는 일이 많아집니다. 남의 기대가 아니라 내 체질에 맞는 속도를 찾는 한 해입니다.', practice: '새해 목표를 남 앞이 아니라 스스로 먼저 적어 두세요. 명식의 중심축이 흔들리지 않을 때 다른 궁의 기운도 자리를 잡습니다.' },
-  phu_mau: { theme: '윗사람과 뿌리를 돌보는 해', lead: '부모·스승·후원자와의 인연이 전면에 나옵니다. 물려받은 것(건강·습관·인맥 포함)을 점검하게 됩니다.', practice: '오래 미룬 인사·감사 인사를 먼저 하세요. 문서로 남는 일(등록·계약·상속 관련 확인)은 서두르되 서명은 신중히.' },
-  phuc_duc: { theme: '마음의 저축을 쌓는 해', lead: ' 겉으로 드러나는 성과보다 정신적 만족과 내면의 여유가 흐르는 해입니다. 취향·휴식·정신생활이 삶의 무게 중심이 됩니다.', practice: '돌아보는 습관(일기·명상·산책)을 들이면 올해의 복이 쌓입니다. 소비보다 경험에 쓰는 해로 설계하세요.' },
-  dien_trach: { theme: '터전을 굳히는 해', lead: '주거·공간·자산 관련 변화나 결정이 따릅니다. 이사·수리·계약 갱신처럼 "자리"에 관한 일이 인연을 끌어옵니다.', practice: '공간 쪽 지출과 계약 조건은 꼼꼼히 검토하세요. 안정적인 터전은 다음 국면의 성과를 받을 그릇입니다.' },
-  quan_loc: { theme: '성과로 증명하는 해', lead: '직업과 사회적 역할이 무대 중앙에 섭니다. 평가·승진·시험·발표처럼 실력이 드러나는 국면이 반복해서 옵니다.', practice: '포트폴리오와 성과 기록을 상시로 정리하세요. 기회는 준비된 서류 앞에서 문을 두드립니다.' },
-  no_boc: { theme: '사람과 도구를 부리는 해', lead: '혼자 다 하려 하면 소모되고, 사람과 도구를 쓰면 성과가 커지는 해입니다. 부하·파트너·외주와의 관계가 관건입니다.', practice: '도울 사람을 먼저 정하고 일을 나누세요. 신뢰 잃는 지출(약속 미이행)은 올해 비용이 큽니다.' },
-  thien_di: { theme: '밖에서 이름을 얻는 해', lead: '무대가 안이 아니라 밖에서 열립니다. 출장·이동·대외 활동·새로운 환경에서 기회를 만납니다.', practice: '밖으로 나가는 약속을 미루지 마세요. 다만 가는 곳마다 기록과 후속 조치가 따라야 인연이 씨가 됩니다.' },
-  tat_ach: { theme: '몸이 먼저 신호를 주는 해', lead: '건강과 리듬 관리가 실력의 일부가 되는 해입니다. 몸의 작은 신호가 일의 흐름을 좌우합니다.', practice: '예약 미룬 검진과 운동 루틴을 올해 안에 잡으세요. 무리한 일정은 곧 비용으로 돌아옵니다.' },
-  tai_bach: { theme: '현금 흐름이 열리는 해', lead: '수익 구조와 금전 관리가 중심 소재입니다. 버는 방식·쓰는 방식·모으는 방식이 함께 점검됩니다.', practice: '수입원 다변화와 지출 기록을 함께 하세요. 올해의 재물은 관리 능력만큼 붙습니다.' },
-  tu_tuc: { theme: '다음 세대와 창작을 돌보는 해', lead: '자녀·후배·제자, 또는 내가 낳는 결과물(작품·프로젝트)에 마음이 씁니다. 가르치고 키우는 일에서 보람이 큽니다.', practice: '키우는 것(사람·작품)에 단위 시간을 배정하세요. 씨 뿌리는 해의 정성은 다음 국면의 수확입니다.' },
-  phu_the: { theme: '반려와 협력이 주제인 해', lead: '배우자·연인·공식 파트너와의 관계가 올해의 축입니다. 인연의 결(짝·동업·계약)이 새로 맺히거나 다시 매듭됩니다.', practice: '관계의 규칙(기대·역할·약속)을 대화로 다지세요. 새 인연은 서두르지 않고 조건은 분명히.' },
-  huynh_de: { theme: '가까운 동료와의 연대 해', lead: '형제·친구·동업자처럼 어깨를 나란히 하는 관계가 소재입니다. 협력하면 이기고, 따로 가면 소모됩니다.', practice: '동료와의 이익 구조를 미리 명확히 하세요. 정은 정으로, 계산은 계산으로 남기는 게 오래 가는 비결입니다.' },
-});
-
 /**
  * 특정 연도(targetYear)의 베트남 뜨비 유년운(Lưu Niên)을 계산합니다.
  * 세궁(歲宮)은 당해 년지가 놓인 궁 — 통용 규칙.
@@ -456,7 +468,6 @@ export function calculateTuViAnnual(input = {}) {
   const activePlacement = chart.palacesPlacement.find((p) => p.branch.index === yearBranchInfo.branchIdx) || chart.palacesPlacement[0];
   const activePalace = activePlacement.palace;
   const activeStars = (chart.starByBranch.find((s) => s.branch.index === yearBranchInfo.branchIdx)?.stars) || [];
-  const annualCopy = PALACE_ANNUAL_THEMES[activePalace.id] || PALACE_ANNUAL_THEMES.menh;
 
   return {
     targetYear,
@@ -468,37 +479,20 @@ export function calculateTuViAnnual(input = {}) {
     activeBranch: activePlacement.branch,
     activeStars,
     primaryStar: chart.menhPalace.primaryStar,
-    annualTheme: annualCopy.theme,
-    annualLead: annualCopy.lead,
-    annualPractice: annualCopy.practice,
-    palaceTheme: `${activePalace.name} (${activePalace.meaning})의 영역이 활성화되는 해`,
-    advice: annualCopy.practice,
-    summary: `${targetYear}년(${yearBranchInfo.name}) 베트남 뜨비에서는 ${activePlacement.branch.name}에 위치한 '${activePalace.name}'${activeStars.length ? `(${activeStars.map((s) => s.name).join(', ')})` : ''}이 당해 유년운의 중심 무대가 됩니다. ${annualCopy.theme}.`,
+    unsupportedStates: [
+      { id: 'tu-vi.annual-interpretation', reason: '궁·별의 위치는 계산했지만 연도별 사건 해석 문안은 검증된 규칙이 없어 생성하지 않습니다.' },
+      ...chart.unsupportedStates,
+    ],
+    summary: `${targetYear}년(${yearBranchInfo.name})의 유년 지지 ${BRANCH_NAMES_VN[yearBranchInfo.branchIdx].name}가 ${activePlacement.branch.name}의 ${activePalace.name}궁과 만납니다. 이는 배치 사실이며 사건 예측이 아닙니다.`,
   };
 }
 
 /**
- * 특정 날짜(targetDate)의 베트남 뜨비 일운(Nhật Vận)을 계산합니다.
- * 일운의 궁 회전은 통용 규칙이 확립되지 않아 음력 일수 기반 간이 순환을 사용한다(β).
- * @param {object} input { date: 'YYYY-MM-DD', targetDate?: 'YYYY-MM-DD' }
- * @returns {object} 계산된 뜨비 일운 객체
+ * No source-locked Vietnamese Nhật Vận rule is included in this policy.
+ * @returns {null} Daily output is withheld until a lineage-specific rule is approved.
  */
 export function calculateTuViDaily(input = {}) {
-  const chart = calculateTuVi(input);
-  const targetDateStr = String(input.targetDate || new Date().toISOString().slice(0, 10)).trim();
-  const todayLunar = describeSolarToLunar({ date: targetDateStr });
-
-  const activePalaceIdx = ((todayLunar.day - 1) % 12 + 12) % 12;
-  const activePlacement = chart.palacesPlacement[activePalaceIdx] || chart.palacesPlacement[0];
-  const palace = activePlacement.palace;
-
-  return {
-    targetDate: targetDateStr,
-    lunarDay: todayLunar.day,
-    activePalace: palace,
-    activeBranch: activePlacement.branch,
-    dailyFocus: `${palace.name} (${palace.meaning})의 기운이 비추는 날`,
-    advice: `오늘은 ${palace.role}에 마음을 기울이고 균형을 유지하세요.`,
-    summary: `오늘(음력 ${todayLunar.month}월 ${todayLunar.day}일)은 내 12궁 중 '${palace.name}'이 활성화되는 날입니다.`,
-  };
+  // This repository has no source-locked Vietnamese Nhật Vận palace-rotation
+  // rule. A lunar-day modulo-12 heuristic must not be presented as Tử Vi output.
+  return null;
 }

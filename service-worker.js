@@ -1,4 +1,4 @@
-const CACHE = 'saju-app-shell-v29';
+const CACHE = 'saju-app-shell-v33';
 const ASSETS = [
   './',
   './index.html',
@@ -13,9 +13,11 @@ const ASSETS = [
   './chart/daewoon-branch-analysis.mjs',
   './chart/mahabote-engine.mjs',
   './chart/horasat-engine.mjs',
+  './chart/horasat-rasi-data.mjs',
   './chart/tu-vi-engine.mjs',
   './chart/solar-lunar.mjs',
   './chart/lunar-calendar-data.mjs',
+  './chart/vietnamese-lunar-calendar.mjs',
   './chart/destined-match.mjs',
   './chart/couple-compatibility.mjs',
   './web/destined-match.mjs',

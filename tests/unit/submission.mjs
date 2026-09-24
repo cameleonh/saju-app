@@ -11,7 +11,7 @@ const receipt = (purpose, decision = 'accepted') => ({
   disclosureVersion: 'v1',
   recordedAt: '2026-08-01T00:00:00Z',
 });
-const birthInput = { calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울특별시 강남구 역삼1동', placeCode: '1168064000', unknownTime: false };
+const birthInput = { calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울특별시 강남구 역삼1동', placeCode: '1168064000', unknownTime: false, sex: 'male' };
 const chartFor = (input) => ({ ...calculateNatalChart(input), facts: [{ id: 'day.element', value: '토' }], reading: [] });
 const chartWithDaewoonFor = (input) => {
   const chart = chartFor(input);
@@ -21,6 +21,7 @@ const chartWithDaewoonFor = (input) => {
       date: input.date,
       time: input.unknownTime ? '12:00' : input.time,
       unknownTime: input.unknownTime,
+      sex: input.sex,
       yearStem: chart.pillars[0].stem,
       monthStem: chart.pillars[1].stem,
       monthBranch: chart.pillars[1].branch,
@@ -67,6 +68,13 @@ assert.ok(
 
 const daewoonChart = chartWithDaewoonFor(birthInput);
 assert.deepEqual(validateSubmission(baseSubmission({ chartResult: daewoonChart })), [], 'a deterministic daewoon result is accepted');
+const birthInputWithoutSex = { ...birthInput };
+delete birthInputWithoutSex.sex;
+assert.ok(
+  validateSubmission(baseSubmission({ birthInput: birthInputWithoutSex, chartResult: daewoonChart })).some((error) => /daewoon requires an explicit male or female traditional sex parameter/.test(error)),
+  'a direction-sensitive daewoon cannot be verified when the saved birth input omits its required traditional sex parameter',
+);
+assert.ok(validateSubmission(baseSubmission({ birthInput: { ...birthInput, sex: 'other' } })).some((error) => /birthInput\.sex must be unset, male, or female/.test(error)));
 const tamperedDaewoonChart = { ...daewoonChart, daewoon: { ...daewoonChart.daewoon, direction: 'backward' } };
 assert.ok(validateSubmission(baseSubmission({ chartResult: tamperedDaewoonChart })).some((error) => /daewoon direction does not match/.test(error)), 'a tampered daewoon result is rejected');
 const malformedNatalWithDaewoon = { ...daewoonChart, pillars: [] };
@@ -103,7 +111,7 @@ const coupleMissingPartnerAuthority = validateSubmission(baseSubmission({
 }));
 assert.ok(coupleMissingPartnerAuthority.some((error) => /couple submissions require verified partner authority/.test(error)));
 
-const partnerBirthInput = { calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false };
+const partnerBirthInput = { calendar: 'solar', date: '1992-02-14', time: '09:00', place: '서울특별시 종로구 사직동', placeCode: '1111053000', unknownTime: false, sex: 'female' };
 const partnerChart = chartWithDaewoonFor(partnerBirthInput);
 const tamperedPartnerChart = { ...partnerChart, daewoon: { ...partnerChart.daewoon, startAge: partnerChart.daewoon.startAge + 1 } };
 const tamperedPartnerErrors = validateSubmission(baseSubmission({

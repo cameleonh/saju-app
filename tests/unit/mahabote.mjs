@@ -31,12 +31,7 @@ assert.deepEqual(resDirah.housePlacements.map((p) => p.planet), ['moon', 'jupite
 assert.equal(resDirah.rulingHouse.name, 'Adipati (아디파티)', 'Wednesday AM (Mercury) sits in the 4th house per the dirah chart');
 
 // 3. Annual Fortune Test
-const annual1 = calculateMahaboteAnnual({ date: '1990-10-10', targetYear: 2026 });
-assert.equal(annual1.targetYear, 2026);
-assert.equal(annual1.age, 36);
-assert.ok(annual1.yearlyHouse, 'annual house is populated');
-assert.ok(annual1.yearlyTheme, 'annual theme is populated');
-assert.ok(annual1.yearlyAdvice, 'annual advice is populated');
+assert.equal(calculateMahaboteAnnual({ date: '1990-10-10', targetYear: 2026 }), null, 'unverified age-mod-7 annual forecast is not presented as Mahabote calculation');
 
 // Date 2: 1990-10-10 (Wednesday) 09:00 -> Wednesday AM (Boddahu)
 const res2 = calculateMahabote({ date: '1990-10-10', time: '09:00', unknownTime: false });
@@ -51,10 +46,13 @@ assert.equal(res3.birthDay.animal, '기니피그 (Guinea Pig)');
 assert.equal(res3.birthDay.planet, '금성 (Venus)');
 
 // 4. Daily Fortune Test
-const daily1 = calculateMahaboteDaily({ date: '1990-10-10', targetDate: '2026-08-26' });
-assert.ok(daily1.todayDay, 'today day resolved');
-assert.ok(daily1.dailyTheme, 'daily theme populated');
-assert.ok(daily1.dailyAdvice, 'daily advice populated');
+assert.equal(calculateMahaboteDaily({ date: '1990-10-10', time: '14:30', targetDate: '2026-08-26' }), null, 'unverified daily reading is withheld');
+
+const unknownWednesday = calculateMahabote({ date: '1990-10-10', unknownTime: true });
+assert.equal(unknownWednesday.birthDay, null, 'unknown Wednesday time does not invent the AM/PM birth planet');
+assert.deepEqual(unknownWednesday.birthDayCandidates.map((d) => d.id), ['wed_am', 'wed_pm']);
+assert.equal(unknownWednesday.rulingHouse.name, res1.rulingHouse.name, 'Wednesday Mercury/Rahu replacement preserves the natal house');
+assert.throws(() => calculateMahabote({ date: '1990-02-30', time: '12:00' }), /유효한 출생일/);
 
 // Date 4: 1988-08-08 (Monday)
 const res4 = calculateMahabote({ date: '1988-08-08', time: '12:00', unknownTime: false });
@@ -62,4 +60,4 @@ assert.equal(res4.birthDay.id, 'mon', '1988-08-08 is Monday');
 assert.equal(res4.birthDay.animal, '호랑이 (Tiger)');
 assert.equal(res4.birthDay.planet, '달 (Moon)');
 
-console.log('✓ mahabote: 24 assertions passed');
+console.log('✓ mahabote: source-locked natal fixtures and unsupported forecast gates passed');

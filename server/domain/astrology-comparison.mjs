@@ -11,9 +11,9 @@ export const COMPARISON_VERSION = 'comparison.v1';
 
 export const SYSTEM_REGISTRY = Object.freeze([
   Object.freeze({ schemaVersion: 'system-policy-descriptor.v1', systemId: 'saju', displayName: '한국 사주', policyId: NATAL_POLICY.id, policyVersion: NATAL_POLICY.version, status: 'active', engineVersion: NATAL_POLICY.engineVersion, factSchemaVersion: 'natal-chart.v1', sourceSetVersion: 'kasi-kasa-almanac-kst-minute@2024-2027.reviewed-2026-08-04', requiredInputs: Object.freeze(['inputCalendar.date']), optionalInputs: Object.freeze(['birthTime', 'place']), supportsPartial: true, engineAvailable: true, supportedRange: Object.freeze({ dateFrom: NATAL_POLICY.supportedSolarDates[0], dateTo: NATAL_POLICY.supportedSolarDates[1] }) }),
-  Object.freeze({ schemaVersion: 'system-policy-descriptor.v1', systemId: 'mahabote', displayName: '미얀마 마하보테', policyId: MAHABOTE_POLICY.id, policyVersion: MAHABOTE_POLICY.version, status: 'active', engineVersion: MAHABOTE_POLICY.version, factSchemaVersion: 'mahabote-facts.v1', sourceSetVersion: 'mm-mahabote-sources.v1', requiredInputs: Object.freeze(['inputCalendar.date']), optionalInputs: Object.freeze(['birthTime']), supportsPartial: true, engineAvailable: true, supportedRange: Object.freeze({ dateFrom: '1900-01-01', dateTo: '2100-12-31' }) }),
-  Object.freeze({ schemaVersion: 'system-policy-descriptor.v1', systemId: 'horasat', displayName: '태국 호라삿', policyId: HORASAT_POLICY.id, policyVersion: HORASAT_POLICY.version, status: 'active', engineVersion: HORASAT_POLICY.version, factSchemaVersion: 'horasat-facts.v1', sourceSetVersion: 'th-horasat-sources.v1', requiredInputs: Object.freeze(['inputCalendar.date']), optionalInputs: Object.freeze(['birthTime']), supportsPartial: true, engineAvailable: true, supportedRange: Object.freeze({ dateFrom: '1900-01-01', dateTo: '2100-12-31' }) }),
-  Object.freeze({ schemaVersion: 'system-policy-descriptor.v1', systemId: 'tu-vi', displayName: '베트남 뜨비', policyId: TU_VI_POLICY.id, policyVersion: TU_VI_POLICY.version, status: 'active', engineVersion: TU_VI_POLICY.version, factSchemaVersion: 'tu-vi-facts.v1', sourceSetVersion: 'vn-tuvi-sources.v1', requiredInputs: Object.freeze(['inputCalendar.date']), optionalInputs: Object.freeze(['birthTime']), supportsPartial: true, engineAvailable: true, supportedRange: Object.freeze({ dateFrom: '1900-01-01', dateTo: '2100-12-31' }) }),
+  Object.freeze({ schemaVersion: 'system-policy-descriptor.v1', systemId: 'mahabote', displayName: '미얀마 마하보테', policyId: MAHABOTE_POLICY.id, policyVersion: MAHABOTE_POLICY.version, status: 'active', engineVersion: MAHABOTE_POLICY.version, factSchemaVersion: 'mahabote-facts.v1', sourceSetVersion: 'dirah-sageasita-mahabote-birth-rules.v2', requiredInputs: Object.freeze(['inputCalendar.date']), optionalInputs: Object.freeze(['birthTime']), supportsPartial: true, engineAvailable: true, supportedRange: Object.freeze({ dateFrom: '1900-01-01', dateTo: '2100-12-31' }) }),
+  Object.freeze({ schemaVersion: 'system-policy-descriptor.v1', systemId: 'horasat', displayName: '태국 호라삿', policyId: HORASAT_POLICY.id, policyVersion: HORASAT_POLICY.version, status: 'active', engineVersion: HORASAT_POLICY.version, factSchemaVersion: 'horasat-facts.v1', sourceSetVersion: 'astronomy-engine-2.1.19-lahiri-v1+thai-weekday-table.v2', requiredInputs: Object.freeze(['inputCalendar.date', 'birthTime.exact', 'place.timezoneId']), optionalInputs: Object.freeze([]), supportsPartial: false, engineAvailable: true, supportedRange: Object.freeze({ dateFrom: '1900-01-01', dateTo: '2100-12-31' }) }),
+  Object.freeze({ schemaVersion: 'system-policy-descriptor.v1', systemId: 'tu-vi', displayName: '베트남 뜨비', policyId: TU_VI_POLICY.id, policyVersion: TU_VI_POLICY.version, status: 'active', engineVersion: TU_VI_POLICY.version, factSchemaVersion: 'tu-vi-facts.v1', sourceSetVersion: 'ho-ngoc-duc-vietnamese-lunar-v1+quanshu-tuvi-v2', requiredInputs: Object.freeze(['inputCalendar.date', 'birthTime.exact', 'place.timezoneId']), optionalInputs: Object.freeze(['traditionalSexParameter']), supportsPartial: true, engineAvailable: true, supportedRange: Object.freeze({ dateFrom: '1900-01-01', dateTo: '2100-12-31' }) }),
 ]);
 
 const descriptorFor = (systemId) => SYSTEM_REGISTRY.find((item) => item.systemId === systemId);
@@ -34,16 +34,18 @@ export function normalizeBirthProfile(input, { now = new Date(), profileId = cry
   const timeStatus = unknownTime ? 'unknown' : (raw.timeAccuracy === 'approximate' ? 'approximate' : 'exact');
   if (!calendar || !date) throw new TypeError('birth profile requires calendar and date');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new TypeError('birth profile date must use YYYY-MM-DD');
+  const traditionalSexParameter = raw.traditionalSexParameter ?? raw.sex;
   const place = raw.place && typeof raw.place === 'object' ? raw.place : {};
   const latitude = Number(raw.latitude ?? place.latitude);
   const longitude = Number(raw.longitude ?? place.longitude);
-  const timezoneId = raw.timezone || raw.timezoneId || place.timezoneId || (raw.placeCode ? 'Asia/Seoul' : null);
+  const explicitTimeZone = raw.timezone || raw.timezoneId || place.timezoneId || null;
+  const timezoneId = explicitTimeZone || ((raw.placeCode || raw.countryCode === 'KR' || place.countryCode === 'KR') ? 'Asia/Seoul' : null);
   const hasCoordinates = Number.isFinite(latitude) && Number.isFinite(longitude);
   const normalized = {
     schemaVersion: 'birth-profile.v2', profileId, inputCalendar: { type: calendar, date, isLeapMonth: raw.isLeapMonth ?? null },
     birthTime: { status: timeStatus, localTime: timeStatus === 'unknown' ? null : raw.time, uncertaintyMinutes: timeStatus === 'approximate' ? Number(raw.uncertaintyMinutes || 30) : 0 },
-    place: { label: typeof raw.place === 'string' ? raw.place : (place.label || null), countryCode: raw.countryCode || place.countryCode || (raw.placeCode ? 'KR' : null), latitude: hasCoordinates ? latitude : null, longitude: hasCoordinates ? longitude : null, timezoneId, timezoneConfidence: timezoneId ? (raw.timezoneConfidence || place.timezoneConfidence || 'inferred') : 'unresolved', legacyKoreanPlaceCode: raw.placeCode || place.legacyKoreanPlaceCode || null },
-    resolvedInstant: null, traditionalSexParameter: ['female', 'male'].includes(raw.traditionalSexParameter) ? raw.traditionalSexParameter : 'not_provided', interestDomains: Array.isArray(raw.interestDomains) ? raw.interestDomains.filter((item) => typeof item === 'string').sort() : [], createdAt: now.toISOString(),
+    place: { label: typeof raw.place === 'string' ? raw.place : (place.label || null), countryCode: raw.countryCode || place.countryCode || (raw.placeCode ? 'KR' : null), latitude: hasCoordinates ? latitude : null, longitude: hasCoordinates ? longitude : null, timezoneId, timezoneConfidence: timezoneId ? (raw.timezoneConfidence || place.timezoneConfidence || (explicitTimeZone ? 'inferred' : 'defaulted-seoul')) : 'unresolved', legacyKoreanPlaceCode: raw.placeCode || place.legacyKoreanPlaceCode || null },
+    resolvedInstant: null, traditionalSexParameter: ['female', 'male'].includes(traditionalSexParameter) ? traditionalSexParameter : 'not_provided', interestDomains: Array.isArray(raw.interestDomains) ? raw.interestDomains.filter((item) => typeof item === 'string').sort() : [], createdAt: now.toISOString(),
   };
   if (timeStatus !== 'unknown' && timezoneId === 'Asia/Seoul') {
     const civil = resolveSeoulCivilTime(date, raw.time);
@@ -57,6 +59,13 @@ function commonReasons(profile) {
   if (!profile?.inputCalendar?.date || !profile?.inputCalendar?.type) issues.push(reason('INVALID_BIRTH_DATE', 'inputCalendar.date', 'eligibility.birthDateInvalid'));
   else if (profile.inputCalendar.type !== 'gregorian') issues.push(reason('UNSUPPORTED_CALENDAR', 'inputCalendar.type', 'eligibility.calendarUnsupported'));
   else if (!/^\d{4}-\d{2}-\d{2}$/.test(profile.inputCalendar.date)) issues.push(reason('INVALID_BIRTH_DATE', 'inputCalendar.date', 'eligibility.birthDateInvalid'));
+  else {
+    const [year, month, day] = profile.inputCalendar.date.split('-').map(Number);
+    const candidate = new Date(Date.UTC(year, month - 1, day));
+    if (candidate.getUTCFullYear() !== year || candidate.getUTCMonth() !== month - 1 || candidate.getUTCDate() !== day) {
+      issues.push(reason('INVALID_BIRTH_DATE', 'inputCalendar.date', 'eligibility.birthDateInvalid'));
+    }
+  }
   return issues;
 }
 
@@ -65,11 +74,20 @@ export function resolveEligibility(profile, systemId) {
   if (!descriptor) throw new TypeError(`unknown systemId: ${systemId}`);
   const reasons = commonReasons(profile);
   const date = profile?.inputCalendar?.date;
-  if (reasons.length === 0 && descriptor.systemId === 'saju' && (date < descriptor.supportedRange.dateFrom || date > descriptor.supportedRange.dateTo)) reasons.push(reason('UNSUPPORTED_DATE_RANGE', 'inputCalendar.date', 'eligibility.dateOutOfRange'));
+  if (reasons.length === 0 && descriptor.supportedRange && (date < descriptor.supportedRange.dateFrom || date > descriptor.supportedRange.dateTo)) reasons.push(reason('UNSUPPORTED_DATE_RANGE', 'inputCalendar.date', 'eligibility.dateOutOfRange'));
+  if (reasons.length === 0 && ['saju', 'horasat', 'tu-vi'].includes(descriptor.systemId) && profile?.place?.timezoneId !== 'Asia/Seoul') {
+    reasons.push(reason('UNSUPPORTED_TIME_ZONE', 'place.timezoneId', 'eligibility.timeZoneUnsupported'));
+  }
+  if (reasons.length === 0 && descriptor.systemId === 'tu-vi' && profile?.birthTime?.status !== 'exact') {
+    reasons.push(reason('INPUT_EXACT_TIME_REQUIRED', 'birthTime.localTime', 'eligibility.exactTimeRequired'));
+  }
+  if (reasons.length === 0 && descriptor.systemId === 'horasat' && profile?.birthTime?.status !== 'exact') {
+    reasons.push(reason('INPUT_EXACT_TIME_REQUIRED', 'birthTime.localTime', 'eligibility.exactTimeRequired'));
+  }
   if (reasons.length === 0 && descriptor.status !== 'active') reasons.push(reason('POLICY_NOT_ACTIVE', null, 'eligibility.policyNotActive'));
   const missingInputs = [];
   if (missingInputs.length) reasons.push(reason('REQUIRED_INPUT_MISSING', missingInputs[0], 'eligibility.requiredInputMissing'));
-  const status = reasons.length ? (reasons[0].code === 'INVALID_BIRTH_DATE' || reasons[0].code === 'UNSUPPORTED_CALENDAR' ? 'invalid_input' : reasons[0].code === 'UNSUPPORTED_DATE_RANGE' ? 'unsupported_range' : reasons[0].code === 'POLICY_NOT_ACTIVE' ? 'policy_unverified' : reasons[0].code === 'ENGINE_LOAD_FAILED' ? 'engine_unavailable' : 'needs_input') : (descriptor.supportsPartial && profile.birthTime.status !== 'exact' ? 'partial' : 'eligible');
+  const status = reasons.length ? (reasons[0].code === 'INVALID_BIRTH_DATE' || reasons[0].code === 'UNSUPPORTED_CALENDAR' ? 'invalid_input' : reasons[0].code === 'UNSUPPORTED_DATE_RANGE' || reasons[0].code === 'UNSUPPORTED_TIME_ZONE' ? 'unsupported_range' : reasons[0].code === 'POLICY_NOT_ACTIVE' ? 'policy_unverified' : reasons[0].code === 'ENGINE_LOAD_FAILED' ? 'engine_unavailable' : 'needs_input') : (descriptor.supportsPartial && profile.birthTime.status !== 'exact' ? 'partial' : 'eligible');
   return { schemaVersion: 'eligibility.v1', systemId, policyId: descriptor.policyId, policyVersion: descriptor.policyVersion, status, reasons, missingInputs, canCalculate: status === 'eligible' || status === 'partial', calculationPrecision: status === 'partial' ? 'date-and-month' : (status === 'eligible' ? 'minute' : 'none'), permittedOutputScopes: status === 'eligible' || status === 'partial' ? ['native_facts'] : [] };
 }
 
@@ -87,24 +105,26 @@ export function calculateSystem(profile, systemId, { now = new Date() } = {}) {
     };
     const nativeChart = calculateMahabote(raw);
     const facts = [
-      { factId: 'mahabote.day', factType: 'weekday', value: nativeChart.birthDay.korean },
-      { factId: 'mahabote.animal', factType: 'animal', value: nativeChart.birthDay.animal },
-      { factId: 'mahabote.planet', factType: 'planet', value: nativeChart.birthDay.planet },
-      { factId: 'mahabote.element', factType: 'element', value: nativeChart.birthDay.element },
+      ...(nativeChart.birthDay ? [
+        { factId: 'mahabote.day', factType: 'weekday', value: nativeChart.birthDay.korean },
+        { factId: 'mahabote.animal', factType: 'animal', value: nativeChart.birthDay.animal },
+        { factId: 'mahabote.planet', factType: 'planet', value: nativeChart.birthDay.planet },
+        { factId: 'mahabote.element', factType: 'element', value: nativeChart.birthDay.element },
+      ] : [{ factId: 'mahabote.day', factType: 'weekday', value: '수요일 주·야 미상', status: 'partial' }]),
       { factId: 'mahabote.house', factType: 'house', value: nativeChart.rulingHouse.name },
       { factId: 'mahabote.house_theme', factType: 'theme', value: nativeChart.rulingHouse.theme },
       { factId: 'mahabote.burmese_year', factType: 'year', value: String(nativeChart.burmeseYear) },
       { factId: 'mahabote.akar', factType: 'akar', value: String(nativeChart.akar) },
     ];
     const claims = [
-      {
+      ...(nativeChart.birthDay ? [{
         claimId: 'claim-mahabote-character',
         domainId: 'personality',
         themeId: 'temperament',
         stance: nativeChart.birthDay.element.includes('화') || nativeChart.birthDay.element.includes('금') ? 'active' : 'reflective',
         summary: nativeChart.birthDay.character,
         evidenceFactIds: ['mahabote.day', 'mahabote.animal', 'mahabote.element'],
-      },
+      }] : []),
       {
         claimId: 'claim-mahabote-house',
         domainId: 'life_path',
@@ -129,7 +149,7 @@ export function calculateSystem(profile, systemId, { now = new Date() } = {}) {
       claims,
       nativeChart: { schemaVersion: 'mahabote-chart.v1', data: nativeChart },
       warnings: [],
-      unsupportedStates: [],
+      unsupportedStates: nativeChart.unsupportedStates || [],
       boundarySensitivity: [],
       calculatedAt: now.toISOString(),
     };
@@ -141,6 +161,7 @@ export function calculateSystem(profile, systemId, { now = new Date() } = {}) {
       date: profile.inputCalendar.date,
       time: profile.birthTime.localTime || '12:00',
       unknownTime: profile.birthTime.status === 'unknown',
+      utcInstant: profile.resolvedInstant?.utc || null,
     };
     const nativeChart = calculateHorasat(raw);
     const facts = [
@@ -184,7 +205,7 @@ export function calculateSystem(profile, systemId, { now = new Date() } = {}) {
       claims,
       nativeChart: { schemaVersion: 'horasat-chart.v1', data: nativeChart },
       warnings: [],
-      unsupportedStates: [],
+      unsupportedStates: nativeChart.unsupportedStates || [],
       boundarySensitivity: [],
       calculatedAt: now.toISOString(),
     };
@@ -196,6 +217,8 @@ export function calculateSystem(profile, systemId, { now = new Date() } = {}) {
       date: profile.inputCalendar.date,
       time: profile.birthTime.localTime || '12:00',
       unknownTime: profile.birthTime.status === 'unknown',
+      sex: profile.traditionalSexParameter,
+      utcInstant: profile.resolvedInstant?.utc || null,
     };
     const nativeChart = calculateTuVi(raw);
     const facts = [
@@ -238,7 +261,7 @@ export function calculateSystem(profile, systemId, { now = new Date() } = {}) {
       claims,
       nativeChart: { schemaVersion: 'tu-vi-chart.v1', data: nativeChart },
       warnings: [],
-      unsupportedStates: [],
+      unsupportedStates: nativeChart.unsupportedStates || [],
       boundarySensitivity: [],
       calculatedAt: now.toISOString(),
     };

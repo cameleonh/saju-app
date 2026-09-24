@@ -137,7 +137,7 @@ Engagement and retention are secondary during the first beta. They must not be i
 - Responsive Korean web/PWA behavior from 360 px mobile through wide desktop, with the existing Saju flows preserved.
 - A canonical birth profile containing original calendar input, normalized civil date/time, time-knowledge state, place label, latitude/longitude, IANA time zone, traditional sex parameter, and provenance for every normalization step.
 - Progressive input that asks common fields once, exposes why a system needs each additional field, and shows `ready`, `partial`, `needs-input`, `unsupported`, or `policy-blocked` before calculation.
-- An active, deterministic, versioned policy and independently reviewed fixture suite for each publicly completed system. `KR-CIVIL-1.0` is the only currently implemented policy; the other policies remain blocked until the registry gates pass.
+- An active, deterministic, versioned policy and source-based fixture suite for each enabled calculation scope. The current versions and their boundaries are documented in `docs/CALCULATION-POLICY-REGISTRY.md` and the four policy documents.
 - One immutable result envelope per system with native chart facts, warnings, interpretation claims, calculation fingerprint, policy/engine/source/schema versions, and sensitivity metadata.
 - A comparison result built only from completed, validated system claims. At least two contributing systems are required for a common or different theme; unique themes remain labeled with their single source.
 - Comparison domains fixed to identity, work, resources, relationships, wellbeing, and timing for P0. A domain can be unavailable without blocking other domains.
@@ -150,7 +150,7 @@ Engagement and retention are secondary during the first beta. They must not be i
 ### Existing Saju baseline that must not regress
 
 - Solar/lunar input, leap-month handling, unknown time, Korean place search, four pillars, daewoon, annual reading, couple mode, evidence chips, rule-based follow-up, local records, export, and deletion.
-- `KR-CIVIL-1.0`, `KR-ANNUAL-IPCHUN-1.1`, and `KR-DAEWOON-1.0` remain versioned independently of the new registry entries.
+- `KR-CIVIL-1.0@1.2.0`, `KR-ANNUAL-IPCHUN-1.1`, and `KR-DAEWOON-1.0@1.3.0` remain versioned independently of the scoped TH/VN/MM calculation policies.
 - Existing couple and under-19 privacy restrictions remain intact. A four-tradition single-person record does not silently loosen them.
 
 ### P1: After launch validation
@@ -326,7 +326,7 @@ Engagement and retention are secondary during the first beta. They must not be i
 
 The implemented Saju baseline uses `KR-CIVIL-1.0`, a named Korean legal civil-time policy with no hidden longitude correction. The locked conventions and source evidence are recorded in `docs/NATAL-CALCULATION-POLICY.md`.
 
-The expansion uses `docs/CALCULATION-POLICY-REGISTRY.md` as the only activation registry. A Horasat, Tử Vi, or Mahabote entry remains `draft` or `blocked` until its calculation school, inputs, transformations, source/license provenance, independent expected-value fixtures, boundary tests, and qualified review are approved. A live third-party result may be a comparison fixture or UX reference, but it cannot be the sole calculation oracle.
+The expansion uses `docs/CALCULATION-POLICY-REGISTRY.md` as the only activation registry. Thai Horasat is currently limited to the documented weekday table, Lahiri Sun-rasi ingress, and objective Jupiter transit facts; Tử Vi uses the GMT+7 Vietnamese lunar calendar and requires an exact birth time; Mahabote exposes the source-locked natal arithmetic only. Unsupported annual/daily prediction layers are withheld. Any expansion beyond these scopes requires a new source and oracle review.
 
 The policy registry must make these choices explicit:
 
@@ -477,7 +477,7 @@ The highest and primary seam is the external calculation behavior: normalized bi
 
 ### Required test groups
 
-- Registry tests proving only `active` policies can execute and draft/blocked policies return stable reason codes.
+- Registry tests proving only enabled policy scopes can execute and unsupported inputs return stable reason codes.
 - Eligibility matrix tests for exact time, unknown time, missing coordinates, calendar variants, sex-parameter omission, unsupported ranges, and Wednesday time distinctions where an approved Mahabote policy requires them.
 - Independent golden and boundary fixture suites for every active system. Cross-library agreement or matching `horasat.kr` alone is not sufficient expected-value evidence.
 - Orchestration tests proving one engine error does not discard other completed results and retries do not duplicate immutable result envelopes.
@@ -574,7 +574,7 @@ The MVP is accepted only when all of the following are true:
 
 ## Dependencies and Launch-Blocking Decisions
 
-- Seek an additional qualified-domain review before introducing daewoon, apparent-solar-time, or school-specific calculation variants; `KR-CIVIL-1.0` deliberately excludes them.
+- Seek qualified-domain review before adding apparent-solar-time variants, further Thai Lagna/planet-placement features, or unsupported annual/daily prediction schools. `KR-CIVIL-1.0` deliberately excludes longitude and equation-of-time corrections.
 - Name a qualified reviewer and approve an explicit calculation-school decision record for Horasat, Tử Vi, and Mahabote separately.
 - Acquire or create independently reviewable expected-value fixtures and boundary cases for each new policy; product screenshots and agreement between consumer apps are secondary evidence only.
 - Resolve source-code and table-data licenses before copying any implementation or lookup table. Product flows and visual grammar may be referenced without copying assets or proprietary calculation data.

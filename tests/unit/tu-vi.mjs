@@ -1,9 +1,11 @@
 // tests/unit/tu-vi.mjs
 import assert from 'node:assert/strict';
 import { calculateTuVi, calculateTuViAnnual, calculateTuViDaily, TU_VI_POLICY, PALACES_VN, MAJOR_STARS, CUC_TYPES } from '../../chart/tu-vi-engine.mjs';
+import { describeSolarToVietnameseLunar } from '../../chart/vietnamese-lunar-calendar.mjs';
 
 // 1. Metadata check
 assert.equal(TU_VI_POLICY.id, 'VN-TUVI-1.0');
+assert.equal(TU_VI_POLICY.version, '1.2.0');
 assert.equal(PALACES_VN.length, 12, '12 Palaces (Cung)');
 assert.equal(MAJOR_STARS.length, 14, '14 Major Stars (Chính Tinh)');
 assert.equal(CUC_TYPES.length, 5, '5 Bureau Elements (Ngũ Cục)');
@@ -11,7 +13,7 @@ assert.equal(CUC_TYPES.length, 5, '5 Bureau Elements (Ngũ Cục)');
 // 2. Oracle fixture: 1990-10-10 14:30 (lunar 1990-08-22, hour Mùi 8)
 // Expected values cross-checked against the Vietnamese tuvi-neo@1.0.7 library
 // (Mệnh at Dần, Thổ ngũ cục 5, Mệnh stars Thiên cơ + Thái âm, Thân cư Phúc đức).
-const res1 = calculateTuVi({ date: '1990-10-10', time: '14:30', unknownTime: false });
+const res1 = calculateTuVi({ date: '1990-10-10', time: '14:30', sex: 'male', unknownTime: false });
 assert.ok(res1.lunarDate.includes('1990'));
 assert.equal(res1.lunarInput.month, 8, 'lunar month 8 (tuvi-neo)');
 assert.equal(res1.lunarInput.day, 22, 'lunar day 22 (tuvi-neo)');
@@ -28,7 +30,7 @@ assert.equal(new Set(res1.starByBranch.flatMap((s) => s.stars)).size, 14, 'all 1
 
 // 2b. Second oracle fixture: 2000-01-01 12:00 (lunar 1999-11-25, hour Ngọ)
 // tuvi-neo: Mệnh at Ngọ/午 with Tử vi, Thổ ngũ cục.
-const res2 = calculateTuVi({ date: '2000-01-01', time: '12:00', unknownTime: false });
+const res2 = calculateTuVi({ date: '2000-01-01', time: '12:00', sex: 'male', unknownTime: false });
 assert.equal(res2.lunarInput.year, 1999, 'lunar year 1999 (tuvi-neo)');
 assert.equal(res2.menhPalace.branch.id, 'ngo', 'Mệnh at Ngọ/午 (tuvi-neo)');
 assert.equal(res2.cuc.num, 5, 'Thổ ngũ cục (tuvi-neo)');
@@ -62,12 +64,12 @@ for (const spot of tableSpot) {
   assert.equal(found.ziweiBranch.id, spot.branch, `ziwei at ${spot.branch} for cuc${spot.cuc} day${spot.day}`);
 }
 
-// 3. Annual Fortune Test — now includes Đại hạn/Tiểu hạn (literature rule, hand-verified).
+// 3. Annual structure — Đại hạn/Tiểu hạn use the traditional gendered direction rule.
 // 1990 lunar birth, target 2026: nominal age = 2026 - 1990 + 1 = 37.
 // Earth-5 bureau (Canh = yang-year male): Đại hạn starts age 5, forward from Mệnh 寅(2);
 // (37-5)/10 = 3 → branch 2+3 = 5 Tỵ, age range 35~44. Tiểu hạn (male, backward): (37-1)%12 = 0 → Mệnh 寅.
 import { getDaiHan, getTieuHan } from '../../chart/tu-vi-engine.mjs';
-const annual1 = calculateTuViAnnual({ date: '1990-10-10', time: '14:30', targetYear: 2026 });
+const annual1 = calculateTuViAnnual({ date: '1990-10-10', time: '14:30', sex: 'male', targetYear: 2026 });
 assert.equal(annual1.targetYear, 2026);
 assert.equal(annual1.yearBranch.branchIdx, 6, '2026 = Ngọ year');
 assert.equal(annual1.nominalAge, 37, 'nominal (허삐) age 37');
@@ -77,25 +79,53 @@ assert.equal(annual1.daiHan.ageRange, '35~44세', 'đại hạn decade 35-44');
 assert.equal(annual1.daiHan.direction, '순행', 'yang-year male goes forward');
 assert.ok(annual1.tieuHan, 'tiểu hạn present');
 assert.equal(annual1.tieuHan.branch.index, 2, 'tiểu hạn at Mệnh (37-1)%12=0, backward');
+const annualFemale = calculateTuViAnnual({ date: '1990-10-10', time: '14:30', sex: 'female', targetYear: 2026 });
+assert.equal(annualFemale.daiHan.direction, '역행', 'yang-year female goes backward');
+assert.equal(annualFemale.daiHan.branch.index, 11, 'female Đại Hạn advances opposite the male fixture');
+const annualFemaleTieu = calculateTuViAnnual({ date: '1990-10-10', time: '14:30', sex: 'female', targetYear: 2025 });
+assert.equal(annualFemaleTieu.tieuHan.direction, '순행', 'female Tiểu Hạn advances forward');
+assert.equal(getDaiHan({ ...res1, sex: null }, 37), null, 'gendered period is suppressed when the traditional sex parameter is absent');
+const annualNoSex = calculateTuViAnnual({ date: '1990-10-10', time: '14:30', targetYear: 2026 });
+assert.equal(annualNoSex.daiHan, null, 'Tử Vi does not assume male for Đại Hạn');
+assert.equal(annualNoSex.tieuHan, null, 'Tử Vi does not assume male for Tiểu Hạn');
 // Direct API checks for boundary behavior
 assert.equal(getDaiHan(res1, 4), null, 'đại hạn not yet started below bureau age');
 assert.equal(getDaiHan(res1, 5).branch.index, 2, 'đại hạn first decade sits on Mệnh');
 assert.equal(getDaiHan(res1, 14).branch.index, 2, 'still first decade at 14');
 assert.equal(getDaiHan(res1, 15).branch.index, 3, 'second decade at 15 (forward)');
 assert.ok(annual1.activePalace, 'active palace present');
-assert.ok(annual1.palaceTheme, 'palace theme present');
-assert.ok(annual1.advice, 'advice present');
+assert.ok(Array.isArray(annual1.activeStars), 'active-year star placements present');
+assert.equal(annual1.annualTheme, undefined, 'unverified annual fortune prose is not generated');
+assert.ok(annual1.unsupportedStates.some(({ id }) => id === 'tu-vi.annual-interpretation'));
 
 // 4. Daily Fortune Test
-const daily1 = calculateTuViDaily({ date: '1990-10-10', targetDate: '2026-08-26' });
-assert.ok(daily1.activePalace, 'daily active palace present');
-assert.ok(daily1.dailyFocus, 'daily focus present');
-assert.ok(daily1.advice, 'daily advice present');
+const daily1 = calculateTuViDaily({ date: '1990-10-10', time: '14:30', sex: 'male', targetDate: '2026-08-26' });
+assert.equal(daily1, null, 'unverified daily palace rotation is not presented as a calculated Tử Vi result');
 
-// 5. Unknown time defaults to the Ngọ hour branch, matching an explicit 12:00 input
-const res3 = calculateTuVi({ date: '1990-10-10', unknownTime: true });
-const resNoon = calculateTuVi({ date: '1990-10-10', time: '12:00', unknownTime: false });
-assert.equal(res3.menhPalace.branch.id, resNoon.menhPalace.branch.id, 'unknown time falls back to the noon hour branch');
+// 5. The hour is a required Tử Vi input; do not silently substitute noon.
+assert.throws(() => calculateTuVi({ date: '1990-10-10', unknownTime: true }), /requires an exact birth time/);
+assert.throws(() => calculateTuVi({ date: '1990-10-10', time: '99:99', unknownTime: false }), /valid HH:MM/);
+
+// 6. Vietnamese calendar, not the China-standard lunar table: Tết 1985 began
+// on Jan 21 in Vietnam, while the Chinese calendar's lunar year began Feb 20.
+assert.deepEqual(
+  (({ year, month, day, leapMonth }) => ({ year, month, day, leapMonth }))(describeSolarToVietnameseLunar({ date: '1985-02-01' })),
+  { year: 1985, month: 1, day: 12, leapMonth: false },
+);
+const vietnamese1985 = calculateTuVi({ date: '1985-02-01', time: '12:00', sex: 'male' });
+assert.deepEqual(vietnamese1985.lunarInput, { year: 1985, month: 1, day: 12, leapMonth: false }, 'Tử Vi uses the Vietnam UTC+7 lunar date');
+assert.deepEqual(
+  (({ year, month, day, leapMonth }) => ({ year, month, day, leapMonth }))(describeSolarToVietnameseLunar({ date: '1985-03-21' })),
+  { year: 1985, month: 2, day: 1, leapMonth: true },
+  'Hồ Ngọc Đức example places the Vietnamese leap second month at 1985-03-21',
+);
+assert.deepEqual(
+  (({ year, month, day, leapMonth }) => ({ year, month, day, leapMonth }))(describeSolarToVietnameseLunar({ date: '2004-03-21' })),
+  { year: 2004, month: 2, day: 1, leapMonth: true },
+  'Hồ Ngọc Đức 2004 leap-month fixture',
+);
+const koreanMidnightVietnamDate = calculateTuVi({ date: '1985-01-22', time: '00:30', sex: 'male' });
+assert.deepEqual(koreanMidnightVietnamDate.lunarInput, { year: 1985, month: 1, day: 1, leapMonth: false }, 'a Korean birth instant is projected to the corresponding Vietnamese GMT+7 calendar date');
 
 // 6. Tứ hóa (four transformations) — table matches the Quanshu-lineage standard, cross-verified
 // against tuvi-neo 1.0.7 on 213 sampled charts (host star + palace branch, zero mismatches).
@@ -151,4 +181,4 @@ assert.equal(minorAt('linh-tinh'), 8, 'Linh tinh at Thân (yin-wu-xu yang branch
 // menhMinorStars exposes what actually sits in the Ming palace (Dần idx 2): Thiên việt only.
 assert.deepEqual(res1.menhMinorStars.map((s) => s.key), ['thiên-việt'], 'Mệnh palace minor stars (oracle-verified)');
 
-console.log('✓ tu-vi: oracle-verified (tuvi-neo parity) assertions passed');
+console.log('✓ tu-vi: Vietnamese lunar fixtures, gendered limits, and star-placement oracle assertions passed');

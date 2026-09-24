@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server/index.mjs",
     "generate:natal-ephemeris": "node scripts/generate-natal-ephemeris.mjs",
+    "generate:horasat-rasi": "node scripts/generate-horasat-rasi-data.mjs",
     "generate:lunar-calendar": "node scripts/generate-lunar-calendar-data.mjs",
     "test:postgres": "node tests/integration/postgres.mjs",
     "deletions:finalize": "node scripts/finalize-deletions.mjs",
@@ -15,7 +16,11 @@
     "@aws-sdk/client-cognito-identity-provider": "3.1103.0",
     "@aws-sdk/client-kms": "3.1103.0",
     "aws-jwt-verify": "5.2.1",
+    "korean-lunar-calendar": "0.4.0",
     "lunar-javascript": "1.7.7",
     "pg": "8.22.0"
+  },
+  "devDependencies": {
+    "astronomy-engine": "2.1.19"
   }
 }

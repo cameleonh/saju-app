@@ -39,7 +39,7 @@ References:
 - [KASI official almanac index](https://astro.kasi.re.kr/life/post/almanac)
 - [KASI year tables](https://astro.kasi.re.kr/life/post/calendardata)
 
-`lunar-javascript@1.7.7` remains pinned for lunar-to-solar conversion elsewhere in the product. It is not the annual boundary oracle.
+`korean-lunar-calendar@0.4.0` supplies the separately scoped Korean lunar conversion path; see `KOREAN-LUNAR-CALENDAR-POLICY.md`. It is not the annual boundary oracle.
 
 ## Fact, rule, and claim trace
 

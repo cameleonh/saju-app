@@ -1,6 +1,6 @@
 # Algorithm Correctness Audit — 2026-08-28
 
-Full audit of every calculation algorithm in the runtime against external oracles, official fixture tables, and independent reimplementations. Triggered by the user after the daewoon direction error was reported; every engine was re-verified end to end, four real defects were found and fixed (commit `8c26259`), and all fixes are deployed to production.
+Audit snapshot as of 2026-08-28. It records the then-current oracle checks and fixes; it is not the final authority for later policy versions. Follow-up clock/calendar issues found on 2026-09-24 are recorded in [CALCULATION-REPAIR-2026-09-24.md](./CALCULATION-REPAIR-2026-09-24.md).
 
 ## Oracles and verification sources
 
@@ -68,7 +68,7 @@ Covered by A1 (year pillar flips at Ipchun, month pillar at each jie, 1,531 prof
 
 - Day pillar boundary for 23:00–24:00 births (Korean midnight school vs Chinese late-zi oracle).
 - 대운수 truncation vs rounding schools: the start **age** label follows the oracle's floor; the start **year** follows the exact converted date, which is the convention that visibly matters.
-- Daewoon direction for users who leave the sex field unset defaults to male (documented in policy).
+- At the time of this audit, an unset Daewoon sex parameter defaulted to male. Policy `KR-DAEWOON-1.0@1.3.0` now requires the parameter and suppresses the calculation when it is absent.
 - Tử Vi lunar source is Chinese-calendar data; the 6 documented CN/VN divergence months remain excluded from parity claims.
 
 ## Verification chain for this audit

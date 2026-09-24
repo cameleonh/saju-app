@@ -5,12 +5,13 @@ import {
   verifyDaewoon,
   DAEWOON_POLICY,
 } from '../../chart/daewoon-engine.mjs';
-import { calculateNatalChart } from '../../chart/natal-engine.mjs';
+import { calculateNatalChart, formatSeoulInstant } from '../../chart/natal-engine.mjs';
+import { NATAL_EPHEMERIS_START_YEAR, NATAL_TERM_EPOCH_MINUTES, NATAL_TERM_KEYS } from '../../chart/natal-ephemeris-data.mjs';
 
 assert.equal(DAEWOON_POLICY.id, 'KR-DAEWOON-1.0');
-assert.equal(DAEWOON_POLICY.version, '1.2.0');
+assert.equal(DAEWOON_POLICY.version, '1.3.0');
 assert.equal(DAEWOON_POLICY.engine, 'gyeol-daewoon-core');
-assert.match(DAEWOON_POLICY.birthClockRule, /solar-corrected/);
+assert.match(DAEWOON_POLICY.birthClockRule, /same UTC timeline/);
 assert.equal(DAEWOON_POLICY.maxCycleCount, 8);
 assert.equal(DAEWOON_POLICY.cycleSpanYears, 10);
 assert.equal(DAEWOON_POLICY.dayToYearDivisor, 3);
@@ -76,11 +77,11 @@ assert.equal(yinResult.cycles[1].pillar, '庚辰', 'backward second cycle retrea
 assert.equal(yinResult.cycles[7].pillar, '甲戌', 'backward eighth cycle');
 
 for (const yangStem of ['甲', '丙', '戊', '庚', '壬']) {
-  const r = calculateDaewoon({ date: '2000-03-15', time: '12:00', yearStem: yangStem, monthStem: '己', monthBranch: '卯' });
+  const r = calculateDaewoon({ date: '2000-03-15', time: '12:00', sex: 'male', yearStem: yangStem, monthStem: '己', monthBranch: '卯' });
   assert.equal(r.direction, 'forward', `${yangStem} is yang → forward`);
 }
 for (const yinStem of ['乙', '丁', '己', '辛', '癸']) {
-  const r = calculateDaewoon({ date: '2000-03-15', time: '12:00', yearStem: yinStem, monthStem: '己', monthBranch: '卯' });
+  const r = calculateDaewoon({ date: '2000-03-15', time: '12:00', sex: 'male', yearStem: yinStem, monthStem: '己', monthBranch: '卯' });
   assert.equal(r.direction, 'backward', `${yinStem} is yin → backward`);
 }
 
@@ -89,16 +90,55 @@ const yinStems = ['乙', '丁', '己', '辛', '癸'];
 assert.equal(yangStems.length, 5);
 assert.equal(yinStems.length, 5);
 
-const unknownTimeResult = calculateDaewoon({ date: '1990-10-10', yearStem: '庚', monthStem: '丙', monthBranch: '戌', unknownTime: true });
-assert.equal(unknownTimeResult.input.time, '12:00', 'unknown time uses noon proxy');
-assert.equal(unknownTimeResult.input.unknownTime, true);
+assert.throws(() => calculateDaewoon({ date: '1990-10-10', yearStem: '庚', monthStem: '丙', monthBranch: '戌', unknownTime: true, sex: 'male' }), /exact birth time/);
+assert.throws(() => calculateDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }), /sex must be male or female/);
 
-const historicalForward = calculateDaewoon({ date: '1901-02-07', time: '15:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
+const historicalForward = calculateDaewoon({ date: '1901-02-07', time: '15:00', sex: 'male', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
 assert.equal(historicalForward.startAge, 8, 'historical forward calculation uses Korean legal civil time instead of a fixed UTC+9 offset');
-const historicalBackward = calculateDaewoon({ date: '1901-03-06', time: '15:00', yearStem: '乙', monthStem: '丙', monthBranch: '寅' });
-// 경칩 1901-03-06 출생 직후 30분 이내 — 동경 127.5도 보정(−30분)으로 경칩 이전이 되어 입춘이 경계가 된다.
-assert.equal(historicalBackward.startAge, 9, 'historical backward calculation selects the pre-Jingzhe boundary after the solar correction');
-assert.equal(historicalBackward.boundaryTerm, 'LI_CHUN');
+const historicalBackward = calculateDaewoon({ date: '1901-03-06', time: '15:00', sex: 'male', yearStem: '乙', monthStem: '丙', monthBranch: '寅' });
+assert.ok(historicalBackward.startAge >= 0, 'historical start age cannot be negative');
+assert.equal(historicalBackward.boundaryTerm, 'JING_ZHE', 'the local civil instant selects the preceding Jie');
+
+// 2020 Jingzhe boundary regression: the old mixed UTC+8:30/UTC+8 clock path
+// returned -1 for this input despite the policy's minimum age of zero.
+const boundaryNatal = calculateNatalChart({ calendar: 'solar', date: '2020-03-05', time: '11:30', unknownTime: false });
+const nearJingzhe = calculateDaewoon({
+  date: '2020-03-05', time: '11:30', sex: 'male',
+  yearStem: boundaryNatal.pillars[0].stem,
+  monthStem: boundaryNatal.pillars[1].stem,
+  monthBranch: boundaryNatal.pillars[1].branch,
+  unknownTime: false,
+});
+assert.equal(nearJingzhe.boundaryTerm, 'JING_ZHE');
+assert.equal(nearJingzhe.startAge, 0);
+assert.equal(nearJingzhe.cycles[0].startAge, 0);
+
+// Every KASI/KASA Jie boundary is exercised ±60 minutes for both directions.
+for (const year of [2024, 2025, 2026, 2027]) {
+  const row = NATAL_TERM_EPOCH_MINUTES[year - NATAL_EPHEMERIS_START_YEAR];
+  for (let termIndex = 0; termIndex < NATAL_TERM_KEYS.length; termIndex += 1) {
+    const local = formatSeoulInstant(row[termIndex]);
+    const [baseYear, baseMonth, baseDay] = local.slice(0, 10).split('-').map(Number);
+    const baseHour = Number(local.slice(11, 13));
+    const baseMinute = Number(local.slice(14, 16));
+    for (let delta = -60; delta <= 60; delta += 1) {
+      const wall = new Date(Date.UTC(baseYear, baseMonth - 1, baseDay, baseHour, baseMinute + delta));
+      const date = wall.toISOString().slice(0, 10);
+      const time = wall.toISOString().slice(11, 16);
+      const chart = calculateNatalChart({ calendar: 'solar', date, time, unknownTime: false });
+      for (const sex of ['male', 'female']) {
+        const result = calculateDaewoon({
+          date, time, sex,
+          yearStem: chart.pillars[0].stem,
+          monthStem: chart.pillars[1].stem,
+          monthBranch: chart.pillars[1].branch,
+          unknownTime: false,
+        });
+        assert.ok(result.startAge >= 0, `${year} ${NATAL_TERM_KEYS[termIndex]} ${date} ${time} ${sex} has a non-negative start age`);
+      }
+    }
+  }
+}
 
 const natal = calculateNatalChart({ calendar: 'solar', date: '1990-10-10', time: '14:30', place: '서울', placeCode: '1111000000', unknownTime: false });
 const natalDaewoon = calculateDaewoon({
@@ -112,43 +152,45 @@ const natalDaewoon = calculateDaewoon({
 });
 assert.equal(natalDaewoon.cycles[0].pillar, '丁亥', 'daewoon first cycle is one step past the natal month pillar 丙戌 (forward, male)');
 
-const verification = verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, yangResult);
+const verification = verifyDaewoon({ date: '1990-10-10', time: '14:30', sex: 'male', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, yangResult);
 assert.equal(verification.valid, true);
 assert.deepEqual(verification.errors, []);
 
 const tampered = { ...yangResult, direction: 'backward' };
-const tamperedVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tampered);
+const tamperedVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', sex: 'male', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tampered);
 assert.equal(tamperedVerify.valid, false);
 assert.ok(tamperedVerify.errors.some((e) => /direction does not match/.test(e)));
 
 const tamperedCycle = { ...yangResult, cycles: yangResult.cycles.map((c, i) => (i === 2 ? { ...c, pillar: 'XXX', stem: 'X', branch: 'X' } : c)) };
-const tamperedCycleVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedCycle);
+const tamperedCycleVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', sex: 'male', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedCycle);
 assert.equal(tamperedCycleVerify.valid, false);
 assert.ok(tamperedCycleVerify.errors.some((e) => /cycle 2 pillar does not match/.test(e)));
 
 const tamperedPolicy = { ...yangResult, policy: { ...yangResult.policy, id: 'FAKE' } };
-const tamperedPolicyVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedPolicy);
+const tamperedPolicyVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', sex: 'male', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedPolicy);
 assert.equal(tamperedPolicyVerify.valid, false);
 assert.ok(tamperedPolicyVerify.errors.some((e) => /policy\.id does not match/.test(e)));
 
 const tamperedBoundary = { ...yangResult, boundaryDate: '1999-99-99' };
-const tamperedBoundaryVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedBoundary);
+const tamperedBoundaryVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', sex: 'male', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedBoundary);
 assert.equal(tamperedBoundaryVerify.valid, false);
 assert.ok(tamperedBoundaryVerify.errors.some((e) => /boundaryDate does not match/.test(e)));
 
 const tamperedStartYear = { ...yangResult, cycles: yangResult.cycles.map((c, i) => (i === 1 ? { ...c, startYear: c.startYear + 100 } : c)) };
-const tamperedStartYearVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedStartYear);
+const tamperedStartYearVerify = verifyDaewoon({ date: '1990-10-10', time: '14:30', sex: 'male', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedStartYear);
 assert.equal(tamperedStartYearVerify.valid, false);
 assert.ok(tamperedStartYearVerify.errors.some((e) => /cycle 1 startYear does not match/.test(e)));
 
 const tamperedEngine = { ...yangResult, policy: { ...yangResult.policy, engine: 'fake-engine' } };
-assert.ok(verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedEngine).errors.some((e) => /policy\.engine does not match/.test(e)));
+assert.ok(verifyDaewoon({ date: '1990-10-10', time: '14:30', sex: 'male', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedEngine).errors.some((e) => /policy\.engine does not match/.test(e)));
 
 const tamperedInput = { ...yangResult, input: { ...yangResult.input, date: '2000-01-01' } };
-assert.ok(verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedInput).errors.some((e) => /input\.date does not match/.test(e)));
+assert.ok(verifyDaewoon({ date: '1990-10-10', time: '14:30', sex: 'male', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedInput).errors.some((e) => /input\.date does not match/.test(e)));
+const tamperedSex = { ...yangResult, input: { ...yangResult.input, sex: 'female' } };
+assert.ok(verifyDaewoon({ date: '1990-10-10', time: '14:30', sex: 'male', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedSex).errors.some((e) => /input\.sex does not match/.test(e)));
 
 const tamperedUnsupportedReason = { ...yangResult, unsupportedStates: yangResult.unsupportedStates.map((state, index) => (index === 0 ? { ...state, reason: 'tampered' } : state)) };
-assert.ok(verifyDaewoon({ date: '1990-10-10', time: '14:30', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedUnsupportedReason).errors.some((e) => /unsupportedStates\[0\]\.reason does not match/.test(e)));
+assert.ok(verifyDaewoon({ date: '1990-10-10', time: '14:30', sex: 'male', yearStem: '庚', monthStem: '丙', monthBranch: '戌' }, tamperedUnsupportedReason).errors.some((e) => /unsupportedStates\[0\]\.reason does not match/.test(e)));
 
 assert.equal(yangResult.policy.id, 'KR-DAEWOON-1.0');
 assert.equal(yangResult.natalPolicy.id, 'KR-CIVIL-1.0');
@@ -157,26 +199,26 @@ assert.ok(yangResult.unsupportedStates.some((s) => s.id === 'daewoon.strength'))
 assert.ok(yangResult.unsupportedStates.some((s) => s.id === 'daewoon.interpretation'));
 
 assert.throws(
-  () => calculateDaewoon({ date: '2101-01-01', time: '12:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' }),
+  () => calculateDaewoon({ date: '2101-01-01', time: '12:00', sex: 'male', yearStem: '甲', monthStem: '丙', monthBranch: '寅' }),
   /birth year/,
   'out of ephemeris range is rejected',
 );
 
-const lateBirth = calculateDaewoon({ date: '2030-01-01', time: '12:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
+const lateBirth = calculateDaewoon({ date: '2030-01-01', time: '12:00', sex: 'male', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
 assert.ok(lateBirth.cycles.length < DAEWOON_POLICY.maxCycleCount, 'late birth year produces fewer cycles within ephemeris range');
 assert.ok(lateBirth.cycles.every((c) => c.startYear <= 2100), 'all cycle start years are within ephemeris range');
 
 const maxFullCyclesYear = 2100 - 9 - 7 * 10;
-const edgeResult = calculateDaewoon({ date: `${maxFullCyclesYear}-06-15`, time: '08:00', yearStem: '庚', monthStem: '壬', monthBranch: '午' });
+const edgeResult = calculateDaewoon({ date: `${maxFullCyclesYear}-06-15`, time: '08:00', sex: 'male', yearStem: '庚', monthStem: '壬', monthBranch: '午' });
 assert.equal(edgeResult.cycles.length, DAEWOON_POLICY.maxCycleCount, 'boundary birth year still gets full 8 cycles');
 assert.ok(edgeResult.cycles[7].startYear <= 2100);
 
 for (const date of ['2100-01-01', '2100-06-15', '2100-12-31']) {
-  const result = calculateDaewoon({ date, time: '12:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
+  const result = calculateDaewoon({ date, time: '12:00', sex: 'male', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
   assert.equal(result.cycleCount, 1, `${date} retains the first cycle after later cycles are truncated`);
   assert.equal(result.cycles.length, 1);
 }
-const finalSupportedDate = calculateDaewoon({ date: '2100-12-31', time: '12:00', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
+const finalSupportedDate = calculateDaewoon({ date: '2100-12-31', time: '12:00', sex: 'male', yearStem: '甲', monthStem: '丙', monthBranch: '寅' });
 assert.equal(finalSupportedDate.boundaryTerm, 'XIAO_HAN');
 assert.equal(finalSupportedDate.boundaryDate, '2101-01-05', 'the 2101 sentinel boundary completes the declared 2100 birth-date range');
 

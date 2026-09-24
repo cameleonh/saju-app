@@ -1,12 +1,11 @@
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
-
-const require = createRequire(import.meta.url);
-const { Solar, Lunar } = require('lunar-javascript');
+import KoreanLunarCalendar from 'korean-lunar-calendar';
 
 const START_LUNAR_YEAR = 1900;
-const END_LUNAR_YEAR = 2100;
-const REQUIRED_END_SOLAR = '2100-12-31';
+const END_LUNAR_YEAR = 2050;
+const LAST_SOLAR = { year: 2050, month: 12, day: 31 };
+const EXPECTED_LAST_LUNAR = { year: 2050, month: 11, day: 18, intercalation: false };
+const SOURCE_CALENDAR = new KoreanLunarCalendar();
 
 function solarOf(dayIndex) {
   const ms = dayIndex * 86_400_000;
@@ -17,19 +16,19 @@ function dayIndexOf(year, month, day) {
   return Math.round(Date.UTC(year, month - 1, day) / 86_400_000);
 }
 function lunarOf({ year, month, day }) {
-  const lunar = Solar.fromYmdHms(year, month, day, 12, 0, 0).getLunar();
-  return { year: lunar.getYear(), month: lunar.getMonth(), day: lunar.getDay() };
+  if (!SOURCE_CALENDAR.setSolarDate(year, month, day)) throw new Error(`Korean lunar source rejected solar date ${year}-${month}-${day}`);
+  return SOURCE_CALENDAR.getLunarCalendar();
 }
 
-// Anchor: find the solar day that is lunar START_LUNAR_YEAR-01-01.
-let anchor = dayIndexOf(START_LUNAR_YEAR, 1, 20);
+// Anchor the generated table at Korean lunar START_LUNAR_YEAR-01-01.
+let anchor = dayIndexOf(START_LUNAR_YEAR, 1, 1);
 let anchorLunar = lunarOf(solarOf(anchor));
-for (let i = 0; i < 20 && !(anchorLunar.year === START_LUNAR_YEAR && anchorLunar.month === 1 && anchorLunar.day === 1); i += 1) {
+for (let i = 0; i < 60 && !(anchorLunar.year === START_LUNAR_YEAR && anchorLunar.month === 1 && anchorLunar.day === 1); i += 1) {
   anchor += 1;
   anchorLunar = lunarOf(solarOf(anchor));
 }
 if (!(anchorLunar.year === START_LUNAR_YEAR && anchorLunar.month === 1 && anchorLunar.day === 1)) {
-  throw new Error('could not locate the lunar epoch day near 1900-01-31');
+  throw new Error('could not locate the Korean lunar epoch day near 1900-01-01');
 }
 
 // Walk solar days and record, per lunar year, the ordered [signedMonth, dayCount] entries.
@@ -37,23 +36,29 @@ const years = [];
 let cursor = anchor;
 let cursorLunar = lunarOf(solarOf(cursor));
 let entry = null;
-while (true) {
-  const { year: ly, month: lm, day: ld } = cursorLunar;
-  if (ly > END_LUNAR_YEAR) break;
+const lastDayIndex = dayIndexOf(LAST_SOLAR.year, LAST_SOLAR.month, LAST_SOLAR.day);
+while (cursor <= lastDayIndex) {
+  const { year: ly, month: lm, day: ld, intercalation } = cursorLunar;
+  if (ly < START_LUNAR_YEAR || ly > END_LUNAR_YEAR) throw new Error(`unexpected Korean lunar year ${ly} at ${JSON.stringify(solarOf(cursor))}`);
+  const signedMonth = intercalation ? -lm : lm;
   if (!entry || entry.year !== ly) {
     let record = years.find((y) => y.year === ly);
     if (!record) { record = { year: ly, months: [] }; years.push(record); }
-    entry = { year: ly, month: lm, days: 1 };
+    if (ld !== 1 || lm !== 1 || intercalation) throw new Error(`unexpected lunar-year start at ${JSON.stringify(solarOf(cursor))}`);
+    entry = { year: ly, month: signedMonth, days: 1 };
     record.months.push(entry);
-  } else if (entry.month !== lm) {
-    let record = years.find((y) => y.year === ly);
-    entry = { year: ly, month: lm, days: 1 };
+  } else if (entry.month !== signedMonth) {
+    if (ld !== 1) throw new Error(`lunar month did not start at day 1 on ${JSON.stringify(solarOf(cursor))}`);
+    const record = years.find((y) => y.year === ly);
+    entry = { year: ly, month: signedMonth, days: 1 };
     record.months.push(entry);
   } else {
+    if (ld !== entry.days + 1) throw new Error(`non-consecutive lunar days at ${JSON.stringify(solarOf(cursor))}`);
     entry.days += 1;
   }
+  if (entry.days > 30) throw new Error(`lunar month exceeds 30 days: ${ly}/${signedMonth}`);
   cursor += 1;
-  cursorLunar = lunarOf(solarOf(cursor));
+  if (cursor <= lastDayIndex) cursorLunar = lunarOf(solarOf(cursor));
 }
 
 years.sort((a, b) => a.year - b.year);
@@ -61,32 +66,27 @@ if (years[0].year !== START_LUNAR_YEAR || years[years.length - 1].year !== END_L
   throw new Error(`unexpected lunar year coverage: ${years[0].year}..${years[years.length - 1].year}`);
 }
 
-const lastDayIndex = cursor - 1;
 const lastSolar = solarOf(lastDayIndex);
 const lastSolarText = `${lastSolar.year}-${String(lastSolar.month).padStart(2, '0')}-${String(lastSolar.day).padStart(2, '0')}`;
-if (lastSolarText < REQUIRED_END_SOLAR) throw new Error(`table ends at ${lastSolarText}, before ${REQUIRED_END_SOLAR}`);
+if (JSON.stringify(cursorLunar) !== JSON.stringify(EXPECTED_LAST_LUNAR)) {
+  throw new Error(`unexpected final Korean lunar date: ${JSON.stringify(cursorLunar)}`);
+}
 
 // Compact encoding: per lunar year, a flat list of [signedMonth, dayCount].
 const table = years.map((record) => [record.year, record.months.map((m) => [m.month, m.days])]);
 const totalDays = years.reduce((sum, y) => sum + y.months.reduce((s, m) => s + m.days, 0), 0);
-if (totalDays !== lastDayIndex - anchor + 1) throw new Error('day accounting mismatch while generating the lunar table');
+if (totalDays !== lastDayIndex - anchor + 1) throw new Error('day accounting mismatch while generating the Korean lunar table');
 
 // Sentinel checks against the source library.
-const verify = (solarText) => {
-  const [y, m, d] = solarText.split('-').map(Number);
-  const lunar = lunarOf({ year: y, month: m, day: d });
-  return { solarText, lunar };
-};
 const anchorCheck = lunarOf(solarOf(anchor));
 if (anchorCheck.year !== 1900 || anchorCheck.month !== 1 || anchorCheck.day !== 1) throw new Error('anchor recheck failed');
-if (verify('2100-12-31').lunar.year > 2100) throw new Error('table does not cover 2100-12-31');
 
-const body = `// Generated by scripts/generate-lunar-calendar-data.mjs from lunar-javascript 1.7.7. Do not edit by hand.\n`
-  + `export const LUNAR_TABLE_SOURCE = Object.freeze({ library: 'lunar-javascript', version: '1.7.7', license: 'MIT', range: '1900-01-31..${lastSolarText}' });\n`
+const body = `// Generated by scripts/generate-lunar-calendar-data.mjs from korean-lunar-calendar 0.4.0. Do not edit by hand.\n`
+  + `export const LUNAR_TABLE_SOURCE = Object.freeze({ policyId: 'KR-LUNAR-CONVERSION-1.0', policyVersion: '1.0.0', library: 'korean-lunar-calendar', version: '0.4.0', license: 'MIT', lineage: 'KASI Korean lunar-calendar standard (upstream package claim)', lunarRange: '1900-01-01..2050-11-18', range: '1900-01-31..${lastSolarText}' });\n`
   + `export const LUNAR_EPOCH_DAY_INDEX = ${anchor};\n`
   + `export const LUNAR_LAST_DAY_INDEX = ${lastDayIndex};\n`
   + `export const LUNAR_TABLE = Object.freeze(${JSON.stringify(table)}.map(([year, months]) => Object.freeze([year, Object.freeze(months.map((m) => Object.freeze(m)))])));\n`;
 
 fs.mkdirSync(new URL('../chart/', import.meta.url), { recursive: true });
 fs.writeFileSync(new URL('../chart/lunar-calendar-data.mjs', import.meta.url), body);
-console.log(`lunar calendar table: lunar years ${START_LUNAR_YEAR}..${END_LUNAR_YEAR}, solar ${'1900-01-31'}..${lastSolarText}, ${totalDays} days, anchor day-index ${anchor}`);
+console.log(`Korean lunar calendar table: lunar years ${START_LUNAR_YEAR}..${END_LUNAR_YEAR}, solar ${'1900-01-31'}..${lastSolarText}, ${totalDays} days, anchor day-index ${anchor}`);

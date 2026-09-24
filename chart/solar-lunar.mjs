@@ -1,7 +1,6 @@
-// Browser-safe solar-to-lunar conversion over the pre-generated lunar-javascript table.
-// Server code keeps the authoritative library in server/domain/calendar.mjs; this module
-// exists so browser module graphs never pull Node builtins. Parity is asserted by
-// tests/unit/solar-lunar.mjs.
+// Browser-safe solar-to-lunar conversion over a compact table generated from the
+// Korean calendar package lineage. Server conversion uses the package directly;
+// parity is asserted by tests/unit/solar-lunar.mjs.
 
 import { LUNAR_EPOCH_DAY_INDEX, LUNAR_LAST_DAY_INDEX, LUNAR_TABLE, LUNAR_TABLE_SOURCE } from './lunar-calendar-data.mjs';
 

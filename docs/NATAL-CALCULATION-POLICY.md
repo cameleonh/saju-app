@@ -1,10 +1,10 @@
 # Natal Calculation Policy
 
-Status: implemented and regression-locked on 2026-08-04
+Status: implemented and regression-locked on 2026-09-24
 
-Policy: `KR-CIVIL-1.0@1.0.0`
+Policy: `KR-CIVIL-1.0@1.2.0`
 
-Engine: `gyeol-natal-core@1.0.0`
+Engine: `gyeol-natal-core@1.2.0`
 
 System ID: `saju`
 
@@ -12,11 +12,11 @@ Registry status: active and implemented; see `CALCULATION-POLICY-REGISTRY.md`
 
 ## Scope
 
-This policy calculates the four natal pillars for normalized solar dates from `1900-01-01` through `2100-12-31`. The browser and server import the same framework-independent module. The browser calculates locally and offline; the submission adapter recalculates the pillars and rejects tampered or stale-policy results.
+This policy calculates the four natal pillars for Korean legal civil times on normalized solar dates from `1900-01-01` through `2100-12-31`. The browser and server import the same framework-independent module. The browser calculates locally and offline; the submission adapter recalculates the pillars and rejects tampered or stale-policy results.
 
-This remains the only active personal calculation policy in the four-tradition registry as of 2026-08-23. Horasat, Tử Vi, and Mahabote use separate system IDs, input projections, native result schemas, sources, and oracle gates. Their future activation must not change, wrap, or silently reinterpret `KR-CIVIL-1.0` output; a cross-system comparison references this policy's immutable result fingerprint.
+Horasat, Tử Vi, and Mahabote use separate scoped policies, input projections, native result schemas, and source assets. Their calculations do not change or reinterpret `KR-CIVIL-1.0` output; a cross-system comparison references this policy's immutable result fingerprint.
 
-Lunar input is converted to a normalized solar input by the separately versioned `lunar-javascript@1.7.7` adapter. The original lunar input, leap-month flag, conversion provenance, and normalized value remain distinct.
+Lunar input is converted to a normalized solar input by the separately versioned Korean calendar adapter `korean-lunar-calendar@0.4.0`, scoped by [KOREAN-LUNAR-CALENDAR-POLICY.md](./KOREAN-LUNAR-CALENDAR-POLICY.md). The original lunar input, leap-month flag, conversion provenance, and normalized value remain distinct.
 
 ## Locked conventions
 
@@ -26,14 +26,14 @@ Lunar input is converted to a normalized solar input by the separately versioned
 | Historical offsets | Embedded IANA tzdb `Asia/Seoul` 2026c transition snapshot |
 | Repeated clock time | Use the earlier instant and emit a warning |
 | Nonexistent clock time | Reject the input |
-| Longitude / solar correction | None; do not silently convert to mean or apparent solar time |
+| Longitude / solar correction | None; compare the birth instant and solar-term instant on the same UTC timeline |
 | Year boundary | Exact minute of Ipchun (`LI_CHUN`), start-inclusive |
 | Month boundaries | Twelve `jie` terms: Xiaohan, Ipchun, Jingzhe, Qingming, Lixia, Mangzhong, Xiaoshu, Liqiu, Bailu, Hanlu, Lidong, Daxue |
 | Term precision | Minute |
-| Day boundary | Civil midnight (`00:00`) |
-| Zi hour | `23:00–00:59`; the hour branch spans midnight, while the day pillar changes only at midnight |
-| Unknown time | Suppress the hour pillar and time-dependent interpretation |
-| Daewoon | Supported under separate policy `KR-DAEWOON-1.0@1.0.0`; see `docs/DAEWOON-CALCULATION-POLICY.md` |
+| Day boundary | Asia/Seoul legal civil midnight (`00:00`) |
+| Zi hour | Asia/Seoul legal civil `23:00–00:59`; the hour branch spans midnight, while the day pillar changes only at midnight |
+| Unknown time | Suppress the hour pillar; require an exact time if any year/month jie falls on the birth civil date, because the remaining pillars are then ambiguous |
+| Daewoon | Supported under separate policy `KR-DAEWOON-1.0@1.3.0`; see `docs/DAEWOON-CALCULATION-POLICY.md` |
 
 This is a product calculation policy, not a claim that all Saju schools use the same conventions. Saved results retain their policy and engine versions; a future policy creates a new result instead of silently rewriting an old one.
 
@@ -54,11 +54,11 @@ Primary references:
 `tests/natal.mjs` locks:
 
 - the ordinary `1990-10-10 14:30` fixture (`庚午 · 丙戌 · 戊申 · 己未`);
-- exact Ipchun and Jingzhe changes;
+- exact Ipchun and Jingzhe changes at the KASI/KASA civil minute (no birth-only time shift);
 - all 12 natal-relevant official term boundaries for every fixture year 2024–2027;
 - rendered before/after year-month alternatives for inputs within one hour of a policy-changing term;
 - `23:00`, `23:30`, midnight, `00:30`, and `01:30` day/hour behavior;
 - historical half-hour, daylight-saving, skipped, and repeated Korean civil times;
-- unknown-time suppression, malformed dates/times, supported range, host-time-zone independence, and server-side tamper detection.
+- unknown-time suppression and refusal to guess on a civil date containing a Jie boundary, malformed dates/times, supported range, host-time-zone independence, and server-side tamper detection.
 
 The annual suite separately covers Ipchun `-1 / exact / +1` behavior and its reviewed 12-month range. Lunar conversion tests cover the adapter path. Daewoon, longitude correction, apparent-solar time, overseas birthplaces, and school-specific strength/yongsin/gyeokguk rules are intentionally not implied by the passing natal tests.

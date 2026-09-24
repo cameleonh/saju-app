@@ -44,15 +44,15 @@ function mahaboteEligibility(profile) {
 function horasatEligibility(profile) {
   if (!String(profile?.date || '').trim()) return { state: 'needs-input', reason: '출생일을 입력하면 태국 호라삿을 계산할 수 있어요.' };
   if (!validDate(profile.date)) return { state: 'unsupported', reason: '출생일 형식을 확인해 주세요.' };
-  if (profile.unknownTime === true) return { state: 'partial', reason: '출생 시각을 모르면 주간 수요일 기준으로 기본 계산해요.' };
-  return { state: 'ready', reason: '현재 입력으로 태국 호라삿(12라시 8수호불)을 계산할 수 있어요.' };
+  if (profile.unknownTime === true) return { state: 'needs-input', reason: '태양 라시 경계와 수요일 주·야 구분을 위해 정확한 출생 시각이 필요해요.' };
+  return { state: 'ready', reason: '요일 표식과 연도별 라히리 항성 태양라시를 계산할 수 있어요.' };
 }
 
 function tuViEligibility(profile) {
   if (!String(profile?.date || '').trim()) return { state: 'needs-input', reason: '출생일을 입력하면 베트남 뜨비를 계산할 수 있어요.' };
   if (!validDate(profile.date)) return { state: 'unsupported', reason: '출생일 형식을 확인해 주세요.' };
-  if (profile.unknownTime === true) return { state: 'partial', reason: '출생 시각 미상 시 정오(오시) 기준으로 명궁을 산출해요.' };
-  return { state: 'ready', reason: '현재 입력으로 베트남 뜨비(12궁 5국 주성)를 계산할 수 있어요.' };
+  if (profile.unknownTime === true) return { state: 'needs-input', reason: '명궁·신궁·주성 배치를 위해 정확한 출생 시각이 필요해요.' };
+  return { state: 'ready', reason: '베트남 GMT+7 음력과 정확한 출생 시각으로 뜨비 명반을 계산할 수 있어요.' };
 }
 
 export function getComparisonEligibility(profile = {}) {
@@ -121,7 +121,7 @@ export function renderFourSystemComparison(sajuChart, mahaboteChart, horasatChar
           <div class="eyebrow">동아시아 & 동남아 4대 전통 심층 대조</div>
           <h2 id="comparison-detail-title">하나의 생년월일, 네 개의 전통이 바라본 나</h2>
         </div>
-        <p class="section-desc">한국의 60갑자 사주, 미얀마의 8요일 마하보테, 태국의 수호불 호라삿, 베트남의 12궁 뜨비가 전하는 종합 통찰입니다. <strong>배치 산법은 원전·독립 구현체와 대조 검증했으며(마하보테 dirah 산법·호라삿 항성황도 표·뜨비 tuvi-neo 패리티), 연운 해석은 참고용(β)입니다.</strong></p>
+        <p class="section-desc">한국 사주, 미얀마 출생 요일·하우스 산법, 태국 요일 표식·항성 태양라시, 베트남 뜨비 명반의 계산 사실을 나란히 봅니다. 체계마다 달력과 필요한 입력이 다르며, 출처가 잠기지 않은 일·연 예측 문안은 표시하지 않습니다.</p>
       </div>
 
       <div class="comparison-4grid">
@@ -156,9 +156,10 @@ export function renderFourSystemComparison(sajuChart, mahaboteChart, horasatChar
           </div>
           <div class="side-highlight">
             <div class="highlight-label">탄생 요일 & 수호 동물</div>
-            <div class="highlight-value">${escapeHtml(mahaboteChart.birthDay?.korean || '')} ${escapeHtml(mahaboteChart.birthDay?.animal || '')}</div>
+            <div class="highlight-value">${escapeHtml(mahaboteChart.birthDay?.korean || '수요일 주·야 미상')} ${escapeHtml(mahaboteChart.birthDay?.animal || '')}</div>
           </div>
           <ul class="side-details">
+            ${mahaboteChart.birthDayCandidates?.length ? `<li><strong>가능한 요일 행성:</strong> ${escapeHtml(mahaboteChart.birthDayCandidates.map((day) => day.planet).join(' / '))}</li>` : ''}
             <li><strong>수호 방위:</strong> ${escapeHtml(mahaboteChart.birthDay?.direction || '')}</li>
             <li><strong>인생의 핵심 자리:</strong> ${escapeHtml(mahaboteChart.rulingHouse?.name || '')} (${escapeHtml(mahaboteChart.rulingHouse?.meaning || '')})</li>
             <li><strong>미얀마력(BE):</strong> ${escapeHtml(mahaboteChart.burmeseYear || '')}년 (Akar: ${escapeHtml(mahaboteChart.akar || '')})</li>
@@ -246,10 +247,10 @@ export function renderFourSystemAnnualComparison(sajuAnnual, mahaboteAnnual, hor
     <section class="panel comparison-detail-panel" aria-labelledby="annual-comparison-title">
       <div class="section-heading">
         <div>
-          <div class="eyebrow">${targetYear}년 연운(年運) 4대 전통 대조</div>
-          <h2 id="annual-comparison-title">${targetYear}년, 네 개의 전통이 바라본 올해의 운</h2>
+          <div class="eyebrow">${targetYear}년 연운 계산 사실</div>
+          <h2 id="annual-comparison-title">${targetYear}년 계산 가능한 주기 정보</h2>
         </div>
-        <p class="section-desc">한국의 세운 십신, 미얀마의 당해 하우스 주기, 태국의 목성 입궁 운, 베트남의 유년 세궁이 예고하는 ${targetYear}년 종합 운세입니다. <strong>한국 사주 외 세 전통의 연운 산출은 간이 모형(β)입니다.</strong></p>
+        <p class="section-desc">한국 사주 연운과 확인 가능한 천문·명반 위치를 나란히 봅니다. 근거가 잠기지 않은 동남아 사건 예측 문안은 표시하지 않습니다.</p>
       </div>
 
       <div class="comparison-4grid">
@@ -300,19 +301,18 @@ export function renderFourSystemAnnualComparison(sajuAnnual, mahaboteAnnual, hor
           <div class="side-header">
             <span class="side-flag">🇹🇭</span>
             <div>
-              <h3>태국 호라삿 연운</h3>
-              <span class="side-sub">목성(Jupiter)의 황도 입궁</span>
+              <h3>태국 목성 진입 정보</h3>
+              <span class="side-sub">라히리 항성 태양라시 기준</span>
             </div>
           </div>
           <div class="side-highlight">
-            <div class="highlight-label">올해의 목성 기운</div>
-            <div class="highlight-value">${escapeHtml(horasatAnnual.annualTone || '')}</div>
+            <div class="highlight-label">첫 순행 진입 라시</div>
+            <div class="highlight-value">${escapeHtml(horasatAnnual.jupiterRasi?.name || '')}</div>
           </div>
           <ul class="side-details">
-            <li><strong>목성의 자리:</strong> 나의 ${escapeHtml(horasatAnnual.natalRasi?.name || '')}에서 볼 때 ${escapeHtml(horasatAnnual.jupiterHouse || '')}</li>
-            <li><strong>성취 영역:</strong> ${escapeHtml(horasatAnnual.annualFocus || '')}</li>
-            <li><strong>실천 조언:</strong> ${escapeHtml(horasatAnnual.annualPractice || '')}</li>
-            <li><strong>행운의 색상:</strong> ${escapeHtml(horasatAnnual.luckyColor || '')}</li>
+            <li><strong>출생 태양라시:</strong> ${escapeHtml(horasatAnnual.natalRasi?.name || '')}</li>
+            <li><strong>whole-sign 위치:</strong> ${escapeHtml(horasatAnnual.solarRasiHouse || '')}번째 (태양라시부터 계산)</li>
+            <li><strong>범위:</strong> 천문 진입·라시 위치만 표시하며 운세 예측 문안은 제공하지 않습니다.</li>
           </ul>
         </div>
         ` : ''}
@@ -332,11 +332,11 @@ export function renderFourSystemAnnualComparison(sajuAnnual, mahaboteAnnual, hor
             <div class="highlight-value">${escapeHtml(tuViAnnual.activePalace?.name || '')}</div>
           </div>
           <ul class="side-details">
-            ${tuViAnnual.annualTheme ? `<li><strong>올해의 테마:</strong> ${escapeHtml(tuViAnnual.annualTheme)}</li>` : ''}
-            ${tuViAnnual.annualLead ? `<li><strong>흐름 읽기:</strong> ${escapeHtml(tuViAnnual.annualLead)}</li>` : ''}
+            ${tuViAnnual.activeStars?.length ? `<li><strong>유년 지지의 별:</strong> ${escapeHtml(tuViAnnual.activeStars.map((star) => star.name).join(' · '))}</li>` : ''}
             ${tuViAnnual.daiHan ? `<li><strong>대한(大限):</strong> ${escapeHtml(tuViAnnual.daiHan.ageRange || '')} ${escapeHtml(tuViAnnual.daiHan.branch?.name || '')} ${escapeHtml(tuViAnnual.daiHan.palace?.name || '')} · ${escapeHtml(tuViAnnual.daiHan.direction || '')}</li>` : ''}
             ${tuViAnnual.tieuHan ? `<li><strong>소한(小限):</strong> ${escapeHtml(String(tuViAnnual.nominalAge || ''))}세 ${escapeHtml(tuViAnnual.tieuHan.branch?.name || '')} ${escapeHtml(tuViAnnual.tieuHan.palace?.name || '')}</li>` : ''}
-            <li><strong>뜨비 조언:</strong> ${escapeHtml(tuViAnnual.annualPractice || tuViAnnual.advice || '')}</li>
+            ${tuViAnnual.unsupportedStates?.length ? `<li><strong>제한:</strong> ${escapeHtml(tuViAnnual.unsupportedStates.map((state) => state.reason).join(' · '))}</li>` : ''}
+            <li><strong>범위:</strong> 궁·별·기간 배치만 표시하며 사건 예측 문안은 제공하지 않습니다.</li>
           </ul>
         </div>
         ` : ''}
@@ -344,8 +344,8 @@ export function renderFourSystemAnnualComparison(sajuAnnual, mahaboteAnnual, hor
 
       <div class="comparison-insights-grid">
         <div class="insight-box unique">
-          <div class="insight-title">✦ ${targetYear}년 4대 전통 종합 실천 가이드</div>
-          <p>한국의 사주가 <em>'시간의 타이밍'</em>을 알려주고, 미얀마의 마하보테가 <em>'올해 집중할 영역'</em>을 짚어주며, 태국의 호라삿이 <em>'행운의 일상 색상과 마음가짐'</em>을 비추고, 베트남의 뜨비가 <em>'활성화될 삶의 무대'</em>를 안내합니다. 네 가지 지혜를 조화롭게 융합하여 주도적인 한 해를 설계하세요.</p>
+          <div class="insight-title">✦ 계산 범위 안내</div>
+          <p>표시된 값은 각 정책에 따라 산출한 시기·궁·천문 위치입니다. 정책에서 승인하지 않은 체계 간 종합 예측은 만들지 않습니다.</p>
         </div>
       </div>
     </section>
@@ -363,10 +363,10 @@ export function renderFourSystemDailyComparison(sajuDaily, mahaboteDaily, horasa
     <section class="panel comparison-detail-panel" aria-labelledby="daily-comparison-title">
       <div class="section-heading">
         <div>
-          <div class="eyebrow">오늘의 운세 4대 전통 대조</div>
-          <h2 id="daily-comparison-title">오늘, 네 개의 전통이 비추는 하루의 기운</h2>
+          <div class="eyebrow">오늘의 계산 표식</div>
+          <h2 id="daily-comparison-title">오늘 확인 가능한 전통별 표식</h2>
         </div>
-        <p class="section-desc">한국의 일진 십신, 미얀마의 당일 요일 수호령, 태국의 일일 지배 행성, 베트남의 음력 활성화 궁이 전하는 하루 지침입니다.</p>
+        <p class="section-desc">일진과 검증된 요일 표식만 표시합니다. 근거가 고정되지 않은 일운 회전과 예측 문안은 제공하지 않습니다.</p>
       </div>
 
       <div class="comparison-4grid">
@@ -416,16 +416,17 @@ export function renderFourSystemDailyComparison(sajuDaily, mahaboteDaily, horasa
             <span class="side-flag">🇹🇭</span>
             <div>
               <h3>태국 호라삿 일운</h3>
-              <span class="side-sub">오늘의 지배성: ${escapeHtml(horasatDaily.todayRuler)}</span>
+              <span class="side-sub">${escapeHtml(horasatDaily.todayRuler ? `오늘의 지배성: ${horasatDaily.todayRuler}` : '수요일 낮/라후 시간대 구분')}</span>
             </div>
           </div>
           <div class="side-highlight">
-            <div class="highlight-label">오늘 행운의 색상</div>
-            <div class="highlight-value">${escapeHtml(horasatDaily.todayColor)}</div>
+            <div class="highlight-label">요일 표 색상</div>
+            <div class="highlight-value">${escapeHtml(horasatDaily.todayColor || '현지 시각 필요')}</div>
           </div>
           <ul class="side-details">
-            <li><strong>오늘의 테마:</strong> ${escapeHtml(horasatDaily.todayTheme)}</li>
-            <li><strong>호라삿 조언:</strong> ${escapeHtml(horasatDaily.advice)}</li>
+            <li><strong>수호불:</strong> ${escapeHtml(horasatDaily.todayBuddha)}</li>
+            ${horasatDaily.todayCandidates?.length ? `<li><strong>요일 후보:</strong> ${escapeHtml(horasatDaily.todayCandidates.map((day) => day.planet).join(' / '))}</li>` : ''}
+            <li><strong>범위:</strong> 요일 표식만 표시하며 일일 운세·조언은 제공하지 않습니다.</li>
           </ul>
         </div>
         ` : ''}

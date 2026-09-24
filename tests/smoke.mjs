@@ -80,12 +80,12 @@ const evaluate = (input) => {
   return sandbox.result;
 };
 
-const golden = evaluate({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true });
+const golden = evaluate({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar', sex: 'male', samePerson: true });
 assert.deepEqual(Array.from(golden.pillars, (pillar) => pillar.text), ['庚午', '丙戌', '戊申', '己未']);
 assert.equal(golden.policy.id, 'KR-CIVIL-1.0');
-assert.equal(golden.policy.version, '1.1.0');
+assert.equal(golden.policy.version, '1.2.0');
 assert.equal(golden.policy.engine, 'gyeol-natal-core');
-assert.equal(golden.policy.engineVersion, '1.1.0');
+assert.equal(golden.policy.engineVersion, '1.2.0');
 assert.ok(golden.facts.every((fact) => fact.id && fact.value), 'facts have stable identifiers and values');
 assert.equal(golden.reading.length, 11, 'single reading renders the approved natal chapters for the sample chart (draft variants fail closed)');
 assert.ok(golden.reading.every((item) => item.detail && item.practice && item.questions?.length >= 2), 'single reading includes detail, practice, and prompts');
@@ -110,7 +110,13 @@ assert.equal(golden.daewoon.cycles[0].pillar, '丁亥', 'first daewoon cycle is 
 
 const unknownTime = evaluate({ date: '1990-10-10', time: '12:00', unknownTime: true, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true });
 assert.equal(unknownTime.pillars[3].text, '미상');
+assert.equal(unknownTime.daewoon, null, 'unknown birth time never receives a noon-proxy daewoon');
 assert.ok(unknownTime.warnings.some((warning) => warning.fact === 'input.unknown-time'));
+assert.ok(unknownTime.warnings.some((warning) => warning.fact === 'input.daewoon-required'));
+
+const unspecifiedSex = evaluate({ date: '1990-10-10', time: '14:30', unknownTime: false, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true });
+assert.equal(unspecifiedSex.daewoon, null, 'direction-sensitive daewoon is not defaulted to male');
+assert.ok(unspecifiedSex.warnings.some((warning) => warning.fact === 'input.daewoon-required'));
 
 const boundary = evaluate({ date: '2024-02-04', time: '17:00', unknownTime: false, place: '서울', calendar: 'solar', sex: 'unset', samePerson: true });
 assert.ok(boundary.warnings.some((warning) => warning.fact === 'boundary.solar-term'));
@@ -234,13 +240,23 @@ assert.doesNotMatch(html, /copy\.replaceChildren|button\.disabled = false/);
 assert.match(html, /data-value="lunar" aria-pressed="\$\{form\.calendar === 'lunar'\}"/);
 assert.match(html, /calendar\/convert/);
 assert.match(html, /lunarYear/);
+assert.match(html, /LunarYear" min="1900" max="2050"/);
+assert.match(html, /1900년 1월 1일~2050년 11월 18일까지 지원합니다/);
+assert.match(html, /function enhanceTraditionalSexFields\(\)/);
+assert.match(html, /name="\$\{prefix\}Sex"/);
+assert.match(html, /form\.get\(`\$\{prefix\}Sex`\)/);
+assert.match(html, /sex: source\.sex/);
+assert.match(html, /sex: state\.chart\.input\.sex \|\| 'unset'/);
+assert.match(html, /sex: state\.chart\.partnerInput\.sex \|\| 'unset'/);
+assert.match(html, /직접 선택한 전통 계산용 성별값과 계산 결과를 암호화 저장합니다/);
+assert.match(fs.readFileSync(new URL('../privacy.html', import.meta.url), 'utf8'), /선택한 전통 계산용 성별값/);
 assert.match(html, /result\.durable === false \? 'outbox' : 'saved'/);
 assert.match(html, /cg-canary/);
 assert.match(html, /copyright\.html/);
 assert.match(html, /<link rel="icon" href="icon\.svg" type="image\/svg\+xml" sizes="any" \/>/, 'the browser tab uses the existing brand icon as its favicon');
 assert.match(fs.readFileSync(new URL('../robots.txt', import.meta.url), 'utf8'), /GPTBot[\s\S]*Disallow: \//);
 const serviceWorker = fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
-assert.match(serviceWorker, /saju-app-shell-v29/);
+assert.match(serviceWorker, /saju-app-shell-v33/);
 assert.match(serviceWorker, /fonts\/noto-sans-kr-5\.3\.0/);
 assert.match(serviceWorker, /url\.pathname\.startsWith\('\/auth\/'\)[\s\S]*url\.pathname\.startsWith\('\/v1\/'\)[\s\S]*event\.respondWith\(fetch\(event\.request\)\)/, 'auth callbacks, account APIs, and their URL parameters never enter Cache Storage');
 assert.match(fs.readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), /annual\/client\.mjs/);

@@ -12,12 +12,17 @@ function validateChartResult(birth, chart, label) {
   const natalVerification = verifyNatalChart(birth, chart);
   errors.push(...natalVerification.errors.map((error) => `${label} ${error}`));
   if (!chart?.daewoon || !natalVerification.expected) return errors;
+  if (!['male', 'female'].includes(birth.sex)) {
+    errors.push(`${label} daewoon requires an explicit male or female traditional sex parameter`);
+    return errors;
+  }
 
   const expectedPillars = natalVerification.expected.pillars;
   const daewoonVerification = verifyDaewoon({
     date: birth.date,
     time: birth.unknownTime ? '12:00' : birth.time,
     unknownTime: birth.unknownTime,
+    sex: birth.sex || 'unset',
     yearStem: expectedPillars[0].stem,
     monthStem: expectedPillars[1].stem,
     monthBranch: expectedPillars[1].branch,
@@ -37,6 +42,7 @@ function validateBirthInput(birth, label) {
   if (!birth.unknownTime && !ISO_TIME.test(String(birth.time || ''))) errors.push(`${label}.time must use HH:MM unless unknownTime is true`);
   if (typeof birth.place !== 'string' || birth.place.length === 0 || birth.place.length > 120) errors.push(`${label}.place is required`);
   if (birth.placeCode != null && !PLACE_CODE.test(String(birth.placeCode))) errors.push(`${label}.placeCode must be a 10-digit administrative-area code`);
+  if (birth.sex != null && !['unset', 'male', 'female'].includes(birth.sex)) errors.push(`${label}.sex must be unset, male, or female`);
   return errors;
 }
 

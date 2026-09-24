@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Status | Proposed multi-system contract v0.1 |
-| Date | 2026-08-23 |
-| Runtime scope | Korean Saju only; the other entries are non-runnable drafts |
+| Status | Scoped multi-system contract v1.2 |
+| Date | 2026-09-24 |
+| Runtime scope | Korean Saju plus explicitly scoped Thai, Vietnamese, and Myanmar birth-chart policies; unsupported forecast layers are withheld |
 | Applies to | Saju, Thai Horasat, Vietnamese Tử Vi, Myanmar Mahabote, and their comparison projection |
 
 ## 1. Purpose and non-implementation boundary
@@ -16,7 +16,7 @@ This registry is the single routing and activation contract for calculation poli
 3. a deterministic engine that implements those conventions;
 4. an interpretation or cross-system comparison derived from immutable calculated facts.
 
-Only `KR-CIVIL-1.0@1.0.0` is active and implemented today. The Thai Horasat, Vietnamese Tử Vi, and Myanmar Mahabote identifiers below reserve stable integration boundaries; they do **not** claim that a school, formula, source table, engine, or expected result has been approved or implemented.
+The runtime uses four versioned, source-scoped calculation policies. The three Southeast Asian engines do not claim full-tradition coverage: Thai Lagna charts and unsourced annual/daily prediction layers are outside the active scope. Their exact limits are recorded in the linked policy documents.
 
 The application MUST reject a non-active policy at the calculation boundary. It MUST NOT substitute another school, call an LLM to fill a missing calculation, emit placeholder facts as a result, or silently reinterpret an older saved result under a newer policy.
 
@@ -52,14 +52,16 @@ Skipping a state is prohibited. A policy may move backward when a source, licens
 
 | `systemId` | Product label | Policy family | Policy version | Engine | Result schema | State |
 |---|---|---|---|---|---|---|
-| `saju` | 한국 사주 | `KR-CIVIL-1.0` | `1.0.0` | `gyeol-natal-core@1.0.0` | `natal-chart.v1` | `active` |
-| `horasat` | 태국 호라삿 | `TH-HORASAT-1.0` | `0.1.0-draft.1` | Not selected | Not locked | `draft` |
-| `tu-vi` | 베트남 뜨비 | `VN-TUVI-1.0` | `0.1.0-draft.1` | Not selected | Not locked | `draft` |
-| `mahabote` | 미얀마 마하보테 | `MM-MAHABOTE-1.0` | `0.1.0-draft.1` | Not selected | Not locked | `draft` |
+| `saju` | 한국 사주 | `KR-CIVIL-1.0` | `1.2.0` | `gyeol-natal-core@1.2.0` | `natal-chart.v1` | `active` |
+| `horasat` | 태국 요일·태양라시 | `TH-HORASAT-1.0` | `1.2.0` | `gyeol-horasat-core@1.2.0` | `horasat-facts.v1` | `active` (scoped) |
+| `tu-vi` | 베트남 뜨비 | `VN-TUVI-1.0` | `1.2.0` | `gyeol-tu-vi-core@1.2.0` | `tu-vi-facts.v1` | `active` (exact time required) |
+| `mahabote` | 미얀마 마하보테 | `MM-MAHABOTE-1.0` | `1.2.0` | `gyeol-mahabote-core@1.2.0` | `mahabote-facts.v1` | `active` (natal only) |
 
 The draft policy family names do not select a school by themselves. A future source-lock decision may retain the family name and define its conventions, or create a more specific family when two schools must coexist. The product MUST never use the bare tradition name as proof that a convention is universal.
 
-The active Saju policy is specified in [NATAL-CALCULATION-POLICY.md](./NATAL-CALCULATION-POLICY.md). Its dependent daewoon policy remains separately versioned in [DAEWOON-CALCULATION-POLICY.md](./DAEWOON-CALCULATION-POLICY.md).
+The Saju system's Korean lunar-input adapter is separately versioned as `KR-LUNAR-CONVERSION-1.0@1.0.0`; it is a calendar-normalization dependency, not a fifth tradition engine. Its range and data lineage are specified in [KOREAN-LUNAR-CALENDAR-POLICY.md](./KOREAN-LUNAR-CALENDAR-POLICY.md).
+
+The active Saju policy is specified in [NATAL-CALCULATION-POLICY.md](./NATAL-CALCULATION-POLICY.md), with its dependent [DAEWOON-CALCULATION-POLICY.md](./DAEWOON-CALCULATION-POLICY.md). The scoped Southeast Asian policies are [TH-HORASAT-CALCULATION-POLICY.md](./TH-HORASAT-CALCULATION-POLICY.md), [VN-TUVI-CALCULATION-POLICY.md](./VN-TUVI-CALCULATION-POLICY.md), and [MM-MAHABOTE-CALCULATION-POLICY.md](./MM-MAHABOTE-CALCULATION-POLICY.md).
 
 ## 3. Policy registry entry contract
 
@@ -171,11 +173,11 @@ The original calendar, leap-month declaration, civil clock, place string, coordi
 | System | Minimum policy projection | `exact` time | `approximate` time | `unknown` time |
 |---|---|---|---|---|
 | Saju | Supported Korean date, calendar-conversion provenance, `Asia/Seoul`; time when supplied | `eligible` | `needs_input` in shared v1; the existing engine accepts exact or unknown time, so approximate time MUST NOT be relabeled as exact | `partial`; suppress hour pillar and time-dependent interpretation under `KR-CIVIL-1.0` |
-| Thai Horasat | Civil date, exact civil time, IANA time zone, latitude, longitude, and every selected-school parameter | `eligible` only after policy activation | `needs_input` for the first active policy unless the decision record defines a bounded partial mode | `needs_input` for the first active policy |
-| Vietnamese Tử Vi | Inputs required by the selected calendar, hour, palace/star-table, cycle-direction, and intercalation conventions; IANA time zone for civil-to-policy conversion | `eligible` only after policy activation | `needs_input` for the first active policy unless a source-locked hour-window mode is approved | `needs_input` for the first active policy |
-| Myanmar Mahabote | Civil date and IANA time zone sufficient to resolve the selected policy's local day; any time-of-day subdivision required by that policy | `eligible` only after policy activation | `partial` only when the active policy proves all candidate times yield the same supported facts; otherwise `needs_input` | `partial` only if the active policy proves time is not required and the local date is unambiguous; otherwise `needs_input` |
+| Thai Horasat subset | Civil date/time, resolved `Asia/Seoul` instant, weekday table, and Lahiri Sun-rasi policy | `eligible` | `needs_input` | `needs_input` |
+| Vietnamese Tử Vi | Civil date/time, resolved `Asia/Seoul` instant, Vietnam GMT+7 calendar, and optional traditional sex for Đại/Tiểu Hạn | `eligible`; gendered cycles are omitted when sex is not provided | `needs_input` | `needs_input` |
+| Myanmar Mahabote natal chart | Civil date; exact time only resolves Wednesday AM/Rahu | `eligible` except an unknown Wednesday is partial | `partial` only for unknown Wednesday; its two possible weekday labels are shown without guessing | `partial` only when the birth date is Wednesday; otherwise `eligible` |
 
-The Thai, Vietnamese, and Myanmar rows define conservative eligibility behavior, not their formulas. Their source decision records MUST resolve whether a value is required and why. Until then, the registry returns `POLICY_NOT_ACTIVE` before accepting a calculation request.
+The Thai, Vietnamese, and Myanmar rows are scoped to the source-backed facts described in their calculation-policy documents. Unknown inputs are blocked or returned as partial exactly as shown above; unsupported interpretive layers do not receive placeholder facts.
 
 ### 4.3 Eligibility response
 
@@ -259,7 +261,7 @@ No single source should be described as universally authoritative for a whole tr
 
 ### 5.2 Thai Horasat decision topics
 
-`TH-HORASAT-1.0` MUST remain a draft until the record locks at least:
+The active `TH-HORASAT-1.0@1.2.0` subset locks the Lahiri sidereal Sun sign and weekday table. Adding a Thai Lagna chart or Suriyayatra-based planet house placement requires a separate decision that locks at least:
 
 - astronomical/calendar basis and the exact Suriyayatra or other selected computational lineage;
 - zodiac/reference frame, epoch, precession or ayanamsa convention if applicable;
@@ -275,7 +277,7 @@ No single source should be described as universally authoritative for a whole tr
 
 ### 5.3 Vietnamese Tử Vi decision topics
 
-`VN-TUVI-1.0` MUST remain a draft until the record locks at least:
+The active `VN-TUVI-1.0@1.2.0` scope locks the GMT+7 Vietnamese calendar and a Quanshu-lineage birth chart. Expanding to additional lunar-time, leap-month, star-table, or predictive schools requires a separate decision that locks at least:
 
 - civil-to-selected-lunisolar-calendar conversion and source data;
 - new-year, month, intercalary-month, day, and hour boundaries;
@@ -291,7 +293,7 @@ The engine MUST NOT mix tables from different schools merely because their label
 
 ### 5.4 Myanmar Mahabote decision topics
 
-`MM-MAHABOTE-1.0` MUST remain a draft until the record locks at least:
+The active `MM-MAHABOTE-1.0@1.2.0` scope locks only the published natal remainder/weekday/seven-house arithmetic. Activating Thet-Kayit annual or daily rules requires a separate decision that locks at least:
 
 - Myanmar/Burmese-era conversion and new-year boundary;
 - civil date, local weekday, and local-day boundary;
