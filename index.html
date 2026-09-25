@@ -661,12 +661,15 @@
       }
 
       /* 첫 화면 오늘의 운세 카드(P0-1) — 저장된 명식이 있으면 오늘 티저, 없으면 작은 안내 */
-      .daily-strip { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin: 14px auto 0; padding: 10px 16px; color: var(--ink-600); background: transparent; border-top: 1px solid var(--paper-200); font-size: 14px; line-height: 1.5; }
-      .daily-strip .daily-strip-label { font-weight: 800; letter-spacing: -0.01em; color: var(--ink-800); white-space: nowrap; }
-      .daily-strip .daily-strip-flow { flex: 1 1 260px; min-width: 0; color: var(--ink-600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .daily-strip .button { min-height: 0; padding: 4px 10px; font-size: 13px; }
-      .daily-strip-cta { justify-content: center; border-top: 0; }
-      .daily-strip-cta .daily-strip-flow { flex: 0 1 auto; }
+      .daily-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 16px auto 0; padding: 12px 16px; color: var(--ink-600); background: rgba(37, 40, 66, 0.55); border: 1px solid rgba(211, 173, 92, 0.28); border-radius: var(--radius-card); font-size: 14px; line-height: 1.5; }
+      .daily-strip .daily-strip-label { font-weight: 800; letter-spacing: -0.01em; color: var(--moon-300); white-space: nowrap; }
+      .daily-strip .daily-strip-flow { flex: 1 1 260px; min-width: 0; color: var(--ink-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .daily-strip .button { min-height: 36px; padding: 6px 14px; font-size: 13.5px; }
+      .daily-strip-select { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-600); font-size: 13px; font-weight: 700; }
+      .daily-strip-select select { min-height: 36px; max-width: 240px; padding: 4px 8px; color: var(--ink-950); background: #fff; border: 1px solid var(--paper-300); border-radius: 8px; font-size: 13px; }
+      .daily-strip-owner { color: var(--ink-600); font-size: 13px; white-space: nowrap; }
+      .daily-strip-cta { justify-content: center; background: transparent; border: 0; border-top: 1px solid var(--paper-200); border-radius: 0; }
+      .daily-strip-cta .daily-strip-flow { flex: 0 1 auto; color: var(--ink-600); }
     </style>
   </head>
   <body>
@@ -793,6 +796,7 @@
           return birthPlaceLoadPromise;
         }
         const OUTBOX_PURPOSE = 'purpose-receipt-bound';
+        const DAILY_TEASER_PREFERENCE_KEY = 'saju.daily-teaser-record';
         const INGESTION_PATH = globalThis.window?.SAJU_INGESTION_URL || '/v1/submissions';
         const CALENDAR_CONVERSION_PATH = globalThis.window?.SAJU_CALENDAR_URL || '/v1/calendar/convert';
         const state = {
@@ -1399,17 +1403,36 @@
 
         // 첫 화면 오늘의 운세 티저(P0-1) — 저장된 명식(단일)이 있으면 히어로 아래 한 줄 스트립으로만 보여준다.
         // 메인 기능(명식 풀이)을 침범하지 않는 보조 기능 위치(P0-C). 계정 전용 기록은 기록함에서 연다.
+        // 기준 명식 선택(P0-1b) — 최근 선택을 이 기기에 기억하고, 후보가 여럿이면 골라서 볼 수 있다.
+        function dailyTeaserCandidates() {
+          return (state.records || []).filter((record) => record?.chart && !record.remoteOnly && (record.mode || record.chart.mode || 'single') !== 'couple');
+        }
+        function readDailyTeaserPreference() {
+          try { return String(globalThis.localStorage?.getItem(DAILY_TEASER_PREFERENCE_KEY) || ''); } catch { return ''; }
+        }
+        function writeDailyTeaserPreference(recordId) {
+          try { if (recordId) globalThis.localStorage?.setItem(DAILY_TEASER_PREFERENCE_KEY, recordId); } catch { /* 선택 기억은 보조 기능이라 실패해도 무시한다 */ }
+        }
+        function dailyTeaserRecordLabel(record) {
+          const chart = record?.chart || {};
+          const modeLabel = record?.mode === 'couple' || chart.mode === 'couple' ? '커플 사주' : '내 사주';
+          const date = chart.input?.date || record?.birthDate || record?.createdAt?.slice(0, 10) || '';
+          return `${modeLabel} · ${date ? formatKoreanDate(date) : '날짜 없음'}`;
+        }
         function refreshDailyTeaser() {
-          const candidates = (state.records || []).filter((record) => record?.chart && !record.remoteOnly && (record.mode || record.chart.mode || 'single') !== 'couple');
+          const candidates = dailyTeaserCandidates();
           if (!candidates.length) { state.dailyTeaser = null; return; }
-          const latest = candidates[0];
-          try { state.dailyTeaser = { recordId: latest.id, chart: latest.chart, daily: buildDailyReading(latest.chart, seoulDateString()) }; }
-          catch (error) { state.dailyTeaser = { recordId: latest.id, chart: latest.chart, daily: null, error: error.message }; }
+          const preferred = readDailyTeaserPreference();
+          const selected = candidates.find((record) => record.id === preferred) || candidates[0];
+          writeDailyTeaserPreference(selected.id);
+          const base = { recordId: selected.id, label: dailyTeaserRecordLabel(selected), chart: selected.chart };
+          try { state.dailyTeaser = { ...base, daily: buildDailyReading(selected.chart, seoulDateString()) }; }
+          catch (error) { state.dailyTeaser = { ...base, daily: null, error: error.message }; }
         }
         function dailyTeaserMarkup() {
           const teaser = state.dailyTeaser;
           if (!teaser) {
-            return `<p class="daily-strip daily-strip-cta"><span class="daily-strip-label">오늘의 운세</span><span class="daily-strip-flow">출생 정보를 입력하면 매일 오늘의 운세를 볼 수 있어요.</span><button class="button ghost small" data-action="start">오늘의 운세 보기 ${icon('arrow')}</button></p>`;
+            return `<p class="daily-strip daily-strip-cta"><span class="daily-strip-label">오늘의 운세</span><span class="daily-strip-flow">출생 정보를 입력하면 매일 오늘의 운세를 볼 수 있어요.</span><button class="button secondary small" data-action="start">오늘의 운세 보기 ${icon('arrow')}</button></p>`;
           }
           const daily = teaser.daily;
           const dayPillar = daily?.day_pillar || {};
@@ -1417,7 +1440,11 @@
           const pillarReading = dayPillar.stem_hangul && dayPillar.branch_hangul ? `${dayPillar.stem_hangul}${dayPillar.branch_hangul}(${dayPillar.text || ''})` : '';
           const label = daily?.eligible === false ? '오늘의 운세' : `오늘의 운세${headingDate ? ` · ${headingDate}` : ''}${pillarReading ? ` · ${pillarReading}` : ''}`;
           const flowLine = daily?.eligible === false ? (daily.reason || '명식 정보가 부족해 오늘의 풀이를 만들지 못했습니다.') : teaser.error ? `오늘의 운세를 만들지 못했습니다. ${teaser.error}` : daily?.flow ? `${daily.flow.label} — ${daily.flow.text}` : (daily?.sections?.[0]?.lead || '오늘 일진과 명식의 관계를 계산한 풀이입니다.');
-          return `<p class="daily-strip" aria-label="오늘의 운세 요약"><span class="daily-strip-label">${escapeHtml(label)}</span><span class="daily-strip-flow" title="${escapeHtml(flowLine)}">${escapeHtml(flowLine)}</span><button class="button ghost small" data-action="daily-teaser-open">보기 ${icon('arrow')}</button></p>`;
+          const candidates = dailyTeaserCandidates();
+          const ownerControl = candidates.length > 1
+            ? `<label class="daily-strip-select"><span>기준 명식</span><select id="daily-teaser-select" aria-label="오늘의 운세 기준 명식 선택">${candidates.map((record) => `<option value="${escapeHtml(record.id)}" ${record.id === teaser.recordId ? 'selected' : ''}>${escapeHtml(dailyTeaserRecordLabel(record))}</option>`).join('')}</select></label>`
+            : `<span class="daily-strip-owner">${escapeHtml(teaser.label || '')}</span>`;
+          return `<p class="daily-strip" aria-label="오늘의 운세 요약"><span class="daily-strip-label">${escapeHtml(label)}</span>${ownerControl}<span class="daily-strip-flow" title="${escapeHtml(flowLine)}">${escapeHtml(flowLine)}</span><button class="button secondary small" data-action="daily-teaser-open">오늘의 운세 전체 보기 ${icon('arrow')}</button></p>`;
         }
         // 오늘의 운세 단독 화면 — 첫 화면 티저에서 곧장 들어온다(결과 뷰의 일운 패널 렌더러를 그대로 쓴다).
         function dailyView() {
@@ -1513,6 +1540,9 @@
         }
 
         function render() {
+          // 입력 화면에서 백그라운드 갱신(계정 확인·출생지 목록 등)이 끼어들어도
+          // 방금 타이핑한 값을 잃지 않도록 렌더 직전에 DOM 값을 상태로 옮긴다.
+          if (state.screen === 'input') syncFormInputsToState();
           const views = { intro: introView, input: inputView, result: resultView, method: methodView, data: dataView, daily: dailyView };
           const content = (views[state.screen] || introView)();
           document.getElementById('app').innerHTML = `${content}${consentGateMarkup()}${cloudGateMarkup()}${loadingOverlayMarkup()}`;
@@ -1699,6 +1729,7 @@
             }
           }));
           document.getElementById('training-toggle')?.addEventListener('change', (event) => { state.training = event.target.checked; state.error = ''; render(); });
+          document.getElementById('daily-teaser-select')?.addEventListener('change', (event) => { writeDailyTeaserPreference(event.target.value); refreshDailyTeaser(); render(); });
           ['self', 'partner'].forEach((prefix) => {
             const formObj = prefix === 'partner' ? state.partnerForm : state.form;
             const dateInput = document.getElementById(`${prefix}-date`);

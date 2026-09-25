@@ -59,6 +59,7 @@ assert.match(html, /name="\$\{prefix\}Date" type="date"[^>]*required/, 'the birt
 assert.match(html, /details\[data-optional-owner\]/, 'the collapsible open state is bound in bindEvents');
 assert.match(html, /target\.optionalOpen = element\.open/, 'toggling the collapsible persists into form state');
 assert.match(html, /optionalOpen: false/, 'both form states initialize the collapsible closed');
+assert.match(html, /if \(state\.screen === 'input'\) syncFormInputsToState\(\);/, 'every re-render of the input screen preserves in-progress typed values');
 assert.match(html, /form: \{ calendar: 'solar', date: '', time: '', lunarYear: '', lunarMonth: '', lunarDay: ''/, 'birth inputs start blank rather than with another person’s sample values');
 
 // --- Fail-closed validation gates preserved (re-order/default only) -------------

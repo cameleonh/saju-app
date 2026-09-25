@@ -45,16 +45,27 @@ async function gotoHome(page) {
   }
 }
 
+async function waitForInputSettled(page) {
+  // 출생지 목록 로드가 끝나면 폼이 한 번 더 렌더링된다. 그 전에 입력하면 값이 사라질 수 있어 기다린다.
+  await page.waitForFunction(() => {
+    const place = document.querySelector('#self-place');
+    return place ? !place.disabled : true;
+  }, { timeout: 15000 }).catch(() => {});
+  await page.waitForTimeout(250);
+}
+
 async function enterCoupleInput(page) {
   await page.click('button[data-action="mode"][data-mode="couple"]');
   await page.waitForTimeout(200);
   await page.click('button[data-action="start"]');
   await page.waitForSelector('#birth-form', { timeout: 20000 });
+  await waitForInputSettled(page);
 }
 
 async function enterSingleInput(page) {
   await page.click('button[data-action="start"]');
   await page.waitForSelector('#birth-form', { timeout: 20000 });
+  await waitForInputSettled(page);
 }
 
 async function submitAndRead(page, { waitMs = 3500 } = {}) {
@@ -446,6 +457,42 @@ if (mode === 'mobile') {
   await page.fill('#partner-time', '');
   const state = await submitAndRead(page, { waitMs: 1500 });
   record('S20 빈 시각의 임의 정오 대체 방지', Boolean(state.error?.includes('출생 시각을 입력하거나')) && !state.heading.includes('나란히 확인'), JSON.stringify(state));
+  await page.close();
+}
+
+// S21: 홈 오늘의 운세 기준 명식 선택·최근 선택 지속.
+{
+  const page = await newPage();
+  await gotoHome(page);
+  let select = await page.$('#daily-teaser-select');
+  if (!select) {
+    await enterSingleInput(page);
+    await page.fill('#self-date', '1990-10-10');
+    await page.fill('#self-time', '14:30');
+    await submitAndRead(page, { waitMs: 4500 });
+    await page.click('button[data-action="nav-home"]');
+    await page.waitForTimeout(2000);
+    select = await page.$('#daily-teaser-select');
+  }
+  const optionCount = select ? await select.evaluate((element) => element.options.length) : 0;
+  record('S21 일일운세 기준 명식 선택 노출', Boolean(select) && optionCount >= 2, `options ${optionCount}`);
+  const buttonText = await page.evaluate(() => [...document.querySelectorAll('[data-action="daily-teaser-open"]')].map((element) => element.textContent.trim()).join('|'));
+  record('S21 전체 보기 버튼 문구', buttonText.includes('오늘의 운세 전체 보기'), buttonText || 'missing');
+  if (select && optionCount >= 2) {
+    const current = await select.inputValue();
+    const next = await select.evaluate((element, currentValue) => [...element.options].map((option) => option.value).find((value) => value !== currentValue), current);
+    await select.selectOption(next);
+    await page.waitForTimeout(1200);
+    const afterChoice = await page.evaluate(() => ({ value: document.querySelector('#daily-teaser-select')?.value || '', flow: document.querySelector('.daily-strip-flow')?.textContent?.slice(0, 60) || '' }));
+    record('S21 선택 변경 반영', afterChoice.value === next, JSON.stringify(afterChoice));
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(3000);
+    const afterReload = await page.evaluate(() => document.querySelector('#daily-teaser-select')?.value || '');
+    record('S21 최근 선택 지속(새로고침)', afterReload === next, `${next} → ${afterReload || 'empty'}`);
+  } else {
+    record('S21 선택 변경 반영', false, 'selector not available');
+    record('S21 최근 선택 지속(새로고침)', false, 'selector not available');
+  }
   await page.close();
 }
 
